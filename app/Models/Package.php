@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+class Package extends Model
+{
+    use HasFactory;
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+    protected $fillable = [
+        'name',
+		'price',
+		'is_on_offer',
+		'discount_type',
+		'discount_value',
+		'discounted_price',
+		'validity_in_days',
+		'number_of_patients',
+		'number_of_employees',
+		'status',
+    ];
+}
