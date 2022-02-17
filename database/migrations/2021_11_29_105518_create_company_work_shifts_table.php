@@ -15,15 +15,14 @@ class CreateCompanyWorkShiftsTable extends Migration
     {
         Schema::create('company_work_shifts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('user_id');
             $table->string('shift_name');
             $table->time('shift_start_time');
             $table->time('shift_end_time');
             $table->string('shift_color')->nullable();
             $table->boolean('status')->default(0);
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

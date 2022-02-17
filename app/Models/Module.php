@@ -11,5 +11,6 @@ class Module extends Model
     protected $fillable = [
         'name',
         'status',
+        'entry_mode',
     ];
 }

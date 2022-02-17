@@ -9,9 +9,10 @@ class IpTemplate extends Model
 {
     use HasFactory;
      protected $fillable =[
-    	'ip_id',
+        'ip_id',
     	'template_title',
     	'status',
+        'entry_mode',
 
     ];
 

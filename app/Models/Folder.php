@@ -6,17 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use App\Traits\TopMostParentId;
 class Folder extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes;
     protected $dates = ['deleted_at'];
 	protected $fillable =[
-		'parent_id',
+        'parent_id',
 		'top_most_parent_id',
 		'name',
 		'visible_to_users',
 		'status',
+        'entry_mode',
 	];
 	public function Parent()
     {

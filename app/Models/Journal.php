@@ -9,17 +9,18 @@ use App\Models\User;
 use App\Models\Activity;
 use App\Models\Deviation;
 use App\Models\CategoryMaster;
+use App\Traits\TopMostParentId;
 class Journal extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable =[
-    	'parent_id',
+        'parent_id',
 		'deviation_id',
 		'activity_id',
 		'top_most_parent_id';,
-		'patient_id',
+		'branch_id',
+        'patient_id',
 		'emp_id',
 		'category_id',
 		'subcategory_id',
@@ -31,6 +32,7 @@ class Journal extends Model
 		'approved_by',
 		'approved_date',
 		'is_deviation',
+        'entry_mode',
 
     ];
    	public function Parent()

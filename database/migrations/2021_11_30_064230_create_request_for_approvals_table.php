@@ -15,7 +15,7 @@ class CreateRequestForApprovalsTable extends Migration
     {
         Schema::create('request_for_approvals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('requested_by');
             $table->foreignId('requested_to');
             $table->string('request_type');
@@ -27,6 +27,7 @@ class CreateRequestForApprovalsTable extends Migration
             $table->date('approved_date')->nullable();
             $table->enum('status', ['0','1','2','3'])->default('0')->comment('0:inactive, 1:active, 2:approved ,3:rejected');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

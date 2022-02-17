@@ -10,12 +10,13 @@ class ActivityAssigne extends Model
 {
     use HasFactory;
     protected $fillable =[
-    	'activity_id',
+        'activity_id',
 		'user_id',
 		'assignment_date',
 		'assignment_day',
 		'assigned_by',
 		'status',
+        'entry_mode',
     ];
 
     public function User()

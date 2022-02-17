@@ -15,8 +15,9 @@ class CreatePatientImplementationPlansTable extends Migration
     {
         Schema::create('patient_implementation_plans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('user_id');
+            $table->foreignId('branch_id')->nullable();
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('category_id');
             $table->foreignId('subcategory_id');
@@ -25,10 +26,10 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->string('when_it_started');
             $table->text('what_to_do');
             $table->text('goal');
-            $table->text('sub_goal');
+            $table->text('sub_goal')->nullable();
             $table->date('plan_start_date');
             $table->timestamp('plan_start_time');
-            $table->text('remark');
+            $table->text('remark')->nullable();
             $table->text('activity_message')->nullable();
             $table->boolean('save_as_template')->default(0);
             $table->text('reason_for_editing')->nullable();
@@ -36,9 +37,8 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->foreignId('edited_by')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
-            $table->foreign('parent_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->boolean('status')->default(0);
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

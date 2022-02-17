@@ -23,6 +23,7 @@ class CreateSubscriptionsTable extends Migration
             $table->date('end_date');
             $table->boolean('status')->default(1);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

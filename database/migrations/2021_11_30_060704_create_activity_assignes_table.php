@@ -21,7 +21,7 @@ class CreateActivityAssignesTable extends Migration
             $table->string('assignment_day');
             $table->foreignId('assigned_by');
             $table->boolean('status')->default(1);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

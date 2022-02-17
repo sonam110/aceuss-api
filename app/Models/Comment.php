@@ -9,13 +9,14 @@ class Comment extends Model
 {
     use HasFactory;
     protected $fillable =[
-    	'parent_id',
+        'parent_id',
 		'source_id',
 		'source_name',
 		'comment',
 		'created_by',
 		'replied_to',
 		'edited_by',
+        'entry_mode',
     ];
 
     public function Parent()

@@ -17,6 +17,7 @@ class CreateActivityClassificationsTable extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('status')->default(1);
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

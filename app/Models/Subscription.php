@@ -9,14 +9,18 @@ use App\Models\User;
 class Subscription extends Model
 {
     use HasFactory;
+    protected $casts = [
+    'package_details' => 'json',
+    ];
     protected $fillable=[
-    	'user_id',
+        'user_id',
 		'package_id',
 		'package_details',
 		'license_key',
 		'start_date',
 		'end_date',
 		'status',
+        'entry_mode',
     ];
 
     public function User()

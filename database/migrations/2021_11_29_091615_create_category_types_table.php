@@ -15,12 +15,13 @@ class CreateCategoryTypesTable extends Migration
     {
         Schema::create('category_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->comment('User Table id');
+            $table->foreignId('top_most_parent_id')->comment('User Table id')->nullable();
             $table->foreignId('created_by')->comment('User Table id');
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

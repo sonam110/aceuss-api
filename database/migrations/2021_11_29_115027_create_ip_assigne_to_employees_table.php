@@ -18,8 +18,7 @@ class CreateIpAssigneToEmployeesTable extends Migration
             $table->foreignId('ip_id');
             $table->foreignId('user_id');
             $table->boolean('status')->default(0);
-            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

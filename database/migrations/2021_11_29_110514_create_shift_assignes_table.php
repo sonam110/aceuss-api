@@ -15,14 +15,14 @@ class CreateShiftAssignesTable extends Migration
     {
         Schema::create('shift_assignes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('user_id');
             $table->integer('shift_id');
             $table->date('shift_start_date');
             $table->date('shift_end_date');
+            $table->foreignId('created_by');
             $table->boolean('status')->default(1);
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

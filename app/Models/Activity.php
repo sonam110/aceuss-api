@@ -8,22 +8,24 @@ use App\Models\User;
 use App\Models\ActivityClassification;
 use App\Models\CompanyWorkShift;
 use App\Models\CategoryMaster;
+use App\Traits\TopMostParentId;
 class Activity extends Model
 {
-    use HasFactory;
+    use HasFactory,TopMostParentId;
     protected $fillable =[
-    	'top_most_parent_id',
+        'top_most_parent_id',
 		'parent_id',
 		'activity_class_id',
 		'ip_id',
-		'patient_id',
+		'branch_id',
+        'patient_id',
 		'emp_id',
 		'shift_id',
 		'category_id',
 		'subcategory_id',
 		'title',
 		'description',
-		'activity_type',,
+		'activity_type',
 		'repetition_type',
 		'repetition_days',
 		'start_date',
@@ -46,6 +48,7 @@ class Activity extends Model
 		'status',
 		'remind_before_start',
 		'remind_after_end',
+        'entry_mode',
 	];
 	public function TopMostParent()
     {

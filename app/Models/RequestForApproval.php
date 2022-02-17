@@ -9,7 +9,7 @@ class RequestForApproval extends Model
 {
     use HasFactory;
     protected $fillable = [
-    	'top_most_parent_id',
+        'top_most_parent_id',
 		'requested_by',
 		'requested_to',
 		'request_type',
@@ -20,6 +20,7 @@ class RequestForApproval extends Model
 		'approved_by',
 		'approved_date',
 		'status',
+        'entry_mode',
     ];
 
     public function TopMostParent()

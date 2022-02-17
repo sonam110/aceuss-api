@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Package extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'name',
@@ -21,5 +20,6 @@ class Package extends Model
 		'number_of_patients',
 		'number_of_employees',
 		'status',
+		'entry_mode',
     ];
 }

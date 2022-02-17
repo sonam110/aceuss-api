@@ -19,6 +19,7 @@ class IpFollowUpCreation extends Model
 		'is_family_member',
 		'is_caretaker',
 		'is_contact_person',
+		'entry_mode',
 	];
 
 	public function PatientImplementationPlan()

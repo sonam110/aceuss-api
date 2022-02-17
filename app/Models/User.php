@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 //use Laravel\Sanctum\HasApiTokens;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,9 +22,12 @@ use App\Models\SalaryDetail;
 use App\Models\ShiftAssigne;
 use App\Models\Subscription;
 use App\Models\Message;
+use App\Models\Country;
+use App\Models\AssigneModule;
+
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,HasRoles;
+    use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -30,16 +35,18 @@ class User extends Authenticatable
      * @var string[]
 
      */
-    use SoftDeletes;
+    protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'user_type_id',
+        'role_id',
         'company_type_id',
         'category_id',
         'top_most_parent_id',
         'parent_id',
         'dept_id',
         'govt_id',
+        'branch_id',
         'weekly_hours_alloted_by_govt',
         'name',
         'email',
@@ -49,6 +56,9 @@ class User extends Authenticatable
         'gender',
         'personal_number',
         'organization_number',
+        'country_id',
+        'city',
+        'postal_area',
         'zipcode',
         'full_address',
         'license_key',
@@ -60,8 +70,12 @@ class User extends Authenticatable
         'joining_date',
         'establishment_date',
         'user_color',
+        'disease_description',
+        'created_by',
+        'password_token',
         'is_file_required',
         'status',
+        'entry_mode',
     ];
 
     /**
@@ -82,14 +96,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
 
+    
     public function UserType()
     {
         return $this->belongsTo(UserType::class,'user_type_id','id');
     }
+    public function role()
+    {
+        return $this->belongsTo(Role::class,'role_id','id');
+    }
+    public function Country()
+    {
+        return $this->belongsTo(Country::class,'country_id','id');
+    }
     public function CompanyType()
     {
-        return $this->belongsTo(CompanyType::class,'user_type_id','id');
+        return $this->belongsTo(CompanyType::class,'company_type_id','id');
     }
     public function CategoryMaster()
     {
@@ -125,6 +149,11 @@ class User extends Authenticatable
         return $this;
     }
 
+     public function modules()
+    {
+         return $this->hasMany(AssigneModule::class,'user_id','id');
+    }
+
     public function messages()
     {
     return $this->hasMany(Message::class);
@@ -154,4 +183,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(ShiftAssigne::class,'id','user_id');
     }
+
+
+    
 }

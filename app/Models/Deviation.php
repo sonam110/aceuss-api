@@ -9,17 +9,18 @@ use App\Models\User;
 use App\Models\Activity;
 use App\Models\Journal;
 use App\Models\CategoryMaster;
+use App\Traits\TopMostParentId;
 class Deviation extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable =[
-    	'parent_id',
+        'parent_id',
 		'journal_id',
 		'activity_id',
 		'top_most_parent_id';,
-		'patient_id',
+		'branch_id',
+        'patient_id',
 		'emp_id',
 		'category_id',
 		'subcategory_id',
@@ -32,6 +33,7 @@ class Deviation extends Model
 		'edited_by',
 		'approved_by',
 		'approved_date',
+        'entry_mode',
 
     ];
     public function Parent()

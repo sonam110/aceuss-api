@@ -15,10 +15,11 @@ class CreateActivitiesTable extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('parent_id')->nullable();
-            $table->foreignId('activity_class_id');
+            $table->foreignId('activity_class_id')->nullable();
             $table->foreignId('ip_id')->nullable();
+            $table->foreignId('branch_id')->nullable();
             $table->foreignId('patient_id')->nullable();
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('shift_id')->nullable();
@@ -27,7 +28,7 @@ class CreateActivitiesTable extends Migration
             $table->string('title');
             $table->text('description');
             $table->enum('activity_type', ['1','2'])->default('1')->comment('1:one_time , 2:ongoing');
-            $table->enum('repetition_type', ['1','2','3'])->nullable()->comment('1:daily,2:weekly,3:monthly ');
+            $table->enum('repetition_type', ['1','2','3'])->nullable()->comment('1:daily,2:weekly,3:monthly');
             $table->string('repetition_days')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
@@ -49,8 +50,7 @@ class CreateActivitiesTable extends Migration
             $table->enum('status', ['1','2','3','4'])->nullable()->comment('0=inactive 1:Active,2:Completed,3:Approved ,4:Rejected');
             $table->boolean('remind_before_start')->default(0);
             $table->boolean('remind_after_end')->default(0);
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('activities')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

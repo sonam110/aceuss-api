@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\CategoryType;
+use App\Traits\TopMostParentId;
 class CategoryMaster extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes;
     protected $dates = ['deleted_at'];
     
     protected $fillable = [
@@ -22,6 +22,7 @@ class CategoryMaster extends Model
         'category_color',
         'is_global',
         'status',
+        'entry_mode',
     ];
 
     public function TopMostParent()

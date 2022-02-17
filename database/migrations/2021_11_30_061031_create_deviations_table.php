@@ -18,7 +18,8 @@ class CreateDeviationsTable extends Migration
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('journal_id')->nullable();
             $table->foreignId('activity_id')->nullable();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
+            $table->foreignId('branch_id')->nullable();
             $table->foreignId('patient_id')->nullable();
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('category_id');
@@ -32,8 +33,7 @@ class CreateDeviationsTable extends Migration
             $table->foreignId('edited_by')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('deviations')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

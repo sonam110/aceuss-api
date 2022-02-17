@@ -11,5 +11,6 @@ class ActivityClassification extends Model
     protected $fillable =[
     	'name',
     	'status',
+    	'entry_mode',
     ];
 }

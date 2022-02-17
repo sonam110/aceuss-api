@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
+use App\Traits\TopMostParentId;
 class IpFollowUp extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes,TopMostParentId;
     protected $dates = ['deleted_at'];
     protected $fillable =[
     'ip_id',
@@ -33,6 +33,7 @@ class IpFollowUp extends Model
 	'approved_by',
 	'approved_date',
 	'status',
+    'entry_mode',
 
 
 	];

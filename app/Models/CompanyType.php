@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 class CompanyType extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'top_most_parent_id',
         'created_by',
         'name',
         'status',
+        'entry_mode',
     ];
 
     public function TopMostParent()

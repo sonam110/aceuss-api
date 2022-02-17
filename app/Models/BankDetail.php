@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 class BankDetail extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes;
     protected $dates = ['deleted_at'];
     
     protected $fillable = [
@@ -18,8 +17,9 @@ class BankDetail extends Model
         'account_number',
         'clearance_number',
         'is_default',
+        'entry_mode',
     ];
-    public function user()
+    public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');
     }

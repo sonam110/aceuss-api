@@ -21,6 +21,7 @@ class CreateBankDetailsTable extends Migration
             $table->string('clearance_number');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->boolean('is_default')->default('0')->comment('1:Yes,0:No');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -15,7 +15,7 @@ class CreateCategoryMastersTable extends Migration
     {
         Schema::create('category_masters', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('created_by');
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('category_type_id');
@@ -26,6 +26,7 @@ class CreateCategoryMastersTable extends Migration
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('category_masters')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

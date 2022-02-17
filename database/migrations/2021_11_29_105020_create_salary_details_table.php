@@ -20,6 +20,7 @@ class CreateSalaryDetailsTable extends Migration
             $table->date('salary_package_start_date');
             $table->date('salary_package_end_date');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

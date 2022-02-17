@@ -10,9 +10,10 @@ class IpAssigneToEmployee extends Model
 {
     use HasFactory;
     protected $fillable =[
-    	'ip_id',
+        'ip_id',
     	'user_id',
     	'status',
+        'entry_mode',
 
     ];
     public function PatientImplementationPlan()

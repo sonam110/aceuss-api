@@ -17,7 +17,7 @@ class CreateIpFollowUpsTable extends Migration
             $table->id();
             $table->foreignId('ip_id');
             $table->foreignId('parent_id')->nullable();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->string('title');
             $table->text('description');
             $table->enum('follow_up_type', ['1','2'])->default('1')->comment('1:one_time , 2:ongoing');
@@ -39,6 +39,7 @@ class CreateIpFollowUpsTable extends Migration
             $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

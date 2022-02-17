@@ -13,9 +13,10 @@ class SalaryDetail extends Model
         'salary_per_month',
         'salary_package_start_date',
         'salary_package_end_date',
+        'entry_mode',
     ];
     
-    public function user()
+    public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');
     }

@@ -15,7 +15,7 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('folder_id');
             $table->foreignId('source_id');
             $table->string('source_name');
@@ -30,6 +30,7 @@ class CreateFilesTable extends Migration
             $table->string('visible_to_users')->nullable();
             $table->softDeletes();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

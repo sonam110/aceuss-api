@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Folder;
+use App\Traits\TopMostParentId;
 class File extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'top_most_parent_id',
@@ -26,6 +26,7 @@ class File extends Model
 		'approved_by',
 		'approved_date',
 		'visible_to_users',
+        'entry_mode',
     ];
 
     public function TopMostParent()

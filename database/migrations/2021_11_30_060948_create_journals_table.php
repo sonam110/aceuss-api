@@ -18,7 +18,8 @@ class CreateJournalsTable extends Migration
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('deviation_id')->nullable();
             $table->foreignId('activity_id')->nullable();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
+            $table->foreignId('branch_id')->nullable();
             $table->foreignId('patient_id')->nullable();
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('category_id');
@@ -31,8 +32,7 @@ class CreateJournalsTable extends Migration
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->boolean('is_deviation')->default(0);
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('journals')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

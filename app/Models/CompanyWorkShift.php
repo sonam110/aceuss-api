@@ -6,20 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use App\Traits\TopMostParentId;
 class CompanyWorkShift extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes,TopMostParentId;
     protected $dates = ['deleted_at'];
     protected $fillable =[
-    	'top_most_parent_id',
+        'top_most_parent_id',
 		'user_id',
 		'shift_name',
 		'shift_start_time',
 		'shift_end_time',
 		'shift_color',
-		'shift_color',
 		'status',
+        'entry_mode',
 
     ];
     public function TopMostParent()

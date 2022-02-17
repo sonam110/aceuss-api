@@ -17,6 +17,7 @@ class CreateUserTypesTable extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

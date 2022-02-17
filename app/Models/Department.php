@@ -6,16 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use App\Traits\TopMostParentId;
+use Spatie\Activitylog\Contracts\Activity;
 class Department extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory,SoftDeletes,TopMostParentId;
+
+    
+
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'user_id',
         'top_most_parent_id',
-        'name',,
+        'parent_id',
+        'name',
         'status',
+        'entry_mode',
     ];
 
     public function TopMostParent()
@@ -27,4 +33,36 @@ class Department extends Model
     {
         return $this->belongsTo(User::class,'user_id','id');
     }
+
+   
+
+    public function grandchildren()
+    {
+        return $this->children()->with('grandchildren');
+    }
+
+    public function parentUnit() 
+    {
+        return $this->belongsTo(Department::class,'parent_id', 'id');
+    }
+
+    public function getLatestParent()
+    {
+        if ($this->parentUnit)
+            return $this->parentUnit->getLatestParent();
+
+        return $this;
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id', 'id');
+    }
+
+  
 }

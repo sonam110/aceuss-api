@@ -16,11 +16,12 @@ class CreateFoldersTable extends Migration
         Schema::create('folders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable();
-            $table->foreignId('top_most_parent_id');
+            $table->foreignId('top_most_parent_id')->nullable();
             $table->string('name');
             $table->string('visible_to_users');
             $table->boolean('status')->default(1);
             $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

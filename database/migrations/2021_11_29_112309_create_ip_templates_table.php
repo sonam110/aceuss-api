@@ -18,6 +18,7 @@ class CreateIpTemplatesTable extends Migration
             $table->foreignId('ip_id');
             $table->string('template_title');
             $table->boolean('status')->default(1);
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }

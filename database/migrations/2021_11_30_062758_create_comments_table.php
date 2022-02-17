@@ -23,6 +23,7 @@ class CreateCommentsTable extends Migration
             $table->foreignId('replied_to');
             $table->foreignId('edited_by')->nullable();
             $table->foreign('parent_id')->references('id')->on('comments')->onDelete('cascade');
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
     }
