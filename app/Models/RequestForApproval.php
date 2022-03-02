@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Spatie\Activitylog\Traits\LogsActivity;
 class RequestForApproval extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable = [
         'top_most_parent_id',
 		'requested_by',

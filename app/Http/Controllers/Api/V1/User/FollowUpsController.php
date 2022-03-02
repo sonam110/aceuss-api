@@ -112,7 +112,7 @@ class FollowUpsController extends Controller
             $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$ipFollowups->created_by = $user->id;
 		 	$ipFollowups->save();
-		 	 /*-----------------Personal Informationn ----------------*/
+		 	 /*-----------------Persons Informationn ----------------*/
             if(is_array($request->persons) ){
                 foreach ($request->persons as $key => $value) {
                     $is_user = false;
@@ -257,7 +257,7 @@ class FollowUpsController extends Controller
 		 	$ipFollowups->edited_by = $user->id;
             $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$ipFollowups->save();
-             /*-----------------Personal Informationn ----------------*/
+             /*-----------------Persons Informationn ----------------*/
             if(is_array($request->persons) ){
                 foreach ($request->persons as $key => $value) {
                     $is_user = false;

@@ -6,12 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Package;
 use App\Models\User;
+use Spatie\Activitylog\Traits\LogsActivity;
 class Subscription extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
     protected $casts = [
     'package_details' => 'json',
     ];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable=[
         'user_id',
 		'package_id',

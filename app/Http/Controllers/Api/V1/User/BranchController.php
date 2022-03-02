@@ -192,7 +192,6 @@ class BranchController extends Controller
                 'role_id' => 'required', 
                 'company_type_id' => 'required', 
                 'name' => 'required', 
-                'email'     => 'required|email|unique:users,email,'.$id,
                 'contact_number' => 'required', 
 
             ],
@@ -201,8 +200,6 @@ class BranchController extends Controller
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'company_type_id.required' =>  getLangByLabelGroups('UserValidation','company_type_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
@@ -234,8 +231,6 @@ class BranchController extends Controller
             $user->company_type_id = $request->company_type_id;
             $user->branch_id = $request->branch_id;
             $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
@@ -271,23 +266,23 @@ class BranchController extends Controller
         $firstLevel =  User::where('branch_id',$branch_id)->get();
         $level = 1;
         foreach ($firstLevel as $key => $level1) {
-            if (count($level1->children)>0) {
+            if (count($level1->branchChildren)>0) {
                 $level = $level+1 ;
                 $secondLevel =  User::where('branch_id',$level1->id)->get();
                 foreach ($secondLevel as $key => $level2) {
-                   if (count($level2->children)>0) {
+                   if (count($level2->branchChildren)>0) {
                     $level = $level+1 ;
                     $thirdLevel =  User::where('branch_id',$level2->id)->get();
                     foreach ($thirdLevel as $key => $level3) {
-                       if (count($level3->children)>0) {
+                       if (count($level3->branchChildren)>0) {
                         $level = $level+1 ;
                         $fourthLevel =  User::where('branch_id',$level3->id)->get();
                         foreach ($fourthLevel as $key => $level4) {
-                           if (count($level4->children)>0) {
+                           if (count($level4->branchChildren)>0) {
                             $level = $level+1 ;
                             $fiveLevel =  User::where('branch_id',$level4->id)->get();
                             foreach ($fiveLevel as $key => $level5) {
-                               if (count($level5->children)>0) {
+                               if (count($level5->branchChildren)>0) {
                                 //$level = $level+1 ;
                                 
                                }

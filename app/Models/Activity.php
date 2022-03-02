@@ -9,9 +9,13 @@ use App\Models\ActivityClassification;
 use App\Models\CompanyWorkShift;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
+use Spatie\Activitylog\Traits\LogsActivity;
 class Activity extends Model
 {
-    use HasFactory,TopMostParentId;
+    use HasFactory,TopMostParentId,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
 		'parent_id',

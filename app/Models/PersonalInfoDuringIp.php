@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use App\Models\IpFollowUp;
+use App\Models\User;
+use Spatie\Activitylog\Traits\LogsActivity;
 class PersonalInfoDuringIp extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
+	    'patient_id',
 	    'ip_id',
 		'follow_up_id',
 		'name',
@@ -34,5 +40,9 @@ class PersonalInfoDuringIp extends Model
     public function IpFollowUp()
     {
         return $this->belongsTo(IpFollowUp::class,'follow_up_id','id');
+    }
+     public function person()
+    {
+        return $this->belongsTo(User::class,'patient_id','id');
     }
 }

@@ -83,10 +83,6 @@ class DepartmentController extends Controller
             $department->name = $request->name;
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
-
-            activity()
-           ->causedBy($department)
-           ->log($department);
 	        return prepareResult(true,getLangByLabelGroups('Department','create') ,$department, $this->success);
         }
         catch(Exception $exception) {
@@ -189,9 +185,6 @@ class DepartmentController extends Controller
             $department->status = ($request->name) ? $request->status:'1';
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
-            activity()
-           ->causedBy($department)
-           ->log($department);
 	        return prepareResult(true,getLangByLabelGroups('Department','update'),$department, $this->success);
 			    
         }

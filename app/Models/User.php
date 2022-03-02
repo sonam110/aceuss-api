@@ -24,10 +24,11 @@ use App\Models\Subscription;
 use App\Models\Message;
 use App\Models\Country;
 use App\Models\AssigneModule;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes,LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -75,6 +76,11 @@ class User extends Authenticatable
         'password_token',
         'is_file_required',
         'status',
+        'device_name', 
+        'device_id', 
+        'device_model', 
+        'device_token',
+        'login_via',
         'entry_mode',
     ];
 
@@ -96,6 +102,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     
 
     
@@ -182,6 +192,16 @@ class User extends Authenticatable
     public function ShiftAssigne()
     {
         return $this->belongsTo(ShiftAssigne::class,'id','user_id');
+    }
+
+    public function branchParent()
+    {
+        return $this->belongsTo(self::class,'branch_id','id');
+    }
+
+     public function branchChildren()
+    {
+        return $this->hasMany(self::class, 'branch_id');
     }
 
 

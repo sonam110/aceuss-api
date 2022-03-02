@@ -49,9 +49,9 @@ function findTopParentId($parent_id) {
 }
 function findBranchTopParentId($branch_id) {
 
-    if(is_null($parent_id) == false ){
-        $parent = User::find($branch_id)->branch_id;
-        return $parent ? findTopParentId($parent) : $branch_id;
+    if(is_null($branch_id) == false ){
+        $branch = User::find($branch_id)->branch_id;
+        return $branch ? findTopParentId($branch) : $branch_id;
     }else {
         return $branch_id;
     }

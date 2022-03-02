@@ -58,15 +58,15 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'requests-delete', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-delete','belongs_to'=>'1']);
 
-        Permission::create(['name' => 'users-browse', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-browse','belongs_to'=>'2']);
+        Permission::create(['name' => 'users-browse', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-browse','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'users-add', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-add','belongs_to'=>'2']);
+        Permission::create(['name' => 'users-add', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-add','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'users-read', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-read','belongs_to'=>'2']);
+        Permission::create(['name' => 'users-read', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-read','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'users-edit', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-edit','belongs_to'=>'2']);
+        Permission::create(['name' => 'users-edit', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-edit','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'users-delete', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-delete','belongs_to'=>'2']);
+        Permission::create(['name' => 'users-delete', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-delete','belongs_to'=>'3']);
 
         
 

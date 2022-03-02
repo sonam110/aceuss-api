@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\CategoryType;
 use App\Traits\TopMostParentId;
+use Spatie\Activitylog\Traits\LogsActivity;
 class CategoryMaster extends Model
 {
-    use HasFactory,TopMostParentId,SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
     protected $dates = ['deleted_at'];
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     
     protected $fillable = [
         'top_most_parent_id',

@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TopMostParentId;
+use Spatie\Activitylog\Traits\LogsActivity;
 class CompanyWorkShift extends Model
 {
-    use HasFactory,SoftDeletes,TopMostParentId;
+    use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
 		'user_id',

@@ -15,7 +15,8 @@ class CreatePersonalInfoDuringIpsTable extends Migration
     {
         Schema::create('personal_info_during_ips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ip_id');
+            $table->foreignId('patient_id');
+            $table->foreignId('ip_id')->nullable();
             $table->foreignId('follow_up_id')->nullable();
             $table->string('name');
             $table->string('email')->nullable();

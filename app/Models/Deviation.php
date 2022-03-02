@@ -10,10 +10,14 @@ use App\Models\Activity;
 use App\Models\Journal;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
+use Spatie\Activitylog\Traits\LogsActivity;
 class Deviation extends Model
 {
-    use HasFactory,TopMostParentId,SoftDeletes;
+    use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
     protected $dates = ['deleted_at'];
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'parent_id',
 		'journal_id',

@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
-use App\Traits\PersonalInfoDuringIp;
+use App\Models\PersonalInfoDuringIp;
+use Spatie\Activitylog\Traits\LogsActivity;
 class PatientImplementationPlan extends Model
 {
-    use HasFactory,SoftDeletes,TopMostParentId;
+    use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
 		'user_id',

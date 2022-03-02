@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('dept_id')->nullable();
-            $table->integer('branch_id')->nullable();
+            $table->integer('branch_id')-nullable();
             $table->string('govt_id')->nullable();
             $table->double('weekly_hours_alloted_by_govt')->default(0);
             $table->string('name')->nullable();
@@ -52,6 +52,11 @@ class CreateUsersTable extends Migration
             $table->string('password_token')->nullable();
             $table->boolean('is_file_required')->default('0')->comment('1:Yes,0:No');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
+            $table->string('device_name')->nullable();
+            $table->string('device_id')->nullable();
+            $table->string('device_model')->nullable();
+            $table->string('device_token')->nullable();
+             $table->enum('login_via', ['0', '1','2'])->default('0')->comment('0:Web,1:android,2:ios');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->rememberToken();

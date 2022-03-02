@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 class ActivityAssigne extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'activity_id',
 		'user_id',

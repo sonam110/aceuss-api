@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Spatie\Activitylog\Traits\LogsActivity;
 class Message extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'sender_id',
 		'receiver_id',

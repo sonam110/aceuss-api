@@ -111,6 +111,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('ips', [App\Http\Controllers\Api\V1\User\PatientController::class, 'ipsList']);
 		Route::apiResource('ip', User\PatientController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-patient-plan','User\PatientController@approvedPatientPlan');
+		Route::post('patient-person-list','User\PatientController@patientPersonList');
 
 		Route::post('ip-assigne-to-employee','User\PatientController@ipAssigneToEmployee');
 		Route::post('view-ip-assigne','User\PatientController@viewIpAssigne');

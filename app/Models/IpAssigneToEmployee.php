@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
+use Spatie\Activitylog\Traits\LogsActivity;
 class IpAssigneToEmployee extends Model
 {
-    use HasFactory;
+    use HasFactory,LogsActivity;
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable =[
         'ip_id',
     	'user_id',

@@ -68,17 +68,20 @@ class PatientController extends Controller
         try {
            
             $user = getUser();
-            $validator = Validator::make($request->all(),[
-                'user_id' => 'required',   
-                'category_id' => 'required',   
-                'subcategory_id' => 'required',   
-                'what_happened' => 'required',   
-                'how_it_happened' => 'required',   
-                'when_it_started' => 'required',   
-                'what_to_do' => 'required',   
-                'goal' => 'required',    
-                'plan_start_date' => 'required',   
-                'plan_start_time' => 'required',    
+            
+            $data = [ 'data' => $request->all() ];
+            $validator = Validator::make($data,[
+                'data.*.user_id' => 'required',   
+                'data.*.category_id' => 'required',   
+                'data.*.subcategory_id' => 'required',   
+                'data.*.what_happened' => 'required',   
+                'data.*.how_it_happened' => 'required',   
+                'data.*.when_it_started' => 'required',   
+                'data.*.what_to_do' => 'required',   
+                'data.*.goal' => 'required',    
+                'data.*.plan_start_date' => 'required',   
+                'data.*.plan_start_time' => 'required',  
+ 
             ],
             [
             'user_id' =>  getLangByLabelGroups('IP','user_id'),   
@@ -95,136 +98,158 @@ class PatientController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
-            
-            $patientPlan = new PatientImplementationPlan;
-            $patientPlan->user_id = $request->user_id;
-            $patientPlan->branch_id = $request->branch_id;
-            $patientPlan->category_id = $request->category_id;
-            $patientPlan->subcategory_id = $request->subcategory_id;
-            $patientPlan->what_happened = $request->what_happened;
-            $patientPlan->how_it_happened = $request->how_it_happened;
-            $patientPlan->when_it_started = $request->when_it_started;
-            $patientPlan->what_to_do = $request->what_to_do;
-            $patientPlan->goal = $request->goal;
-            $patientPlan->sub_goal = $request->sub_goal;
-            $patientPlan->plan_start_date = date('Y-m-d',strtotime($request->plan_start_date));
-            $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($request->plan_start_date));
-            $patientPlan->remark = $request->remark;
-            $patientPlan->activity_message = $request->activity_message;
-            $patientPlan->save_as_template = ($request->save_as_template) ? 1:0;
-            $patientPlan->reason_for_editing = $request->reason_for_editing;
-            $patientPlan->created_by = $user->id;
-            $patientPlan->save();
-            if($request->save_as_template){
-                $validator = Validator::make($request->all(),[
-                'title' => 'required',   
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                }
-                $ipTemplate = new IpTemplate;
-                $ipTemplate->ip_id = $patientPlan->id;
-                $ipTemplate->template_title = $request->title;
-                $ipTemplate->save();
-            }
-            /*-----------IP assigne to employee*/
-            if(!empty($request->emp_id) ){
-                $ipAssigne = new IpAssigneToEmployee;
-                $ipAssigne->user_id = $request->emp_id;
-                $ipAssigne->ip_id = $patientPlan->id;
-                $ipAssigne->status = '1';
-                $ipAssigne->save();
+            $ids = null;
+            $impPlan_ids = [];
+            if(is_array($data['data']) ){
+                foreach ($data['data'] as $key => $patient) {
+                    $patientPlan = new PatientImplementationPlan;
+                    $patientPlan->user_id = $patient['user_id'];
+                    $patientPlan->branch_id = (array_key_exists('branch_id', $data['data'])) ? $patient['branch_id'] :null;
+                    $patientPlan->category_id = $patient['category_id'];
+                    $patientPlan->subcategory_id = $patient['subcategory_id'];
+                    $patientPlan->what_happened = $patient['what_happened'];
+                    $patientPlan->how_it_happened = $patient['how_it_happened'];
+                    $patientPlan->when_it_started = $patient['when_it_started'];
+                    $patientPlan->what_to_do = $patient['what_to_do'];
+                    $patientPlan->goal = $patient['goal'];
+                    $patientPlan->sub_goal = (array_key_exists('sub_goal', $data['data'])) ? $patient['sub_goal'] :null;
+                    $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
+                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_date']));
+                    $patientPlan->remark = $patient['remark'];
+                    $patientPlan->activity_message = $patient['activity_message'];
+                    $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
+                    $patientPlan->reason_for_editing = (array_key_exists('reason_for_editing', $data['data'])) ? $patient['reason_for_editing'] :null;
+                    $patientPlan->created_by = $user->id;
+                    $patientPlan->save();
+
+                    $impPlan_ids[] = $patientPlan->id;
+                    $ids = implode(', ',$impPlan_ids);
+                    if($patient['save_as_template'] == true){
+                        
+                        if (empty($patient['title'])) {
+                            return prepareResult(false,'Title field is required',[], $this->unprocessableEntity); 
+                        }
+                        $ipTemplate = new IpTemplate;
+                        $ipTemplate->ip_id = $patientPlan->id;
+                        $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->save();
+                    }
+                    /*-----------IP assigne to employee*/
+                    if(!empty($patient['emp_id']) ){
+                        $ipAssigne = new IpAssigneToEmployee;
+                        $ipAssigne->user_id = $patient['emp_id'];
+                        $ipAssigne->ip_id = $patientPlan->id;
+                        $ipAssigne->status = '1';
+                        $ipAssigne->save();
 
 
-            }
-            /*-----------------Personal Informationn ----------------*/
-            if(is_array($request->persons) ){
-                foreach ($request->persons as $key => $value) {
-                    $is_user = false;
-                    if($value['is_family_member'] == true){
-                        $user_type_id ='8';
-                        $is_user = true;
                     }
-                    if($value['is_caretaker'] == true){
-                        $user_type_id ='7';
-                        $is_user = true;
-                    }
-                    if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
-                        $user_type_id ='10';
-                        $is_user = true;
-                    }
-                    if($value['is_contact_person'] == true){
-                        $user_type_id ='9';
-                        $is_user = true;
-                    }
-                    $personalInfo = new PersonalInfoDuringIp;
-                    $personalInfo->ip_id =$patientPlan->id;
-                    $personalInfo->name = $value['name'] ;
-                    $personalInfo->email = $value['email'] ;
-                    $personalInfo->contact_number = $value['contact_number'];
-                    $personalInfo->country = $value['country_id'];
-                    $personalInfo->city = $value['city'];
-                    $personalInfo->postal_area = $value['postal_area'];
-                    $personalInfo->zipcode = $value['zipcode'];
-                    $personalInfo->full_address = $value['full_address'] ;
-                    $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
-                    $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
-                    $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
-                    $personalInfo->save() ;
-                    /*-----Create Account /Entry in user table*/
-                    if($is_user == true) {
-                        if(auth()->user()->user_type_id=='1'){
-                            $top_most_parent_id = auth()->user()->id;
-                        }
-                        elseif(auth()->user()->user_type_id=='2')
-                        {
-                            $top_most_parent_id = auth()->user()->id;
-                        } else {
-                            $top_most_parent_id = auth()->user()->top_most_parent_id;
-                        }
-                        $checkAlreadyUser = User::where('email',$value['email'])->first();
-                        if(empty($checkAlreadyUser)) {
-                            $userSave = new User;
-                            $userSave->user_type_id = $user_type_id;
-                            $userSave->role_id =  $user_type_id;
-                            $userSave->parent_id = $user->id;
-                            $userSave->top_most_parent_id = $top_most_parent_id;
-                            $userSave->name = $value['name'] ;
-                            $userSave->email = $value['email'] ;
-                            $userSave->password = Hash::make('12345678');
-                            $userSave->contact_number = $value['contact_number'];
-                            $userSave->country_id = $value['country_id'];
-                            $userSave->city = $value['city'];
-                            $userSave->postal_area = $value['postal_area'];
-                            $userSave->zipcode = $value['zipcode'];
-                            $userSave->full_address = $value['full_address'] ;
-                            $userSave->save(); 
-                            if(!empty($user_type_id))
-                            {
-                               $role = Role::where('id',$user_type_id)->first();
-                               $userSave->assignRole($role->name);
-                            }     
-                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                    $variables = ([
-                                    'name' => $userSave->name,
-                                    'email' => $userSave->email,
-                                    'contact_number' => $userSave->contact_number,
-                                    'city' => $userSave->city,
-                                    'zipcode' => $userSave->zipcode,
-                                    ]);   
-                                $emailTem = EmailTemplate::where('id','2')->first();           
-                                $content = mailTemplateContent($emailTem->content,$variables);
-                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                    /*-----------------Persons Informationn ----------------*/
+                    if(is_array($patient['persons']) ){
+                        foreach ($patient['persons'] as $key => $value) {
+                            $is_user = false;
+                            if($value['is_family_member'] == true){
+                                $user_type_id ='8';
+                                $is_user = true;
                             }
+                            if($value['is_caretaker'] == true){
+                                $user_type_id ='7';
+                                $is_user = true;
+                            }
+                            if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                                $user_type_id ='10';
+                                $is_user = true;
+                            }
+                            if($value['is_contact_person'] == true){
+                                $user_type_id ='9';
+                                $is_user = true;
+                            }
+
                             
+                            if(is_null($value['id']) == false){
+                                $personalInfo = PersonalInfoDuringIp::find($value['id']);
+                                $getperson = PersonalInfoDuringIp::where('id',$value['id'])->first();
+                                $getUser = User::where('email',$getperson->email)->first();
+                            } else{
+                                $personalInfo = new PersonalInfoDuringIp;
+                            }
+                            $personalInfo->patient_id = $patient['user_id'];
+                            $personalInfo->ip_id =$patientPlan->id;
+                            $personalInfo->name = $value['name'] ;
+                            $personalInfo->email = $value['email'] ;
+                            $personalInfo->contact_number = $value['contact_number'];
+                            $personalInfo->country = $value['country_id'];
+                            $personalInfo->city = $value['city'];
+                            $personalInfo->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                            $personalInfo->zipcode = $value['zipcode'];
+                            $personalInfo->full_address = $value['full_address'] ;
+                            $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
+                            $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
+                            $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                            $personalInfo->save() ;
+                            /*-----Create Account /Entry in user table*/
+                            if($is_user == true) {
+                                if(auth()->user()->user_type_id=='1'){
+                                    $top_most_parent_id = auth()->user()->id;
+                                }
+                                elseif(auth()->user()->user_type_id=='2')
+                                {
+                                    $top_most_parent_id = auth()->user()->id;
+                                } else {
+                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                }
+                                $checkAlreadyUser = User::where('email',$value['email'])->first();
+                                if(empty($checkAlreadyUser)) {
+                                    if(!empty($getUser)){
+                                        $userSave = User::find($getUser->id);
+                                    } else {
+                                        $userSave = new User;
+                                    }
+                                    $userSave = new User;
+                                    $userSave->user_type_id = $user_type_id;
+                                    $userSave->role_id =  $user_type_id;
+                                    $userSave->parent_id = $user->id;
+                                    $userSave->top_most_parent_id = $top_most_parent_id;
+                                    $userSave->name = $value['name'] ;
+                                    $userSave->email = $value['email'] ;
+                                    $userSave->password = Hash::make('12345678');
+                                    $userSave->contact_number = $value['contact_number'];
+                                    $userSave->country_id = $value['country_id'];
+                                    $userSave->city = $value['city'];
+                                    $userSave->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                                    $userSave->zipcode = $value['zipcode'];
+                                    $userSave->full_address = $value['full_address'] ;
+                                    $userSave->save(); 
+                                    if(!empty($user_type_id))
+                                    {
+                                       $role = Role::where('id',$user_type_id)->first();
+                                       $userSave->assignRole($role->name);
+                                    }     
+                                    if(env('IS_MAIL_ENABLE',false) == true){ 
+                                            $variables = ([
+                                            'name' => $userSave->name,
+                                            'email' => $userSave->email,
+                                            'contact_number' => $userSave->contact_number,
+                                            'city' => $userSave->city,
+                                            'zipcode' => $userSave->zipcode,
+                                            ]);   
+                                        $emailTem = EmailTemplate::where('id','2')->first();           
+                                        $content = mailTemplateContent($emailTem->content,$variables);
+                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                    }
+                                    
+                                }
+                            }
+
                         }
                     }
-
-                    
                 }
+                $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
+                return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, $this->success);
+            } else {
+                return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             }
             
-            return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientPlan, $this->success);
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
@@ -235,16 +260,18 @@ class PatientController extends Controller
     public function update(Request $request,$id){
         try {
             $user = getUser();
-            $validator = Validator::make($request->all(),[    
-                'category_id' => 'required',   
-                'subcategory_id' => 'required',   
-                'what_happened' => 'required',   
-                'how_it_happened' => 'required',   
-                'when_it_started' => 'required',   
-                'what_to_do' => 'required',   
-                'goal' => 'required',     
-                'plan_start_date' => 'required',   
-                'plan_start_time' => 'required',     
+            $data = [ 'data' => $request->all() ];
+            $validator = Validator::make($data,[
+                'data.*.user_id' => 'required',   
+                'data.*.category_id' => 'required',   
+                'data.*.subcategory_id' => 'required',   
+                'data.*.what_happened' => 'required',   
+                'data.*.how_it_happened' => 'required',   
+                'data.*.when_it_started' => 'required',   
+                'data.*.what_to_do' => 'required',   
+                'data.*.goal' => 'required',    
+                'data.*.plan_start_date' => 'required',   
+                'data.*.plan_start_time' => 'required',    
             ],
             [   
             'user_id' =>  getLangByLabelGroups('IP','user_id'),   
@@ -266,141 +293,156 @@ class PatientController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('IP','id_not_found'), [],$this->not_found);
             }
+            $ids = null;
+            $impPlan_ids = [];
             $parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-            $patientPlan = new PatientImplementationPlan;
-            $patientPlan->user_id = $request->user_id;
-            $patientPlan->branch_id = $request->branch_id;
-            $patientPlan->parent_id = $parent_id;
-            $patientPlan->category_id = $request->category_id;
-            $patientPlan->subcategory_id = $request->subcategory_id;
-            $patientPlan->what_happened = $request->what_happened;
-            $patientPlan->how_it_happened = $request->how_it_happened;
-            $patientPlan->when_it_started = $request->when_it_started;
-            $patientPlan->what_to_do = $request->what_to_do;
-            $patientPlan->goal = $request->goal;
-            $patientPlan->sub_goal = $request->sub_goal;
-            $patientPlan->plan_start_date = date('Y-m-d',strtotime($request->plan_start_date));
-            $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($request->plan_start_date));
-            $patientPlan->remark = $request->remark;
-            $patientPlan->activity_message = $request->activity_message;
-            $patientPlan->save_as_template = ($request->save_as_template) ? 1:0;
-            $patientPlan->reason_for_editing = $request->reason_for_editing;
-            $patientPlan->edited_by = $user->id;
-            $patientPlan->save();
-            if($request->save_as_template){
-                $validator = Validator::make($request->all(),[
-                'title' => 'required',   
-                ],
-                [
-                'id' =>  'Template title is required',
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                }
-                $alreadyExist = IpTemplate::where('ip_id',$patientPlan->id)->delete();
-                $ipTemplate = new IpTemplate;
-                $ipTemplate->ip_id = $patientPlan->id;
-                $ipTemplate->template_title = $request->what_happened;
-                $ipTemplate->save();
-            }
-            /*-----------IP assigne to employee*/
-            if(!empty($request->emp_id) ){
-                $ipAssigne = new IpAssigneToEmployee;
-                $ipAssigne->user_id = $request->emp_id;
-                $ipAssigne->ip_id = $patientPlan->id;
-                $ipAssigne->status = '1';
-                $ipAssigne->save();
+            if(is_array($data['data']) ){
+                foreach ($data['data'] as $key => $patient) {
+                    $patientPlan = new PatientImplementationPlan;
+                    $patientPlan->user_id = $patient['user_id'];
+                    $patientPlan->parent_id = $parent_id;
+                    $patientPlan->branch_id = (array_key_exists('branch_id', $data['data'])) ? $patient['branch_id'] :null;
+                    $patientPlan->category_id = $patient['category_id'];
+                    $patientPlan->subcategory_id = $patient['subcategory_id'];
+                    $patientPlan->what_happened = $patient['what_happened'];
+                    $patientPlan->how_it_happened = $patient['how_it_happened'];
+                    $patientPlan->when_it_started = $patient['when_it_started'];
+                    $patientPlan->what_to_do = $patient['what_to_do'];
+                    $patientPlan->goal = $patient['goal'];
+                    $patientPlan->sub_goal = (array_key_exists('sub_goal', $data['data'])) ? $patient['sub_goal'] :null;
+                    $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
+                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_date']));
+                    $patientPlan->remark = $patient['remark'];
+                    $patientPlan->activity_message = $patient['activity_message'];
+                    $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
+                    $patientPlan->reason_for_editing = (array_key_exists('reason_for_editing', $data['data'])) ? $patient['reason_for_editing'] :null;
+                    $patientPlan->created_by = $user->id;
+                    $patientPlan->save();
+
+                    $impPlan_ids[] = $patientPlan->id;
+                    $ids = implode(', ',$impPlan_ids);
+                    if($patient['save_as_template'] == true){
+                        if (empty($patient['title'])) {
+                            return prepareResult(false,'Title field is required',[], $this->unprocessableEntity); 
+                        }
+                        $ipTemplate = new IpTemplate;
+                        $ipTemplate->ip_id = $patientPlan->id;
+                        $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->save();
+                    }
+                    /*-----------IP assigne to employee*/
+                    if(!empty($patient['emp_id']) ){
+                        $ipAssigne = new IpAssigneToEmployee;
+                        $ipAssigne->user_id = $patient['emp_id'];
+                        $ipAssigne->ip_id = $patientPlan->id;
+                        $ipAssigne->status = '1';
+                        $ipAssigne->save();
 
 
-            }
-              /*-----------------Personal Informationn ----------------*/
-            if(is_array($request->persons) ){
-                foreach ($request->persons as $key => $value) {
-                    $is_user = false;
-                    if($value['is_family_member'] == true){
-                        $user_type_id ='8';
-                        $is_user = true;
                     }
-                    if($value['is_caretaker'] == true){
-                        $user_type_id ='7';
-                        $is_user = true;
-                    }
-                    if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
-                        $user_type_id ='10';
-                        $is_user = true;
-                    }
-                    if($value['is_contact_person'] == true){
-                        $user_type_id ='9';
-                        $is_user = true;
-                    }
-                    $personalInfo = new PersonalInfoDuringIp;
-                    $personalInfo->ip_id =$patientPlan->id;
-                    $personalInfo->name = $value['name'] ;
-                    $personalInfo->email = $value['email'] ;
-                    $personalInfo->contact_number = $value['contact_number'];
-                    $personalInfo->country = $value['country_id'];
-                    $personalInfo->city = $value['city'];
-                    $personalInfo->postal_area = $value['postal_area'];
-                    $personalInfo->zipcode = $value['zipcode'];
-                    $personalInfo->full_address = $value['full_address'] ;
-                    $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
-                    $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
-                    $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
-                    $personalInfo->save() ;
-                    /*-----Create Account /Entry in user table*/
-                    if($is_user == true) {
-                        if(auth()->user()->user_type_id=='1'){
-                            $top_most_parent_id = auth()->user()->id;
-                        }
-                        elseif(auth()->user()->user_type_id=='2')
-                        {
-                            $top_most_parent_id = auth()->user()->id;
-                        } else {
-                            $top_most_parent_id = auth()->user()->top_most_parent_id;
-                        }
-                        $checkAlreadyUser = User::where('email',$value['email'])->first();
-                        if(empty($checkAlreadyUser)) {
-                            $userSave = new User;
-                            $userSave->user_type_id = $user_type_id;
-                            $userSave->role_id =  $user_type_id;
-                            $userSave->parent_id = $user->id;
-                            $userSave->top_most_parent_id = $top_most_parent_id;
-                            $userSave->name = $value['name'] ;
-                            $userSave->email = $value['email'] ;
-                            $userSave->password = Hash::make('12345678');
-                            $userSave->contact_number = $value['contact_number'];
-                            $userSave->country_id = $value['country_id'];
-                            $userSave->city = $value['city'];
-                            $userSave->postal_area = $value['postal_area'];
-                            $userSave->zipcode = $value['zipcode'];
-                            $userSave->full_address = $value['full_address'] ;
-                            $userSave->save();
-                            
-                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                    $variables = ([
-                                    'name' => $userSave->name,
-                                    'email' => $userSave->email,
-                                    'contact_number' => $userSave->contact_number,
-                                    'city' => $userSave->city,
-                                    'zipcode' => $userSave->zipcode,
-                                    ]);   
-                                $emailTem = EmailTemplate::where('id','2')->first();           
-                                $content = mailTemplateContent($emailTem->content,$variables);
-                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                    /*-----------------Persons Informationn ----------------*/
+                    if(is_array($patient['persons']) ){
+                        foreach ($patient['persons'] as $key => $value) {
+                            $is_user = false;
+                            if($value['is_family_member'] == true){
+                                $user_type_id ='8';
+                                $is_user = true;
                             }
-                            if(!empty($user_type_id))
-                            {
-                               $role = Role::where('id',$user_type_id)->first();
-                               $userSave->assignRole($role->name);
+                            if($value['is_caretaker'] == true){
+                                $user_type_id ='7';
+                                $is_user = true;
                             }
+                            if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                                $user_type_id ='10';
+                                $is_user = true;
+                            }
+                            if($value['is_contact_person'] == true){
+                                $user_type_id ='9';
+                                $is_user = true;
+                            }
+                            if(is_null($value['id']) == false){
+                                $personalInfo = PersonalInfoDuringIp::find($value['id']);
+                                $getperson = PersonalInfoDuringIp::where('id',$value['id'])->first();
+                                $getUser = User::where('email',$getperson->email)->first();
+                            } else{
+                                $personalInfo = new PersonalInfoDuringIp;
+                            }
+                            $personalInfo->patient_id = $patient['user_id'];
+                            $personalInfo->ip_id =$patientPlan->id;
+                            $personalInfo->name = $value['name'] ;
+                            $personalInfo->email = $value['email'] ;
+                            $personalInfo->contact_number = $value['contact_number'];
+                            $personalInfo->country = $value['country_id'];
+                            $personalInfo->city = $value['city'];
+                            $personalInfo->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                            $personalInfo->zipcode = $value['zipcode'];
+                            $personalInfo->full_address = $value['full_address'] ;
+                            $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
+                            $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
+                            $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                            $personalInfo->save() ;
+                            /*-----Create Account /Entry in user table*/
+                            if($is_user == true) {
+                                if(auth()->user()->user_type_id=='1'){
+                                    $top_most_parent_id = auth()->user()->id;
+                                }
+                                elseif(auth()->user()->user_type_id=='2')
+                                {
+                                    $top_most_parent_id = auth()->user()->id;
+                                } else {
+                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                }
+                                $checkAlreadyUser = User::where('email',$value['email'])->first();
+                                if(empty($checkAlreadyUser)) {
+                                    if(!empty($getUser)){
+                                        $userSave = User::find($getUser->id);
+                                    } else {
+                                        $userSave = new User;
+                                    }
+                                    $userSave->user_type_id = $user_type_id;
+                                    $userSave->role_id =  $user_type_id;
+                                    $userSave->parent_id = $user->id;
+                                    $userSave->top_most_parent_id = $top_most_parent_id;
+                                    $userSave->name = $value['name'] ;
+                                    $userSave->email = $value['email'] ;
+                                    $userSave->password = Hash::make('12345678');
+                                    $userSave->contact_number = $value['contact_number'];
+                                    $userSave->country_id = $value['country_id'];
+                                    $userSave->city = $value['city'];
+                                    $userSave->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                                    $userSave->zipcode = $value['zipcode'];
+                                    $userSave->full_address = $value['full_address'] ;
+                                    $userSave->save(); 
+                                    if(!empty($user_type_id))
+                                    {
+                                       $role = Role::where('id',$user_type_id)->first();
+                                       $userSave->assignRole($role->name);
+                                    }     
+                                    if(env('IS_MAIL_ENABLE',false) == true){ 
+                                            $variables = ([
+                                            'name' => $userSave->name,
+                                            'email' => $userSave->email,
+                                            'contact_number' => $userSave->contact_number,
+                                            'city' => $userSave->city,
+                                            'zipcode' => $userSave->zipcode,
+                                            ]);   
+                                        $emailTem = EmailTemplate::where('id','2')->first();           
+                                        $content = mailTemplateContent($emailTem->content,$variables);
+                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                    }
+                                    
+                                }
+                            }
+
                         }
                     }
-
-                    
                 }
+
+                $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
+                return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, $this->success);
+            } else {
+                return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             }
-            
-            return prepareResult(true,getLangByLabelGroups('IP','update'),$patientPlan, $this->success);
               
         }
         catch(Exception $exception) {
@@ -529,6 +571,54 @@ class PatientController extends Controller
             
         }
     }
+
+    public function patientPersonList(Request $request){
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'patient_id' => 'required',   
+            ],
+            [
+            'patient_id' =>  'Patient Id is required',
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $id = $request->patient_id;
+            $whereRaw = $this->getWhereRawFromRequest1($request);
+            if($whereRaw != '') { 
+                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw);
+            } else {
+                $query= PersonalInfoDuringIp::where('patient_id',$id);
+            }
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Person list",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            
+            return prepareResult(true,'Person List' ,$query, $this->success);
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
     private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {
@@ -539,6 +629,16 @@ class PatientController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
         }
+        return($w);
+
+    }
+     private function getWhereRawFromRequest1(Request $request) {
+        $w = '';
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('status')."'".")";
+        }
+        
         return($w);
 
     }

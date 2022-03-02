@@ -7,14 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TopMostParentId;
-use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 class Department extends Model
 {
-    use HasFactory,SoftDeletes,TopMostParentId;
+    use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
 
     
 
     protected $dates = ['deleted_at'];
+    protected static $logAttributes = ['*'];
+
+    protected static $logOnlyDirty = true;
     protected $fillable = [
         'user_id',
         'top_most_parent_id',
@@ -23,6 +26,8 @@ class Department extends Model
         'status',
         'entry_mode',
     ];
+
+  
 
     public function TopMostParent()
     {

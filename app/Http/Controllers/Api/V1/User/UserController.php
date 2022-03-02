@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\package;
 use App\Models\Subscription;
 use App\Models\EmailTemplate;
+use App\Models\PersonalInfoDuringIp;
 use Validator;
 use Auth;
 use DB;
@@ -155,9 +156,6 @@ class UserController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
-            activity()
-           ->causedBy($user)
-           ->log($user);
             if(!empty($request->input('role_id')))
             {
                 $role = Role::where('id',$request->role_id)->first();
@@ -175,7 +173,94 @@ class UserController extends Controller
                 $content = mailTemplateContent($emailTem->content,$variables);
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
-            
+
+            /*-----------------Persons Informationn ----------------*/
+            if($request->user_type_id == '6') {
+                if(is_array($request->persons) ){
+                    foreach ($request->persons as $key => $value) {
+                        $is_user = false;
+                        if($value['is_family_member'] == true){
+                            $user_type_id ='8';
+                            $is_user = true;
+                        }
+                        if($value['is_caretaker'] == true){
+                            $user_type_id ='7';
+                            $is_user = true;
+                        }
+                        if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                            $user_type_id ='10';
+                            $is_user = true;
+                        }
+                        if($value['is_contact_person'] == true){
+                            $user_type_id ='9';
+                            $is_user = true;
+                        }
+                        $personalInfo = new PersonalInfoDuringIp;
+                        $personalInfo->patient_id = $user->id;
+                        $personalInfo->name = $value['name'] ;
+                        $personalInfo->email = $value['email'] ;
+                        $personalInfo->contact_number = $value['contact_number'];
+                        $personalInfo->country = $value['country_id'];
+                        $personalInfo->city = $value['city'];
+                        $personalInfo->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                        $personalInfo->zipcode = $value['zipcode'];
+                        $personalInfo->full_address = $value['full_address'] ;
+                        $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
+                        $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
+                        $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                        $personalInfo->save() ;
+                        /*-----Create Account /Entry in user table*/
+                        if($is_user == true) {
+                            if(auth()->user()->user_type_id=='1'){
+                                $top_most_parent_id = auth()->user()->id;
+                            }
+                            elseif(auth()->user()->user_type_id=='2')
+                            {
+                                $top_most_parent_id = auth()->user()->id;
+                            } else {
+                                $top_most_parent_id = auth()->user()->top_most_parent_id;
+                            }
+                            $checkAlreadyUser = User::where('email',$value['email'])->first();
+                            if(empty($checkAlreadyUser)) {
+                                $userSave = new User;
+                                $userSave->user_type_id = $user_type_id;
+                                $userSave->role_id =  $user_type_id;
+                                $userSave->parent_id = $user->id;
+                                $userSave->top_most_parent_id = $top_most_parent_id;
+                                $userSave->name = $value['name'] ;
+                                $userSave->email = $value['email'] ;
+                                $userSave->password = Hash::make('12345678');
+                                $userSave->contact_number = $value['contact_number'];
+                                $userSave->country_id = $value['country_id'];
+                                $userSave->city = $value['city'];
+                                $userSave->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                                $userSave->zipcode = $value['zipcode'];
+                                $userSave->full_address = $value['full_address'] ;
+                                $userSave->save(); 
+                                if(!empty($user_type_id))
+                                {
+                                   $role = Role::where('id',$user_type_id)->first();
+                                   $userSave->assignRole($role->name);
+                                }     
+                                if(env('IS_MAIL_ENABLE',false) == true){ 
+                                        $variables = ([
+                                        'name' => $userSave->name,
+                                        'email' => $userSave->email,
+                                        'contact_number' => $userSave->contact_number,
+                                        'city' => $userSave->city,
+                                        'zipcode' => $userSave->zipcode,
+                                        ]);   
+                                    $emailTem = EmailTemplate::where('id','2')->first();           
+                                    $content = mailTemplateContent($emailTem->content,$variables);
+                                    Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                }
+                                
+                            }
+                        }
+
+                    }
+                }
+            }
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$user, '200');
         }
         catch(Exception $exception) {
@@ -223,7 +308,6 @@ class UserController extends Controller
                 'role_id' => 'required',
                 'category_id' => 'required', 
                 'name' => 'required', 
-                'email'     => 'required|email|unique:users,email,'.$user->id,
                 'contact_number' => 'required', 
 
             ],
@@ -232,8 +316,6 @@ class UserController extends Controller
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'category_id.required' =>  getLangByLabelGroups('UserValidation','category_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
@@ -256,8 +338,6 @@ class UserController extends Controller
             $user->postal_area = $request->postal_area;
             $user->weekly_hours_alloted_by_govt = $request->weekly_hours_alloted_by_govt;
             $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
@@ -275,12 +355,96 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $user->save();
             \DB::table('model_has_roles')->where('model_id',$user->id)->delete();
             if(!empty($request->input('role_id')))
             {
                 $role = Role::where('id',$request->role_id)->first();
                 $user->assignRole($role->name);
+            }
+            /*-----------------Persons Informationn ----------------*/
+            if(is_array($request->persons) ){
+                foreach ($request->persons as $key => $value) {
+                    $is_user = false;
+                    if($value['is_family_member'] == true){
+                        $user_type_id ='8';
+                        $is_user = true;
+                    }
+                    if($value['is_caretaker'] == true){
+                        $user_type_id ='7';
+                        $is_user = true;
+                    }
+                    if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                        $user_type_id ='10';
+                        $is_user = true;
+                    }
+                    if($value['is_contact_person'] == true){
+                        $user_type_id ='9';
+                        $is_user = true;
+                    }
+                    $personalInfo = new PersonalInfoDuringIp;
+                    $personalInfo->patient_id = $user->id;
+                    $personalInfo->name = $value['name'] ;
+                    $personalInfo->email = $value['email'] ;
+                    $personalInfo->contact_number = $value['contact_number'];
+                    $personalInfo->country = $value['country_id'];
+                    $personalInfo->city = $value['city'];
+                    $personalInfo->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                    $personalInfo->zipcode = $value['zipcode'];
+                    $personalInfo->full_address = $value['full_address'] ;
+                    $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
+                    $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
+                    $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                    $personalInfo->save() ;
+                    /*-----Create Account /Entry in user table*/
+                    if($is_user == true) {
+                        if(auth()->user()->user_type_id=='1'){
+                            $top_most_parent_id = auth()->user()->id;
+                        }
+                        elseif(auth()->user()->user_type_id=='2')
+                        {
+                            $top_most_parent_id = auth()->user()->id;
+                        } else {
+                            $top_most_parent_id = auth()->user()->top_most_parent_id;
+                        }
+                        $checkAlreadyUser = User::where('email',$value['email'])->first();
+                        if(empty($checkAlreadyUser)) {
+                            $userSave = new User;
+                            $userSave->user_type_id = $user_type_id;
+                            $userSave->role_id =  $user_type_id;
+                            $userSave->parent_id = $user->id;
+                            $userSave->top_most_parent_id = $top_most_parent_id;
+                            $userSave->name = $value['name'] ;
+                            $userSave->email = $value['email'] ;
+                            $userSave->password = Hash::make('12345678');
+                            $userSave->contact_number = $value['contact_number'];
+                            $userSave->country_id = $value['country_id'];
+                            $userSave->city = $value['city'];
+                            $userSave->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                            $userSave->zipcode = $value['zipcode'];
+                            $userSave->full_address = $value['full_address'] ;
+                            $userSave->save(); 
+                            if(!empty($user_type_id))
+                            {
+                               $role = Role::where('id',$user_type_id)->first();
+                               $userSave->assignRole($role->name);
+                            }     
+                            if(env('IS_MAIL_ENABLE',false) == true){ 
+                                    $variables = ([
+                                    'name' => $userSave->name,
+                                    'email' => $userSave->email,
+                                    'contact_number' => $userSave->contact_number,
+                                    'city' => $userSave->city,
+                                    'zipcode' => $userSave->zipcode,
+                                    ]);   
+                                $emailTem = EmailTemplate::where('id','2')->first();           
+                                $content = mailTemplateContent($emailTem->content,$variables);
+                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                            }
+                            
+                        }
+                    }
+
+                }
             }
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, '200');
                 

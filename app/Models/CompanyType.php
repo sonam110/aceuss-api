@@ -10,6 +10,7 @@ class CompanyType extends Model
 {
     use HasFactory,SoftDeletes;
     protected $dates = ['deleted_at'];
+
     protected $fillable = [
         'top_most_parent_id',
         'created_by',

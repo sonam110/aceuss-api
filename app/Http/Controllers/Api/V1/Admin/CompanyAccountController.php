@@ -128,9 +128,6 @@ class CompanyAccountController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
-            activity()
-           ->causedBy($user)
-           ->log($user);
             $update_top_most_parent = User::where('id',$user->id)->update(['top_most_parent_id'=>$user->id]);
             
             $role = Role::where('id','2')->first();
@@ -237,7 +234,6 @@ class CompanyAccountController extends Controller
                 'role_id' => 'required', 
                 'company_type_id' => 'required', 
                 'name' => 'required', 
-                'email'     => 'required|email|unique:users,email,'.$user->id,
                 'contact_number' => 'required', 
 
             ],
@@ -246,8 +242,6 @@ class CompanyAccountController extends Controller
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'company_type_id.required' =>  getLangByLabelGroups('UserValidation','company_type_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
@@ -261,19 +255,17 @@ class CompanyAccountController extends Controller
             
             $user->company_type_id = $request->company_type_id;
             $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-            $user->organization_number = $request->organization_number;
+            //$user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
+            //$user->license_key = $request->license_key;
+            //$user->license_end_date = $request->license_end_date;
             $user->joining_date = $request->joining_date;
             $user->establishment_date = $request->establishment_date;
             $user->user_color = $request->user_color;
@@ -284,9 +276,6 @@ class CompanyAccountController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
-            activity()
-           ->causedBy($user)
-           ->log($user);
             if($request->package_id) {
                 $package = Package::where('id',$request->package_id)->first();
                 $packageSubscribe = new Subscription;
@@ -309,7 +298,7 @@ class CompanyAccountController extends Controller
                         $assigneModule->module_id = $request->modules[$i] ;
                         $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
                         $assigneModule->save() ;
-          
+           
 
                     }
                 }

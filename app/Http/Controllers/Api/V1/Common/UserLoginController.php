@@ -10,6 +10,7 @@ use App\Models\Subscription;
 use App\Models\AssigneModule;
 use App\Models\Package;
 use App\Models\EmailTemplate;
+use App\Models\DeviceLoginHistory;
 use Validator;
 use Auth;
 use DB;
@@ -63,6 +64,37 @@ class UserLoginController extends Controller
                             if (empty($token)) {
                                 return prepareResult(false,getLangByLabelGroups('LoginValidation','unable_generate_token'),[], $this->unprocessableEntity);
                             }else{
+
+                                $userLoginDevice = User::where('id', Auth::id())->update([
+                                    'login_via'=> ($request->login_via) ? $request->login_via:'0',
+                                    'device_token'=>$request->device_token,
+                                    'device_id'=>$request->device_id
+                                ]);
+
+                                 //======= login history==================//
+                                $history =  DeviceLoginHistory::where('user_id',$user->id)->get();
+                                if (count($history) <= 6) {
+                                    $createHistory = DeviceLoginHistory::create([
+                                        'user_id'=> Auth::id(),
+                                        'login_via'=> ($request->login_via) ? $request->login_via:'0',
+                                        'device_token'=> $request->device_token,
+                                        'device_id'=> $request->device_id,
+                                        'user_token'=> $token,
+                                    ]);
+                                }else if(count($history) >= 7){  
+                                    $getLastId = DeviceLoginHistory::orderBy('created_at', 'desc')->skip(6)->take(1)->first();
+                                    if ($getLastId->id) {
+                                        $deleteId = DeviceLoginHistory::find($getLastId->id); 
+                                        $deleteId->delete($getLastId->id);
+                                        $createHistory = DeviceLoginHistory::create(
+                                            ['user_id'=>Auth::id(),
+                                            'login_via'=> ($request->login_via) ? $request->login_via:'0',
+                                            'device_token'=>$request->device_token,
+                                            'device_id'=>$request->device_id,
+                                            'user_token'=> $token,
+                                        ]);
+                                    }
+                                }
                         
                                 $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email')->first();    
                                 $user['access_token'] = $token;
