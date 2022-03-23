@@ -26,13 +26,22 @@ class PatientController extends Controller
     {
         try {
             $user = getUser();
-           $whereRaw = $this->getWhereRawFromRequest($request);
+            $whereRaw = $this->getWhereRawFromRequest($request);
+            $parent_id = PatientImplementationPlan::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
+            $child_id  = [];
+            $ip_without_parent = PatientImplementationPlan::whereNull('parent_id')->whereNotIn('id',explode(',',$parent_id))->pluck('id')->all();
+            foreach (explode(',',$parent_id) as $key => $value) {
+              $lastChild = PatientImplementationPlan::where('parent_id',$value)->orderBy('id','DESC')->first();
+              $child_id[] = (!empty($value)) ? $lastChild->id : null;
+            }
+            $ip_ids = array_merge($ip_without_parent,$child_id);
             if($whereRaw != '') { 
-                $query =PatientImplementationPlan::whereRaw($whereRaw)
+                
+                $query =PatientImplementationPlan::whereIn('id',$ip_ids)->whereRaw($whereRaw)
                 ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
                 ->orderBy('id', 'DESC');
             } else {
-                $query =PatientImplementationPlan::with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
+                $query =PatientImplementationPlan::whereIn('id',$ip_ids)->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
                 ->orderBy('id', 'DESC');
             }
             if(!empty($request->perPage))
@@ -71,9 +80,9 @@ class PatientController extends Controller
             
             $data = [ 'data' => $request->all() ];
             $validator = Validator::make($data,[
-                'data.*.user_id' => 'required',   
-                'data.*.category_id' => 'required',   
-                'data.*.subcategory_id' => 'required',   
+                'data.*.user_id' => 'required|exists:users,id',   
+                'data.*.category_id' => 'required|exists:category_masters,id',   
+                'data.*.subcategory_id' => 'required|exists:category_masters,id',   
                 'data.*.what_happened' => 'required',   
                 'data.*.how_it_happened' => 'required',   
                 'data.*.when_it_started' => 'required',   
@@ -104,7 +113,7 @@ class PatientController extends Controller
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
                     $patientPlan->user_id = $patient['user_id'];
-                    $patientPlan->branch_id = (array_key_exists('branch_id', $data['data'])) ? $patient['branch_id'] :null;
+                    $patientPlan->branch_id = $patient['branch_id'];
                     $patientPlan->category_id = $patient['category_id'];
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
                     $patientPlan->what_happened = $patient['what_happened'];
@@ -112,13 +121,13 @@ class PatientController extends Controller
                     $patientPlan->when_it_started = $patient['when_it_started'];
                     $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
-                    $patientPlan->sub_goal = (array_key_exists('sub_goal', $data['data'])) ? $patient['sub_goal'] :null;
+                    $patientPlan->sub_goal = $patient['sub_goal'];
                     $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
-                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_date']));
+                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_time']));
+                    $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
                     $patientPlan->remark = $patient['remark'];
                     $patientPlan->activity_message = $patient['activity_message'];
                     $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
-                    $patientPlan->reason_for_editing = (array_key_exists('reason_for_editing', $data['data'])) ? $patient['reason_for_editing'] :null;
                     $patientPlan->created_by = $user->id;
                     $patientPlan->save();
 
@@ -180,7 +189,7 @@ class PatientController extends Controller
                             $personalInfo->contact_number = $value['contact_number'];
                             $personalInfo->country = $value['country_id'];
                             $personalInfo->city = $value['city'];
-                            $personalInfo->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                            $personalInfo->postal_area = $value['postal_area'];
                             $personalInfo->zipcode = $value['zipcode'];
                             $personalInfo->full_address = $value['full_address'] ;
                             $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
@@ -205,7 +214,6 @@ class PatientController extends Controller
                                     } else {
                                         $userSave = new User;
                                     }
-                                    $userSave = new User;
                                     $userSave->user_type_id = $user_type_id;
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
@@ -216,7 +224,7 @@ class PatientController extends Controller
                                     $userSave->contact_number = $value['contact_number'];
                                     $userSave->country_id = $value['country_id'];
                                     $userSave->city = $value['city'];
-                                    $userSave->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                                    $userSave->postal_area = $value['postal_area'];
                                     $userSave->zipcode = $value['zipcode'];
                                     $userSave->full_address = $value['full_address'] ;
                                     $userSave->save(); 
@@ -262,9 +270,9 @@ class PatientController extends Controller
             $user = getUser();
             $data = [ 'data' => $request->all() ];
             $validator = Validator::make($data,[
-                'data.*.user_id' => 'required',   
-                'data.*.category_id' => 'required',   
-                'data.*.subcategory_id' => 'required',   
+                'data.*.user_id' => 'required|exists:users,id',   
+                'data.*.category_id' => 'required|exists:category_masters,id',   
+                'data.*.subcategory_id' => 'required|exists:category_masters,id',   
                 'data.*.what_happened' => 'required',   
                 'data.*.how_it_happened' => 'required',   
                 'data.*.when_it_started' => 'required',   
@@ -272,6 +280,7 @@ class PatientController extends Controller
                 'data.*.goal' => 'required',    
                 'data.*.plan_start_date' => 'required',   
                 'data.*.plan_start_time' => 'required',    
+                'data.*.reason_for_editing' => 'required',    
             ],
             [   
             'user_id' =>  getLangByLabelGroups('IP','user_id'),   
@@ -295,13 +304,13 @@ class PatientController extends Controller
             }
             $ids = null;
             $impPlan_ids = [];
-            $parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
+            $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
                     $patientPlan->user_id = $patient['user_id'];
                     $patientPlan->parent_id = $parent_id;
-                    $patientPlan->branch_id = (array_key_exists('branch_id', $data['data'])) ? $patient['branch_id'] :null;
+                    $patientPlan->branch_id = $patient['branch_id'];
                     $patientPlan->category_id = $patient['category_id'];
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
                     $patientPlan->what_happened = $patient['what_happened'];
@@ -309,13 +318,14 @@ class PatientController extends Controller
                     $patientPlan->when_it_started = $patient['when_it_started'];
                     $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
-                    $patientPlan->sub_goal = (array_key_exists('sub_goal', $data['data'])) ? $patient['sub_goal'] :null;
+                    $patientPlan->sub_goal = $patient['sub_goal'];
                     $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
-                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_date']));
+                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_time']));
+                    $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
                     $patientPlan->remark = $patient['remark'];
                     $patientPlan->activity_message = $patient['activity_message'];
                     $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
-                    $patientPlan->reason_for_editing = (array_key_exists('reason_for_editing', $data['data'])) ? $patient['reason_for_editing'] :null;
+                    $patientPlan->reason_for_editing = $patient['reason_for_editing'] ;
                     $patientPlan->created_by = $user->id;
                     $patientPlan->save();
 
@@ -374,7 +384,7 @@ class PatientController extends Controller
                             $personalInfo->contact_number = $value['contact_number'];
                             $personalInfo->country = $value['country_id'];
                             $personalInfo->city = $value['city'];
-                            $personalInfo->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                            $personalInfo->postal_area = $value['postal_area'];
                             $personalInfo->zipcode = $value['zipcode'];
                             $personalInfo->full_address = $value['full_address'] ;
                             $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
@@ -409,7 +419,7 @@ class PatientController extends Controller
                                     $userSave->contact_number = $value['contact_number'];
                                     $userSave->country_id = $value['country_id'];
                                     $userSave->city = $value['city'];
-                                    $userSave->postal_area = (array_key_exists('postal_area', $patient['persons'])) ? $value['postal_area'] :null;
+                                    $userSave->postal_area = $value['postal_area'];
                                     $userSave->zipcode = $value['zipcode'];
                                     $userSave->full_address = $value['full_address'] ;
                                     $userSave->save(); 
@@ -476,7 +486,7 @@ class PatientController extends Controller
                 return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],$this->not_found);
             }
 
-            $patientPlan = PatientImplementationPlan::where('id',$id)->with('Parent','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patient','persons','children')->first();
+            $patientPlan = PatientImplementationPlan::where('id',$id)->with('Parent','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patient','persons.Country','children','assignEmployee:id,ip_id,user_id')->first();
             return prepareResult(true,'View Patient plan' ,$patientPlan, $this->success);
         }
         catch(Exception $exception) {
@@ -587,9 +597,9 @@ class PatientController extends Controller
             $id = $request->patient_id;
             $whereRaw = $this->getWhereRawFromRequest1($request);
             if($whereRaw != '') { 
-                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw);
+                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw)>with('Country');
             } else {
-                $query= PersonalInfoDuringIp::where('patient_id',$id);
+                $query= PersonalInfoDuringIp::where('patient_id',$id)>with('Country');
             }
             if(!empty($request->perPage))
             {
@@ -613,6 +623,83 @@ class PatientController extends Controller
             }
             
             return prepareResult(true,'Person List' ,$query, $this->success);
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
+
+    public function ipEditHistory(Request $request){
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'parent_id' => 'required',   
+            ],
+            [
+            'parent_id' =>  'Parent id is required',
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $id = $request->parent_id;
+            $whereRaw = $this->getWhereRawFromRequest1($request);
+            $parent_id = 
+            $query= PatientImplementationPlan::where('parent_id',$id);
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Edited Ip list",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            
+            return prepareResult(true,'Edited Ip List' ,$query, $this->success);
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
+
+     public function ipTemplateList(Request $request){
+        try {
+            $query= IpTemplate::select('id','ip_id','template_title')->orderBy('id','DESC');
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Edited Ip list",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            
+            return prepareResult(true,'Edited Ip List' ,$query, $this->success);
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);

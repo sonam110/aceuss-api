@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\IpAssigneToEmployee;
 use Spatie\Activitylog\Traits\LogsActivity;
 class PatientImplementationPlan extends Model
 {
@@ -32,6 +33,7 @@ class PatientImplementationPlan extends Model
 		'sub_goal',
 		'plan_start_date',
 		'plan_start_time',
+        'end_date',
 		'remark',
 		'activity_message',
 		'save_as_template',
@@ -84,6 +86,12 @@ class PatientImplementationPlan extends Model
     }
     public function persons()
     {
-         return $this->hasMany(PersonalInfoDuringIp::class,'ip_id','id');
+        return $this->hasMany(PersonalInfoDuringIp::class,'ip_id','id');
     }
+    public function assignEmployee()
+    {
+        return $this->belongsTo(IpAssigneToEmployee::class,'id','ip_id');
+    }
+
+    
 }

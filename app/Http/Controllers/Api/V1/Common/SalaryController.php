@@ -15,7 +15,7 @@ class SalaryController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-        		'user_id' => 'required',     
+        		'user_id' => 'required|exists:users,id',     
         		'salary_per_month' => 'required',     
         		'salary_package_start_date' => 'required',   
         		'salary_package_end_date' => 'required|after:salary_package_start_date',   
@@ -54,7 +54,7 @@ class SalaryController extends Controller
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
-                'user_id' => 'required',        
+                'user_id' => 'required|exists:users,id',        
             ],
             [
             'user_id.required' => getLangByLabelGroups('Salary','user_id'),

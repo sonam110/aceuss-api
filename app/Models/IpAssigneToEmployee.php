@@ -20,6 +20,8 @@ class IpAssigneToEmployee extends Model
         'entry_mode',
 
     ];
+
+    protected $appends = ['employee'];
     public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');
@@ -27,5 +29,15 @@ class IpAssigneToEmployee extends Model
      public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+     public function getEmployeeAttribute()
+    {
+        if(is_null($this->user_id)== false){
+            $employee = User::select('id','name','email','contact_number')->where('id',$this->user_id)->first();
+            return (!empty($employee)) ? $employee : null;
+        }
+        
+
     }
 }

@@ -63,12 +63,10 @@ class ActivityController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-        		'activity_class_id' => 'required',   
-        		'category_id' => 'required',   
+        		'activity_class_id' => 'required|exists:activity_classifications,id',   
+        		'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',   
-        		'activity_type' => 'required|in:1,2',   
-        		'start_date' => 'required|date',   
         		'start_time' => 'required',     
 	        ],
             [
@@ -76,38 +74,52 @@ class ActivityController extends Controller
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'activity_type.required' =>  getLangByLabelGroups('Activity','activity_type'),
-            'activity_type.in' =>  getLangByLabelGroups('Activity','activity_type_in'),
-            'start_date.required' =>  getLangByLabelGroups('Activity','start_date'),
             'start_time.required' =>  getLangByLabelGroups('Activity','start_time'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
         	}
-        	if($request->end_date){
-	        	$validator = Validator::make($request->all(),[  
-	        		'end_date' => 'required|date_format:Y-m-d|after:start_date',  
+            if($request->is_repeat){
+                $validator = Validator::make($request->all(),[     
+                    'every' => 'required|numeric',          
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+                if($request->repetition_type=='2'){
+                    $validator = Validator::make($request->all(),[     
+                        "week_days"    => "required|array",
+                        "week_days.*"  => "required|string|distinct",        
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+                if($request->repetition_type=='3'){
+                    $validator = Validator::make($request->all(),[     
+                        "month_day"    => "required",      
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+
+            } else{
+                $validator = Validator::make($request->all(),[   
+                    'start_date' => 'required|date',      
                 ],
-                [
-                'end_date.after' => getLangByLabelGroups('Activity','end_date'),   
-		        ]);
-		        if ($validator->fails()) {
-	            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-	        	}
+                [ 
+                    'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
 
-        	}
-        	if($request->end_time){
-	        	$validator = Validator::make($request->all(),[  
-	        		'end_time' => 'required|date_format:H:i|after:start_time',       
-		        ],
-                [
-                'end_time.after' => getLangByLabelGroups('Activity','end_time'),   
-                ]);;
-		        if ($validator->fails()) {
-	            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-	        	}
+            }
 
-        	}
         	
 	        $activity = new Activity;
 		 	$activity->activity_class_id = $request->activity_class_id;
@@ -120,22 +132,35 @@ class ActivityController extends Controller
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
 		 	$activity->description = $request->description;
-		 	$activity->activity_type = ($request->activity_type)? $request->activity_type :1;
-		 	$activity->repetition_type = ($request->repetition_type)? $request->repetition_type :1;
-		 	$activity->repetition_days = $request->repetition_days;
-		 	$activity->start_date = $request->start_date;
+		 	$activity->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
+            $activity->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+            $activity->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
+            $activity->every = $request->every;
+            $activity->repetition_type = $request->repetition_type;
+            $activity->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
+            $activity->month_day = $request->month_day;
 		 	$activity->end_date = $request->end_date;
-		 	$activity->start_time = $request->start_time;
 		 	$activity->end_time = $request->end_time;
 		 	$activity->external_link = $request->external_link;
 		 	$activity->activity_status = ($request->activity_status) ? $request->activity_status: 1;
 		 	$activity->notity_to_users = $request->notity_to_users;
-		 	$activity->reason_for_editing = $request->reason_for_editing;
 		 	$activity->created_by = $user->id;
 		 	$activity->remind_before_start = ($request->remind_before_start) ? $request->remind_before_start: 0;
 		 	$activity->remind_after_end = ($request->remind_after_end) ? $request->remind_after_end: 0;
             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activity->save();
+            if(!empty($request->emp_id)){
+                $activityAssigne = new ActivityAssigne;
+                $activityAssigne->activity_id = $activity->id;
+                $activityAssigne->user_id = $request->emp_id;
+                $activityAssigne->assignment_date = date('Y-m-d');
+                $activityAssigne->assignment_day = date('l');
+                $activityAssigne->assigned_by = $user->id;
+                $activityAssigne->status = '1';
+                $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                $activityAssigne->save();
+            }
+            
 	        return prepareResult(true,'Activity Added successfully' ,$activity, $this->success);
         }
         catch(Exception $exception) {
@@ -147,56 +172,71 @@ class ActivityController extends Controller
     public function update(Request $request,$id){
         try {
 	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[ 
-                'activity_class_id' => 'required',   
-        		'category_id' => 'required',   
-        		'title' => 'required',   
-        		'description' => 'required',   
-        		'activity_type' => 'required|in:1,2',   
-        		'start_date' => 'required',   
-        		'start_time' => 'required',     
-	        ],
+	    	$validator = Validator::make($request->all(),[
+                'activity_class_id' => 'required|exists:activity_classifications,id',   
+                'category_id' => 'required|exists:category_masters,id',   
+                'title' => 'required',   
+                'description' => 'required',   
+                'start_time' => 'required',     
+                'reason_for_editing' => 'required',     
+            ],
             [
+            'activity_class_id.required' => getLangByLabelGroups('Activity','activity_class_id'),
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'activity_type.required' =>  getLangByLabelGroups('Activity','activity_type'),
-            'activity_type.in' =>  getLangByLabelGroups('Activity','activity_type_in'),
-            'start_date.required' =>  getLangByLabelGroups('Activity','start_date'),
             'start_time.required' =>  getLangByLabelGroups('Activity','start_time'),
+            'reason_for_editing.required' => 'Please Enter Reason for editing',
             ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-        	}
-        	if($request->end_date){
-	        	$validator = Validator::make($request->all(),[  
-	        	'end_date' => 'required|date_format:Y-m-d|after:start_date',      
-		        ],
-                [
-                'end_date.after' => getLangByLabelGroups('Activity','end_date'),   
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+        	if($request->is_repeat){
+                $validator = Validator::make($request->all(),[     
+                    'every' => 'required|numeric',          
                 ]);
-		        if ($validator->fails()) {
-	            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-	        	}
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
 
-        	}
-        	if($request->end_time){
-	        	$validator = Validator::make($request->all(),[  
-	        		'end_time' => 'required|date_format:H:i|after:start_time',       
-		        ],
-                [
-                'end_time.after' => getLangByLabelGroups('Activity','end_time'),   
+                if($request->repetition_type=='2'){
+                    $validator = Validator::make($request->all(),[     
+                        "week_days"    => "required|array",
+                        "week_days.*"  => "required|string|distinct",        
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+                if($request->repetition_type=='3'){
+                    $validator = Validator::make($request->all(),[     
+                        "month_day"    => "required",      
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+
+            } else{
+                $validator = Validator::make($request->all(),[   
+                    'start_date' => 'required|date',      
+                ],
+                [ 
+                    'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
                 ]);
-		        if ($validator->fails()) {
-	            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-	        	}
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
 
-        	}
+            }
+
         	$checkId = Activity::where('id',$id)->first();
 			if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
             }
-        	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
+        	$parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$activity = new Activity;
 	       	$activity->parent_id = $parent_id;
 		 	$activity->activity_class_id = $request->activity_class_id;
@@ -209,12 +249,14 @@ class ActivityController extends Controller
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
 		 	$activity->description = $request->description;
-		 	$activity->activity_type = ($request->activity_type)? $request->activity_type :1;
-		 	$activity->repetition_type = ($request->repetition_type)? $request->repetition_type :1;
-		 	$activity->repetition_days = $request->repetition_days;
-		 	$activity->start_date = $request->start_date;
+		 	$activity->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
+            $activity->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+            $activity->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
+            $activity->every = $request->every;
+            $activity->repetition_type = $request->repetition_type;
+            $activity->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
+            $activity->month_day = $request->month_day;
 		 	$activity->end_date = $request->end_date;
-		 	$activity->start_time = $request->start_time;
 		 	$activity->end_time = $request->end_time;
 		 	$activity->external_link = $request->external_link;
 		 	$activity->activity_status = ($request->activity_status) ? $request->activity_status: 1;

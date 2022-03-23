@@ -19,24 +19,24 @@ class UserSeeder extends Seeder
     public function run()
     {
         	
-            $adminUser = new User();
+          /*  $adminUser = new User();
             $adminUser->id      	            = '1';
             $adminUser->user_type_id            = '1';
             $adminUser->role_id                 = '1';
-            $adminUser->company_type_id         = '1';
+            $adminUser->company_type_id         = null;
             $adminUser->top_most_parent_id      = '1';
             $adminUser->name      			    = 'admin';
             $adminUser->email      			    = 'admin@gmail.com';
             $adminUser->password      		    = \Hash::make(12345678);
             $adminUser->contact_number      	= '8103099592';
             $adminUser->status      			= '1';
-            $adminUser->save();
+            $adminUser->save();*/
 
             $adminRole = Role::where('id','1')->first();
             $companyRole = Role::where('id','2')->first();
             $branchRole = Role::where('id','11')->first();
 
-            $adminUser->assignRole($adminRole);
+           /* $adminUser->assignRole($adminRole);*/
             
 
             $adminPermissions = Permission::select('id','name')->whereIn('belongs_to',['1','3'])->get();
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             }
 
 
-            
+           /* 
             \DB::table('languages')->truncate();
             Language::create([
             'title'          => 'English',
@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
                 'status'                =>'1',
                 'created_at'            => date('Y-m-d H:i:s'),
                 'updated_at'            => date('Y-m-d H:i:s')
-            ]);
+            ]);*/
 
 
     }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
+use App\Models\FollowupComplete;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 class IpFollowUp extends Model
@@ -22,12 +23,14 @@ class IpFollowUp extends Model
 	'parent_id',
 	'title',
 	'description',
-	'follow_up_type',
-	'repetition_type',
-	'repetition_days',
-	'start_date',
-	'start_time',
-	'is_completed',
+    'start_date',
+    'start_time',
+    'is_repeat',
+    'every',
+    'repetition_type',
+    'week_days',
+    'month_day',
+    'is_completed',
 	'end_date',
 	'end_time',
 	'remarks',
@@ -68,5 +71,13 @@ class IpFollowUp extends Model
     public function ApprovedBy()
     {
         return $this->belongsTo(User::class,'approved_by','id');
+    }
+     public function persons()
+    {
+        return $this->hasMany(PersonalInfoDuringIp::class,'ip_id','ip_id');
+    }
+     public function questions()
+    {
+        return $this->hasMany(FollowupComplete::class,'follow_up_id','ip_id');
     }
 }

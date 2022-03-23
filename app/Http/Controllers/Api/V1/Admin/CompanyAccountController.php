@@ -35,7 +35,7 @@ class CompanyAccountController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select(array('users.*', DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='2') employeeCount"), DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='6') patrientCount")))->where('status','1')->with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->where('role_id','2') ;
+            $query = User::select(array('users.*', DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='2') employeeCount"), DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='6') patrientCount")))->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('role_id','2') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -81,7 +81,8 @@ class CompanyAccountController extends Controller
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[ 
-                'company_type_id' => 'required', 
+                "company_type_id"    => "required|array",
+                "company_type_id.*"  => "required|string|distinct",
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
@@ -104,7 +105,7 @@ class CompanyAccountController extends Controller
             $user = new User;
             $user->user_type_id = '2';
             $user->role_id = '2';
-            $user->company_type_id = $request->company_type_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
@@ -112,6 +113,9 @@ class CompanyAccountController extends Controller
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
+            $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_email = $request->contact_person_email;
+            $user->contact_person_phone = $request->contact_person_phone;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
@@ -145,7 +149,13 @@ class CompanyAccountController extends Controller
                 $content = mailTemplateContent($emailTem->content,$variables);
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
-            if($request->package_id) {
+            if(!empty($request->package_id)) {
+                $validator = Validator::make($request->all(),[ 
+                    "package_id"    => "required|exists:packages,id",
+                 ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
                 $package = Package::where('id',$request->package_id)->first();
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user->id;
@@ -182,7 +192,7 @@ class CompanyAccountController extends Controller
                     $addType->save();
                 }
             }*/
-            $userdetail = User::with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
         }
         catch(Exception $exception) {
@@ -205,7 +215,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],$this->not_found);
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->first();
+            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->first();
             $getAssigneModule = AssigneModule::where('user_id',$user->id)->pluck('module_id')->implode(',');
             $userShow['module_list'] = Module::select('id','name')->whereIn('id',explode(',',$getAssigneModule))->get();
 
@@ -253,7 +263,7 @@ class CompanyAccountController extends Controller
                 return prepareResult(false, getLangByLabelGroups('UserValidation','id_not_found'), [],$this->not_found);
             }
             
-            $user->company_type_id = $request->company_type_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
@@ -276,7 +286,18 @@ class CompanyAccountController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
-            if($request->package_id) {
+            if(!empty($request->package_id)){
+                $validator = Validator::make($request->all(),[ 
+                    "package_id"    => "required|exists:packages,id",
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+                $checkAlreadySubsc = Subscription::where('user_id',$user->id)->first();
+                if(!is_object($checkAlreadySubsc)){
+                     return prepareResult(false,'User  has already one subsciption',[], $this->unprocessableEntity); 
+                }
+                
                 $package = Package::where('id',$request->package_id)->first();
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user->id;
@@ -304,7 +325,7 @@ class CompanyAccountController extends Controller
                 }
             }
            
-            $userdetail = User::with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
                 
         }

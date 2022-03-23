@@ -9,6 +9,7 @@ use App\Models\package;
 use App\Models\Subscription;
 use App\Models\EmailTemplate;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\AgencyWeeklyHour;
 use Validator;
 use Auth;
 use DB;
@@ -51,7 +52,7 @@ class UserController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('id','user_type_id', 'company_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender', 'personal_number','joining_date','status')->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country') ;
+            $query = User::select('id','user_type_id', 'company_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender', 'personal_number','joining_date','status')->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -94,11 +95,11 @@ class UserController extends Controller
      */
      public function store(Request $request) {
         try {
+
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[
-                'user_type_id' => 'required', 
-                'role_id' => 'required',
-                'category_id' => 'required', 
+                'user_type_id' => 'required|exists:user_types,id', 
+                'role_id' => 'required|exists:roles,id',
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
@@ -108,7 +109,6 @@ class UserController extends Controller
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
-            'category_id.required' =>  getLangByLabelGroups('UserValidation','category_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
             'email.required' =>  getLangByLabelGroups('UserValidation','email'),
             'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
@@ -119,12 +119,26 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
+
+            if(!empty($request->patient_type_id)){
+                if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
+                    $validator = Validator::make($request->all(),[
+                        'working_from' => 'required', 
+                        'working_to' => 'required',
+                        'place_name' => 'required', 
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                    }
+
+                }
+            }
            
             $user = new User;
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $request->role_id;
-            $user->company_type_id = $request->company_type_id;
-            $user->category_id = $request->category_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
+            $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $this->top_most_parent_id;
             $user->parent_id = $userInfo->id;
             $user->branch_id = $request->branch_id;
@@ -133,7 +147,6 @@ class UserController extends Controller
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
-            $user->weekly_hours_alloted_by_govt = $request->weekly_hours_alloted_by_govt;
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
@@ -141,6 +154,10 @@ class UserController extends Controller
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
+            $user->patient_type_id = $request->patient_type_id;
+            $user->working_from = $request->working_from;
+            $user->working_to = $request->working_to;
+            $user->place_name = $request->place_name;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
             $user->license_key = $request->license_key;
@@ -173,7 +190,16 @@ class UserController extends Controller
                 $content = mailTemplateContent($emailTem->content,$variables);
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
-
+             /*-------------patient weekly Hours-----------------------*/
+            if(is_array($request->weekly_hours)){
+                foreach ($request->weekly_hours as $key => $weekly_hours) {
+                    $agencyWeeklyHour = new AgencyWeeklyHour;
+                    $agencyWeeklyHour->user_id = $user->id;
+                    $agencyWeeklyHour->name = $weekly_hours['name'];
+                    $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
+                    $agencyWeeklyHour->save();
+                }
+            }
             /*-----------------Persons Informationn ----------------*/
             if($request->user_type_id == '6') {
                 if(is_array($request->persons) ){
@@ -202,7 +228,7 @@ class UserController extends Controller
                         $personalInfo->contact_number = $value['contact_number'];
                         $personalInfo->country = $value['country_id'];
                         $personalInfo->city = $value['city'];
-                        $personalInfo->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                        $personalInfo->postal_area = $value['postal_area'];
                         $personalInfo->zipcode = $value['zipcode'];
                         $personalInfo->full_address = $value['full_address'] ;
                         $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
@@ -233,7 +259,7 @@ class UserController extends Controller
                                 $userSave->contact_number = $value['contact_number'];
                                 $userSave->country_id = $value['country_id'];
                                 $userSave->city = $value['city'];
-                                $userSave->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                                $userSave->postal_area = $value['postal_area'];
                                 $userSave->zipcode = $value['zipcode'];
                                 $userSave->full_address = $value['full_address'] ;
                                 $userSave->save(); 
@@ -283,7 +309,7 @@ class UserController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],'404');
             }
-            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CompanyType:id,created_by,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name')->first();
+            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','PatientType:id,designation','branch','persons.Country')->first();
             return prepareResult(true,'User View' ,$userShow, '200');
                 
         }
@@ -304,9 +330,8 @@ class UserController extends Controller
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[
-                'user_type_id' => 'required', 
-                'role_id' => 'required',
-                'category_id' => 'required', 
+                'user_type_id' => 'required|exists:user_types,id', 
+                'role_id' => 'required|exists:roles,id', 
                 'name' => 'required', 
                 'contact_number' => 'required', 
 
@@ -314,12 +339,25 @@ class UserController extends Controller
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
-            'category_id.required' =>  getLangByLabelGroups('UserValidation','category_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
+            }
+
+            if(!empty($request->patient_type_id)){
+                if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
+                    $validator = Validator::make($request->all(),[
+                        'working_from' => 'required', 
+                        'working_to' => 'required',
+                        'place_name' => 'required', 
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                    }
+
+                }
             }
             $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
@@ -328,20 +366,22 @@ class UserController extends Controller
             
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $request->role_id;
-            $user->company_type_id = $request->company_type_id;
-            $user->category_id = $request->category_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
+            $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->branch_id = $request->branch_id;
             $user->govt_id = $request->govt_id;
             $user->dept_id = $request->dept_id;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
-            $user->weekly_hours_alloted_by_govt = $request->weekly_hours_alloted_by_govt;
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
+            $user->patient_type_id = $request->patient_type_id;
+            $user->working_from = $request->working_from;
+            $user->working_to = $request->working_to;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
             $user->license_key = $request->license_key;
@@ -361,6 +401,18 @@ class UserController extends Controller
                 $role = Role::where('id',$request->role_id)->first();
                 $user->assignRole($role->name);
             }
+            /*-------------patient weekly Hours-----------------------*/
+            if(is_array($request->weekly_hours)){
+                $deleteOld = AgencyWeeklyHour::where('user_id',$user->id)->delete();
+                 foreach ($request->weekly_hours as $key => $weekly_hours) {
+                    $agencyWeeklyHour = new AgencyWeeklyHour;
+                    $agencyWeeklyHour->user_id = $user->id;
+                    $agencyWeeklyHour->name = $weekly_hours['name'];
+                    $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
+                    $agencyWeeklyHour->save();
+                }
+            }
+             
             /*-----------------Persons Informationn ----------------*/
             if(is_array($request->persons) ){
                 foreach ($request->persons as $key => $value) {
@@ -388,7 +440,7 @@ class UserController extends Controller
                     $personalInfo->contact_number = $value['contact_number'];
                     $personalInfo->country = $value['country_id'];
                     $personalInfo->city = $value['city'];
-                    $personalInfo->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                    $personalInfo->postal_area = $value['postal_area'];
                     $personalInfo->zipcode = $value['zipcode'];
                     $personalInfo->full_address = $value['full_address'] ;
                     $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
@@ -419,7 +471,7 @@ class UserController extends Controller
                             $userSave->contact_number = $value['contact_number'];
                             $userSave->country_id = $value['country_id'];
                             $userSave->city = $value['city'];
-                            $userSave->postal_area = (array_key_exists('postal_area', $request->persons)) ? $value['postal_area'] :null;
+                            $userSave->postal_area = $value['postal_area'];
                             $userSave->zipcode = $value['zipcode'];
                             $userSave->full_address = $value['full_address'] ;
                             $userSave->save(); 

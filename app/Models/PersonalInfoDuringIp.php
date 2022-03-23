@@ -41,8 +41,12 @@ class PersonalInfoDuringIp extends Model
     {
         return $this->belongsTo(IpFollowUp::class,'follow_up_id','id');
     }
-     public function person()
+     public function patient()
     {
         return $this->belongsTo(User::class,'patient_id','id');
+    }
+    public function Country()
+    {
+        return $this->belongsTo(Country::class,'country_id','id');
     }
 }

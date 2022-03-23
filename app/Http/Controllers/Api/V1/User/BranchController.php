@@ -49,8 +49,7 @@ class BranchController extends Controller
     {
         try {
             $userInfo = getUser();
-            $validator = Validator::make($request->all(),[
-                'company_type_id' => 'required', 
+            $validator = Validator::make($request->all(),[ 
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
@@ -58,7 +57,6 @@ class BranchController extends Controller
 
             ],
             [
-            'company_type_id.required' =>  getLangByLabelGroups('UserValidation','company_type_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
             'email.required' =>  getLangByLabelGroups('UserValidation','email'),
             'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
@@ -85,11 +83,12 @@ class BranchController extends Controller
                 return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], $this->unprocessableEntity);
 
             }
-
+           
             $user = new User;
             $user->user_type_id = '11';
             $user->role_id = '11';
-            $user->company_type_id = $request->company_type_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
+            $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $top_most_parent_id;
             $user->parent_id = $userInfo->id;
             $user->branch_id = $request->branch_id;
@@ -100,6 +99,9 @@ class BranchController extends Controller
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
+            $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_email = $request->contact_person_email;
+            $user->contact_person_phone = $request->contact_person_phone;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
@@ -145,7 +147,7 @@ class BranchController extends Controller
                     $addType->save();
                 }
             }*/
-            $userdetail = User::with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
         }
         catch(Exception $exception) {
@@ -187,18 +189,12 @@ class BranchController extends Controller
     {
         try {
             $userInfo = getUser();
-            $validator = Validator::make($request->all(),[
-                'user_type_id' => 'required', 
-                'role_id' => 'required', 
-                'company_type_id' => 'required', 
+            $validator = Validator::make($request->all(),[  
                 'name' => 'required', 
                 'contact_number' => 'required', 
 
             ],
             [
-            'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
-            'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
-            'company_type_id.required' =>  getLangByLabelGroups('UserValidation','company_type_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
@@ -228,13 +224,14 @@ class BranchController extends Controller
             }
             
             $user = User::find($id);
-            $user->company_type_id = $request->company_type_id;
+            $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
+            $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->branch_id = $request->branch_id;
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-            $user->organization_number = $request->organization_number;
+           // $user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
@@ -252,7 +249,7 @@ class BranchController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
-            $userdetail = User::with('Parent:id,name','UserType:id,name','CompanyType:id,created_by,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
                 
         }

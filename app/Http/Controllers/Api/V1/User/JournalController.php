@@ -61,8 +61,8 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-        		'activity_id' => 'required',   
-        		'category_id' => 'required',   
+        		'activity_id' => 'required|exists:activities,id',   
+        		'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',       
 	        ],
@@ -102,8 +102,8 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
-                'activity_id' => 'required',   
-        		'category_id' => 'required',   
+                'activity_id' => 'required|exists:activities,id',   
+        		'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',    
 	        ],

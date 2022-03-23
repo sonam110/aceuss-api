@@ -29,6 +29,7 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->text('sub_goal')->nullable();
             $table->date('plan_start_date');
             $table->timestamp('plan_start_time');
+            $table->timestamp('end_date');
             $table->text('remark')->nullable();
             $table->text('activity_message')->nullable();
             $table->boolean('save_as_template')->default(0);

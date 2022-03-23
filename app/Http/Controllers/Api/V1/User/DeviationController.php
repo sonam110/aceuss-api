@@ -59,7 +59,7 @@ class DeviationController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[  
-        		'category_id' => 'required',   
+        		'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',       
 	        ],
@@ -101,7 +101,7 @@ class DeviationController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[    
-                'category_id' => 'required',   
+                'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',      
 	        ],

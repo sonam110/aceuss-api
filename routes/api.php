@@ -21,7 +21,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::post('verify-otp', 'Common\UserLoginController@verifyOtp');
 	Route::post('password-reset', 'Common\UserLoginController@passwordReset');
 	Route::post('password-reset-in-mobile', 'Common\UserLoginController@passwordResetInMobile');
-	Route::post('country-list', 'Common\UserLoginController@countryList');
+	Route::post('country-list', 'Common\NoMiddlewareController@countryList');
+	Route::post('agency-list', 'Common\NoMiddlewareController@agencyList');
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
 		
@@ -112,14 +113,19 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('ip', User\PatientController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-patient-plan','User\PatientController@approvedPatientPlan');
 		Route::post('patient-person-list','User\PatientController@patientPersonList');
+		Route::post('ip-template-list','User\PatientController@ipTemplateList');
+
 
 		Route::post('ip-assigne-to-employee','User\PatientController@ipAssigneToEmployee');
 		Route::post('view-ip-assigne','User\PatientController@viewIpAssigne');
+		Route::post('ip-edit-history','User\PatientController@ipEditHistory');
 
 		/*-------------Ip Follow ups ------------------------*/
 		Route::post('followups', [App\Http\Controllers\Api\V1\User\FollowUpsController::class, 'followups']);
 		Route::apiResource('follow-up', User\FollowUpsController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-ip-follow-up','User\FollowUpsController@approvedIpFollowUp');
+		Route::post('follow-up-complete','User\FollowUpsController@followUpComplete');
+		Route::post('followup-edit-history','User\FollowUpsController@followupEditHistory');
 
 		/*-------------activity ------------------------*/
 		Route::post('activities', [App\Http\Controllers\Api\V1\User\ActivityController::class, 'activities']);
@@ -145,6 +151,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('files', [App\Http\Controllers\Api\V1\User\FileController::class, 'files']);
 		Route::apiResource('file', User\FileController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-file','User\FileController@approvedFile');
+
+		/*-------------Questions ------------------------*/
+		Route::post('questions', [App\Http\Controllers\Api\V1\User\QuestionController::class, 'questions']);
+		Route::apiResource('question', User\QuestionController::class)->only(['store','destroy','show', 'update']);
 	
 
 

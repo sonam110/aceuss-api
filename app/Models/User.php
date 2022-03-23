@@ -24,6 +24,9 @@ use App\Models\Subscription;
 use App\Models\Message;
 use App\Models\Country;
 use App\Models\AssigneModule;
+use App\Models\AgencyWeeklyHour;
+use App\Models\EmployeeType;
+use App\Models\PersonalInfoDuringIp;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -38,6 +41,7 @@ class User extends Authenticatable
      */
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
+    protected $appends = ['company_types'];
     protected $fillable = [
         'user_type_id',
         'role_id',
@@ -48,7 +52,6 @@ class User extends Authenticatable
         'dept_id',
         'govt_id',
         'branch_id',
-        'weekly_hours_alloted_by_govt',
         'name',
         'email',
         'email_verified_at',
@@ -57,6 +60,13 @@ class User extends Authenticatable
         'gender',
         'personal_number',
         'organization_number',
+        'contact_person_name',
+        'contact_person_email',
+        'contact_person_phone',
+        'patient_type_id',
+        'working_from',
+        'working_to',
+        'place_name',
         'country_id',
         'city',
         'postal_area',
@@ -146,9 +156,17 @@ class User extends Authenticatable
     {
         return $this->children()->with('grandchildren');
     }
+    public function branch()
+    {
+        return $this->belongsTo(self::class,'branch_id','id');
+    }
     public function parentUnit() 
     {
         return $this->belongsTo(User::class,'parent_id', 'id');
+    }
+    public function PatientType()
+    {
+        return $this->belongsTo(EmployeeType::class,'patient_type_id','id');
     }
 
     public function getLatestParent()
@@ -162,6 +180,16 @@ class User extends Authenticatable
      public function modules()
     {
          return $this->hasMany(AssigneModule::class,'user_id','id');
+    }
+
+    public function weeklyHours()
+    {
+         return $this->hasMany(AgencyWeeklyHour::class,'user_id','id');
+    }
+
+     public function persons()
+    {
+         return $this->hasMany(PersonalInfoDuringIp::class,'patient_id','id');
     }
 
     public function messages()
@@ -202,6 +230,16 @@ class User extends Authenticatable
      public function branchChildren()
     {
         return $this->hasMany(self::class, 'branch_id');
+    }
+
+    public function getCompanyTypesAttribute()
+    {
+        if(is_null($this->company_type_id)== false){
+            $companyType = CompanyType::select('id','name')->whereIn('id',json_decode($this->company_type_id))->get();
+            return (!empty($companyType)) ? $companyType : null;
+        }
+        
+
     }
 
 

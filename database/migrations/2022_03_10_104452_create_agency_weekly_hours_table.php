@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateActivityAssignesTable extends Migration
+class CreateAgencyWeeklyHoursTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateActivityAssignesTable extends Migration
      */
     public function up()
     {
-        Schema::create('activity_assignes', function (Blueprint $table) {
+        Schema::create('agency_weekly_hours', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('activity_id');
             $table->foreignId('user_id');
-            $table->date('assignment_date')->nullable();
-            $table->string('assignment_day')->nullable();
-            $table->foreignId('assigned_by');
-            $table->boolean('status')->default(1);
+            $table->string('name');
+            $table->double('weekly_hours_allocated')->default(0);
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });
@@ -33,6 +30,6 @@ class CreateActivityAssignesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('activity_assignes');
+        Schema::dropIfExists('agency_weekly_hours');
     }
 }

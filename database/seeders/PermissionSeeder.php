@@ -414,5 +414,20 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'reports-delete', 'guard_name' => 'api','group_name'=>'reports','se_name'=>'reports-delete','belongs_to'=>'3']);
 
 
+        Permission::create(['name' => 'ContactPerson-browse', 'guard_name' => 'api','group_name'=>'ContactPerson','se_name'=>'ContactPerson-browse','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'ContactPerson-add', 'guard_name' => 'api','group_name'=>'ContactPerson','se_name'=>'ContactPerson-add','belongs_to'=>'2']);
+        
+        Permission::create(['name' => 'ContactPerson-read', 'guard_name' => 'api','group_name'=>'ContactPerson','se_name'=>'ContactPerson-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'ContactPerson-edit', 'guard_name' => 'api','group_name'=>'ContactPerson','se_name'=>'ContactPerson-edit','belongs_to'=>'2']);
+        
+        Permission::create(['name' => 'ContactPerson-delete', 'guard_name' => 'api','group_name'=>'ContactPerson','se_name'=>'ContactPerson-delete','belongs_to'=>'2']);
+
+
+         
+
+          
+
     }
 }
