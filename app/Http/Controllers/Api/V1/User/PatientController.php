@@ -122,8 +122,8 @@ class PatientController extends Controller
                     $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
                     $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
-                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_time']));
+                    $patientPlan->plan_start_date = $patient['plan_start_date'];
+                    $patientPlan->plan_start_time = $patient['plan_start_time'];
                     $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
                     $patientPlan->remark = $patient['remark'];
                     $patientPlan->activity_message = $patient['activity_message'];
@@ -141,6 +141,7 @@ class PatientController extends Controller
                         $ipTemplate = new IpTemplate;
                         $ipTemplate->ip_id = $patientPlan->id;
                         $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->created_by = $user->id;
                         $ipTemplate->save();
                     }
                     /*-----------IP assigne to employee*/
@@ -319,8 +320,8 @@ class PatientController extends Controller
                     $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
                     $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->plan_start_date = date('Y-m-d',strtotime($patient['plan_start_date']));
-                    $patientPlan->plan_start_time = date('Y-m-d H:i:s',strtotime($patient['plan_start_time']));
+                    $patientPlan->plan_start_date = $patient['plan_start_date'];
+                    $patientPlan->plan_start_time = $patient['plan_start_time'];
                     $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
                     $patientPlan->remark = $patient['remark'];
                     $patientPlan->activity_message = $patient['activity_message'];
@@ -338,6 +339,7 @@ class PatientController extends Controller
                         $ipTemplate = new IpTemplate;
                         $ipTemplate->ip_id = $patientPlan->id;
                         $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->created_by = $user->id;
                         $ipTemplate->save();
                     }
                     /*-----------IP assigne to employee*/
@@ -597,9 +599,9 @@ class PatientController extends Controller
             $id = $request->patient_id;
             $whereRaw = $this->getWhereRawFromRequest1($request);
             if($whereRaw != '') { 
-                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw)>with('Country');
+                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw)->with('Country');
             } else {
-                $query= PersonalInfoDuringIp::where('patient_id',$id)>with('Country');
+                $query= PersonalInfoDuringIp::where('patient_id',$id)->with('Country');
             }
             if(!empty($request->perPage))
             {
@@ -634,7 +636,7 @@ class PatientController extends Controller
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
-                'parent_id' => 'required',   
+                'parent_id' => 'required|exists:patient_implementation_plans,id',   
             ],
             [
             'parent_id' =>  'Parent id is required',
@@ -643,7 +645,6 @@ class PatientController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
             $id = $request->parent_id;
-            $whereRaw = $this->getWhereRawFromRequest1($request);
             $parent_id = 
             $query= PatientImplementationPlan::where('parent_id',$id);
             if(!empty($request->perPage))
@@ -677,7 +678,13 @@ class PatientController extends Controller
 
      public function ipTemplateList(Request $request){
         try {
-            $query= IpTemplate::select('id','ip_id','template_title')->orderBy('id','DESC');
+
+            $whereRaw = $this->getWhereRawFromRequest1($request);
+            if($whereRaw != '') { 
+                $query= IpTemplate::select('id','ip_id','template_title')->whereRaw($whereRaw)->orderBy('id','DESC');
+            } else {
+                $query= IpTemplate::select('id','ip_id','template_title')->orderBy('id','DESC');
+            }
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -699,7 +706,7 @@ class PatientController extends Controller
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Edited Ip List' ,$query, $this->success);
+            return prepareResult(true,' Ip Template List' ,$query, $this->success);
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
@@ -723,7 +730,11 @@ class PatientController extends Controller
         $w = '';
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "ip_id = "."'" .$request->input('status')."'".")";
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+         if (is_null($request->input('created_by')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "created_by = "."'" .$request->input('created_by')."'".")";
         }
         
         return($w);

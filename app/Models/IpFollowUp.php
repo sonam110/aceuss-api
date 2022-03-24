@@ -78,6 +78,6 @@ class IpFollowUp extends Model
     }
      public function questions()
     {
-        return $this->hasMany(FollowupComplete::class,'follow_up_id','ip_id');
+        return $this->hasMany(FollowupComplete::class,'follow_up_id','id');
     }
 }

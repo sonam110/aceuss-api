@@ -49,7 +49,10 @@ class CreateActivitiesTable extends Migration
             $table->date('edit_date')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
-            $table->enum('status', ['1','2','3','4'])->nullable()->comment('0=inactive 1:Active,2:Completed,3:Approved ,4:Rejected');
+            $table->string('question')->nullable();
+            $table->text('selected_option')->nullable();
+            $table->text('comment')->nullable();
+            $table->tinyInteger('status')->default(0)->comment('0=inactive 1:Active,2:Completed,3:Approved ,4:Rejected');
             $table->boolean('remind_before_start')->default(0);
             $table->boolean('remind_after_end')->default(0);
             $table->string('entry_mode')->nullable();

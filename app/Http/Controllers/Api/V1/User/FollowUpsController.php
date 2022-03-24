@@ -143,8 +143,8 @@ class FollowUpsController extends Controller
 		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
 		 	$ipFollowups->title = $request->title;
 		 	$ipFollowups->description = $request->description;
-            $ipFollowups->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
-            $ipFollowups->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+            $ipFollowups->start_date = $request->start_date;
+            $ipFollowups->start_time = $request->start_time;
 		 	$ipFollowups->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
 		 	$ipFollowups->every = $request->every;
             $ipFollowups->repetition_type = $request->repetition_type;
@@ -334,23 +334,25 @@ class FollowUpsController extends Controller
                 }
 
             }
-        	$ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
-        	if(!$ipCheck) {
-              	return prepareResult(false,getLangByLabelGroups('FollowUp','ip_not_found'),[], $this->not_found); 
-        	}
+
+            $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
+            if(!$ipCheck) {
+                return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], $this->not_found); 
+            }
+        	
         	$checkId = IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
             }
-            $parent_id  = (empty($ipCheck->parent_id)) ? $id : $ipCheck->parent_id;
+            $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
 	        $ipFollowups =  new  IpFollowUp;
 		 	$ipFollowups->ip_id = $request->ip_id ;
 		 	$ipFollowups->parent_id = $parent_id;
 		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
 		 	$ipFollowups->title = $request->title;
             $ipFollowups->description = $request->description;
-            $ipFollowups->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
-            $ipFollowups->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+            $ipFollowups->start_date = $request->start_date;
+            $ipFollowups->start_time = $request->start_time;
             $ipFollowups->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
             $ipFollowups->every = $request->every;
             $ipFollowups->repetition_type = $request->repetition_type;
@@ -571,8 +573,9 @@ class FollowUpsController extends Controller
             $ipFollowups->save();
             if(is_array($request->question_answer) ){
                 foreach ($request->question_answer as $key => $ans) {
-                    if(is_null($ans['id'])== false){
-                        $question = FollowupComplete::find($ans['id']);
+                    $checkQuestion = FollowupComplete::where('follow_up_id',$request->follow_up_id)->where('question_id',$ans['question_id'])->first();
+                    if(is_object($checkQuestion)){
+                        $question = FollowupComplete::find($checkQuestion->id);
                         $question->answer = $ans['answer'];
                         $question->save();
                     }else {
@@ -604,7 +607,7 @@ class FollowUpsController extends Controller
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
-                'parent_id' => 'required',   
+                 'parent_id' => 'required|exists:ip_follow_ups,id',   
             ],
             [
             'parent_id' =>  'Parent id is required',
@@ -613,7 +616,6 @@ class FollowUpsController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
             $id = $request->parent_id;
-            $whereRaw = $this->getWhereRawFromRequest($request);
             $parent_id = 
             $query= IpFollowUp::where('parent_id',$id);
             if(!empty($request->perPage))
@@ -630,7 +632,7 @@ class FollowUpsController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Ip list",$pagination,$this->success);
+                return prepareResult(true,"Edited Folllowup list",$pagination,$this->success);
             }
             else
             {

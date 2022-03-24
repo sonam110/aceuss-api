@@ -132,8 +132,8 @@ class ActivityController extends Controller
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
 		 	$activity->description = $request->description;
-		 	$activity->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
-            $activity->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+		 	$activity->start_date = $request->start_date;
+            $activity->start_time = $request->start_time;
             $activity->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
             $activity->every = $request->every;
             $activity->repetition_type = $request->repetition_type;
@@ -249,8 +249,8 @@ class ActivityController extends Controller
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
 		 	$activity->description = $request->description;
-		 	$activity->start_date = ($request->start_date) ? date('Y-m-d',strtotime($request->start_date)): null;
-            $activity->start_time = date('Y-m-d H:i:s',strtotime($request->start_time));
+		 	$activity->start_date = $request->start_date;
+            $activity->start_time = $request->start_time;
             $activity->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
             $activity->every = $request->every;
             $activity->repetition_type = $request->repetition_type;
@@ -272,6 +272,17 @@ class ActivityController extends Controller
 		 	$activity->edit_date = date('Y-m-d');
             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activity->save();
+            if(!empty($request->emp_id)){
+                $activityAssigne = new ActivityAssigne;
+                $activityAssigne->activity_id = $activity->id;
+                $activityAssigne->user_id = $request->emp_id;
+                $activityAssigne->assignment_date = date('Y-m-d');
+                $activityAssigne->assignment_day = date('l');
+                $activityAssigne->assigned_by = $user->id;
+                $activityAssigne->status = '1';
+                $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                $activityAssigne->save();
+            }
 		 
 	        return prepareResult(true,getLangByLabelGroups('Activity','update') ,$activity, $this->success);
 			  
@@ -381,6 +392,82 @@ class ActivityController extends Controller
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
+    }
+
+     public function activityEditHistory(Request $request){
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'parent_id' => 'required|exists:activities,id',   
+            ],
+            [
+            'parent_id' =>  'Parent id is required',
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $id = $request->parent_id;
+            $parent_id = 
+            $query= Activity::where('parent_id',$id);
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Edited Activity list",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            
+            return prepareResult(true,'Activity Ip List' ,$query, $this->success);
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
+
+    public function activityAction(Request $request)
+    {
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'activity_id' => 'required|exists:activities,id',   
+                'status'     => 'required|in:0,1,2,3,4',  
+                'question' => 'required',  
+                'option' => 'required',  
+                'comment' => 'required',  
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $id = $request->activity_id;
+            $activity = Activity::find($id);
+            $activity->status = $request->status;
+            $activity->question = $request->question;
+            $activity->selected_option = $request->option;
+            $activity->comment = $request->comment;
+            $activity->save();
+            return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
+            
+        
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+        
     }
     private function getWhereRawFromRequest(Request $request) {
         $w = '';

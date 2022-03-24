@@ -76,6 +76,12 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		});
 
+		Route::post('words', [App\Http\Controllers\Api\V1\Common\WordController::class, 'words']);
+		Route::apiResource('word',Common\WordController::class)->only(['store','destroy', 'update']);
+
+		Route::post('paragraphs', [App\Http\Controllers\Api\V1\Common\ParagraphController::class, 'paragraphs']);
+		Route::apiResource('paragraph',Common\ParagraphController::class)->only(['store','destroy', 'update']);
+
 		/*-------User route-----------------------------------------*/
 		
 		/*-------------Company Type------------------------*/
@@ -133,6 +139,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('approved-activity','User\ActivityController@approvedActivity');
 
 		Route::post('activity_assignments','User\ActivityController@activityAssignments');
+		Route::post('activity-edit-history','User\ActivityController@activityEditHistory');
+
+		Route::post('activity-action','User\ActivityController@activityAction');
 
 		/*-------------Journal ------------------------*/
 		Route::post('journals', [App\Http\Controllers\Api\V1\User\JournalController::class, 'journals']);

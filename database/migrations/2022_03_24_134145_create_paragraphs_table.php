@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateIpTemplatesTable extends Migration
+class CreateParagraphsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,10 @@ class CreateIpTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('ip_templates', function (Blueprint $table) {
+        Schema::create('paragraphs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('ip_id');
-            $table->string('template_title');
-            $table->boolean('status')->default(1);
-            $table->string('entry_mode')->nullable();
+            $table->longText('paragraph');
             $table->timestamps();
         });
     }
@@ -32,6 +28,6 @@ class CreateIpTemplatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ip_templates');
+        Schema::dropIfExists('paragraphs');
     }
 }
