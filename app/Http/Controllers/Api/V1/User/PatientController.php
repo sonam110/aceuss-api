@@ -20,6 +20,8 @@ use App\Mail\WelcomeMail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\EmailTemplate;
+use PDF;
+
 class PatientController extends Controller
 {
     public function ipsList(Request $request)
@@ -743,6 +745,34 @@ class PatientController extends Controller
         
         return($w);
 
+    }
+
+    public function ipFollowupsPrint($ip_id)
+    {
+        try {
+            $user = getUser();
+            $checkId= PatientImplementationPlan::where('id',$ip_id)->first();
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],$this->not_found);
+            }
+
+            $patientPlan = PatientImplementationPlan::where('id',$ip_id)->with('Parent','Category','Subcategory','CreatedBy','patient','persons.Country','children')->first();
+            $filename = $patientPlan->id."-".time().".pdf";
+            $data['ipfollowupInfo'] = $patientPlan; 
+            $pdf = PDF::loadView('print-followups', $data);
+            $pdf->save('reports/followups/'.$filename);
+
+            $returnData = [
+                'url' => env('CDN_DOC_URL').'reports/followups/'.$filename
+            ];
+
+            return prepareResult(true,'Print FollowUp',$returnData, $this->success);
+        }
+        catch(Exception $exception) {
+            \Log::info($exception);
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
     }
     
 }

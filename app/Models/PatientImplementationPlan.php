@@ -10,6 +10,7 @@ use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\IpAssigneToEmployee;
+use App\Models\IpFollowUp;
 use Spatie\Activitylog\Traits\LogsActivity;
 class PatientImplementationPlan extends Model
 {
@@ -91,6 +92,11 @@ class PatientImplementationPlan extends Model
     public function assignEmployee()
     {
         return $this->belongsTo(IpAssigneToEmployee::class,'id','ip_id');
+    }
+
+    public function ipFollowUps()
+    {
+        return $this->hasMany(IpFollowUp::class,'ip_id','id');
     }
 
     
