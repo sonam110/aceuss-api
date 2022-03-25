@@ -78,7 +78,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 
 		Route::post('file-uploads', 'Common\FileUploadController@uploadFiles');
-		
+
 		Route::post('words', [App\Http\Controllers\Api\V1\Common\WordController::class, 'words']);
 		Route::apiResource('word',Common\WordController::class)->only(['store','destroy', 'update']);
 
@@ -87,6 +87,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('tasks', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'tasks']);
 		Route::apiResource('task',Common\TaskController::class)->only(['store','destroy','show', 'update']);
+
+		Route::post('emergency-contacts', [App\Http\Controllers\Api\V1\Common\EmergencyContactController::class, 'emergencyContact']);
+		Route::apiResource('emergency-contact',Common\EmergencyContactController::class)->only(['store','destroy', 'update']);
 
 
 
@@ -128,6 +131,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('approved-patient-plan','User\PatientController@approvedPatientPlan');
 		Route::post('patient-person-list','User\PatientController@patientPersonList');
 		Route::post('ip-template-list','User\PatientController@ipTemplateList');
+		Route::get('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
 
 
 		Route::post('ip-assigne-to-employee','User\PatientController@ipAssigneToEmployee');
