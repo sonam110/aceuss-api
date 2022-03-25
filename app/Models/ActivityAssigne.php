@@ -19,7 +19,8 @@ class ActivityAssigne extends Model
 		'assignment_date',
 		'assignment_day',
 		'assigned_by',
-		'status',
+		'reason',
+        'status',
         'entry_mode',
     ];
 

@@ -117,6 +117,8 @@ class BranchController extends Controller
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
+            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
+            $user->order_by = $request->order_by ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
 
@@ -246,6 +248,8 @@ class BranchController extends Controller
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
+            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
+            $user->order_by = $request->order_by ;
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();

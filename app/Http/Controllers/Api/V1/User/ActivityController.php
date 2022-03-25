@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\ActivityClassification;
 use App\Models\Activity;
 use App\Models\ActivityAssigne;
+use App\Models\PatientImplementationPlan;
+use App\Models\Task;
+use App\Models\AssignTask;
 use Validator;
 use Auth;
 use Exception;
@@ -20,12 +23,10 @@ class ActivityController extends Controller
 	        $user = getUser();
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =  Activity::whereRaw($whereRaw)
-                ->with('Parent:id,title','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','CompanyWorkShift:id,shift_name','ActivityClassification:id,name')
+                $query =  Activity::select('id','ip_id','title','status','branch_id')->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Activity::with('Parent:id,title','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','CompanyWorkShift:id,shift_name','ActivityClassification:id,name')
-                ->orderBy('id', 'DESC');
+                $query = Activity::select('id','ip_id','title','status','branch_id')->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))
@@ -62,15 +63,15 @@ class ActivityController extends Controller
     public function store(Request $request){
         try {
 	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[
-        		'activity_class_id' => 'required|exists:activity_classifications,id',   
+	    	$validator = Validator::make($request->all(),[   
         		'category_id' => 'required|exists:category_masters,id',   
         		'title' => 'required',   
         		'description' => 'required',   
-        		'start_time' => 'required',     
+        		'start_time' => 'required',    
+                "employees"    => "required|array",
+                "employees.*"  => "required|string|distinct", 
 	        ],
             [
-            'activity_class_id.required' => getLangByLabelGroups('Activity','activity_class_id'),
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
@@ -119,15 +120,22 @@ class ActivityController extends Controller
                 }
 
             }
+             if($request->remind_before_start || $request->remind_after_end || $request->is_emergency || $request->in_time ){
+                    $validator = Validator::make($request->all(),[     
+                        "minutes"    => "required",
+                        "is_text_notify"  => "required",        
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
 
-        	
+                }
+        	$ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
+            
 	        $activity = new Activity;
-		 	$activity->activity_class_id = $request->activity_class_id;
 		 	$activity->ip_id = $request->ip_id;
             $activity->branch_id = $request->branch_id;
-		 	$activity->patient_id = $request->patient_id;
-		 	$activity->emp_id = $request->emp_id;
-		 	$activity->shift_id = $request->shift_id;
+		 	$activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
 		 	$activity->category_id = $request->category_id;
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
@@ -141,24 +149,35 @@ class ActivityController extends Controller
             $activity->month_day = $request->month_day;
 		 	$activity->end_date = $request->end_date;
 		 	$activity->end_time = $request->end_time;
-		 	$activity->external_link = $request->external_link;
-		 	$activity->activity_status = ($request->activity_status) ? $request->activity_status: 1;
-		 	$activity->notity_to_users = $request->notity_to_users;
+		 	$activity->address_url = $request->address_url;
+            $activity->video_url = $request->video_url;
+            $activity->information_url = $request->information_url;
+            $activity->information_url = $request->information_url;
+            $activity->file = $request->file;
+		 	$activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+            $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+            $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+            $activity->in_time  =($request->in_time) ? 1 :0;
+            $activity->minutes = $request->minutes;
+            $activity->is_text_notify  =($request->is_emergency) ? 1 :0;
+            $activity->is_push_notify  =($request->is_text_notify) ? 1 :0;
 		 	$activity->created_by = $user->id;
-		 	$activity->remind_before_start = ($request->remind_before_start) ? $request->remind_before_start: 0;
-		 	$activity->remind_after_end = ($request->remind_after_end) ? $request->remind_after_end: 0;
             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activity->save();
-            if(!empty($request->emp_id)){
-                $activityAssigne = new ActivityAssigne;
-                $activityAssigne->activity_id = $activity->id;
-                $activityAssigne->user_id = $request->emp_id;
-                $activityAssigne->assignment_date = date('Y-m-d');
-                $activityAssigne->assignment_day = date('l');
-                $activityAssigne->assigned_by = $user->id;
-                $activityAssigne->status = '1';
-                $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                $activityAssigne->save();
+            if(is_array($request->employees) ){
+                foreach ($request->employees as $key => $employee) {
+                    $activityAssigne = new ActivityAssigne;
+                    $activityAssigne->activity_id = $activity->id;
+                    $activityAssigne->user_id = $employee;
+                    $activityAssigne->assignment_date = date('Y-m-d');
+                    $activityAssigne->assignment_day = date('l');
+                    $activityAssigne->assigned_by = $user->id;
+                    $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                    $activityAssigne->save();
+                }
+            }
+            if(!empty($request->task) ){
+                addTask($request->task,$activity->id);
             }
             
 	        return prepareResult(true,'Activity Added successfully' ,$activity, $this->success);
@@ -173,15 +192,15 @@ class ActivityController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-                'activity_class_id' => 'required|exists:activity_classifications,id',   
                 'category_id' => 'required|exists:category_masters,id',   
                 'title' => 'required',   
                 'description' => 'required',   
                 'start_time' => 'required',     
-                'reason_for_editing' => 'required',     
+                'reason_for_editing' => 'required', 
+                "employees"    => "required|array",
+                "employees.*"  => "required|string|distinct",     
             ],
             [
-            'activity_class_id.required' => getLangByLabelGroups('Activity','activity_class_id'),
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
@@ -236,15 +255,13 @@ class ActivityController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
             }
+            $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
         	$parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$activity = new Activity;
 	       	$activity->parent_id = $parent_id;
-		 	$activity->activity_class_id = $request->activity_class_id;
 		 	$activity->ip_id = $request->ip_id;
             $activity->branch_id = $request->branch_id;
-		 	$activity->patient_id = $request->patient_id;
-		 	$activity->emp_id = $request->emp_id;
-		 	$activity->shift_id = $request->shift_id;
+	        $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
 		 	$activity->category_id = $request->category_id;
 		 	$activity->subcategory_id = $request->subcategory_id;
 		 	$activity->title = $request->title;
@@ -258,30 +275,38 @@ class ActivityController extends Controller
             $activity->month_day = $request->month_day;
 		 	$activity->end_date = $request->end_date;
 		 	$activity->end_time = $request->end_time;
-		 	$activity->external_link = $request->external_link;
-		 	$activity->activity_status = ($request->activity_status) ? $request->activity_status: 1;
-		 	$activity->done_by = ($request->done_by) ? $request->done_by: null;
-		 	$activity->not_done_by = ($request->not_done_by) ? $request->not_done_by: null;
-		 	$activity->not_done_reason = ($request->not_done_reason) ? $request->not_done_reason: null;
-		 	$activity->not_applicable_reason = ($request->not_applicable_reason) ? $request->not_applicable_reason: null;
-		 	$activity->notity_to_users = $request->notity_to_users;
-		 	$activity->reason_for_editing = $request->reason_for_editing;
-		 	$activity->remind_before_start = ($request->remind_before_start) ? $request->remind_before_start: 0;
-		 	$activity->remind_after_end = ($request->remind_after_end) ? $request->remind_after_end: 0;
+		 	$activity->address_url = $request->address_url;
+            $activity->video_url = $request->video_url;
+            $activity->information_url = $request->information_url;
+            $activity->address_url = $request->address_url;
+            $activity->file = $request->file;
+            $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+            $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+            $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+            $activity->in_time  =($request->in_time) ? 1 :0;
+            $activity->minutes = $request->minutes;
+            $activity->is_text_notify  =($request->is_emergency) ? 1 :0;
+            $activity->is_push_notify  =($request->is_text_notify) ? 1 :0;
+            $activity->created_by = $user->id;
 		 	$activity->edited_by = $user->id;
 		 	$activity->edit_date = date('Y-m-d');
+            $activity->reason_for_editing = $request->reason_for_editing;
             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activity->save();
-            if(!empty($request->emp_id)){
-                $activityAssigne = new ActivityAssigne;
-                $activityAssigne->activity_id = $activity->id;
-                $activityAssigne->user_id = $request->emp_id;
-                $activityAssigne->assignment_date = date('Y-m-d');
-                $activityAssigne->assignment_day = date('l');
-                $activityAssigne->assigned_by = $user->id;
-                $activityAssigne->status = '1';
-                $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                $activityAssigne->save();
+            if(is_array($request->employees) ){
+                foreach ($request->employees as $key => $employee) {
+                    $activityAssigne = new ActivityAssigne;
+                    $activityAssigne->activity_id = $activity->id;
+                    $activityAssigne->user_id = $employee;
+                    $activityAssigne->assignment_date = date('Y-m-d');
+                    $activityAssigne->assignment_day = date('l');
+                    $activityAssigne->assigned_by = $user->id;
+                    $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                    $activityAssigne->save();
+                }
+            }
+            if(!empty($request->task) ){
+                addTask($request->task,$activity->id);
             }
 		 
 	        return prepareResult(true,getLangByLabelGroups('Activity','update') ,$activity, $this->success);
@@ -381,7 +406,6 @@ class ActivityController extends Controller
 		 	$activityAssigne->assignment_date = $request->assignment_date;
 		 	$activityAssigne->assignment_day = $request->assignment_day;
 		 	$activityAssigne->assigned_by = $user->id;
-		 	$activityAssigne->status = '1';
             $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activityAssigne->save();
 
@@ -444,7 +468,7 @@ class ActivityController extends Controller
             $user = getUser();
             $validator = Validator::make($request->all(),[
                 'activity_id' => 'required|exists:activities,id',   
-                'status'     => 'required|in:0,1,2,3,4',  
+                'status'     => 'required|in:1,2,3',  
                 'question' => 'required',  
                 'option' => 'required',  
                 'comment' => 'required',  
@@ -458,7 +482,10 @@ class ActivityController extends Controller
             $activity->question = $request->question;
             $activity->selected_option = $request->option;
             $activity->comment = $request->comment;
+            $activity->action_by = $user->id;
             $activity->save();
+            $activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
+           
             return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
             
         
@@ -469,11 +496,21 @@ class ActivityController extends Controller
         }
         
     }
+   
+    
     private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+        }
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
         }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}

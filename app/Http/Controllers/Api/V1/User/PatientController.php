@@ -719,6 +719,10 @@ class PatientController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "user_id = "."'" .$request->input('patient_id')."'".")";
+        }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";

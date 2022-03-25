@@ -10,16 +10,16 @@ use App\Models\CompanyWorkShift;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Activity extends Model
 {
-    use HasFactory,TopMostParentId,LogsActivity;
+    use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
 		'parent_id',
-		'activity_class_id',
 		'ip_id',
 		'branch_id',
         'patient_id',
@@ -38,13 +38,10 @@ class Activity extends Model
         'month_day',
         'end_date',
         'end_time',
-		'external_link',
-		'activity_status',
-		'done_by',
-		'not_done_by',
-		'not_done_reason',
-		'not_applicable_reason',
-		'notity_to_users',
+		'address_url',
+        'video_url',
+        'information_url',
+        'file',
 		'reason_for_editing',
 		'created_by',
 		'edited_by',
@@ -54,9 +51,15 @@ class Activity extends Model
         'question',
         'selected_option',
         'comment',
+        'remind_before_start',
+        'remind_after_end',
+        'is_emergency',
+        'in_time',
+        'minutes',
+        'is_text_notify',
+        'is_push_notify',
 		'status',
-		'remind_before_start',
-		'remind_after_end',
+        'action_by',
         'entry_mode',
 	];
 	public function TopMostParent()

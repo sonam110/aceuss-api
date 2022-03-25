@@ -2,6 +2,11 @@
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Department;
+use App\Models\Task;
+use App\Models\AssignTask;
+use App\Models\DeviceLoginHistory;
+use App\Models\Notification;
+use Edujugon\PushNotification\PushNotification;
 function getUser() {
     return auth('api')->user();
 }
@@ -136,6 +141,143 @@ function mailTemplateContent($content,$variables){
     }
     return $string;
 
+}
+
+
+function addTask($task,$resource_id){
+    $user = getUser();
+    $addTask = new Task;
+    $addTask->type_id = $task['type_id']; 
+    $addTask->resource_id = $resource_id; 
+    $addTask->parent_id = $task['parent_id']; 
+    $addTask->title = $task['title']; 
+    $addTask->description = $task['description']; 
+    $addTask->start_date = $task['start_date']; 
+    $addTask->start_time = $task['start_time']; 
+    $addTask->is_repeat = ($task['is_repeat']) ? 1:0; 
+    $addTask->every = $task['every']; 
+    $addTask->repetition_type = $task['repetition_type']; 
+    $addTask->week_days = ($task['week_days']) ? json_encode($task['week_days']) :null;
+    $addTask->month_day = $task['month_day'];
+    $addTask->end_date = $task['end_date'];
+    $addTask->end_time =$task['end_time'];
+    $addTask->created_by =$user->id;
+    $addTask->save();
+    if(is_array($task['employees']) ){
+        foreach ($task['employees'] as $key => $employee) {
+            $taskAssign = new AssignTask;
+            $taskAssign->task_id = $addTask->id;
+            $taskAssign->user_id = $employee;
+            $taskAssign->assignment_date = date('Y-m-d');
+            $taskAssign->assigned_by = $user->id;
+            $taskAssign->save();
+        }
+    }
+    if($task){
+        return $task;
+    } else {
+        return null;
+    }
+    
+
+}
+
+
+
+function pushNotification($title,$body,$user,$type,$save_to_database,$user_type,$module,$id,$screen)
+{
+    if(!empty($user))
+    {
+        $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
+        if(!empty($userDeviceInfo))
+        { 
+            if(!empty($userDeviceInfo->device_token))
+            {
+                $push = new PushNotification('fcm');
+                $push->setMessage([
+                    "notification"=>[
+                        'title' => $title,
+                        'body'  => $body,
+                        'sound' => 'default',
+                        'android_channel_id' => '1',
+                        //'timestamp' => date('Y-m-d G:i:s')
+                    ],
+                    'data'=>[
+                        'id'  => $id,
+                        'user_type'  => $user_type,
+                        'module'  => $module,
+                        'screen'  => $screen
+                    ]                        
+                ])
+                ->setApiKey(env('FIREBASE_KEY'))
+                ->setDevicesToken($userDeviceInfo->device_token)
+                ->send();
+                /*if($userDeviceInfo->platform=='Android')
+                {
+                    $push = new PushNotification('fcm');
+                    $push->setMessage([
+                        "notification"=>[
+                            'title' => $title,
+                            'body'  => $body,
+                            'sound' => 'default',
+                            'android_channel_id' => '1',
+                            //'timestamp' => date('Y-m-d G:i:s')
+                        ],
+                        'data'=>[
+                            'id'  => $id,
+                            'user_type'  => $user_type,
+                            'module'  => $module,
+                            'screen'  => $screen
+                        ]                        
+                    ])
+                    ->setApiKey(env('FIREBASE_KEY'))
+                    ->setDevicesToken($userDeviceInfo->device_token)
+                    ->send();
+                }
+                elseif($userDeviceInfo->platform=='iOS')
+                {
+                    $push = new PushNotification('apn');
+
+                    $push->setMessage([
+                        'aps' => [
+                            'alert' => [
+                                'title' => $title,
+                                'body' => $body
+                            ],
+                            'sound' => 'default',
+                            'badge' => 1
+
+                        ],
+                        'extraPayLoad' => [
+                            'custom' => 'My custom data',
+                        ]                       
+                    ])
+                    ->setDevicesToken($userDeviceInfo->device_token);
+                    $push = $push->send();
+                    //return $push->getFeedback();
+                }*/
+            }
+        }
+        if($save_to_database == true)
+        {
+            $notification = new Notification;
+            $notification->user_id          = $user->id;
+            $notification->sender_id        = Auth::id();
+            $notification->device_uuid      = $userDeviceInfo ? $userDeviceInfo->id : null;
+            $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
+            $notification->type             = $type;
+            $notification->user_type        = $user_type;
+            $notification->module           = $module;
+            $notification->title            = $title;
+            $notification->sub_title        = $title;
+            $notification->message          = $body;
+            $notification->image_url        = '';
+            $notification->screen           = $screen;
+            $notification->data_id          = $id;
+            $notification->read_status      = false;
+            $notification->save();
+        }
+    }
 }
 
 ?>

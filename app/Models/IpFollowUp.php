@@ -74,7 +74,7 @@ class IpFollowUp extends Model
     }
      public function persons()
     {
-        return $this->hasMany(PersonalInfoDuringIp::class,'ip_id','ip_id');
+        return $this->hasMany(PersonalInfoDuringIp::class,'follow_up_id','id');
     }
      public function questions()
     {

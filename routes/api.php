@@ -76,11 +76,19 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		});
 
+
+		Route::post('file-uploads', 'Common\FileUploadController@uploadFiles');
+		
 		Route::post('words', [App\Http\Controllers\Api\V1\Common\WordController::class, 'words']);
 		Route::apiResource('word',Common\WordController::class)->only(['store','destroy', 'update']);
 
 		Route::post('paragraphs', [App\Http\Controllers\Api\V1\Common\ParagraphController::class, 'paragraphs']);
 		Route::apiResource('paragraph',Common\ParagraphController::class)->only(['store','destroy', 'update']);
+
+		Route::post('tasks', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'tasks']);
+		Route::apiResource('task',Common\TaskController::class)->only(['store','destroy','show', 'update']);
+
+
 
 		/*-------User route-----------------------------------------*/
 		
@@ -142,7 +150,6 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('activity-edit-history','User\ActivityController@activityEditHistory');
 
 		Route::post('activity-action','User\ActivityController@activityAction');
-
 		/*-------------Journal ------------------------*/
 		Route::post('journals', [App\Http\Controllers\Api\V1\User\JournalController::class, 'journals']);
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);

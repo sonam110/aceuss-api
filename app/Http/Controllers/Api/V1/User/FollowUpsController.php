@@ -394,6 +394,7 @@ class FollowUpsController extends Controller
                         $personalInfo = new PersonalInfoDuringIp;
                     }
                     $personalInfo->ip_id =$request->ip_id;
+                    $personalInfo->follow_up_id = $ipFollowups->id ;
                     $personalInfo->patient_id =$ipCheck->user_id;
                     $personalInfo->name = $value['name'] ;
                     $personalInfo->email = $value['email'] ;
