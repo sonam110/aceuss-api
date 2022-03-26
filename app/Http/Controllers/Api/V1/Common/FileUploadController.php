@@ -22,7 +22,7 @@ class FileUploadController extends Controller
             ]);
         }
         if ($validation->fails()) {
-            return prepareResult(false,$$validation->errors()->first(),[], $this->unprocessableEntity);
+            return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity);
         }
         try
         {
