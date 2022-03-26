@@ -131,7 +131,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('approved-patient-plan','User\PatientController@approvedPatientPlan');
 		Route::post('patient-person-list','User\PatientController@patientPersonList');
 		Route::post('ip-template-list','User\PatientController@ipTemplateList');
-		Route::get('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
+		Route::post('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
 
 
 		Route::post('ip-assigne-to-employee','User\PatientController@ipAssigneToEmployee');

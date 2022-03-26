@@ -747,7 +747,7 @@ class PatientController extends Controller
 
     }
 
-    public function ipFollowupsPrint($ip_id)
+    public function ipFollowupsPrint(Request $request, $ip_id)
     {
         try {
             $user = getUser();
@@ -759,6 +759,7 @@ class PatientController extends Controller
             $patientPlan = PatientImplementationPlan::where('id',$ip_id)->with('Parent','Category','Subcategory','CreatedBy','patient','persons.Country','children')->first();
             $filename = $patientPlan->id."-".time().".pdf";
             $data['ipfollowupInfo'] = $patientPlan; 
+            $data['bankid_verified'] = $request->bankid_verified;
             $pdf = PDF::loadView('print-followups', $data);
             $pdf->save('reports/followups/'.$filename);
 

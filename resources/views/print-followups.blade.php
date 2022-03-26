@@ -185,11 +185,15 @@
     <table class="table table-striped">
         <tbody>
             <tr>
-                <td><center><strong>Signed By</strong></center></td>
+                @if($bankid_verified=='yes')
+                    <td><center><strong>Signed By</strong></center></td>
+                @endif
                 <td><center><strong>Date & Time</strong></center></td>
             </tr>
             <tr>
-                <td><center><strong>Ashok</strong></center></td>
+                @if($bankid_verified=='yes')
+                    <td><center><strong>Ashok</strong></center></td>
+                @endif
                 <td><center><strong>{{date('Y-m-d H:i:s')}}</strong></center></td>
             </tr>
         </tbody>
