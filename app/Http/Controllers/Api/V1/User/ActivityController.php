@@ -120,16 +120,45 @@ class ActivityController extends Controller
                 }
 
             }
-             if($request->remind_before_start || $request->remind_after_end || $request->is_emergency || $request->in_time ){
-                    $validator = Validator::make($request->all(),[     
-                        "minutes"    => "required",
-                        "is_text_notify"  => "required",        
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                    }
-
+            if($request->remind_before_start ){
+                $validator = Validator::make($request->all(),[     
+                    "before_minutes"    => "required",
+                    "before_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
                 }
+
+            }
+            if($request->remind_after_end ){
+                $validator = Validator::make($request->all(),[     
+                    "after_minutes"    => "required",
+                    "after_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
+            if($request->is_emergency ){
+                $validator = Validator::make($request->all(),[     
+                    "emergency_minutes"    => "required",
+                    "emergency_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
+            if($request->in_time ){
+                $validator = Validator::make($request->all(),[     
+                    "in_time_is_text_notify"    => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
         	$ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
             
 	        $activity = new Activity;
@@ -155,12 +184,20 @@ class ActivityController extends Controller
             $activity->information_url = $request->information_url;
             $activity->file = $request->file;
 		 	$activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+            $activity->before_minutes = $request->before_minutes;
+            $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+            $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
             $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+            $activity->after_minutes = $request->after_minutes;
+            $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+            $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
             $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+            $activity->emergency_minutes = $request->emergency_minutes;
+            $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+            $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
             $activity->in_time  =($request->in_time) ? 1 :0;
-            $activity->minutes = $request->minutes;
-            $activity->is_text_notify  =($request->is_emergency) ? 1 :0;
-            $activity->is_push_notify  =($request->is_text_notify) ? 1 :0;
+            $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+            $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
 		 	$activity->created_by = $user->id;
             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$activity->save();
@@ -250,6 +287,45 @@ class ActivityController extends Controller
                 }
 
             }
+            if($request->remind_before_start ){
+                $validator = Validator::make($request->all(),[     
+                    "before_minutes"    => "required",
+                    "before_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
+            if($request->remind_after_end ){
+                $validator = Validator::make($request->all(),[     
+                    "after_minutes"    => "required",
+                    "after_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
+            if($request->is_emergency ){
+                $validator = Validator::make($request->all(),[     
+                    "emergency_minutes"    => "required",
+                    "emergency_is_text_notify"  => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
+            if($request->in_time ){
+                $validator = Validator::make($request->all(),[     
+                    "in_time_is_text_notify"    => "required",        
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+
+            }
 
         	$checkId = Activity::where('id',$id)->first();
 			if (!is_object($checkId)) {
@@ -281,12 +357,20 @@ class ActivityController extends Controller
             $activity->address_url = $request->address_url;
             $activity->file = $request->file;
             $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+            $activity->before_minutes = $request->before_minutes;
+            $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+            $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
             $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+            $activity->after_minutes = $request->after_minutes;
+            $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+            $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
             $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+            $activity->emergency_minutes = $request->emergency_minutes;
+            $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+            $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
             $activity->in_time  =($request->in_time) ? 1 :0;
-            $activity->minutes = $request->minutes;
-            $activity->is_text_notify  =($request->is_emergency) ? 1 :0;
-            $activity->is_push_notify  =($request->is_text_notify) ? 1 :0;
+            $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+            $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
             $activity->created_by = $user->id;
 		 	$activity->edited_by = $user->id;
 		 	$activity->edit_date = date('Y-m-d');
