@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Permission;
 use App\Models\PermissionExtend;
 use DB;
 use App\Models\User;
+use App\Models\SmsLog;
 class CommonController extends Controller
 {
     protected $top_most_parent_id;
@@ -161,5 +162,26 @@ class CommonController extends Controller
         }
         return($w);
 
+    }
+
+    public function smsCallback(Request $request)
+    {
+        $updateSmsStatus = SmsLog::where('mobile', $request['number'])
+            ->where('status', null)
+            ->orderBy('id_inc', 'ASC')
+            ->first();
+        if($updateSmsStatus)
+        {
+            $updateSmsStatus->status = $request['type'];
+            $updateSmsStatus->save();
+        }
+        Log::channel('smslog')->info($request);
+        return true;
+    }
+
+    public function testMessageSend()
+    {
+        $response = sendMessage('2fa-login','','a211aefd-6167-4766-95d5-ade6e6dcf70b','827ec7a7-1370-40fb-883e-ae7b946073ec');
+       return prepareResult(true,"Msg Send Successfully",$response,'200');
     }
 }

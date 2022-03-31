@@ -119,6 +119,9 @@ class PackageController extends Controller
             $package->validity_in_days = $request->validity_in_days;
             $package->number_of_patients = $request->number_of_patients;
             $package->number_of_employees = $request->number_of_employees;
+            $package->bankid_charges = $request->bankid_charges;
+            $package->sms_charges = $request->sms_charges;
+            $package->is_sms_enable = ($request->is_sms_enable) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
              return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, $this->success);
@@ -217,6 +220,9 @@ class PackageController extends Controller
             $package->validity_in_days = $request->validity_in_days;
             $package->number_of_patients = $request->number_of_patients;
             $package->number_of_employees = $request->number_of_employees;
+            $package->bankid_charges = $request->bankid_charges;
+            $package->sms_charges = $request->sms_charges;
+            $package->is_sms_enable = ($request->is_sms_enable) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             

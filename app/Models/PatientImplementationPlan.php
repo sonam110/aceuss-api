@@ -28,8 +28,6 @@ class PatientImplementationPlan extends Model
 		'subcategory_id',
 		'what_happened',
 		'how_it_happened',
-		'when_it_started',
-		'what_to_do',
 		'goal',
 		'sub_goal',
 		'plan_start_date',

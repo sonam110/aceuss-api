@@ -47,6 +47,8 @@ class CreateActivitiesTable extends Migration
             $table->date('approved_date')->nullable();
             $table->string('question')->nullable();
             $table->text('selected_option')->nullable();
+            $table->text('internal_comment')->nullable();
+            $table->text('external_comment')->nullable();
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Pending ,1:Done,2:Not Done,3:notapplicable');
             $table->foreignId('action_by')->nullable();

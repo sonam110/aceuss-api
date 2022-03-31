@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1\Common;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EmergencyContact;
+use App\Models\User;
 use Validator;
 use Auth;
 use Exception;
@@ -50,16 +51,18 @@ class EmergencyContactController extends Controller
         try {
         	$user = getUser();
             $validator = Validator::make($request->all(),[
-                'contact_number' => 'required|numeric',   
+                'user_id' => 'required|exists:users,id',   
             ],
             [
-            'contact_number.required' => 'Contact Number Field is required',
+            'user_id.required' => 'User Id  Field is required',
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
+            $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = new EmergencyContact;
-            $EmergencyContact->contact_number = $request->contact_number;
+            $EmergencyContact->user_id = $request->user_id;
+            $EmergencyContact->contact_number = ($getUser) ? $getUser->contact_number: null;
             $EmergencyContact->is_default = ($request->is_default) ? 1:0;
             $EmergencyContact->created_by = $user->id;
             $EmergencyContact->save();
@@ -78,10 +81,10 @@ class EmergencyContactController extends Controller
         try {
            $user = getUser();
             $validator = Validator::make($request->all(),[
-                'contact_number' => 'required|numeric',   
+                'user_id' => 'required|exists:users,id',    
             ],
             [
-            'contact_number.required' => 'Contact Number Field is required',
+            'user_id.required' => 'User Id  Field is required',
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
@@ -90,9 +93,10 @@ class EmergencyContactController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
             }
-          
+            $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = EmergencyContact::find($id);
-            $EmergencyContact->contact_number = $request->contact_number;
+            $EmergencyContact->user_id = $request->user_id;
+            $EmergencyContact->contact_number = ($getUser) ? $getUser->contact_number: null;
             $EmergencyContact->is_default = ($request->is_default) ? 1:0;
             $EmergencyContact->created_by = $user->id;
             $EmergencyContact->save();

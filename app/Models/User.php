@@ -27,6 +27,7 @@ use App\Models\AssigneModule;
 use App\Models\AgencyWeeklyHour;
 use App\Models\EmployeeType;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\CompanySetting;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -43,6 +44,8 @@ class User extends Authenticatable
     protected $dates = ['deleted_at'];
     protected $appends = ['company_types'];
     protected $fillable = [
+        'unique_id',
+        'custom_unique_id',
         'user_type_id',
         'role_id',
         'company_type_id',
@@ -60,9 +63,6 @@ class User extends Authenticatable
         'gender',
         'personal_number',
         'organization_number',
-        'contact_person_name',
-        'contact_person_email',
-        'contact_person_phone',
         'patient_type_id',
         'working_from',
         'working_to',
@@ -79,18 +79,14 @@ class User extends Authenticatable
         'is_regular',
         'is_seasonal',
         'joining_date',
-        'establishment_date',
+        'establishment_year',
         'user_color',
         'disease_description',
         'created_by',
         'password_token',
         'is_file_required',
+        'is_secret',
         'status',
-        'device_name', 
-        'device_id', 
-        'device_model', 
-        'device_token',
-        'login_via',
         'entry_mode',
     ];
 
@@ -117,7 +113,14 @@ class User extends Authenticatable
 
     protected static $logOnlyDirty = true;
     
-
+    public function companyinfo()
+    {
+        return $this->belongsTo(self::class, 'top_most_parent_id', 'id')->withoutGlobalScope('top_most_parent_id');
+    }
+     public function companySetting()
+    {
+        return $this->belongsTo(CompanySetting::class,'user_id','id');
+    }
     
     public function UserType()
     {

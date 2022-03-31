@@ -23,12 +23,10 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->foreignId('subcategory_id');
             $table->text('what_happened');
             $table->text('how_it_happened');
-            $table->string('when_it_started');
-            $table->text('what_to_do');
             $table->text('goal');
             $table->text('sub_goal')->nullable();
             $table->date('plan_start_date');
-            $table->timestamp('plan_start_time');
+            $table->time('plan_start_time');
             $table->timestamp('end_date');
             $table->text('remark')->nullable();
             $table->text('activity_message')->nullable();

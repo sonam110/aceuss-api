@@ -16,13 +16,14 @@ class WelcomeMail extends Mailable
      *
      * @return void
      */
-    public $content;
+    public $userInfo;
 
-    public function __construct($content)
+    public function __construct($userInfo)
     {
-        $this->content = $content;
+        $this->userInfo = $userInfo;
     }
 
+   
     /**
      * Build the message.
      *
@@ -30,8 +31,22 @@ class WelcomeMail extends Mailable
      */
     public function build()
     {
+        $userInfo = $this->userInfo ;
+        $companyObj = companySetting($userInfo['company_id']);
+        $template = 'welcome-mail';
+        $getTemplate = getTemplate($template,$companyObj, null,$userInfo);
+     
+        $mailObj = [
+            'company'       => $companyObj,
+            'name'          => $userInfo['name'],
+            'email'         => $userInfo['email'],
+            'id'            => $userInfo['id'],
+            'content'       => $getTemplate,
+            'template_for'  => $template,
+       ];
         return $this->markdown('email.welcome-mail')
-                ->subject('Welcome to ACEUSS')
-                ->with($this->content);
+            ->subject($getTemplate['subject'])
+            ->with('userInfo', $this->userInfo)
+            ->with('data', $mailObj);
     }
 }

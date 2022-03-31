@@ -42,7 +42,7 @@ class CompanyTypeController extends Controller
             {
                 $query = $query->get();
             }
-		    return prepareResult(true,"CompanyType list",$companyType,$this->success);
+		    return prepareResult(true,"CompanyType list",$query,$this->success);
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
@@ -73,7 +73,7 @@ class CompanyTypeController extends Controller
 		 	$companyType->name = $request->name;
             $companyType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyType->save();
-	         return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$companyType, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$companyType, $this->success);
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);

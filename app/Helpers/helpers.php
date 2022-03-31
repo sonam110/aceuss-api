@@ -4,8 +4,13 @@ use App\Models\Group;
 use App\Models\Department;
 use App\Models\Task;
 use App\Models\AssignTask;
+use App\Models\ActivityAssigne;
 use App\Models\DeviceLoginHistory;
 use App\Models\Notification;
+use App\Models\SmsLog;
+use App\Models\Comment;
+use App\Models\EmailTemplate;
+use App\Models\CompanySetting;
 use Edujugon\PushNotification\PushNotification;
 function getUser() {
     return auth('api')->user();
@@ -133,16 +138,38 @@ function getLangByLabelGroups($groupName,$label_name)
     return @$data['label_value'];
 }
 
-function mailTemplateContent($content,$variables){
-    //$variables = array("first_name"=>"John","last_name"=>"Smith","status"=>"won");
-    $string = $content;
-    foreach($variables as $key => $value){
-        $string = str_replace('{{'.($key).'}}', $value, $string);
+
+function getTemplate($mail_for, $obj, $otp=null,$user)
+{
+    $mail_subject = false;
+    $mail_body = false;
+    $getTemp = EmailTemplate::where('mail_sms_for', $mail_for)->first();
+    if($getTemp)
+    {
+        $mail_body = $getTemp->mail_body;
+        $arrayVal = [
+            '{{token}}'   => $otp,
+            '{{name}}'  => $user['name'],
+            '{{company_name}}' => $obj['company_name'],
+        ];
+        $mail_body = strReplaceAssoc($arrayVal, $mail_body);
+        if(!empty($user))
+        {
+            $arrayVal = [
+                '{{name}}'  => $user['name'],
+                '{{company_name}}' => $obj['company_name'],
+                '{{company_email}}' => $obj['company_email'],
+            ];
+            $mail_body = strReplaceAssoc($arrayVal, $mail_body);
+        }
+        $mail_subject = $getTemp->mail_subject;
     }
-    return $string;
-
+    $returnObj = [
+        'subject'   => $mail_subject,
+        'body'      => $mail_body
+    ];
+    return $returnObj;      
 }
-
 
 function addTask($task,$resource_id){
     $user = getUser();
@@ -184,35 +211,34 @@ function addTask($task,$resource_id){
 
 
 
-function pushNotification($title,$body,$user,$type,$save_to_database,$user_type,$module,$id,$screen)
+function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen)
 {
     if(!empty($user))
     {
-        $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
+        $userDeviceInfo = DeviceLoginHistory::where('user_id',$obj['user_id'])->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
         if(!empty($userDeviceInfo))
         { 
-            if(!empty($userDeviceInfo->device_token))
+            $title = false;
+            $body = false;
+            $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
+           
+            if($getMsg)
             {
-                $push = new PushNotification('fcm');
-                $push->setMessage([
-                    "notification"=>[
-                        'title' => $title,
-                        'body'  => $body,
-                        'sound' => 'default',
-                        'android_channel_id' => '1',
-                        //'timestamp' => date('Y-m-d G:i:s')
-                    ],
-                    'data'=>[
-                        'id'  => $id,
-                        'user_type'  => $user_type,
-                        'module'  => $module,
-                        'screen'  => $screen
-                    ]                        
-                ])
-                ->setApiKey(env('FIREBASE_KEY'))
-                ->setDevicesToken($userDeviceInfo->device_token)
-                ->send();
-                /*if($userDeviceInfo->platform=='Android')
+                $body = $getMsg->notify_body;
+                $title = $getMsg->mail_subject;
+                $arrayVal = [
+                    '{{name}}'  => $obj['name'],
+                    '{{email}}' => $obj['email'],
+                    '{{title}}' => $obj['title'],
+                    '{{patient_id}}' => $obj['patient_id'],
+                    '{{start_date}}' => $obj['start_date '],
+                    '{{start_time}}' => $obj['start_time'],
+                    '{{company_name}}' => $companyObj['company_name'],
+                    '{{company_address}}' =>  $companyObj['company_address'],
+                ];
+                $body = strReplaceAssoc($arrayVal, $message);
+                $title = strReplaceAssoc($arrayVal, $title);
+                if(!empty($userDeviceInfo->device_token))
                 {
                     $push = new PushNotification('fcm');
                     $push->setMessage([
@@ -225,7 +251,7 @@ function pushNotification($title,$body,$user,$type,$save_to_database,$user_type,
                         ],
                         'data'=>[
                             'id'  => $id,
-                            'user_type'  => $user_type,
+                            'user_type'  => $obj['user_type'],
                             'module'  => $module,
                             'screen'  => $screen
                         ]                        
@@ -233,40 +259,62 @@ function pushNotification($title,$body,$user,$type,$save_to_database,$user_type,
                     ->setApiKey(env('FIREBASE_KEY'))
                     ->setDevicesToken($userDeviceInfo->device_token)
                     ->send();
-                }
-                elseif($userDeviceInfo->platform=='iOS')
-                {
-                    $push = new PushNotification('apn');
-
-                    $push->setMessage([
-                        'aps' => [
-                            'alert' => [
+                    /*if($userDeviceInfo->login_via=='1')
+                    {
+                        $push = new PushNotification('fcm');
+                        $push->setMessage([
+                            "notification"=>[
                                 'title' => $title,
-                                'body' => $body
+                                'body'  => $body,
+                                'sound' => 'default',
+                                'android_channel_id' => '1',
+                                //'timestamp' => date('Y-m-d G:i:s')
                             ],
-                            'sound' => 'default',
-                            'badge' => 1
+                            'data'=>[
+                                'id'  => $id,
+                                'user_type'  => $obj['user_type'],
+                                'module'  => $module,
+                                'screen'  => $screen
+                            ]                        
+                        ])
+                        ->setApiKey(env('FIREBASE_KEY'))
+                        ->setDevicesToken($userDeviceInfo->device_token)
+                        ->send();
+                    }
+                    elseif($userDeviceInfo->login_via=='2')
+                    {
+                        $push = new PushNotification('apn');
 
-                        ],
-                        'extraPayLoad' => [
-                            'custom' => 'My custom data',
-                        ]                       
-                    ])
-                    ->setDevicesToken($userDeviceInfo->device_token);
-                    $push = $push->send();
-                    //return $push->getFeedback();
-                }*/
+                        $push->setMessage([
+                            'aps' => [
+                                'alert' => [
+                                    'title' => $title,
+                                    'body' => $body
+                                ],
+                                'sound' => 'default',
+                                'badge' => 1
+
+                            ],
+                            'extraPayLoad' => [
+                                'custom' => 'My custom data',
+                            ]                       
+                        ])
+                        ->setDevicesToken($userDeviceInfo->device_token);
+                        $push = $push->send();
+                        //return $push->getFeedback();
+                    }*/
+                }
             }
         }
         if($save_to_database == true)
         {
             $notification = new Notification;
-            $notification->user_id          = $user->id;
+            $notification->user_id          = $obj['user_id'];
             $notification->sender_id        = Auth::id();
-            $notification->device_uuid      = $userDeviceInfo ? $userDeviceInfo->id : null;
+            $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
             $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-            $notification->type             = $type;
-            $notification->user_type        = $user_type;
+            $notification->type             = $obj['type'];;
+            $notification->user_type        = $obj['user_type'];
             $notification->module           = $module;
             $notification->title            = $title;
             $notification->sub_title        = $title;
@@ -280,4 +328,98 @@ function pushNotification($title,$body,$user,$type,$save_to_database,$user_type,
     }
 }
 
+function strReplaceAssoc(array $replace, $subject) 
+{ 
+    return str_replace(array_keys($replace), array_values($replace), $subject);
+}
+
+function sendMessage($sms_for,$obj, $companyObj)
+{
+    $isSent = false;
+    $message = false;
+    $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
+    if($getMsg)
+    {
+        $message = $getMsg->sms_body;
+         $arrayVal = [
+            '{{name}}'  => $obj['name'],
+            '{{email}}' => $obj['email'],
+            '{{title}}' => $obj['title'],
+            '{{patient_id}}' => $obj['patient_id'],
+            '{{start_date}}' => $obj['start_date '],
+            '{{start_time}}' => $obj['start_time'],
+            '{{company_name}}' => $companyObj['company_name'],
+            '{{company_address}}' =>  $companyObj['company_address'],
+        ];
+        $message = strReplaceAssoc($arrayVal, $message);
+
+        $ch = curl_init();
+        $phone_number   = ltrim($obj['contact_number'], '0');
+        $receivers      = ((strlen($phone_number))==9) ? env('COUNTRY_CODE').$phone_number : $phone_number; 
+        $sender         =  env('SENDERID', 'Aceuss');
+        $account        = env('PIXIE_ACCOUNT', '12106497');
+        $password       = env('PIXIE_PASS', 'iTGYqEBR');
+         
+        curl_setopt($ch, CURLOPT_URL,  "http://smsserver.pixie.se/sendsms?");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "account=$account&pwd=$password&sender=$sender&receivers=$receivers&message=$message&quality=2");
+        $buffer = curl_exec($ch);
+
+        // create SMS log
+        smslog($obj['company_id'],'1', $obj, $receivers, $message);
+    }
+    
+    return $isSent;     
+}
+
+function smslog($top_most_parent_id,$type_id ,$resource_id, $phone_number, $message)
+{
+    //Create SMS log
+    $smsLog = new SmsLog;
+    $smsLog->top_most_parent_id = $top_most_parent_id;
+    $smsLog->type_id = $type_id;
+    $smsLog->resource_id = $resource_id;
+    $smsLog->mobile = $phone_number;
+    $smsLog->message = $message;
+    $smsLog->save();
+    return true;
+}
+function comment($source_id, $source_namen,$comment) 
+{ 
+    $addComment = new Comment;
+    $addComment->source_id = $source_id ;
+    $addComment->source_name = $source_namen;
+    $addComment->comment = $comment;
+    $addComment->created_by = Auth::id();
+    $addComment->save();
+    return $addComment;
+}
+
+function generateRandomNumber($len = 12) {
+    return substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,$len);
+}
+
+
+function companySetting($company_id){
+    $user = CompanySetting::select(array('company_settings.*', DB::raw("(SELECT organization_number from users WHERE users.id = ".$company_id.") organization_number")))->where('user_id',$company_id)->first();
+    $settingDetail  = [];
+    if($user){
+        $settingDetail =[
+            "company_name" => $user->company_name,
+            "company_logo" => $user->company_logo,
+            "company_email" => $user->company_email,
+            "company_contact" => $user->company_contact,
+            "company_address" => $user->company_address,
+            "organization_number" => $user->organization_number,
+            "contact_person_name" => $user->contact_person_name,
+            "contact_person_email" => $user->contact_person_email,
+            "contact_person_phone" => $user->contact_person_phone,
+            "follow_up_reminder" => $user->follow_up_reminder,
+            "before_minute" => $user->before_minute,
+        ];
+        return  $settingDetail;
+
+    }
+}
 ?>

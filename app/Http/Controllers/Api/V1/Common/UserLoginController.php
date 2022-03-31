@@ -64,13 +64,6 @@ class UserLoginController extends Controller
                             if (empty($token)) {
                                 return prepareResult(false,getLangByLabelGroups('LoginValidation','unable_generate_token'),[], $this->unprocessableEntity);
                             }else{
-
-                                $userLoginDevice = User::where('id', Auth::id())->update([
-                                    'login_via'=> ($request->login_via) ? $request->login_via:'0',
-                                    'device_token'=>$request->device_token,
-                                    'device_id'=>$request->device_id
-                                ]);
-
                                  //======= login history==================//
                                 $history =  DeviceLoginHistory::where('user_id',$user->id)->get();
                                 if (count($history) <= 6) {
@@ -100,7 +93,6 @@ class UserLoginController extends Controller
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;
-                                //$user['permissions']    = @Auth::user()->getAllPermissions();
                                 $permissionIds   = DB::table('role_has_permissions')->where('role_id',$user->role_id)->pluck('permission_id')->implode(',');
                                 $permissions = DB::table('permissions')->whereIn('id',explode(',',$permissionIds))->groupby('group_name')->orderby('id','ASC')->get();
 
@@ -250,16 +242,17 @@ class UserLoginController extends Controller
                     if($request->device == "mobile") {
                         $token = (env('APP_ENV','local') == 'local') ?'123456' : rand(0,999999);
                         $passowrd_link = 'Your Reset Password Otp is'.'  '.$token.'';
-                        $passMessage = 'Your forgot password token given in below .';
+                        $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Your forgot password token given in below .';
                     } else {
                         $token = (env('APP_ENV','local') == 'local') ?'123456' : \Str::random(60);
-                        $passowrd_link = '<a href="'.route('password.reset',$token).'" style="background: #24b22e; padding: 15px 30px; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -ms-border-radius: 5px; color: #ffffff; text-align: center; text-decoration: none; display: inline-block;">Reset your password </a>';
-                        $passMessage = 'Please click below link and enter your new password.';
+                        $passowrd_link = '<a href="'.route('password.reset',$token).'" style="color: #000;font-size: 18px;text-decoration: underline;font-family: "Roboto Condensed", sans-serif;" target="_blank">Reset your password </a>';
+                        $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Please click below link ';
                     }
                     
                     User::updateOrCreate(['email'=>$user->email],['password_token'=>$token]);   
-
-                    $variables = ([
+                    
+                    $content = ([
+                    'company' => companySetting($user->top_most_parent_id),
                     'name' => $user->name,
                     'email' => $user->email,
                     'token' => $token,
@@ -267,11 +260,9 @@ class UserLoginController extends Controller
                     'passMessage' => $passMessage,
                     ]);         
                     if(env('IS_MAIL_ENABLE',false) == true){   
-                        $emailTem = EmailTemplate::where('id','1')->first();           
-                        $content = mailTemplateContent($emailTem->content,$variables);
                         Mail::to($user->email)->send(new SendResetPassworkLink($content));
                     }
-                return prepareResult(true,getLangByLabelGroups('LoginValidation','password_reset_link'),$variables,$this->success);
+                return prepareResult(true,getLangByLabelGroups('LoginValidation','password_reset_link'),$content,$this->success);
 
             }else{
                 return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);

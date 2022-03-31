@@ -15,6 +15,8 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('unique_id')->unique()->nullable();
+            $table->string('custom_unique_id')->unique()->nullable();
             $table->foreignId('user_type_id');
             $table->integer('role_id')->nullable();
             $table->text('company_type_id')->nullable();
@@ -32,9 +34,6 @@ class CreateUsersTable extends Migration
             $table->string('gender')->nullable();
             $table->string('personal_number')->nullable();
             $table->string('organization_number')->nullable();
-            $table->string('contact_person_name')->nullable();
-            $table->string('contact_person_email')->nullable();
-            $table->string('contact_person_phone')->nullable();
             $table->foreignId('patient_type_id')->nullable();
             $table->string('working_from')->nullable();
             $table->string('working_to')->nullable();
@@ -51,18 +50,14 @@ class CreateUsersTable extends Migration
             $table->boolean('is_regular')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_seasonal')->default('0')->comment('1:Yes,0:No');
             $table->date('joining_date')->nullable();
-            $table->date('establishment_date')->nullable();
+            $table->date('establishment_year')->nullable();
             $table->string('user_color')->nullable();
             $table->text('disease_description ')->nullable();
             $table->foreignId('created_by')->nullable();
             $table->string('password_token')->nullable();
             $table->boolean('is_file_required')->default('0')->comment('1:Yes,0:No');
+            $table->boolean('is_secret')->default('0')->comment('1:Yes,0:No');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
-            $table->string('device_name')->nullable();
-            $table->string('device_id')->nullable();
-            $table->string('device_model')->nullable();
-            $table->string('device_token')->nullable();
-             $table->enum('login_via', ['0', '1','2'])->default('0')->comment('0:Web,1:android,2:ios');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->rememberToken();

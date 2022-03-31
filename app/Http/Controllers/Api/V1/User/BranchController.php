@@ -54,6 +54,7 @@ class BranchController extends Controller
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
                 'contact_number' => 'required', 
+                'company_type_id' => 'required', 
 
             ],
             [
@@ -86,6 +87,7 @@ class BranchController extends Controller
            
             $user = new User;
             $user->user_type_id = '11';
+            $user->unique_id = generateRandomNumber();
             $user->role_id = '11';
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
@@ -98,27 +100,15 @@ class BranchController extends Controller
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-            $user->organization_number = $request->organization_number;
-            $user->contact_person_name = $request->contact_person_name;
-            $user->contact_person_email = $request->contact_person_email;
-            $user->contact_person_phone = $request->contact_person_phone;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
-            $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->created_by = $userInfo->id;
-            $user->is_substitute = ($request->is_substitute) ? 1:0 ;
-            $user->is_regular = ($request->is_regular) ? 1:0 ;
-            $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
-            $user->order_by = $request->order_by ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
 
@@ -126,15 +116,12 @@ class BranchController extends Controller
             $user->assignRole($role->name);
 
             if(env('IS_MAIL_ENABLE',false) == true){ 
-                    $variables = ([
+                $content = ([
+                    'company_id' => $user->top_most_parent_id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'contact_number' => $user->contact_number,
-                    'city' => $user->city,
-                    'zipcode' => $user->zipcode,
-                    ]);   
-                $emailTem = EmailTemplate::where('id','2')->first();           
-                $content = mailTemplateContent($emailTem->content,$variables);
+                    'id' => $user->id,
+                ]);   
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
             
@@ -233,23 +220,14 @@ class BranchController extends Controller
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-           // $user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
-            $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
-            $user->is_substitute = ($request->is_substitute) ? 1:0 ;
-            $user->is_regular = ($request->is_regular) ? 1:0 ;
-            $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
-            $user->order_by = $request->order_by ;
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();

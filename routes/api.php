@@ -25,10 +25,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::post('agency-list', 'Common\NoMiddlewareController@agencyList');
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
+	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySetting');
 		
-	Route::post('email-templates', [App\Http\Controllers\Api\V1\Admin\EmailTemplateControlle::class, 'emailTemplates']);
-	Route::apiResource('email-template',Admin\EmailTemplateControlle::class)->only(['show', 'update']);
-
+	 
 	Route::middleware('auth:api', 'isActiveToken','isAuthorized')->group(function () {
 		Route::post('/logout', 'Common\UserLoginController@logout');
 		Route::post('/change-password', 'Common\UserLoginController@changePassword');
@@ -72,10 +71,22 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 			Route::post('assigne-package', 'Admin\ModuleController@assigenPackage');
 	     	Route::post('assigne-module', 'Admin\ModuleController@assigenModule');
-			
 
+	     	 
+	     	Route::post('email-templates', [App\Http\Controllers\Api\V1\Admin\EmailTemplateControlle::class, 'emailTemplates']);
+			Route::apiResource('email-template',Admin\EmailTemplateControlle::class)->only(['store','destroy','show', 'update']);
+
+			Route::get('sms-callback', [App\Http\Controllers\Api\V1\Common\CommonController::class, 'smsCallback'])->name('sms-callback');
+			Route::get('test-message-send', [App\Http\Controllers\Api\V1\Common\CommonController::class, 'testMessageSend'])->name('test-message-send');
+
+			 //Logs
+	
+		    Route::post('sms-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'smsLog']);
+		   
 		});
 
+
+		Route::post('setting-update', 'User\SettingController@settingUpdate');
 
 		Route::post('file-uploads', 'Common\FileUploadController@uploadFiles');
 
@@ -87,6 +98,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('tasks', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'tasks']);
 		Route::apiResource('task',Common\TaskController::class)->only(['store','destroy','show', 'update']);
+
+		/*----------------Calander---------------------------*/
+		Route::post('calander-task', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'calanderTask']);
+
 
 		Route::post('emergency-contacts', [App\Http\Controllers\Api\V1\Common\EmergencyContactController::class, 'emergencyContact']);
 		Route::apiResource('emergency-contact',Common\EmergencyContactController::class)->only(['store','destroy', 'update']);
@@ -175,6 +190,14 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		/*-------------Questions ------------------------*/
 		Route::post('questions', [App\Http\Controllers\Api\V1\User\QuestionController::class, 'questions']);
 		Route::apiResource('question', User\QuestionController::class)->only(['store','destroy','show', 'update']);
+
+		/*-------Post Comment-----------------------------*/
+
+
+		Route::post('comment', [App\Http\Controllers\Api\V1\Common\CommentController::class, 'comment']);
+		Route::post('comment-list', [App\Http\Controllers\Api\V1\Common\CommentController::class, 'commentList']);
+
+
 	
 
 

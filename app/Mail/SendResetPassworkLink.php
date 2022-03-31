@@ -11,15 +11,15 @@ class SendResetPassworkLink extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $content;
+    public $data;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($content)
+    public function __construct($data)
     {
-        $this->content = $content;
+        $this->data = $data;
     }
 
     /**
@@ -32,6 +32,6 @@ class SendResetPassworkLink extends Mailable
         return $this->markdown('email.forgotPassword')
                 //->from('no-reply@aipxperts.com')
                 ->subject('Reset Password!')
-                ->with($this->content);
+                ->with($this->data);
     }
 }

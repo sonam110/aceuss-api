@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Agency;
 use DB;
+use App\Models\CompanySetting;
 class NoMiddlewareController extends Controller
 {
     
@@ -70,5 +71,22 @@ class NoMiddlewareController extends Controller
                 
         }
         
+    }
+    public function companySetting($user_id)
+    { 
+        try {
+            $userInfo = getUser();
+            
+            $checkSettings = CompanySetting::select(array('company_settings.*', DB::raw("(SELECT organization_number from users WHERE users.id = ".$user_id.") organization_number")))->where('user_id',$user_id)->first();
+            if(!is_object($checkSettings)){
+                 return prepareResult(false,'User not found',[], $this->unprocessableEntity); 
+            }
+            return prepareResult(true,'CompanySettings',$checkSettings, $this->success);
+                
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
     }
 }

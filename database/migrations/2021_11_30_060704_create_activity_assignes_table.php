@@ -23,6 +23,7 @@ class CreateActivityAssignesTable extends Migration
             $table->tinyInteger('status')->default(0)->comment('0:Pending,1:done ,2:notdone,3:notapplicable');
             $table->text('reason')->nullable();
             $table->string('entry_mode')->nullable();
+            $table->tinyInteger('is_notify')->default(0);
             $table->timestamps();
         });
     }

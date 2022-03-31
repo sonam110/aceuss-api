@@ -23,6 +23,9 @@ class Package extends Model
 		'validity_in_days',
 		'number_of_patients',
 		'number_of_employees',
+		'bankid_charges',
+		'sms_charges',
+		'is_sms_enable',
 		'status',
 		'entry_mode',
     ];

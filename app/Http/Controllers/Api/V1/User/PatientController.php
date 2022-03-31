@@ -86,25 +86,21 @@ class PatientController extends Controller
                 'data.*.category_id' => 'required|exists:category_masters,id',   
                 'data.*.subcategory_id' => 'required|exists:category_masters,id',   
                 'data.*.what_happened' => 'required',   
-                'data.*.how_it_happened' => 'required',   
-                'data.*.when_it_started' => 'required',   
-                'data.*.what_to_do' => 'required',   
+                'data.*.how_it_happened' => 'required',      
                 'data.*.goal' => 'required',    
                 'data.*.plan_start_date' => 'required',   
                 'data.*.plan_start_time' => 'required',  
  
             ],
             [
-            'user_id' =>  getLangByLabelGroups('IP','user_id'),   
-            'category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            'subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
-            'what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
-            'how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),   
-            'when_it_started' =>  getLangByLabelGroups('IP','when_it_started'),   
-            'what_to_do' =>  getLangByLabelGroups('IP','what_to_do'),   
-            'goal' =>  getLangByLabelGroups('IP','goal'),      
-            'plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
-            'plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
+            '*.user_id' =>  getLangByLabelGroups('IP','user_id'),   
+            '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
+            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
+            '*.what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
+            '*.how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),      
+            '*.goal' =>  getLangByLabelGroups('IP','goal'),      
+            '*.plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
+            '*.plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
@@ -120,8 +116,6 @@ class PatientController extends Controller
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
                     $patientPlan->what_happened = $patient['what_happened'];
                     $patientPlan->how_it_happened = $patient['how_it_happened'];
-                    $patientPlan->when_it_started = $patient['when_it_started'];
-                    $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
                     $patientPlan->sub_goal = $patient['sub_goal'];
                     $patientPlan->plan_start_date = $patient['plan_start_date'];
@@ -177,7 +171,7 @@ class PatientController extends Controller
                                 $is_user = true;
                             }
 
-                            
+
                             if(is_null($value['id']) == false){
                                 $personalInfo = PersonalInfoDuringIp::find($value['id']);
                                 $getperson = PersonalInfoDuringIp::where('id',$value['id'])->first();
@@ -198,6 +192,7 @@ class PatientController extends Controller
                             $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                            $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -277,25 +272,21 @@ class PatientController extends Controller
                 'data.*.category_id' => 'required|exists:category_masters,id',   
                 'data.*.subcategory_id' => 'required|exists:category_masters,id',   
                 'data.*.what_happened' => 'required',   
-                'data.*.how_it_happened' => 'required',   
-                'data.*.when_it_started' => 'required',   
-                'data.*.what_to_do' => 'required',   
+                'data.*.how_it_happened' => 'required',      
                 'data.*.goal' => 'required',    
                 'data.*.plan_start_date' => 'required',   
                 'data.*.plan_start_time' => 'required',    
                 'data.*.reason_for_editing' => 'required',    
             ],
             [   
-            'user_id' =>  getLangByLabelGroups('IP','user_id'),   
-            'category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            'subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
-            'what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
-            'how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),   
-            'when_it_started' =>  getLangByLabelGroups('IP','when_it_started'),   
-            'what_to_do' =>  getLangByLabelGroups('IP','what_to_do'),   
-            'goal' =>  getLangByLabelGroups('IP','goal'), 
-            'plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
-            'plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
+            '*.user_id' =>  getLangByLabelGroups('IP','user_id'),   
+            '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
+            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
+            '*.what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
+            '*.how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),      
+            '*.goal' =>  getLangByLabelGroups('IP','goal'), 
+            '*.plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
+            '*.plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
             ]);
            
             if ($validator->fails()) {
@@ -318,8 +309,6 @@ class PatientController extends Controller
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
                     $patientPlan->what_happened = $patient['what_happened'];
                     $patientPlan->how_it_happened = $patient['how_it_happened'];
-                    $patientPlan->when_it_started = $patient['when_it_started'];
-                    $patientPlan->what_to_do = $patient['what_to_do'];
                     $patientPlan->goal = $patient['goal'];
                     $patientPlan->sub_goal = $patient['sub_goal'];
                     $patientPlan->plan_start_date = $patient['plan_start_date'];
@@ -394,6 +383,7 @@ class PatientController extends Controller
                             $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                            $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {

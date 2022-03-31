@@ -15,11 +15,12 @@ class DatabaseSeeder extends Seeder
     {
        
         
+        //$this->call(PermissionSeeder::class);
         $this->call(AgencySeeder::class);
+        $this->call(SmsTemplateSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(LabelSeeder::class);
         $this->call(DefaultEntrySeeder::class);
-        $this->call(AgencySeeder::class);
     }
 }

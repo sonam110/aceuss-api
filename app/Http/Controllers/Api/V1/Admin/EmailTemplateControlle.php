@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\EmailTemplate;
 use Validator;
 use Auth;
+use DB;
 class EmailTemplateControlle extends Controller
 {
     /**
@@ -52,69 +53,87 @@ class EmailTemplateControlle extends Controller
         
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $validation = \Validator::make($request->all(), [
+            'mail_sms_for'      => 'required',
+        ]);
+
+        if ($validation->fails()) {
+           return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity); 
+        }
+
+        DB::beginTransaction();
+        try {
+            $EmailTemplate = new EmailTemplate;
+            $EmailTemplate->mail_sms_for = $request->mail_sms_for;
+            $EmailTemplate->mail_subject = $request->mail_subject;
+            $EmailTemplate->mail_body = $request->mail_body;
+            $EmailTemplate->sms_body = $request->sms_body;
+            $EmailTemplate->notify_body = $request->notify_body;
+            $EmailTemplate->custom_attributes  = $request->custom_attributes;
+            $EmailTemplate->save();
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmailTemplate, $this->success);
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        //
+        try {
+            $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+            }
+             return prepareResult(true,'View Template' ,$checkId, $this->success);
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function update(Request $request,$id)
     {
-        //
+    
+        DB::beginTransaction();
+        try {
+            $EmailTemplate = EmailTemplate::find($id);
+            $EmailTemplate->mail_subject = $request->mail_subject;
+            $EmailTemplate->mail_body = $request->mail_body;
+            $EmailTemplate->sms_body = $request->sms_body;
+            $EmailTemplate->notify_body = $request->notify_body;
+            $EmailTemplate->custom_attributes  = $request->custom_attributes;
+            $EmailTemplate->save();
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$EmailTemplate, $this->success);
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        //
+        try {
+            $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+            }
+            if(auth()->user()->user_type_id=='1')
+            {
+                EmailTemplate::where('id',$id)->delete();
+                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+            }
+           return prepareResult(false, 'Record Not Found', [],$this->not_found);
+            
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+        }
     }
 }

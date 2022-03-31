@@ -19,8 +19,8 @@ class CreateCommentsTable extends Migration
             $table->foreignId('source_id');
             $table->string('source_name');
             $table->text('comment');
-            $table->foreignId('created_by');
-            $table->foreignId('replied_to');
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('replied_to')->nullable();
             $table->foreignId('edited_by')->nullable();
             $table->foreign('parent_id')->references('id')->on('comments')->onDelete('cascade');
             $table->string('entry_mode')->nullable();

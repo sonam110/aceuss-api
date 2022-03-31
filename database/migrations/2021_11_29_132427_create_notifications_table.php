@@ -14,11 +14,12 @@ class CreateNotificationsTable extends Migration
     public function up()
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('type');
             $table->foreignId('user_id');
-            $table->foreignId('device_id');
-            $table->boolean('device_platform')->comment('1:android,2:ios');
+            $table->foreignId('sender_id')->nullable();
+            $table->foreignId('device_id')->nullable();
+            $table->boolean('device_platform')->comment('1:android,2:ios')->nullable();
             $table->integer('user_type')->nullable();
             $table->string('module')->nullable();
             $table->string('title')->nullable();

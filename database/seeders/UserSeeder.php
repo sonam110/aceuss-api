@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
         	
           /*  $adminUser = new User();
             $adminUser->id      	            = '1';
+            $adminUser->unique_id               = generateRandomNumber();
             $adminUser->user_type_id            = '1';
             $adminUser->role_id                 = '1';
             $adminUser->company_type_id         = null;

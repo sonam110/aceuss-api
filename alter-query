@@ -1,0 +1,24 @@
+ALTER TABLE `users`
+  DROP `contact_person_name`,
+  DROP `contact_person_email`,
+  DROP `contact_person_phone`,
+  DROP `device_name`,
+  DROP `device_id`,
+  DROP `device_model`,
+  DROP `device_token`,
+  DROP `login_via`;
+
+
+  ALTER TABLE `users` ADD `unique_id` VARCHAR(191) NULL AFTER `id`, ADD UNIQUE `unique_id` (`unique_id`);
+
+
+  ALTER TABLE `emergency_contacts` ADD `user_id` BIGINT UNSIGNED NOT NULL AFTER `top_most_parent_id`;
+
+
+  user table 
+
+patient custom id 
+is patient secret or not 
+
+
+

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\ActivityClassification;
 use App\Models\CompanyWorkShift;
+use App\Models\ActivityAssigne;
 use App\Models\CategoryMaster;
+use App\Models\PatientImplementationPlan;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,6 +53,8 @@ class Activity extends Model
         'question',
         'selected_option',
         'comment',
+        'internal_comment',
+        'external_comment',
         'remind_before_start',
         'before_minutes',
         'before_is_text_notify',
@@ -70,6 +74,10 @@ class Activity extends Model
         'action_by',
         'entry_mode',
 	];
+    public function ImplementationPlan()
+    {
+        return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');
+    }
 	public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
@@ -117,6 +125,11 @@ class Activity extends Model
     public function ApprovedBy()
     {
         return $this->belongsTo(User::class,'approved_by','id');
+    }
+
+     public function assignEmployee()
+    {
+        return $this->hasMany(ActivityAssigne::class,'activity_id','id');
     }
 
 }

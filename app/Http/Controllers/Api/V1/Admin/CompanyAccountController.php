@@ -10,6 +10,7 @@ use App\Models\AssigneModule;
 use App\Models\CategoryType;
 use App\Models\Module;
 use App\Models\EmailTemplate;
+use App\Models\CompanySetting;
 use Mail;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
@@ -82,7 +83,7 @@ class CompanyAccountController extends Controller
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[ 
                 "company_type_id"    => "required|array",
-                "company_type_id.*"  => "required|string|distinct",
+                "company_type_id.*"  => "required|distinct",
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
@@ -103,6 +104,7 @@ class CompanyAccountController extends Controller
             }
 
             $user = new User;
+            $user->unique_id = generateRandomNumber();
             $user->user_type_id = '2';
             $user->role_id = '2';
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
@@ -113,9 +115,6 @@ class CompanyAccountController extends Controller
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
-            $user->contact_person_name = $request->contact_person_name;
-            $user->contact_person_email = $request->contact_person_email;
-            $user->contact_person_phone = $request->contact_person_phone;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
@@ -124,31 +123,39 @@ class CompanyAccountController extends Controller
             $user->license_key = $request->license_key;
             $user->license_end_date = $request->license_end_date;
             $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->is_substitute = ($request->is_substitute) ? 1:0 ;
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
-            $user->order_by = $request->order_by ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             $update_top_most_parent = User::where('id',$user->id)->update(['top_most_parent_id'=>$user->id]);
             
             $role = Role::where('id','2')->first();
             $user->assignRole($role->name);
+
+            /*------Company Settings---------------*/
+            $addSettings = new CompanySetting;
+            $addSettings->user_id = $user->id;
+            $addSettings->company_name = $request->name;
+            $addSettings->company_email = $request->email;
+            $addSettings->company_contact = $request->contact_number;
+            $addSettings->company_address = $request->full_address;
+            $addSettings->contact_person_name = $request->contact_person_name;
+            $addSettings->contact_person_email = $request->contact_person_email;
+            $addSettings->contact_person_phone = $request->contact_person_phone;
+            $addSettings->company_website = $request->company_website;
+            $addSettings->save();
             
             if(env('IS_MAIL_ENABLE',false) == true){ 
-                    $variables = ([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'contact_number' => $user->contact_number,
-                    'city' => $user->city,
-                    'zipcode' => $user->zipcode,
-                    ]);   
-                $emailTem = EmailTemplate::where('id','2')->first();           
-                $content = mailTemplateContent($emailTem->content,$variables);
+                $content = ([
+                'company_id' => $user->top_most_parent_id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'id' => $user->id,
+                ]);  
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
             if(!empty($request->package_id)) {
@@ -270,24 +277,19 @@ class CompanyAccountController extends Controller
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-            //$user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            //$user->license_key = $request->license_key;
-            //$user->license_end_date = $request->license_end_date;
             $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->is_substitute = ($request->is_substitute) ? 1:0 ;
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->status = ($request->status) ? $request->status: 1 ;
-            $user->is_emergency_num = ($request->is_emergency_num) ? 1:0 ;
-            $user->order_by = $request->order_by ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             if(!empty($request->package_id)){

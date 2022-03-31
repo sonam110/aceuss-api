@@ -8,6 +8,7 @@ use App\Traits\TopMostParentId;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\AssignTask;
+use App\Models\CategoryType;
 class Task extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
@@ -40,6 +41,10 @@ class Task extends Model
      public function assignEmployee()
     {
         return $this->hasMany(AssignTask::class,'task_id','id');
+    }
+    public function CategoryType()
+    {
+        return $this->belongsTo(CategoryType::class,'type_id','id');
     }
 
 

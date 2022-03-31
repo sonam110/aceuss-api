@@ -24,6 +24,9 @@ class CreatePackagesTable extends Migration
             $table->integer('validity_in_days');
             $table->integer('number_of_patients');
             $table->integer('number_of_employees');
+            $table->double('bankid_charges')->nullable();
+            $table->double('sms_charges')->nullable();
+            $table->tinyInteger('is_sms_enable')->default('0')->comment('1:Yes,0:No');
             $table->tinyInteger('status')->default('1')->comment('1:Active,0:Inactive,2:Deleted');
             $table->string('entry_mode')->nullable();
             $table->softDeletes();

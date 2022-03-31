@@ -18,10 +18,10 @@ class TaskController extends Controller
 	        $user = getUser();
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =  Task::select('id','type_id','parent_id','title','status','branch_id')->whereRaw($whereRaw)
+                $query =  Task::select('id','type_id','parent_id','title','status','branch_id','created_by','start_date','end_date')->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Task::select('id','type_id','parent_id','title','status','branch_id')->orderBy('id', 'DESC');
+                $query = Task::select('id','type_id','parent_id','title','status','branch_id','created_by','start_date','end_date')->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))
@@ -266,7 +266,7 @@ class TaskController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
             }
-        	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number')->first();
+        	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name')->first();
 	        return prepareResult(true,'View Task' ,$Task, $this->success);
         }
         catch(Exception $exception) {
@@ -274,8 +274,73 @@ class TaskController extends Controller
             
         }
     }
+    public function calanderTask(Request $request){
+        try {
+	    	$user = getUser();
+	    	$whereRaw = $this->getWhereRawFromRequest($request);
+            if($whereRaw != '') { 
+                $query =  Task::select('id','type_id','parent_id','title','status','branch_id','created_by', DB::raw('DATE(start_date) as date'))->whereRaw($whereRaw)
+                ->orderBy('id', 'DESC');
+            } else {
+                $query = Task::select('id','type_id','parent_id','title','status','branch_id','created_by', DB::raw('DATE(start_date) as date'))->orderBy('id', 'DESC');
+            }
+             $data = [];
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                foreach ($result as $key => $value) {
+		    		$taskList =  Task::where('start_date',$value->date)->get();
+		    		$history =[];
+		    		foreach ($taskList as $key => $task) {
+		    			$history[] = [
+		                    'name' => $task->title,
+		                    'status' => $task->status,
+	                    ];
+		    		}
 
-     private function getWhereRawFromRequest(Request $request) {
+		    		$data[$value->date]= $history;
+		    		
+		    	}
+                $pagination =  [
+                    'data' => $data,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Calander Task",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+	            foreach ($query as $key => $value) {
+		    		$taskList =  Task::where('start_date',$value->date)->get();
+		    		$history =[];
+		    		foreach ($taskList as $key => $task) {
+		    			$history[] = [
+		                    'name' => $task->title,
+		                    'status' => $task->status,
+	                    ];
+		    		}
+		    		$data[$value->date]= $history;
+		    		
+		    	}
+		    	
+		    	return prepareResult(true,'Calander Task' ,$data, $this->success);
+          	}
+        	
+	        
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
+
+    private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
@@ -292,6 +357,31 @@ class TaskController extends Controller
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('created_by')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "created_by = "."'" .$request->input('created_by')."'".")";
+        }
+        if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->start_date != '')
+            {
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+            }
+            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->end_date != '')
+            {
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+            }
+            
+          
+           
         }
         return($w);
 

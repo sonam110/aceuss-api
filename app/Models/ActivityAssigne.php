@@ -21,6 +21,7 @@ class ActivityAssigne extends Model
 		'assigned_by',
 		'reason',
         'status',
+        'is_notify',
         'entry_mode',
     ];
 
@@ -31,5 +32,9 @@ class ActivityAssigne extends Model
     public function Activity()
     {
         return $this->belongsTo(Activity::class,'activity_id','id');
+    }
+     public function employee()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
     }
 }

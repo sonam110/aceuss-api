@@ -52,7 +52,7 @@ class UserController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('id','user_type_id', 'company_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender', 'personal_number','joining_date','status')->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours') ;
+            $query = User::select('id','user_type_id', 'company_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender', 'personal_number','joining_date','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -119,7 +119,15 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
+            if($request->user_type_id == '6'){
+                $validator = Validator::make($request->all(),[
+                    'custom_unique_id' => 'required|unique:users,custom_unique_id', 
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
 
+            }
             if(!empty($request->patient_type_id)){
                 if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
                     $validator = Validator::make($request->all(),[
@@ -133,8 +141,10 @@ class UserController extends Controller
 
                 }
             }
-           
+        
             $user = new User;
+            $user->unique_id = generateRandomNumber();
+            $user->custom_unique_id = $request->custom_unique_id;
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $request->role_id;
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
@@ -160,10 +170,8 @@ class UserController extends Controller
             $user->place_name = $request->place_name;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
             $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->disease_description = $request->disease_description;
             $user->created_by = $userInfo->id;
@@ -171,6 +179,7 @@ class UserController extends Controller
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
+            $user->is_secret = ($request->is_secret) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             if(!empty($request->input('role_id')))
@@ -179,15 +188,12 @@ class UserController extends Controller
                 $user->assignRole($role->name);
             }
             if(env('IS_MAIL_ENABLE',false) == true){ 
-                    $variables = ([
+                    $content = ([
+                    'company_id' => $user->top_most_parent_id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'contact_number' => $user->contact_number,
-                    'city' => $user->city,
-                    'zipcode' => $user->zipcode,
+                    'id' => $user->id,
                     ]);   
-                $emailTem = EmailTemplate::where('id','2')->first();           
-                $content = mailTemplateContent($emailTem->content,$variables);
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
              /*-------------patient weekly Hours-----------------------*/
@@ -234,6 +240,7 @@ class UserController extends Controller
                         $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
                         $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                         $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                        $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
                         $personalInfo->save() ;
                         /*-----Create Account /Entry in user table*/
                         if($is_user == true) {
@@ -269,15 +276,12 @@ class UserController extends Controller
                                    $userSave->assignRole($role->name);
                                 }     
                                 if(env('IS_MAIL_ENABLE',false) == true){ 
-                                        $variables = ([
+                                        $content = ([
+                                        'company_id' => $userSave->top_most_parent_id,
                                         'name' => $userSave->name,
                                         'email' => $userSave->email,
-                                        'contact_number' => $userSave->contact_number,
-                                        'city' => $userSave->city,
-                                        'zipcode' => $userSave->zipcode,
-                                        ]);   
-                                    $emailTem = EmailTemplate::where('id','2')->first();           
-                                    $content = mailTemplateContent($emailTem->content,$variables);
+                                        'id' => $userSave->id,
+                                        ]);    
                                     Mail::to($userSave->email)->send(new WelcomeMail($content));
                                 }
                                 
@@ -345,7 +349,7 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
-
+            
             if(!empty($request->patient_type_id)){
                 if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
                     $validator = Validator::make($request->all(),[
@@ -384,17 +388,17 @@ class UserController extends Controller
             $user->working_to = $request->working_to;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
             $user->joining_date = $request->joining_date;
-            $user->establishment_date = $request->establishment_date;
+            $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->disease_description = $request->disease_description;
             $user->is_substitute = ($request->is_substitute) ? 1:0 ;
             $user->is_regular = ($request->is_regular) ? 1:0 ;
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
+            $user->is_secret = ($request->is_secret) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->save();
             \DB::table('model_has_roles')->where('model_id',$user->id)->delete();
             if(!empty($request->input('role_id')))
             {
@@ -446,6 +450,7 @@ class UserController extends Controller
                     $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
                     $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                     $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
+                    $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
                     $personalInfo->save() ;
                     /*-----Create Account /Entry in user table*/
                     if($is_user == true) {
@@ -481,15 +486,12 @@ class UserController extends Controller
                                $userSave->assignRole($role->name);
                             }     
                             if(env('IS_MAIL_ENABLE',false) == true){ 
-                                    $variables = ([
+                                $content = ([
+                                    'company_id' => $userSave->top_most_parent_id,
                                     'name' => $userSave->name,
                                     'email' => $userSave->email,
-                                    'contact_number' => $userSave->contact_number,
-                                    'city' => $userSave->city,
-                                    'zipcode' => $userSave->zipcode,
-                                    ]);   
-                                $emailTem = EmailTemplate::where('id','2')->first();           
-                                $content = mailTemplateContent($emailTem->content,$variables);
+                                    'id' => $userSave->id,
+                                ]);    
                                 Mail::to($userSave->email)->send(new WelcomeMail($content));
                             }
                             

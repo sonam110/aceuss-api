@@ -26,6 +26,10 @@ class Comment extends Model
     {
           return $this->belongsTo(self::class,'parent_id','id');
     }
+    public function commentBy()
+    {
+          return $this->belongsTo(User::class,'created_by','id');
+    }
     public function children()
     {
          return $this->hasMany(self::class, 'parent_id');

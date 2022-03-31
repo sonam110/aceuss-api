@@ -16,7 +16,8 @@ class CreateEmergencyContactsTable extends Migration
         Schema::create('emergency_contacts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('top_most_parent_id')->nullable();
-            $table->string('contact_number');
+            $table->foreignId('user_id');
+            $table->string('contact_number')->nullable();
             $table->boolean('is_default')->default('0')->comment('1:Yes,0:No');
             $table->string('entry_mode')->nullable();
             $table->foreignId('created_by');

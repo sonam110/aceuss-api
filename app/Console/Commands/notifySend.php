@@ -3,12 +3,17 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\User;
 use Log;
 use Auth;
 use Mail;
 use Exception;
 use Edujugon\PushNotification\PushNotification;
+use App\Models\ActivityAssigne;
+use App\Models\User;
+use App\Models\Activity;
+use App\Models\EmergencyContact;
+use Carbon\Carbon;
+
 class notifySend extends Command
 {
     /**
@@ -16,7 +21,7 @@ class notifySend extends Command
      *
      * @var string
      */
-    protected $signature = 'usersend:notification {user} {type} {msg}';
+    protected $signature = 'send:notification';
 
     /**
      * The console command description.
@@ -25,11 +30,6 @@ class notifySend extends Command
      */
     protected $description = 'Send notifications to Users.';
 
-   
-
-    const FIREBASE_API_KEY = 'AAAAagFpi5A:APA91bHTETyPzIHVozCtF8TJklpF7dTnkXigTL_BbIcs-3o29fbH7YGEFOh6adAJ1wfMTOCKxkHm9dOvTbvgdJJH5WpuEX1nS3WynlDtAjLiB3db-qZq5JK8LD3bFM9jPeiPEqj6EUoq';
-    //const FIREBASE_API_KEY = 'AIzaSyARjklTTBau5w2a0LzVH46Lx5SqfdQtFV4';
-    const FIREBASE_SENDER_ID = '455290227600';
     /**
      * Create a new command instance.
      *
@@ -48,47 +48,83 @@ class notifySend extends Command
      */
     public function handle()
     {
-        return 0;
+        $activityAssigne = ActivityAssigne::where('is_notify','0')->get();
+        foreach ($activityAssigne as $key => $assigne) {
+            $activity = Activity::where('id',$assigne->activity_id)->withoutGlobalScope('top_most_parent_id')->first();
+            $emergencyContact = EmergencyContact::where('top_most_parent_id',$assigne->Activity->title)->where('is_default','1')->first();
+            $is_push_notify = false;
+            $is_text_notify = false;
+            $currentDateTime = Carbon::now()->format('Y-m-d H:i');
+            $dateTime  = null;
+            $time = Carbon::parse($activity->start_time);
+            if($activity->remind_before_start){
+                if($activity->before_is_push_notify){
+                    $is_push_notify = true;
+                }
+                if($activity->before_is_text_notify){
+                    $is_text_notify = true;
+                }
+                $dateTime = Carbon::parse($activity->start_time)
+                ->subMinute($activity->before_minutes)
+                ->format('Y-m-d H:i');
+
+            }
+            if($activity->remind_after_end && $activity->after_is_push_notify ){
+                if($activity->after_is_push_notify){
+                    $is_push_notify = true;
+                }
+                if($activity->after_is_text_notify){
+                    $is_text_notify = true;
+                }
+                $dateTime = Carbon::parse($activity->start_time)
+                ->addMinutes($activity->after_minutes)
+                ->format('Y-m-d H:i');
+            }
+            if($activity->is_emergency && $activity->is_emergency){
+                $dateTime = Carbon::parse($activity->start_time)
+                ->addMinutes($activity->emergency_minutes)
+                ->format('Y-m-d H:i');
+
+                $check_company_type = $assigne->employee->company_type_id;
+                if(in_array("3", $check_company_type) == true && $activity->emergency_is_push_notify ){
+                    $is_push_notify = true;
+                }
+                if(in_array("3", $check_company_type) == true && $activity->emergency_is_text_notify ){
+                    $is_text_notify = true;
+                }
+                
+            }
+            $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+            $user_type =  $getUser->user_type_id;
+            $module =  "";
+            $id =  $assigne->id;
+            $screen =  "";
+            $companyObj = companySetting($getUser->top_most_parent_id);
+            $obj  =[
+                "type"=> 'activity',
+                "user_id"=> $getUser->id,
+                "name"=> $getUser->name,
+                "email"=> $getUser->email,
+                "user_type"=> $getUser->user_type_id,
+                "title"=> $activity->title,
+                "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                "start_date"=> $activity->start_date,
+                "start_time"=> $activity->start_time,
+                "company"=>  $companyObj,
+                "company_id"=>  $getUser->top_most_parent_id,
+
+            ];
+            if(env('IS_NOTIFICATION_ENABLE')== true && ($is_push_notify == true) && ($currentDateTime  ==  $dateTime) ){
+                    pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                    $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
+            }
+            if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
+                sendMessage('activity',$obj,$companyObj);
+            }
+            
+        }
     }
 
-     /*new function for send FCM & APN notification*/
-    public function send_method_in_apn_service($userlist, $title, $message,$sound)
-    {
-        $push = new PushNotification('apn');
-        $is_sound = ($sound == true) ? 'default' :'false';
-        $message = [
-            'aps' => [
-                'alert' => [
-                    'title' => $title,
-                    'body'  => $message
-                ],
-                'sound' => $is_sound
-            ]
-        ];
-        $push->setMessage($message)
-            ->setDevicesToken($userlist);
-        $push = $push->send(); 
-       
-        return $push->getFeedback()->tokenFailList;
-    }
-
-    public function send_method_in_fcm_service($userlist, $title, $message,$sound)
-    {
-        $push = new PushNotification('fcm');
-        $is_sound = ($sound == true) ? 'default' :'false';
-        $push->setMessage([
-            'notification' => [
-                'title' => $title,
-                'body'  => $message,
-                'sound' => $is_sound
-                ]
-            ])
-            ->setApiKey(self::FIREBASE_API_KEY)
-            ->setDevicesToken($userlist)
-            ->send();
-           
-        return $push->getFeedback()->results;
-    }
 
 
 }
