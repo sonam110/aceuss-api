@@ -52,7 +52,7 @@ class UserController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('id','user_type_id', 'company_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender', 'personal_number','joining_date','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours') ;
+            $query = User::select('id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender','organization_number', 'personal_number','joining_date','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientType:id,designation') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -553,6 +553,43 @@ class UserController extends Controller
         if (is_null($request->input('parent_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }
+        if (is_null($request->input('dept_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "dept_id = "."'" .$request->input('dept_id')."'".")";
+        }
+        if (is_null($request->input('patient_type_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_type_id = "."'" .$request->input('patient_type_id')."'".")";
+        }
+        if (is_null($request->input('name')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
+             
+        }
+        if (is_null($request->input('email')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "email like '%" .trim(strtolower($request->input('email'))) . "%')";
+             
+        }
+        if (is_null($request->input('contact_number')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "contact_number like '%" .trim(strtolower($request->input('contact_number'))) . "%')";
+             
+        }
+        if (is_null($request->input('personal_number')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "personal_number like '%" .trim(strtolower($request->input('personal_number'))) . "%')";
+             
+        }
+        if (is_null($request->input('organization_number')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "organization_number like '%" .trim(strtolower($request->input('organization_number'))) . "%')";
+             
         }
         return($w);
 

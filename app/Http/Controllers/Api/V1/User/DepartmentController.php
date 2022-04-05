@@ -226,6 +226,10 @@ class DepartmentController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
         }
+        if (is_null($request->input('name')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
+        }
 
         return($w);
 

@@ -711,13 +711,35 @@ class PatientController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
-        if (is_null($request->input('patient_id')) == false) {
+        if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "user_id = "."'" .$request->input('patient_id')."'".")";
+            $w = $w . "(" . "id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('parent_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
+        }
+        if (is_null($request->input('user_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "user_id = "."'" .$request->input('user_id')."'".")";
         }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }
+         if (is_null($request->input('subcategory_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "subcategory_id = "."'" .$request->input('subcategory_id')."'".")";
+        }
+        if (is_null($request->input('goal')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "goal like '%" .trim(strtolower($request->input('goal'))) . "%')";
+
+             
         }
         return($w);
 

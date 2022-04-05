@@ -10,6 +10,7 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+use Carbon\Carbon;
 class TaskController extends Controller
 {
     public function tasks(Request $request)
@@ -18,10 +19,10 @@ class TaskController extends Controller
 	        $user = getUser();
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =  Task::select('id','type_id','parent_id','title','status','branch_id','created_by','start_date','end_date')->whereRaw($whereRaw)
+                $query =  Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date')->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Task::select('id','type_id','parent_id','title','status','branch_id','created_by','start_date','end_date')->orderBy('id', 'DESC');
+                $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date')->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))
@@ -63,7 +64,7 @@ class TaskController extends Controller
 		    'description' => 'required',   
 		    'start_time' => 'required',    
 		    "employees"    => "required|array",
-		    "employees.*"  => "required|string|distinct", 
+		    "employees.*"  => "required|distinct|exists:users,id",    
 		    ],
 		    [
 		    'title.required' =>  getLangByLabelGroups('Task','title'),
@@ -74,7 +75,9 @@ class TaskController extends Controller
 		        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
 		    }
 		    if($request->is_repeat){
-		        $validator = Validator::make($request->all(),[     
+		        $validator = Validator::make($request->all(),[  
+		        	'end_date' => 'required|after:start_date',          
+                    'end_time' => 'required',   
 		            'every' => 'required|numeric',          
 		        ]);
 		        if ($validator->fails()) {
@@ -103,7 +106,7 @@ class TaskController extends Controller
 
 		    } else{
 		        $validator = Validator::make($request->all(),[   
-		            'start_date' => 'required|date',      
+		            'start_date' => 'required|',      
 		        ],
 		        [ 
 		            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
@@ -113,34 +116,69 @@ class TaskController extends Controller
 		        }
 
 		    }
-		    $task = new Task;
-		    $task->type_id = $request->type_id; 
-		    $task->resource_id = $request->resource_id; 
-		    $task->parent_id = $request->parent_id; 
-		    $task->title = $request->title; 
-		    $task->description = $request->description; 
-		    $task->start_date = $request->start_date; 
-		    $task->start_time = $request->start_time; 
-		    $task->is_repeat = ($request->is_repeat) ? 1:0; 
-		    $task->every = $request->every; 
-		    $task->repetition_type = $request->repetition_type; 
-		    $task->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
-		    $task->month_day = $request->month_day;
-		    $task->end_date = $request->end_date;
-		    $task->end_time =$request->end_time;
-		    $task->created_by =$user->id;
-		    $task->save();
-		    if(is_array($request->employees) ){
-		        foreach ($request->employees as $key => $employee) {
-		            $taskAssign = new AssignTask;
-		            $taskAssign->task_id = $task->id;
-		            $taskAssign->user_id = $employee;
-		            $taskAssign->assignment_date = date('Y-m-d');
-		            $taskAssign->assigned_by = $user->id;
-		            $taskAssign->save();
-		        }
-		    }
-	        return prepareResult(true,'Task Added successfully' ,$task, $this->success);
+		    $repeatedDates = activityTimeFrame($request->start_date,$request->is_repeat,$request->every,$request->repetition_type,$request->week_days,$request->month_day,$request->end_date);
+		    $task_ids = [];
+		    if(!empty($repeatedDates)) {
+                foreach ($repeatedDates as $key => $date) {
+				    $task = new Task;
+				    $task->type_id = $request->type_id; 
+				    $task->resource_id = $request->resource_id; 
+				    $task->parent_id = $request->parent_id; 
+				    $task->branch_id = $request->branch_id; 
+				    $task->category_id = $request->category_id;
+				 	$task->subcategory_id = $request->subcategory_id;
+				    $task->title = $request->title; 
+				    $task->description = $request->description; 
+				    $task->start_date = $date; 
+				    $task->start_time = $request->start_time; 
+				    $task->address_url = $request->address_url;
+                    $task->video_url = $request->video_url;
+                    $task->information_url = $request->information_url;
+                    $task->information_url = $request->information_url;
+                    $task->file = $request->file;
+				    $task->is_repeat = ($request->is_repeat) ? 1:0; 
+				    $task->every = $request->every; 
+				    $task->repetition_type = $request->repetition_type; 
+				    $task->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
+				    $task->month_day = $request->month_day;
+				    $task->end_date = $date;
+				    $task->end_time =$request->end_time;
+				    $task->remind_before_start = ($request->remind_before_start) ? 1 :0;
+		            $task->before_minutes = $request->before_minutes;
+		            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+		            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
+		            $task->remind_after_end  =($request->remind_after_end) ? 1 :0;
+		            $task->after_minutes = $request->after_minutes;
+		            $task->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+		            $task->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
+		            $task->is_emergency  =($request->is_emergency) ? 1 :0;
+		            $task->emergency_minutes = $request->emergency_minutes;
+		            $task->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+		            $task->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
+		            $task->in_time  =($request->in_time) ? 1 :0;
+		            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+		            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+				    $task->created_by =$user->id;
+				    $task->save();
+				    $task_ids[] = $task->id;
+				    if(is_array($request->employees) ){
+				        foreach ($request->employees as $key => $employee) {
+				            $taskAssign = new AssignTask;
+				            $taskAssign->task_id = $task->id;
+				            $taskAssign->user_id = $employee;
+				            $taskAssign->assignment_date = date('Y-m-d');
+				            $taskAssign->assigned_by = $user->id;
+				            $taskAssign->save();
+				        }
+				    }
+				}
+			
+				$taskList = Task::whereIn('id',$task_ids)->get();
+				return prepareResult(true,'Task Added successfully' ,$taskList, $this->success);
+
+			}else{
+                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+            }
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
@@ -156,7 +194,7 @@ class TaskController extends Controller
 		    'description' => 'required',   
 		    'start_time' => 'required',    
 		    "employees"    => "required|array",
-		    "employees.*"  => "required|string|distinct", 
+		    "employees.*"  => "required|distinct|exists:users,id",    
 		    ],
 		    [
 		    'title.required' =>  getLangByLabelGroups('Task','title'),
@@ -167,7 +205,9 @@ class TaskController extends Controller
 		        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
 		    }
 		    if($request->is_repeat){
-		        $validator = Validator::make($request->all(),[     
+		        $validator = Validator::make($request->all(),[    
+		        	'end_date' => 'required|after:start_date',          
+                    'end_time' => 'required',  
 		            'every' => 'required|numeric',          
 		        ]);
 		        if ($validator->fails()) {
@@ -196,7 +236,7 @@ class TaskController extends Controller
 
 		    } else{
 		        $validator = Validator::make($request->all(),[   
-		            'start_date' => 'required|date',      
+		            'start_date' => 'required',      
 		        ],
 		        [ 
 		            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
@@ -206,35 +246,69 @@ class TaskController extends Controller
 		        }
 
 		    }
-		    $task = Task::find($id);
-		    $task->type_id = $request->type_id; 
-		    $task->resource_id = $request->resource_id; 
-		    $task->parent_id = $request->parent_id; 
-		    $task->title = $request->title; 
-		    $task->description = $request->description; 
-		    $task->start_date = $request->start_date; 
-		    $task->start_time = $request->start_time; 
-		    $task->is_repeat = ($request->is_repeat) ? 1:0; 
-		    $task->every = $request->every; 
-		    $task->repetition_type = $request->repetition_type; 
-		    $task->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
-		    $task->month_day = $request->month_day;
-		    $task->end_date = $request->end_date;
-		    $task->end_time =$request->end_time;
-		    $task->edited_by =$user->id;
-		    $task->save();
-		    if(is_array($request->employees) ){
-		        foreach ($request->employees as $key => $employee) {
-		            $taskAssign = new AssignTask;
-		            $taskAssign->task_id = $task->id;
-		            $taskAssign->user_id = $employee;
-		            $taskAssign->assignment_date = date('Y-m-d');
-		            $taskAssign->assigned_by = $user->id;
-		            $taskAssign->save();
-		        }
-		    }
-	    	
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$task, $this->success);
+		    $repeatedDates = activityTimeFrame($request->start_date,$request->is_repeat,$request->every,$request->repetition_type,$request->week_days,$request->month_day,$request->end_date);
+            $task_ids = [];
+            if(!empty($repeatedDates)) {
+                foreach ($repeatedDates as $key => $date) {
+				    $task = Task::find($id);
+				    $task->type_id = $request->type_id; 
+				    $task->resource_id = $request->resource_id; 
+				    $task->parent_id = $request->parent_id; 
+				    $task->branch_id = $request->branch_id; 
+				    $task->category_id = $request->category_id;
+				 	$task->subcategory_id = $request->subcategory_id;
+				    $task->title = $request->title; 
+				    $task->description = $request->description; 
+				    $task->start_date = $date; 
+				    $task->start_time = $request->start_time; 
+				    $task->address_url = $request->address_url;
+		            $task->video_url = $request->video_url;
+		            $task->information_url = $request->information_url;
+		            $task->information_url = $request->information_url;
+		            $task->file = $request->file;
+				    $task->is_repeat = ($request->is_repeat) ? 1:0; 
+				    $task->every = $request->every; 
+				    $task->repetition_type = $request->repetition_type; 
+				    $task->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
+				    $task->month_day = $request->month_day;
+				    $task->end_date = $date;
+				    $task->end_time =$request->end_time;
+				    $task->remind_before_start = ($request->remind_before_start) ? 1 :0;
+		            $task->before_minutes = $request->before_minutes;
+		            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+		            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
+		            $task->remind_after_end  =($request->remind_after_end) ? 1 :0;
+		            $task->after_minutes = $request->after_minutes;
+		            $task->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+		            $task->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
+		            $task->is_emergency  =($request->is_emergency) ? 1 :0;
+		            $task->emergency_minutes = $request->emergency_minutes;
+		            $task->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+		            $task->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
+		            $task->in_time  =($request->in_time) ? 1 :0;
+		            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+		            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+				    $task->edited_by =$user->id;
+				    $task->save();
+				    $task_ids[] = $task->id;
+				    if(is_array($request->employees) ){
+				        foreach ($request->employees as $key => $employee) {
+				        	$deleteOld = AssignTask::where('user_id',$employee)->where('task_id',$id)->delete();
+				            $taskAssign = new AssignTask;
+				            $taskAssign->task_id = $task->id;
+				            $taskAssign->user_id = $employee;
+				            $taskAssign->assignment_date = date('Y-m-d');
+				            $taskAssign->assigned_by = $user->id;
+				            $taskAssign->save();
+				        }
+				    }
+				}
+		
+		    	$taskList = Task::whereIn('id',$task_ids)->get();
+		        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$taskList, $this->success);
+	        }else{
+                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+            }
 			  
         }
         catch(Exception $exception) {
@@ -266,7 +340,7 @@ class TaskController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
             }
-        	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name')->first();
+        	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name')->first();
 	        return prepareResult(true,'View Task' ,$Task, $this->success);
         }
         catch(Exception $exception) {
@@ -382,6 +456,24 @@ class TaskController extends Controller
             
           
            
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " OR ";}
+             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             
+        }
+        if (is_null($request->dateRange) == false) {
+        	$now = Carbon::now();
+        	if($request->dateRange=='today'){
+        		if ($w != '') {$w = $w . " AND ";}
+        		$w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+        	}
         }
         return($w);
 

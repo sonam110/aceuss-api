@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Validator;
 use Auth;
 use DB;
+use Str;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -190,17 +191,17 @@ class CompanyAccountController extends Controller
                 }
             }
 
-            /*$categoryTypes = CategoryType::where('created_by','1')->get();
-            if(!empty($categoryTypes)) {
-                foreach ($categoryTypes as $key => $type) {
-                    $addType = new CategoryType;
-                    $addType->top_most_parent_id = $user->id;
-                    $addType->created_by = $user->id;
-                    $addType->name = $type->name;
-                    $addType->status = '1';
-                    $addType->save();
+            $roles = Role::where('is_default','1')->whereNull('top_most_parent_id')->get();
+            if(!empty($roles)) {
+                foreach ($roles as $key => $role) {
+                    $addRole->top_most_parent_id = $user->id;
+                    $addRole->name = $user->id.'-'.Str::slug(substr($role->se_name, 0, 20));
+                    $addRole->se_name  = $role->se_name;
+                    $addRole->guard_name  = 'api';
+                    $addRole->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                    $addRole->save();
                 }
-            }*/
+            }
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
         }

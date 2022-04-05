@@ -26,6 +26,7 @@ class Package extends Model
 		'bankid_charges',
 		'sms_charges',
 		'is_sms_enable',
+		'is_enable_bankid_charges',
 		'status',
 		'entry_mode',
     ];

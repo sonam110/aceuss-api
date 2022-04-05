@@ -132,4 +132,17 @@ class Activity extends Model
         return $this->hasMany(ActivityAssigne::class,'activity_id','id');
     }
 
+    public function setStartDateAttribute($value) {
+      $this->attributes['start_date'] = (!empty($value)) ? date("Y-m-d", strtotime($value)) :null;
+    }
+    public function setStartTimeAttribute($value) {
+      $this->attributes['start_time'] =  (!empty($value)) ? date("H:i:s", strtotime($value)) : null;
+    }
+    public function setEndDateAttribute($value) {
+      $this->attributes['end_date'] =  (!empty($value)) ? date("Y-m-d", strtotime($value)):null;
+    }
+    public function setEndTimeAttribute($value) {
+      $this->attributes['end_time'] =  (!empty($value)) ? date("H:i:s", strtotime($value)):null;
+    }
+
 }

@@ -169,7 +169,6 @@ class RoleController extends Controller
             $roleInfo = $roleInfo->find($role->id);
             if($roleInfo)
             {
-                $roleInfo->name = $this->top_most_parent_id.'-'.Str::slug(substr($request->se_name, 0, 20));;
                 $roleInfo->se_name  = $request->se_name;
                 $roleInfo->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $roleInfo->save();

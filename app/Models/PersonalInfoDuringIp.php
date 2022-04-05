@@ -21,7 +21,7 @@ class PersonalInfoDuringIp extends Model
 		'name',
 		'email',
 		'contact_number',
-		'country',
+		'country_id',
 		'city',
 		'postal_area',
 		'zipcode',
@@ -48,6 +48,6 @@ class PersonalInfoDuringIp extends Model
     }
     public function Country()
     {
-        return $this->belongsTo(Country::class,'country','id');
+        return $this->belongsTo(Country::class,'country_id','id');
     }
 }

@@ -20,5 +20,27 @@ ALTER TABLE `users`
 patient custom id 
 is patient secret or not 
 
+ for($w = $from; $w->lte($to); $w->addWeeks($every)) {
+                $date = Carbon::parse($w);
+                $weekNumber = $date->weekNumberInMonth;
+                $start =Carbon::parse($date->startOfWeek()->toDateString());
+                $end = Carbon::parse($date->endOfWeek()->toDateString());
+                $startd = $start->format('Y-m-d');
+                $endd = $end->format('Y-m-d');
+                  print_r($w->format('Y-m-d').'---');
+                 // print_r($end->format('Y-m-d').'/');
+                    //print_r($start->format('Y-m-d'));
+                    for($p = $start; $p->lte($end); $p->addDays()) {
+                        print_r($p->copy()->format('Y-m-d').'--');
+                        if(in_array($p->dayOfWeek, $week_days)){
+
+                            array_push($dateTimeFrame, $p->copy()->format('Y-m-d'));
+                        }
+                    }
+                
+
+            }
+
+
 
 

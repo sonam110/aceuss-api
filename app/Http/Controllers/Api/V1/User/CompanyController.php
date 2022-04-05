@@ -262,6 +262,32 @@ class CompanyController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
+        if (is_null($request->input('shift_name')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "shift_name like '%" .trim(strtolower($request->input('shift_name'))) . "%')";
+             
+        }
+        if (is_null($request->shift_start_time) == false || is_null($request->shift_end_time) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->shift_start_time != '')
+            {
+              $w = $w . "("."shift_start_time >= '".date('y-m-d',strtotime($request->shift_start_time))."')";
+            }
+            if (is_null($request->shift_start_time) == false && is_null($request->shift_end_time) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->shift_end_time != '')
+            {
+                $w = $w . "("."shift_start_time <= '".date('y-m-d',strtotime($request->shift_end_time))."')";
+            }
+            
+          
+           
+        }
         return($w);
 
     }

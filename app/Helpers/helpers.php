@@ -12,6 +12,7 @@ use App\Models\Comment;
 use App\Models\EmailTemplate;
 use App\Models\CompanySetting;
 use Edujugon\PushNotification\PushNotification;
+use Carbon\Carbon;
 function getUser() {
     return auth('api')->user();
 }
@@ -397,7 +398,7 @@ function comment($source_id, $source_namen,$comment)
 }
 
 function generateRandomNumber($len = 12) {
-    return substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,$len);
+    return substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'),1,$len);
 }
 
 
@@ -422,4 +423,92 @@ function companySetting($company_id){
 
     }
 }
+
+function activityTimeFrame($start_date,$is_repeat,$every,$repetition_type,$week_days,$month_day,$end_date)
+{
+    $from = Carbon::parse($start_date);
+    $to = Carbon::parse($end_date);
+    $start_from = $from->format('Y-m-d');
+    $end_to = $to->format('Y-m-d');
+    $dateTimeFrame = []; 
+    if($is_repeat == true && (!empty($end_date))){
+        if($repetition_type == '1'){
+            for($d = $from; $d->lte($to); $d->addDay($every)) {
+                $dateTimeFrame[] = $d->format('Y-m-d');
+            }
+        }
+        elseif($repetition_type == '2'){
+           for($w = $from; $w->lte($to); $w->addWeeks($every)) {
+                $date = Carbon::parse($w);
+                $startWeek = $w->startOfWeek()->format('Y-m-d');
+                $weekNumber = $date->weekNumberInMonth;
+                $start = Carbon::createFromFormat("Y-m-d", $startWeek);
+                $end = $start->copy()->endOfWeek()->format('Y-m-d');
+                for($p = $start; $p->lte($end); $p->addDays()) {
+                    if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
+                        if(in_array($p->dayOfWeek, $week_days)){
+                            array_push($dateTimeFrame, $p->copy()->format('Y-m-d'));
+                        }
+                    }
+                }
+               
+            }
+          
+        }
+        elseif($repetition_type == '3'){
+            for($m = $from; $m->lte($to); $m->addMonths($every)) {
+                $start = Carbon::parse($m)->startOfMonth();
+                $end = Carbon::parse($m)->endOfMonth();
+                for($q = $start; $q->lte($end); $q->addDays()) {
+                    if(strtotime($start_from) <= strtotime($q) && strtotime($end_to) >= strtotime($q) ) {
+                        if(in_array($q->day, [$month_day])){
+                            array_push($dateTimeFrame, $q->copy()->format('Y-m-d'));
+                        }
+                    }
+                }
+            }
+           
+        }   
+        elseif($repetition_type == '4'){
+            for($y = $from; $y->lte($to); $y->addYears($every)) {
+                $dateTimeFrame[] = $y->format('Y-m-d');
+            }
+        }else{
+            $dateTimeFrame[] = $from->format('Y-m-d');
+        }
+        
+    } else {
+        $dateTimeFrame[] = $from->format('Y-m-d');
+    }
+    return $dateTimeFrame;
+}
+ 
+function monthDaysBetween($month_day, $start, $end,$every){
+    $result = [];
+    while ($start->lt($end)) {
+        if(in_array($start->day, [$month_day])){
+            array_push($result, $start->copy()->format('Y-m-d'));
+        }
+        $start->addMonths($every);
+    }
+
+    return $result;
+}
+
+
+function weekDaysBetween($requiredDays, $start, $end,$every){
+    $result = [];
+    while ($start->lt($end)) {
+        if(in_array($start->dayOfWeek, $requiredDays)){
+            array_push($result, $start->copy()->format('Y-m-d'));
+        }
+
+        $start->addDays();
+        
+
+    }
+    
+    return $result;
+}
+
 ?>

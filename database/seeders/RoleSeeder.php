@@ -23,8 +23,8 @@ class RoleSeeder extends Seeder
        
          
         /*------------Default Role-----------------------------------*/
-        $role1 = Role::create(['id' => '1','name' => 'Admin','se_name' => 'Super Admin', 'guard_name' => 'api','is_default'=>'1']);
-        $role2 = Role::create(['id' => '2','name' => 'Company','se_name' => 'Company', 'guard_name' => 'api','is_default'=>'1']);
+        $role1 = Role::create(['id' => '1','name' => 'Admin','se_name' => 'Super Admin', 'guard_name' => 'api','is_default'=>'0']);
+        $role2 = Role::create(['id' => '2','name' => 'Company','se_name' => 'Company', 'guard_name' => 'api','is_default'=>'0']);
         $role3 = Role::create(['id' => '3','name' => 'Employee','se_name' => 'Employee', 'guard_name' => 'api','is_default'=>'1']);
         $role4 = Role::create(['id' => '4','name' => 'Hospital','se_name' => 'Hospital', 'guard_name' => 'api','is_default'=>'1']);
         $role5 = Role::create(['id' => '5','name' => 'Nuser','se_name' => 'Nuser', 'guard_name' => 'api','is_default'=>'1']);

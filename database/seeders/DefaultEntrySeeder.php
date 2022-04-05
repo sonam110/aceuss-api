@@ -7,6 +7,8 @@ use DB;
 use App\Models\CompanyType;
 use App\Models\CategoryType;
 use App\Models\EmailTemplate;
+use App\Models\Language;
+use App\Models\Package;
 class DefaultEntrySeeder extends Seeder
 {
     /**
@@ -30,6 +32,36 @@ class DefaultEntrySeeder extends Seeder
         $cataegoryType6 = CategoryType::create(['id' => '6','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Journal']);
         $cataegoryType7 = CategoryType::create(['id' => '7','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Patient']);
         $cataegoryType8 = CategoryType::create(['id' => '8','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Employee']);
+
+        \DB::table('languages')->truncate();
+            Language::create([
+            'title'          => 'English',
+            'value'      => 'en',
+            'created_at'    => date('Y-m-d H:i:s'),
+            'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+            Language::create([
+                'title'          => 'Swedish',
+                'value'      => 'sw',
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+
+            Package::truncate();
+            Package::create([
+                'name'                  => 'Basic pack',
+                'price'                 =>'540',
+                'is_on_offer'           =>'1',
+                'discount_type'         =>'1',
+                'discount_value'        =>'67',
+                'discounted_price'      =>'178.2',
+                'validity_in_days'      =>'100',
+                'number_of_patients'    =>'100',
+                'number_of_employees'   =>'50',
+                'status'                =>'1',
+                'created_at'            => date('Y-m-d H:i:s'),
+                'updated_at'            => date('Y-m-d H:i:s')
+            ]);
 
     }
 }

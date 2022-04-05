@@ -38,10 +38,10 @@ class FollowUpsController extends Controller
             }
             $folloups_ids = array_merge($followup_without_parent,$child_id);
             if($whereRaw != '') { 
-                $query =  IpFollowUp::select('id','title','ip_id','status')->whereIn('id',$folloups_ids)->whereRaw($whereRaw)
+                $query =  IpFollowUp::whereIn('id',$folloups_ids)->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = IpFollowUp::select('id','title','ip_id','status')->whereIn('id',$folloups_ids)->orderBy('id', 'DESC');
+                $query = IpFollowUp::whereIn('id',$folloups_ids)->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))
@@ -272,6 +272,7 @@ class FollowUpsController extends Controller
         		 	$ipFollowups->parent_id = $parent_id;
         		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
         		 	$ipFollowups->title = $request->title;
+                    $ipFollowups->description = $request->description;
                     $ipFollowups->start_date = $followup['start_date'];
                     $ipFollowups->start_time = $followup['start_time'];
                     $ipFollowups->end_date = $followup['end_date'];
@@ -574,6 +575,38 @@ class FollowUpsController extends Controller
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+        }
+         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->start_date != '')
+            {
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+            }
+            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->end_date != '')
+            {
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+            }
+            
+          
+           
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " OR ";}
+             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             
         }
 
         return($w);

@@ -112,8 +112,14 @@ class CategoryMasterController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
+            $whereRaw = $this->getWhereRawFromRequest($request);
             $query = CategoryMaster::select('id','name')->where('parent_id',$request->parent_id);
-            
+            if($whereRaw != '') { 
+                $query->whereRaw($whereRaw)
+                    ->orderBy('id', 'DESC');
+            } else {
+                $query->orderBy('id', 'DESC');
+            }
              if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -281,6 +287,10 @@ class CategoryMasterController extends Controller
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+        }
+        if (is_null($request->input('name')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
         }
         return($w);
 

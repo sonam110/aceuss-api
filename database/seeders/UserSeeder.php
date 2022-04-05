@@ -55,36 +55,7 @@ class UserSeeder extends Seeder
             }
 
 
-           /* 
-            \DB::table('languages')->truncate();
-            Language::create([
-            'title'          => 'English',
-            'value'      => 'en',
-            'created_at'    => date('Y-m-d H:i:s'),
-            'updated_at'    => date('Y-m-d H:i:s')
-            ]);
-            Language::create([
-                'title'          => 'Swedish',
-                'value'      => 'sw',
-                'created_at'    => date('Y-m-d H:i:s'),
-                'updated_at'    => date('Y-m-d H:i:s')
-            ]);
-
-
-            Package::create([
-                'name'                  => 'Basic pack',
-                'price'                 =>'540',
-                'is_on_offer'           =>'1',
-                'discount_type'         =>'1',
-                'discount_value'        =>'67',
-                'discounted_price'      =>'178.2',
-                'validity_in_days'      =>'100',
-                'number_of_patients'    =>'100',
-                'number_of_employees'   =>'50',
-                'status'                =>'1',
-                'created_at'            => date('Y-m-d H:i:s'),
-                'updated_at'            => date('Y-m-d H:i:s')
-            ]);*/
+         
 
 
     }

@@ -122,6 +122,7 @@ class PackageController extends Controller
             $package->bankid_charges = $request->bankid_charges;
             $package->sms_charges = $request->sms_charges;
             $package->is_sms_enable = ($request->is_sms_enable) ? 1 : 0;
+            $package->is_enable_bankid_charges = ($request->is_enable_bankid_charges) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
              return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, $this->success);
@@ -223,6 +224,7 @@ class PackageController extends Controller
             $package->bankid_charges = $request->bankid_charges;
             $package->sms_charges = $request->sms_charges;
             $package->is_sms_enable = ($request->is_sms_enable) ? 1 : 0;
+            $package->is_enable_bankid_charges = ($request->is_enable_bankid_charges) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             
@@ -293,6 +295,36 @@ class PackageController extends Controller
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+        }
+        if (is_null($request->input('name')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('discounted_price')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "discounted_price like '%" .trim(strtolower($request->input('discounted_price'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('number_of_employees')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "number_of_employees = "."'" .$request->input('number_of_employees')."'".")";
+
+             
+        }
+        if (is_null($request->input('number_of_patients')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "number_of_patients = "."'" .$request->input('number_of_patients')."'".")";
+
+             
+        }
+        if (is_null($request->input('price')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "price = "."'" .$request->input('price')."'".")";
+
+             
         }
         
         return($w);

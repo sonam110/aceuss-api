@@ -458,6 +458,16 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'internalCom-read', 'guard_name' => 'api','group_name'=>'command','se_name'=>'internalCom-read','belongs_to'=>'2']);
 
+         Permission::create(['name' => 'EmailTemplate-browse', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-browse','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'EmailTemplate-add', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-add','belongs_to'=>'1']);
+        
+        Permission::create(['name' => 'EmailTemplate-read', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-read','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'EmailTemplate-edit', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-edit','belongs_to'=>'1']);
+        
+        Permission::create(['name' => 'EmailTemplate-delete', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-delete','belongs_to'=>'1']);
+
 
          
 
