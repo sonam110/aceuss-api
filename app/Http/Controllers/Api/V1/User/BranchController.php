@@ -52,7 +52,7 @@ class BranchController extends Controller
             $validator = Validator::make($request->all(),[ 
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
-                'password'  => 'required|same:confirm-password|min:8|max:30',
+                'password'  => 'required|same:confirm-password|min:8|max:30', 
                 'contact_number' => 'required', 
                 'company_type_id' => 'required', 
 
@@ -88,7 +88,7 @@ class BranchController extends Controller
             $user = new User;
             $user->user_type_id = '11';
             $user->unique_id = generateRandomNumber();
-            $user->role_id = '11';
+            $user->role_id = $request->role_id;
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $top_most_parent_id;
@@ -98,8 +98,6 @@ class BranchController extends Controller
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
-            $user->gender = $request->gender;
-            $user->personal_number = $request->personal_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
@@ -179,7 +177,7 @@ class BranchController extends Controller
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[  
-                'name' => 'required', 
+                'name' => 'required',  
                 'contact_number' => 'required', 
 
             ],
@@ -218,8 +216,6 @@ class BranchController extends Controller
             $user->branch_id = $request->branch_id;
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
-            $user->gender = $request->gender;
-            $user->personal_number = $request->personal_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;

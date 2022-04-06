@@ -58,6 +58,9 @@ class CreateUsersTable extends Migration
             $table->boolean('is_file_required')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_secret')->default('0')->comment('1:Yes,0:No');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
+            $table->boolean('is_fake')->default('0')->comment('1:Yes,0:No');
+            $table->boolean('is_risk')->default('0')->comment('1:Yes,0:No');
+            $table->boolean('is_password_change')->default('0')->comment('1:Yes,0:No');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->rememberToken();

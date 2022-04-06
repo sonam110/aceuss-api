@@ -15,6 +15,7 @@ use Auth;
 use DB;
 use Exception;
 use Mail;
+use Str;
 use App\Mail\WelcomeMail;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -52,7 +53,7 @@ class UserController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender','organization_number', 'personal_number','joining_date','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientType:id,designation') ;
+            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender','organization_number', 'personal_number','joining_date','is_risk','is_fake','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientType:id,designation') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -97,27 +98,40 @@ class UserController extends Controller
         try {
 
             $userInfo = getUser();
+
             $validator = Validator::make($request->all(),[
                 'user_type_id' => 'required|exists:user_types,id', 
                 'role_id' => 'required|exists:roles,id',
                 'name' => 'required', 
-                'email'     => 'required|email|unique:users,email',
-                'password'  => 'required|same:confirm-password|min:8|max:30',
-                'contact_number' => 'required', 
+                'personal_number' => 'required|digits:12|unique:users,personal_number', 
 
             ],
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
-            'password.required' =>  getLangByLabelGroups('UserValidation','password'),
-            'password.min' =>  getLangByLabelGroups('UserValidation','password_min'),
-            'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
+            }
+            if($request->user_type_id  != '6'){
+                 $validator = Validator::make($request->all(),[
+                'email'     => 'required|email|unique:users,email',
+                'password'  => 'required|same:confirm-password|min:8|max:30', 
+                'contact_number' => 'required', 
+
+                ],
+                [
+                'email.required' =>  getLangByLabelGroups('UserValidation','email'),
+                'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
+                'password.required' =>  getLangByLabelGroups('UserValidation','password'),
+                'password.min' =>  getLangByLabelGroups('UserValidation','password_min'),
+                'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
+
             }
             if($request->user_type_id == '6'){
                 $validator = Validator::make($request->all(),[
@@ -141,7 +155,16 @@ class UserController extends Controller
 
                 }
             }
-        
+            $email = $request->email;
+            $password = Hash::make($request->password);
+            $is_fake = false;
+            if(empty($request->email)){
+                $is_fake = true;
+                $slug = Str::slug($request->name).generateRandomNumber(5);
+                $email = $slug.'@aceuss.com';
+                $password = Str::random(12);
+            }
+
             $user = new User;
             $user->unique_id = generateRandomNumber();
             $user->custom_unique_id = $request->custom_unique_id;
@@ -158,8 +181,8 @@ class UserController extends Controller
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
+            $user->email = $email;
+            $user->password = $password;
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
@@ -180,6 +203,8 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->is_secret = ($request->is_secret) ? 1:0 ;
+            $user->is_risk = ($request->is_risk) ? 1:0 ;
+            $user->is_fake =  ($is_fake == true)  ? 1:0;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             if(!empty($request->input('role_id')))
@@ -187,7 +212,7 @@ class UserController extends Controller
                 $role = Role::where('id',$request->role_id)->first();
                 $user->assignRole($role->name);
             }
-            if(env('IS_MAIL_ENABLE',false) == true){ 
+            if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false){ 
                     $content = ([
                     'company_id' => $user->top_most_parent_id,
                     'name' => $user->name,
@@ -232,7 +257,7 @@ class UserController extends Controller
                         $personalInfo->name = $value['name'] ;
                         $personalInfo->email = $value['email'] ;
                         $personalInfo->contact_number = $value['contact_number'];
-                        $personalInfo->country = $value['country_id'];
+                        $personalInfo->country_id = $value['country_id'];
                         $personalInfo->city = $value['city'];
                         $personalInfo->postal_area = $value['postal_area'];
                         $personalInfo->zipcode = $value['zipcode'];
@@ -256,6 +281,7 @@ class UserController extends Controller
                             $checkAlreadyUser = User::where('email',$value['email'])->first();
                             if(empty($checkAlreadyUser)) {
                                 $userSave = new User;
+                                $userSave->unique_id = generateRandomNumber();
                                 $userSave->user_type_id = $user_type_id;
                                 $userSave->role_id =  $user_type_id;
                                 $userSave->parent_id = $user->id;
@@ -337,6 +363,7 @@ class UserController extends Controller
                 'user_type_id' => 'required|exists:user_types,id', 
                 'role_id' => 'required|exists:roles,id', 
                 'name' => 'required', 
+                'personal_number' => 'required|digits:12|unique:users,personal_number', 
                 'contact_number' => 'required', 
 
             ],
@@ -397,6 +424,7 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->is_secret = ($request->is_secret) ? 1:0 ;
+            $user->is_risk = ($request->is_risk) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             \DB::table('model_has_roles')->where('model_id',$user->id)->delete();
@@ -442,7 +470,7 @@ class UserController extends Controller
                     $personalInfo->name = $value['name'] ;
                     $personalInfo->email = $value['email'] ;
                     $personalInfo->contact_number = $value['contact_number'];
-                    $personalInfo->country = $value['country_id'];
+                    $personalInfo->country_id = $value['country_id'];
                     $personalInfo->city = $value['city'];
                     $personalInfo->postal_area = $value['postal_area'];
                     $personalInfo->zipcode = $value['zipcode'];
@@ -466,6 +494,7 @@ class UserController extends Controller
                         $checkAlreadyUser = User::where('email',$value['email'])->first();
                         if(empty($checkAlreadyUser)) {
                             $userSave = new User;
+                            $userSave->unique_id = generateRandomNumber();
                             $userSave->user_type_id = $user_type_id;
                             $userSave->role_id =  $user_type_id;
                             $userSave->parent_id = $user->id;

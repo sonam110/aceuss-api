@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Agency;
 use DB;
+use Validator;
+use Auth;
+use Exception;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Models\CompanySetting;
 class NoMiddlewareController extends Controller
 {
@@ -88,5 +93,40 @@ class NoMiddlewareController extends Controller
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
+    }
+     public function passwordChange(Request $request)
+    {
+        try {
+                $validator = Validator::make($request->all(),[   
+                    'email'     => 'required|email|exists:users,email',  
+                    'date_of_birth' => 'required|date_format:Y-m-d',      
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
+                $checkUser =User::where('email',$request->email)->first();
+                $date_of_birth    = date('Y-m-d', strtotime(substr($checkUser->personal_number,0,8)));
+                if(strtotime($date_of_birth) == strtotime($request->date_of_birth)){
+                    $validator = Validator::make($request->all(),[   
+                    'password'     => 'required|min:8|max:30',    
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                    }
+                    $updatePass = User::find($checkUser->id);
+                    $updatePass->password = Hash::make($request->password);
+                    $updatePass->is_password_change = '1';
+                    $updatePass->save();
+                    return prepareResult(true,"Password Change Successfully",$updatePass,'200');
+                } else {
+                    return prepareResult(false,"Email and Date of birth does not match",[],'422');
+                }
+            
+            }
+            catch(Exception $exception) {
+                return prepareResult(false, $exception->getMessage(),[], '500');
+                
+            }
+       
     }
 }

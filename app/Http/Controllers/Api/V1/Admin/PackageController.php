@@ -326,6 +326,18 @@ class PackageController extends Controller
 
              
         }
+        if (is_null($request->input('is_sms_enable')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "is_sms_enable = "."'" .$request->input('is_sms_enable')."'".")";
+
+             
+        }
+        if (is_null($request->input('is_enable_bankid_charges')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "is_enable_bankid_charges = "."'" .$request->input('is_enable_bankid_charges')."'".")";
+
+             
+        }
         
         return($w);
 

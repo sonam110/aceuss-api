@@ -26,14 +26,16 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
 	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySetting');
+	Route::get('user-type-list', 'Common\UserLoginController@userTypeList');
+	Route::post('verify-user-email', 'Common\UserLoginController@verifyUserEmail');
 		
-	 
+	Route::post('password-change', 'Common\NoMiddlewareController@passwordChange'); 
 	Route::middleware('auth:api', 'isActiveToken','isAuthorized')->group(function () {
 		Route::post('/logout', 'Common\UserLoginController@logout');
 		Route::post('/change-password', 'Common\UserLoginController@changePassword');
 		Route::get('user-detail', 'Common\UserLoginController@userDetail');
-		Route::get('user-type-list', 'Common\UserLoginController@userTypeList');
-		Route::post('verify-user-email', 'Common\UserLoginController@verifyUserEmail');
+	
+		Route::post('patient-password-change', 'Common\CommonController@patientPasswordChange');
 		
 			/*-------------Bank detail------------------------*/
 		Route::post('banks', [App\Http\Controllers\Api\V1\Common\BankDetailController::class, 'banks']);

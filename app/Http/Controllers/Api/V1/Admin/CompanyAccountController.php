@@ -113,8 +113,6 @@ class CompanyAccountController extends Controller
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
-            $user->gender = $request->gender;
-            $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
@@ -276,8 +274,6 @@ class CompanyAccountController extends Controller
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
-            $user->gender = $request->gender;
-            $user->personal_number = $request->personal_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;

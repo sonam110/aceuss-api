@@ -87,6 +87,9 @@ class User extends Authenticatable
         'is_file_required',
         'is_secret',
         'status',
+        'is_fake',
+        'is_risk',
+        'is_password_change',
         'entry_mode',
     ];
 

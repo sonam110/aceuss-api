@@ -147,7 +147,7 @@ class FollowUpsController extends Controller
                             $personalInfo->name = $value['name'] ;
                             $personalInfo->email = $value['email'] ;
                             $personalInfo->contact_number = $value['contact_number'];
-                            $personalInfo->country = $value['country_id'];
+                            $personalInfo->country_id = $value['country_id'];
                             $personalInfo->city = $value['city'];
                             $personalInfo->postal_area = $value['postal_area'];
                             $personalInfo->zipcode = $value['zipcode'];
@@ -174,6 +174,7 @@ class FollowUpsController extends Controller
                                         $userSave = User::find($getUser->id);
                                     } else {
                                         $userSave = new User;
+                                        $userSave->unique_id = generateRandomNumber();
                                     }
                                     $userSave->user_type_id = $user_type_id;
                                     $userSave->role_id =  $user_type_id;
@@ -315,7 +316,7 @@ class FollowUpsController extends Controller
                             $personalInfo->name = $value['name'] ;
                             $personalInfo->email = $value['email'] ;
                             $personalInfo->contact_number = $value['contact_number'];
-                            $personalInfo->country = $value['country_id'];
+                            $personalInfo->country_id = $value['country_id'];
                             $personalInfo->city = $value['city'];
                             $personalInfo->postal_area = $value['postal_area'];
                             $personalInfo->zipcode = $value['zipcode'];
@@ -342,6 +343,7 @@ class FollowUpsController extends Controller
                                         $userSave = User::find($getUser->id);
                                     } else {
                                         $userSave = new User;
+                                        $userSave->unique_id = generateRandomNumber();
                                     }
                                     $userSave->user_type_id = $user_type_id;
                                     $userSave->role_id =  $user_type_id;

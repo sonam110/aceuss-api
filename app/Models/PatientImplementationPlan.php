@@ -42,6 +42,9 @@ class PatientImplementationPlan extends Model
 		'approved_by',
 		'approved_date',
         'status',
+        'step_one_status',
+        'step_two_status',
+        'step_three_status',
         'entry_mode',
 		
     ];

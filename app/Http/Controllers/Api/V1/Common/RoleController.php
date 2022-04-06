@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use DB;
 use Str;
-
+use App\Models\User;
 class RoleController extends Controller
 {
     protected $top_most_parent_id;
@@ -30,6 +30,7 @@ class RoleController extends Controller
     
     public function roles(Request $request)
     {
+        
         try {
             $query = Role::select('*')->with('permissions');
             if(auth()->user()->user_type_id!='1')

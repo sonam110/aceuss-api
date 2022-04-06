@@ -42,5 +42,26 @@ is patient secret or not
             }
 
 
+            for($w = $from; $w->lte($to); $w->addWeeks($every)) {
+                $date = Carbon::parse($w);
+                $startWeek = $w->startOfWeek()->format('Y-m-d');
+                $weekNumber = $date->weekNumberInMonth;
+                $start = Carbon::createFromFormat("Y-m-d", $startWeek);
+                $end = $start->copy()->endOfWeek()->format('Y-m-d');
+                if($i == 1){
+                     $startdate = Carbon::createFromFormat("Y-m-d", $startWeek)->format('Y-m-d');
+                }
+                print_r($startdate);
+                foreach ($week_days as $key => $week) {
+                  if(strtotime($start_from) <= strtotime($startdate) && strtotime($start_from) <= strtotime($start->format('Y-m-d'))) {
+                    $dateTimeFrame[] = Carbon::parse($start)->addDay($week-1)->format('Y-m-d');
+                  }
+                   
+                }
+               
+               $i++;
+            }
+
+
 
 

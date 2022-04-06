@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use App\Models\PermissionExtend;
 use DB;
+use Validator;
+use Auth;
+use Exception;
 use App\Models\User;
 use App\Models\SmsLog;
+use Illuminate\Support\Facades\Hash;
 class CommonController extends Controller
 {
     protected $top_most_parent_id;
@@ -177,6 +181,33 @@ class CommonController extends Controller
         }
         Log::channel('smslog')->info($request);
         return true;
+    }
+    public function patientPasswordChange(Request $request)
+    {
+        try {
+                $validator = Validator::make($request->all(),[   
+                    "user_id"  => "required|exists:users,id",    
+                    "password"  => 'required|min:8|max:30',   
+                ]);
+                if ($validator->fails()) {
+                     return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
+                $checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
+                if(!is_object($checkUser)){
+                     return prepareResult(false,'User not found',[], '422'); 
+                }
+                $updatePass = User::find($checkUser->id);
+                $updatePass->password = Hash::make($request->password);
+                $updatePass->is_password_change = '1';
+                $updatePass->save();
+                return prepareResult(true,"Password Change Successfully",$updatePass,'200');
+           
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], '500');
+            
+        }
+       
     }
 
     public function testMessageSend()
