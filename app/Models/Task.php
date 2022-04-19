@@ -10,6 +10,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\AssignTask;
 use App\Models\CategoryType;
 use App\Models\CategoryMaster;
+use App\Models\Activity;
+use App\Models\PatientImplementationPlan;
+use App\Models\User;
 class Task extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
@@ -17,8 +20,10 @@ class Task extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+     protected $appends = ['resource_data'];
     protected $fillable = [
     	'top_most_parent_id',
+        'group_id',
 		'type_id',
 		'resource_id',
 		'parent_id',
@@ -29,11 +34,12 @@ class Task extends Model
 		'description',
 		'start_date',
 		'start_time',
+        'how_many_time',
 		'is_repeat',
 		'every',
 		'repetition_type',
-		'week_days',
-		'month_day',
+		'how_many_time_array',
+		'repeat_dates',
 		'end_date',
 		'end_time',
         'address_url',
@@ -87,6 +93,29 @@ class Task extends Model
     }
     public function setEndTimeAttribute($value) {
       $this->attributes['end_time'] =  (!empty($value)) ? date("H:i:s", strtotime($value)):null;
+    }
+
+
+    public function getResourceDataAttribute()
+    {
+        $result = [];
+        if($this->type_id == '1'){
+            $result['activity'] = Activity::select('id','title','description','start_date','start_time','end_date','end_time')->where('id',$this->resource_id)->first();
+        }
+        if($this->type_id == '2'){
+            $result['ip'] = PatientImplementationPlan::select('id','title','goal','start_date','sub_goal','end_date')->where('id',$this->resource_id)->first();
+        }
+        if($this->type_id == '7'){
+            $result['patient'] = User::select('id','name','email','contact_number','personal_number')->where('id',$this->resource_id)->first();
+        }
+        if($this->type_id == '8'){
+            $result['employee'] = User::select('id','name','email','contact_number')->where('id',$this->resource_id)->first();
+        }
+
+        return $result ;
+        
+        
+
     }
 
 

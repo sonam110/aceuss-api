@@ -22,7 +22,7 @@ class Journal extends Model
         'parent_id',
 		'deviation_id',
 		'activity_id',
-		'top_most_parent_id';,
+		'top_most_parent_id',
 		'branch_id',
         'patient_id',
 		'emp_id',
@@ -36,6 +36,7 @@ class Journal extends Model
 		'approved_by',
 		'approved_date',
 		'is_deviation',
+        'is_social',
         'entry_mode',
 
     ];

@@ -23,6 +23,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::post('password-reset-in-mobile', 'Common\UserLoginController@passwordResetInMobile');
 	Route::post('country-list', 'Common\NoMiddlewareController@countryList');
 	Route::post('agency-list', 'Common\NoMiddlewareController@agencyList');
+	Route::post('user-type-permission', 'Common\NoMiddlewareController@userTypePermission');
+
+	Route::get('activity-options', 'Common\NoMiddlewareController@activityOptions');
+
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
 	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySetting');
@@ -36,6 +40,14 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('user-detail', 'Common\UserLoginController@userDetail');
 	
 		Route::post('patient-password-change', 'Common\CommonController@patientPasswordChange');
+
+		/*-----Request For approval------------------*/
+
+		Route::post('request-for-approval', 'Common\RequestApprovalController@requestForApproval');
+		Route::post('approval-request-list', 'Common\RequestApprovalController@approvalRequestList');
+		Route::post('approval-request', 'Common\RequestApprovalController@approvedRequest');
+
+		
 		
 			/*-------------Bank detail------------------------*/
 		Route::post('banks', [App\Http\Controllers\Api\V1\Common\BankDetailController::class, 'banks']);
@@ -88,6 +100,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		});
 
 
+		Route::post('update-profile', 'Common\ProfileController@updateProfile');
 		Route::post('setting-update', 'User\SettingController@settingUpdate');
 
 		Route::post('file-uploads', 'Common\FileUploadController@uploadFiles');

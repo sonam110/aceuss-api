@@ -16,7 +16,8 @@ class AddClmToPermissionsTable extends Migration
         Schema::table('permissions', function (Blueprint $table) {
             $table->string('group_name')->after('guard_name');
             $table->string('se_name')->after('group_name')->unique();
-            $table->tinyInteger('belongs_to')->default(1)->after('se_name')->comment('1:Admin,2:Company,3:Other');
+            $table->text('description')->after('se_name')->nullable();
+            $table->tinyInteger('belongs_to')->default(1)->after('description')->comment('1:Admin,2:Company,3:Other');
             $table->string('entry_mode')->nullable();
 
         });
@@ -32,6 +33,7 @@ class AddClmToPermissionsTable extends Migration
         Schema::table('permissions', function (Blueprint $table) {
             $table->dropColumn('group_name');
             $table->dropColumn('se_name');
+            $table->dropColumn('description');
             $table->dropColumn('belongs_to');
             $table->dropColumn('entry_mode');
         });

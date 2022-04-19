@@ -35,6 +35,7 @@ class IpFollowUp extends Model
 	'edited_by',
 	'approved_by',
 	'approved_date',
+    'documents',
 	'status',
     'entry_mode',
 

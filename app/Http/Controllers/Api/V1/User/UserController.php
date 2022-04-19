@@ -10,6 +10,7 @@ use App\Models\Subscription;
 use App\Models\EmailTemplate;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\AgencyWeeklyHour;
+use App\Models\PatientInformation;
 use Validator;
 use Auth;
 use DB;
@@ -53,7 +54,7 @@ class UserController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number', 'gender','organization_number', 'personal_number','joining_date','is_risk','is_fake','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientType:id,designation') ;
+            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientType:id,designation','PatientInformation') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -103,27 +104,25 @@ class UserController extends Controller
                 'user_type_id' => 'required|exists:user_types,id', 
                 'role_id' => 'required|exists:roles,id',
                 'name' => 'required', 
-                'personal_number' => 'required|digits:12|unique:users,personal_number', 
-
+                'email'     => 'required|email|unique:users,email',
             ],
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
+            'email.required' =>  getLangByLabelGroups('UserValidation','email'),
+            'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
             if($request->user_type_id  != '6'){
                  $validator = Validator::make($request->all(),[
-                'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30', 
                 'contact_number' => 'required', 
 
                 ],
                 [
-                'email.required' =>  getLangByLabelGroups('UserValidation','email'),
-                'email.email' =>  getLangByLabelGroups('UserValidation','email_invalid'),
                 'password.required' =>  getLangByLabelGroups('UserValidation','password'),
                 'password.min' =>  getLangByLabelGroups('UserValidation','password_min'),
                 'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
@@ -135,6 +134,7 @@ class UserController extends Controller
             }
             if($request->user_type_id == '6'){
                 $validator = Validator::make($request->all(),[
+                    'personal_number' => 'required|digits:12|unique:users,personal_number', 
                     'custom_unique_id' => 'required|unique:users,custom_unique_id', 
                 ]);
                 if ($validator->fails()) {
@@ -142,7 +142,16 @@ class UserController extends Controller
                 }
 
             }
-            if(!empty($request->patient_type_id)){
+            if($request->user_type_id == '3'){
+                $validator = Validator::make($request->all(),[
+                    'personal_number' => 'required|digits:12|unique:users,personal_number', 
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
+
+            }
+            /*if(!empty($request->patient_type_id)){
                 if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
                     $validator = Validator::make($request->all(),[
                         'working_from' => 'required', 
@@ -154,19 +163,20 @@ class UserController extends Controller
                     }
 
                 }
-            }
-            $email = $request->email;
+            }*/
+
             $password = Hash::make($request->password);
+            $is_password_change = false;
             $is_fake = false;
-            if(empty($request->email)){
+            if($request->is_fake == true){
                 $is_fake = true;
-                $slug = Str::slug($request->name).generateRandomNumber(5);
-                $email = $slug.'@aceuss.com';
+                $is_password_change = true;
                 $password = Str::random(12);
             }
 
             $user = new User;
             $user->unique_id = generateRandomNumber();
+            $user->branch_id = getBranchId();
             $user->custom_unique_id = $request->custom_unique_id;
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $request->role_id;
@@ -174,23 +184,19 @@ class UserController extends Controller
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $this->top_most_parent_id;
             $user->parent_id = $userInfo->id;
-            $user->branch_id = $request->branch_id;
             $user->govt_id = $request->govt_id;
             $user->dept_id = $request->dept_id;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
             $user->postal_area = $request->postal_area;
             $user->name = $request->name;
-            $user->email = $email;
+            $user->email = $request->email;
             $user->password = $password;
             $user->contact_number = $request->contact_number;
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
-            $user->patient_type_id = $request->patient_type_id;
-            $user->working_from = $request->working_from;
-            $user->working_to = $request->working_to;
-            $user->place_name = $request->place_name;
+            $user->patient_type_id = json_encode($request->patient_type_id);
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
             $user->joining_date = $request->joining_date;
@@ -203,14 +209,40 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->is_secret = ($request->is_secret) ? 1:0 ;
-            $user->is_risk = ($request->is_risk) ? 1:0 ;
-            $user->is_fake =  ($is_fake == true)  ? 1:0;
+            $user->is_fake =  $is_fake;
+            $user->is_password_change =  $is_password_change;
+            $user->documents = json_encode($request->documents);
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
             if(!empty($request->input('role_id')))
             {
                 $role = Role::where('id',$request->role_id)->first();
                 $user->assignRole($role->name);
+            }
+            if(!empty($request->patient_type_id)){
+                $patientInfo = new PatientInformation;
+                $patientInfo->patient_id = $user->id;
+                $patientInfo->institute_name = $request->institute_name;
+                $patientInfo->institute_contact_number = $request->institute_contact_number;
+                $patientInfo->institute_full_address = $request->institute_full_address;
+                $patientInfo->classes_from = $request->classes_from;
+                $patientInfo->classes_to = $request->classes_to;
+                $patientInfo->company_name = $request->company_name;
+                $patientInfo->company_contact_number = $request->company_contact_number;
+                $patientInfo->company_full_address = $request->company_full_address;
+                $patientInfo->from_timing = $request->from_timing;
+                $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->aids = $request->aids;
+                $patientInfo->another_activity = $request->another_activity;
+                $patientInfo->another_activity_name = $request->another_activity_name;
+                $patientInfo->activitys_contact_number = $request->activitys_contact_number;
+                $patientInfo->activitys_full_address = $request->activitys_full_address;
+                $patientInfo->week_days = json_encode($request->week_days);
+                $patientInfo->issuer_name = $request->issuer_name;
+                $patientInfo->number_of_hours = $request->number_of_hours;
+                $patientInfo->period = $request->period;
+                $patientInfo->save();
+              
             }
             if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false){ 
                     $content = ([
@@ -266,6 +298,11 @@ class UserController extends Controller
                         $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                         $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                         $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
+                        $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                        $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                        $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                        $personalInfo->how_helped = $value['how_helped'];
+                        $personalInfo->is_other_name = $value['is_other_name'];
                         $personalInfo->save() ;
                         /*-----Create Account /Entry in user table*/
                         if($is_user == true) {
@@ -282,6 +319,7 @@ class UserController extends Controller
                             if(empty($checkAlreadyUser)) {
                                 $userSave = new User;
                                 $userSave->unique_id = generateRandomNumber();
+                                $userSave->branch_id =   getBranchId();
                                 $userSave->user_type_id = $user_type_id;
                                 $userSave->role_id =  $user_type_id;
                                 $userSave->parent_id = $user->id;
@@ -337,9 +375,9 @@ class UserController extends Controller
             
             $checkId= User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],'404');
+                return prepareResult(falsuser,getLangByLabelGroups('UserValidation','id_not_found'), [],'404');
             }
-            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','PatientType:id,designation','branch','persons.Country')->first();
+            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','PatientType:id,designation','branch','persons.Country','PatientInformation')->first();
             return prepareResult(true,'User View' ,$userShow, '200');
                 
         }
@@ -363,33 +401,29 @@ class UserController extends Controller
                 'user_type_id' => 'required|exists:user_types,id', 
                 'role_id' => 'required|exists:roles,id', 
                 'name' => 'required', 
-                'personal_number' => 'required|digits:12|unique:users,personal_number', 
-                'contact_number' => 'required', 
+                //'contact_number' => 'required', 
 
             ],
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
+            //'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
             
-            if(!empty($request->patient_type_id)){
-                if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
-                    $validator = Validator::make($request->all(),[
-                        'working_from' => 'required', 
-                        'working_to' => 'required',
-                        'place_name' => 'required', 
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], '422'); 
-                    }
-
+            if($request->user_type_id == '6' || $request->user_type_id =='3'){
+                $validator = Validator::make($request->all(),[
+                    'personal_number' => 'required|digits:12|unique:users,personal_number,'.$user->id, 
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
                 }
+
             }
+            
             $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('UserValidation','id_not_found'), [],'404');
@@ -399,7 +433,6 @@ class UserController extends Controller
             $user->role_id = $request->role_id;
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
-            $user->branch_id = $request->branch_id;
             $user->govt_id = $request->govt_id;
             $user->dept_id = $request->dept_id;
             $user->country_id = $request->country_id;
@@ -410,9 +443,7 @@ class UserController extends Controller
             $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
             $user->organization_number = $request->organization_number;
-            $user->patient_type_id = $request->patient_type_id;
-            $user->working_from = $request->working_from;
-            $user->working_to = $request->working_to;
+            $user->patient_type_id = json_encode($request->patient_type_id);
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
             $user->joining_date = $request->joining_date;
@@ -424,8 +455,8 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->is_secret = ($request->is_secret) ? 1:0 ;
-            $user->is_risk = ($request->is_risk) ? 1:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->documents = json_encode($request->documents);
             $user->save();
             \DB::table('model_has_roles')->where('model_id',$user->id)->delete();
             if(!empty($request->input('role_id')))
@@ -433,6 +464,40 @@ class UserController extends Controller
                 $role = Role::where('id',$request->role_id)->first();
                 $user->assignRole($role->name);
             }
+
+
+            if(!empty($request->patient_type_id)){
+                $checkPatientAlready = PatientInformation::where('patient_id',$user->id)->first();
+                if(is_object($checkPatientAlready)){
+                    $patientInfo =  PatientInformation::find($checkPatientAlready->id);
+                } else{
+                    $patientInfo = new PatientInformation;
+                }
+                
+                $patientInfo->patient_id = $user->id;
+                $patientInfo->institute_name = $request->institute_name;
+                $patientInfo->institute_contact_number = $request->institute_contact_number;
+                $patientInfo->institute_full_address = $request->institute_full_address;
+                $patientInfo->classes_from = $request->classes_from;
+                $patientInfo->classes_to = $request->classes_to;
+                $patientInfo->company_name = $request->company_name;
+                $patientInfo->company_contact_number = $request->company_contact_number;
+                $patientInfo->company_full_address = $request->company_full_address;
+                $patientInfo->from_timing = $request->from_timing;
+                $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->aids = $request->aids;
+                $patientInfo->another_activity = $request->another_activity;
+                $patientInfo->another_activity_name = $request->another_activity_name;
+                $patientInfo->activitys_contact_number = $request->activitys_contact_number;
+                $patientInfo->activitys_full_address = $request->activitys_full_address;
+                $patientInfo->week_days = json_encode($request->week_days);
+                $patientInfo->issuer_name = $request->issuer_name;
+                $patientInfo->number_of_hours = $request->number_of_hours;
+                $patientInfo->period = $request->period;
+                $patientInfo->save();
+              
+            }
+
             /*-------------patient weekly Hours-----------------------*/
             if(is_array($request->weekly_hours)){
                 $deleteOld = AgencyWeeklyHour::where('user_id',$user->id)->delete();
@@ -479,6 +544,11 @@ class UserController extends Controller
                     $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                     $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                     $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
+                    $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                    $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                    $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                    $personalInfo->how_helped = $value['how_helped'];
+                    $personalInfo->is_other_name = $value['is_other_name'];
                     $personalInfo->save() ;
                     /*-----Create Account /Entry in user table*/
                     if($is_user == true) {
@@ -495,6 +565,7 @@ class UserController extends Controller
                         if(empty($checkAlreadyUser)) {
                             $userSave = new User;
                             $userSave->unique_id = generateRandomNumber();
+                            $userSave->branch_id = getBranchId();
                             $userSave->user_type_id = $user_type_id;
                             $userSave->role_id =  $user_type_id;
                             $userSave->parent_id = $user->id;

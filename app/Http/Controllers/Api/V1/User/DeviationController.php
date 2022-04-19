@@ -75,7 +75,7 @@ class DeviationController extends Controller
         	
 	        $Deviation = new Deviation;
 		 	$Deviation->activity_id = $request->activity_id;
-            $Deviation->branch_id = $request->branch_id;
+            $Deviation->branch_id = getBranchId();
 		 	$Deviation->journal_id = $request->journal_id;
 		 	$Deviation->ip_id = $request->ip_id;
 		 	$Deviation->patient_id = $request->patient_id;
@@ -123,7 +123,7 @@ class DeviationController extends Controller
         	$Deviation = new Deviation;
 	       	$Deviation->parent_id = $parent_id;
 		 	$Deviation->activity_id = $request->activity_id;
-            $Deviation->branch_id = $request->branch_id;
+            $Deviation->branch_id = getBranchId();
 		 	$Deviation->journal_id = $request->journal_id;
 		 	$Deviation->ip_id = $request->ip_id;
 		 	$Deviation->patient_id = $request->patient_id;

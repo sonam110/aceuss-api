@@ -30,6 +30,11 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->boolean('is_caretaker')->default(0);
             $table->boolean('is_contact_person')->default(0);
             $table->boolean('is_guardian')->default(0);
+            $table->boolean('is_other')->default(0);
+            $table->boolean('is_presented')->default(0);
+            $table->boolean('is_participated')->default(0);
+            $table->text('how_helped')->nullable();
+            $table->string('is_other_name')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

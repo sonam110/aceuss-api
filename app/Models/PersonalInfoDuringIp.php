@@ -30,6 +30,11 @@ class PersonalInfoDuringIp extends Model
 		'is_caretaker',
 		'is_contact_person',
         'is_guardian',
+        'is_other',
+        'is_presented',
+        'is_participated',
+        'how_helped',
+        'is_other_name',
 		'entry_mode',
 	];
 

@@ -9,6 +9,7 @@ use App\Models\CategoryType;
 use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\Package;
+use App\Models\ActivityOption;
 class DefaultEntrySeeder extends Seeder
 {
     /**
@@ -32,6 +33,7 @@ class DefaultEntrySeeder extends Seeder
         $cataegoryType6 = CategoryType::create(['id' => '6','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Journal']);
         $cataegoryType7 = CategoryType::create(['id' => '7','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Patient']);
         $cataegoryType8 = CategoryType::create(['id' => '8','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Employee']);
+        $cataegoryType9 = CategoryType::create(['id' => '9','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Category Update Permission']);
 
         \DB::table('languages')->truncate();
             Language::create([
@@ -62,6 +64,14 @@ class DefaultEntrySeeder extends Seeder
                 'created_at'            => date('Y-m-d H:i:s'),
                 'updated_at'            => date('Y-m-d H:i:s')
             ]);
+
+
+        ActivityOption::truncate();
+        $ActivityOption1 = ActivityOption::create(['id' => '1','option'=>'Efforts managed with staff on time','is_journal' => '0','is_deviation'=>'0']);
+        $ActivityOption1 = ActivityOption::create(['id' => '2','option'=>'Efforts managed with staff not on time','is_journal' => '1','is_deviation'=>'0']);
+        $ActivityOption2 = ActivityOption::create(['id' => '3','option'=>'Could fix himself','is_journal' => '1','is_deviation'=>'0']);
+        $ActivityOption3 = ActivityOption::create(['id' => '4','option'=>'The customer did not want','is_journal' => '1','is_deviation'=>'0']);
+        $ActivityOption4 = ActivityOption::create(['id' => '5','option'=>'Staff could not','is_journal' => '1','is_deviation'=>'1']);
 
     }
 }

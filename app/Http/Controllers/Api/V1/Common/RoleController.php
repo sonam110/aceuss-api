@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use DB;
 use Str;
 use App\Models\User;
+use App\Models\UserTypeHasPermission;
 class RoleController extends Controller
 {
     protected $top_most_parent_id;
@@ -84,6 +85,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(), [
+            'user_type_id'   => 'required|exists:user_types,id',  
             'se_name'   => 'required',
             'permissions' => 'required'
         ],
@@ -110,6 +112,7 @@ class RoleController extends Controller
                 $role->top_most_parent_id = $this->top_most_parent_id;
             }
             $role->name = $this->top_most_parent_id.'-'.Str::slug(substr($request->se_name, 0, 20));
+            $role->user_type_id  = $request->user_type_id;
             $role->se_name  = $request->se_name;
             $role->guard_name  = 'api';
             $role->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
@@ -149,6 +152,7 @@ class RoleController extends Controller
     {
         
         $validator = \Validator::make($request->all(), [
+            'user_type_id'   => 'required|exists:user_types,id', 
             'se_name'   => 'required',
             'permissions' => 'required'
         ],
@@ -170,13 +174,14 @@ class RoleController extends Controller
             $roleInfo = $roleInfo->find($role->id);
             if($roleInfo)
             {
+                $roleInfo->user_type_id  = $request->user_type_id;
                 $roleInfo->se_name  = $request->se_name;
                 $roleInfo->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $roleInfo->save();
                 if($roleInfo) {
                     $roleInfo->syncPermissions($request->permissions);
                 }
-                
+
                 return prepareResult(true,getLangByLabelGroups('role','update') ,$roleInfo, '200');
             }
             return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],$this->not_found);

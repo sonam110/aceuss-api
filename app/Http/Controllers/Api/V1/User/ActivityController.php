@@ -11,6 +11,8 @@ use App\Models\PatientImplementationPlan;
 use App\Models\Task;
 use App\Models\AssignTask;
 use App\Models\User;
+use App\Models\ActivityOption;
+use App\Models\ActivityTimeLog;
 use Validator;
 use Auth;
 use Exception;
@@ -26,10 +28,10 @@ class ActivityController extends Controller
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
                 $query =  Activity::whereRaw($whereRaw)
-                ->with('Category:id,name')
+                ->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title')
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Activity::orderBy('id', 'DESC')->with('Category:id,name');
+                $query = Activity::orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
            
             if(!empty($request->perPage))
@@ -77,61 +79,50 @@ class ActivityController extends Controller
                 'category_id' => 'required|exists:category_masters,id',   
                 'title' => 'required',   
                 'description' => 'required',   
-                'start_time' => 'required',    
-                "employees"    => "required|array",
-                "employees.*"  => "required|distinct|exists:users,id",   
+                'start_date' => 'required',    
+                'how_many_time' => 'required',    
+                'how_many_time_array' => 'required',    
+                "how_many_time_array.*"  => "required|distinct", 
+               // "employees"    => "required|array",
+                //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'start_time.required' =>  getLangByLabelGroups('Activity','start_time'),
+            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
-            if($request->is_repeat){
+            $end_date = $request->end_date;
+            $every = '1';
+
+            $dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
+            
+            if(!empty($request->end_date)){
                 $validator = Validator::make($request->all(),[     
-                    'end_date' => 'required|after:start_date',          
-                    'end_time' => 'required',          
-                    'every' => 'required|numeric',          
+                    'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
                 }
-
-                if($request->repetition_type=='2'){
-                    $validator = Validator::make($request->all(),[     
-                        "week_days"    => "required|array",
-                        "week_days.*"  => "required|string|distinct",        
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                    }
-
-                }
-                if($request->repetition_type=='3'){
-                    $validator = Validator::make($request->all(),[     
-                        "month_day"    => "required",      
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                    }
-
-                }
-
-            } else{
-                $validator = Validator::make($request->all(),[   
-                    'start_date' => 'required',      
-                ],
-                [ 
-                    'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                }
-               
             }
+            if($request->is_repeat){
+                $end_date = (empty($request->end_date)) ? Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d') : $request->end_date;
+                $every = $request->every;
+                if($request->repetition_type !='1'){
+                    $validator = Validator::make($request->all(),[     
+                        "repeat_dates"    => "required|array",
+                        "repeat_dates.*"  => "required|string|distinct",        
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+
+            } 
             if($request->remind_before_start ){
                 $validator = Validator::make($request->all(),[     
                     "before_minutes"    => "required",
@@ -171,102 +162,145 @@ class ActivityController extends Controller
                 }
 
             }
+
         
             $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
+            if(!empty($ipCheck)){
+                $ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
+                $ipUpdate->start_date  = $request->start_date;
+                $ipUpdate->end_date  = $end_date;
+                $ipUpdate->how_many_time  = $request->how_many_time;
+                $ipUpdate->when_during_the_day  = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
+                $ipUpdate->save();
+            }
         
-            $repeatedDates = activityTimeFrame($request->start_date,$request->is_repeat,$request->every,$request->repetition_type,$request->week_days,$request->month_day,$request->end_date);
+            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            $group_id = generateRandomNumber();
+            $branch_id = getBranchId();
             $activity_ids = [];
             if(!empty($repeatedDates)) {
                 foreach ($repeatedDates as $key => $date) {
-                    $activity = new Activity;
-                    $activity->ip_id = $request->ip_id;
-                    $activity->branch_id = $request->branch_id;
-                    $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
-                    $activity->category_id = $request->category_id;
-                    $activity->subcategory_id = $request->subcategory_id;
-                    $activity->title = $request->title;
-                    $activity->description = $request->description;
-                    $activity->start_date = $date;
-                    $activity->start_time = $request->start_time;
-                    $activity->is_repeat = ($request->is_repeat) ? 1:0; 
-                    $activity->every = $request->every; 
-                    $activity->repetition_type = $request->repetition_type; 
-                    $activity->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
-                    $activity->month_day = $request->month_day;
-                    $activity->end_date = $date;
-                    $activity->end_time = $request->end_time;
-                    $activity->address_url = $request->address_url;
-                    $activity->video_url = $request->video_url;
-                    $activity->information_url = $request->information_url;
-                    $activity->information_url = $request->information_url;
-                    $activity->file = $request->file;
-                    $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
-                    $activity->before_minutes = $request->before_minutes;
-                    $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
-                    $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
-                    $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
-                    $activity->after_minutes = $request->after_minutes;
-                    $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
-                    $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
-                    $activity->is_emergency  =($request->is_emergency) ? 1 :0;
-                    $activity->emergency_minutes = $request->emergency_minutes;
-                    $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
-                    $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
-                    $activity->in_time  =($request->in_time) ? 1 :0;
-                    $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
-                    $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
-                    $activity->created_by = $user->id;
-                    $activity->internal_comment = $request->internal_comment;
-                    $activity->external_comment = $request->external_comment;
-                    $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                    $activity->save();
-                    $activity_ids[] = $activity->id;
-                    if(is_array($request->employees) ){
-                        foreach ($request->employees as $key => $employee) {
-                            $activityAssigne = new ActivityAssigne;
-                            $activityAssigne->activity_id = $activity->id;
-                            $activityAssigne->user_id = $employee;
-                            $activityAssigne->assignment_date = date('Y-m-d');
-                            $activityAssigne->assignment_day ='1';
-                            $activityAssigne->assigned_by = $user->id;
-                            $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                            $activityAssigne->save();
-                            /*-----------Send notification---------------------*/
-                            $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
-                            $user_type =  $getUser->user_type_id;
-                            $module =  "";
-                            $id =  $activityAssigne->id;
-                            $screen =  "";
-                            $companyObj = companySetting($getUser->top_most_parent_id);
-                            $obj  =[
-                                "type"=> 'activity',
-                                "user_id"=> $getUser->id,
-                                "name"=> $getUser->name,
-                                "email"=> $getUser->email,
-                                "user_type"=> $getUser->user_type_id,
-                                "title"=> $activity->title,
-                                "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-                                "start_date"=> $activity->start_date,
-                                "start_time"=> $activity->start_time,
-                                "company"=>  $companyObj,
-                                "company_id"=>  $getUser->top_most_parent_id,
+                    if(is_array($request->how_many_time_array) ){
+                        foreach ($request->how_many_time_array as $key => $time) {
+                            $activity = new Activity;
+                            $activity->ip_id = $request->ip_id;
+                            $activity->group_id = $group_id;
+                            $activity->branch_id = $branch_id;
+                            $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
+                            $activity->category_id = $request->category_id;
+                            $activity->subcategory_id = $request->subcategory_id;
+                            $activity->title = $request->title;
+                            $activity->description = $request->description;
+                            $activity->start_date = $date;
+                            $activity->start_time = $time['start'];
+                            $activity->how_many_time = $request->how_many_time;
+                            $activity->is_repeat = ($request->is_repeat) ? 1:0; 
+                            $activity->every = $request->every; 
+                            $activity->repetition_type = $request->repetition_type; 
+                            $activity->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
+                            $activity->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
+                            $activity->end_date = $date;
+                            $activity->end_time = $time['end'];
+                            $activity->address_url = $request->address_url;
+                            $activity->video_url = $request->video_url;
+                            $activity->information_url = $request->information_url;
+                            $activity->information_url = $request->information_url;
+                            $activity->file = $request->file;
+                            $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+                            $activity->before_minutes = $request->before_minutes;
+                            $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+                            $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
+                            $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+                            $activity->after_minutes = $request->after_minutes;
+                            $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+                            $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
+                            $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+                            $activity->emergency_minutes = $request->emergency_minutes;
+                            $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+                            $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
+                            $activity->in_time  =($request->in_time) ? 1 :0;
+                            $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+                            $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+                            $activity->is_risk  =($request->is_risk) ? 1 :0;
+                            $activity->is_compulsory  =($request->is_compulsory) ? 1 :0;
+                            $activity->created_by = $user->id;
+                            $activity->internal_comment = $request->internal_comment;
+                            $activity->external_comment = $request->external_comment;
+                            $activity->message = $request->message;
+                            $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $activity->save();
+                            $activity_ids[] = $activity->id;
+                            if(is_array($request->employees) ){
+                                $validator = Validator::make($request->all(),[   
+                                    "employees"    => "required|array",
+                                    "employees.*"  => "required|distinct|exists:users,id",   
+                                ]);
+                                if ($validator->fails()) {
+                                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                                }
+                                foreach ($request->employees as $key => $employee) {
+                                    $activityAssigne = new ActivityAssigne;
+                                    $activityAssigne->activity_id = $activity->id;
+                                    $activityAssigne->user_id = $employee;
+                                    $activityAssigne->assignment_date = date('Y-m-d');
+                                    $activityAssigne->assignment_day ='1';
+                                    $activityAssigne->assigned_by = $user->id;
+                                    $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                    $activityAssigne->save();
+                                    /*-----------Send notification---------------------*/
+                                    $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+                                    $user_type =  $getUser->user_type_id;
+                                    $module =  "";
+                                    $id =  $activityAssigne->id;
+                                    $screen =  "";
+                                    $companyObj = companySetting($getUser->top_most_parent_id);
+                                    $obj  =[
+                                        "type"=> 'activity',
+                                        "user_id"=> $getUser->id,
+                                        "name"=> $getUser->name,
+                                        "email"=> $getUser->email,
+                                        "user_type"=> $getUser->user_type_id,
+                                        "title"=> $activity->title,
+                                        "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                                        "start_date"=> $activity->start_date,
+                                        "start_time"=> $activity->start_time,
+                                        "company"=>  $companyObj,
+                                        "company_id"=>  $getUser->top_most_parent_id,
 
-                            ];
-                            if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                    ];
+                                    if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
+                                        $objCom  =[
+                                            "type"=> 'activity',
+                                            "user_id"=> $getUser->top_most_parent_id,
+                                            "name"=> $getUser->name,
+                                            "email"=> $getUser->email,
+                                            "user_type"=> $getUser->user_type_id,
+                                            "title"=> $activity->title,
+                                            "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                                            "start_date"=> $activity->start_date,
+                                            "start_time"=> $activity->start_time,
+                                            "company"=>  $companyObj,
+                                            "company_id"=>  $getUser->top_most_parent_id,
+                                         ];
+                                        pushNotification('activity',$companyObj,$objCom,$module,$id,$screen);
+                                    }
+                                    if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
+                                        pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                    }
+                                    if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
+                                        sendMessage('activity',$obj,$companyObj);
+                                    }
+                                    
+                                    
+                                }
                             }
-                            if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
-                                sendMessage('activity',$obj,$companyObj);
+                            if(!empty($request->task) ){
+                                addTask($request->task,$activity->id);
                             }
-                            
-                            
+                        
+                       
                         }
                     }
-                    if(!empty($request->task) ){
-                        addTask($request->task,$activity->id);
-                    }
-                
-               
                 }
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
                 return prepareResult(true,'Activity Added successfully' ,$activityList, $this->success);
@@ -287,61 +321,50 @@ class ActivityController extends Controller
                 'category_id' => 'required|exists:category_masters,id',   
                 'title' => 'required',   
                 'description' => 'required',   
-                'start_time' => 'required',    
-                "employees"    => "required|array",
-                "employees.*"  => "required|distinct|exists:users,id",   
+                'start_date' => 'required',    
+                'how_many_time' => 'required',    
+                'how_many_time_array' => 'required',    
+                "how_many_time_array.*"  => "required|distinct", 
+               // "employees"    => "required|array",
+                //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
             'category_id.required' => getLangByLabelGroups('Activity','category_id'),
             'title.required' =>  getLangByLabelGroups('Activity','title'),
             'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'start_time.required' =>  getLangByLabelGroups('Activity','start_time'),
+            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
-            if($request->is_repeat){
+            $end_date = $request->end_date;
+            $every = '1';
+
+            $dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
+            
+            if(!empty($request->end_date)){
                 $validator = Validator::make($request->all(),[     
-                    'end_date' => 'required|after:start_date',          
-                    'end_time' => 'required',          
-                    'every' => 'required|numeric',          
+                    'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
                 }
-
-                if($request->repetition_type=='2'){
-                    $validator = Validator::make($request->all(),[     
-                        "week_days"    => "required|array",
-                        "week_days.*"  => "required|string|distinct",        
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                    }
-
-                }
-                if($request->repetition_type=='3'){
-                    $validator = Validator::make($request->all(),[     
-                        "month_day"    => "required",      
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                    }
-
-                }
-
-            } else{
-                $validator = Validator::make($request->all(),[   
-                    'start_date' => 'required|date',      
-                ],
-                [ 
-                    'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),      
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-                }
-
             }
+            if($request->is_repeat){
+                $end_date = (empty($request->end_date)) ? Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d') : $request->end_date;
+                $every = $request->every;
+                if($request->repetition_type !='1'){
+                    $validator = Validator::make($request->all(),[     
+                        "repeat_dates"    => "required|array",
+                        "repeat_dates.*"  => "required|string|distinct",        
+                    ]);
+                    if ($validator->fails()) {
+                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    }
+
+                }
+
+            } 
             if($request->remind_before_start ){
                 $validator = Validator::make($request->all(),[     
                     "before_minutes"    => "required",
@@ -381,113 +404,156 @@ class ActivityController extends Controller
                 }
 
             }
-
+        
+            $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
+            if(!empty($ipCheck)){
+                $ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
+                $ipUpdate->start_date  = $request->start_date;
+                $ipUpdate->end_date  = $end_date;
+                $ipUpdate->how_many_time  = $request->how_many_time;
+                $ipUpdate->when_during_the_day  = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
+                $ipUpdate->save();
+            }
             $checkId = Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
             }
-            $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
-            $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
-            $repeatedDates = activityTimeFrame($request->start_date,$request->is_repeat,$request->every,$request->repetition_type,$request->week_days,$request->month_day,$request->end_date);
+        
+            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            $branch_id = getBranchId();
             $activity_ids = [];
+            $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
             if(!empty($repeatedDates)) {
                 foreach ($repeatedDates as $key => $date) {
-                    $activity = new Activity;
-                    $activity->parent_id = $parent_id;
-                    $activity->ip_id = $request->ip_id;
-                    $activity->branch_id = $request->branch_id;
-                    $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
-                    $activity->category_id = $request->category_id;
-                    $activity->subcategory_id = $request->subcategory_id;
-                    $activity->title = $request->title;
-                    $activity->description = $request->description;
-                    $activity->start_date = $date;
-                    $activity->start_time = $request->start_time;
-                    $activity->is_repeat = ($request->is_repeat) ? $request->is_repeat : 0;
-                    $activity->every = $request->every;
-                    $activity->repetition_type = $request->repetition_type;
-                    $activity->week_days = ($request->week_days) ? json_encode($request->week_days) :null;
-                    $activity->month_day = $request->month_day;
-                    $activity->end_date = $date;
-                    $activity->end_time = $request->end_time;
-                    $activity->address_url = $request->address_url;
-                    $activity->video_url = $request->video_url;
-                    $activity->information_url = $request->information_url;
-                    $activity->address_url = $request->address_url;
-                    $activity->file = $request->file;
-                    $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
-                    $activity->before_minutes = $request->before_minutes;
-                    $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
-                    $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
-                    $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
-                    $activity->after_minutes = $request->after_minutes;
-                    $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
-                    $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
-                    $activity->is_emergency  =($request->is_emergency) ? 1 :0;
-                    $activity->emergency_minutes = $request->emergency_minutes;
-                    $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
-                    $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
-                    $activity->in_time  =($request->in_time) ? 1 :0;
-                    $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
-                    $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
-                    $activity->created_by = $user->id;
-                    $activity->edited_by = $user->id;
-                    $activity->edit_date = date('Y-m-d');
-                    $activity->reason_for_editing = $request->reason_for_editing;
-                    $activity->internal_comment = $request->internal_comment;
-                    $activity->external_comment = $request->external_comment;
-                    $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                    $activity->save();
-                    $activity_ids[] = $activity->id;
-                    if(is_array($request->employees) ){
-                        foreach ($request->employees as $key => $employee) {
-                            $activityAssigne = new ActivityAssigne;
-                            $activityAssigne->activity_id = $activity->id;
-                            $activityAssigne->user_id = $employee;
-                            $activityAssigne->assignment_date = date('Y-m-d');
-                            $activityAssigne->assignment_day = '1';
-                            $activityAssigne->assigned_by = $user->id;
-                            $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                            $activityAssigne->save();
-                            /*-----------Send notification---------------------*/
-                            $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
-                            $user_type =  $getUser->user_type_id;
-                            $module =  "";
-                            $id =  $activityAssigne->id;
-                            $screen =  "";
-                            $companyObj = companySetting($getUser->top_most_parent_id);
-                            $obj  =[
-                                "type"=> 'activity',
-                                "user_id"=> $getUser->id,
-                                "name"=> $getUser->name,
-                                "email"=> $getUser->email,
-                                "user_type"=> $getUser->user_type_id,
-                                "title"=> $activity->title,
-                                "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-                                "start_date"=> $activity->start_date,
-                                "start_time"=> $activity->start_time,
-                                "company"=>  $companyObj,
-                                "company_id"=>  $getUser->top_most_parent_id,
+                    if(is_array($request->how_many_time_array) ){
+                        foreach ($request->how_many_time_array as $key => $time) {
+                            $activity = new Activity;
+                            $activity->ip_id = $request->ip_id;
+                            $activity->parent_id = $parent_id;
+                            $activity->group_id = $checkId->group_id;
+                            $activity->branch_id = $branch_id;
+                            $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
+                            $activity->category_id = $request->category_id;
+                            $activity->subcategory_id = $request->subcategory_id;
+                            $activity->title = $request->title;
+                            $activity->description = $request->description;
+                            $activity->start_date = $date;
+                            $activity->start_time = $time['start'];
+                            $activity->how_many_time = $request->how_many_time;
+                            $activity->is_repeat = ($request->is_repeat) ? 1:0; 
+                            $activity->every = $request->every; 
+                            $activity->repetition_type = $request->repetition_type; 
+                            $activity->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
+                            $activity->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
+                            $activity->end_date = $date;
+                            $activity->end_time = $time['end'];
+                            $activity->address_url = $request->address_url;
+                            $activity->video_url = $request->video_url;
+                            $activity->information_url = $request->information_url;
+                            $activity->information_url = $request->information_url;
+                            $activity->file = $request->file;
+                            $activity->remind_before_start = ($request->remind_before_start) ? 1 :0;
+                            $activity->before_minutes = $request->before_minutes;
+                            $activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
+                            $activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
+                            $activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
+                            $activity->after_minutes = $request->after_minutes;
+                            $activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
+                            $activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
+                            $activity->is_emergency  =($request->is_emergency) ? 1 :0;
+                            $activity->emergency_minutes = $request->emergency_minutes;
+                            $activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
+                            $activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
+                            $activity->in_time  =($request->in_time) ? 1 :0;
+                            $activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
+                            $activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+                            $activity->is_risk  =($request->is_risk) ? 1 :0;
+                            $activity->is_compulsory  =($request->is_compulsory) ? 1 :0;
+                            $activity->created_by = $user->id;
+                            $activity->internal_comment = $request->internal_comment;
+                            $activity->external_comment = $request->external_comment;
+                            $activity->message = $request->message;
+                            $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $activity->save();
+                            $activity_ids[] = $activity->id;
+                            if(is_array($request->employees) ){
+                                $validator = Validator::make($request->all(),[   
+                                    "employees"    => "required|array",
+                                    "employees.*"  => "required|distinct|exists:users,id",   
+                                ]);
+                                if ($validator->fails()) {
+                                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                                }
+                                foreach ($request->employees as $key => $employee) {
+                                    $activityAssigne = new ActivityAssigne;
+                                    $activityAssigne->activity_id = $activity->id;
+                                    $activityAssigne->user_id = $employee;
+                                    $activityAssigne->assignment_date = date('Y-m-d');
+                                    $activityAssigne->assignment_day ='1';
+                                    $activityAssigne->assigned_by = $user->id;
+                                    $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                    $activityAssigne->save();
+                                    /*-----------Send notification---------------------*/
+                                    $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+                                    $user_type =  $getUser->user_type_id;
+                                    $module =  "";
+                                    $id =  $activityAssigne->id;
+                                    $screen =  "";
+                                    $companyObj = companySetting($getUser->top_most_parent_id);
+                                   
+                                    if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
+                                        $objCom  =[
+                                            "type"=> 'activity',
+                                            "user_id"=> $getUser->top_most_parent_id,
+                                            "name"=> $getUser->name,
+                                            "email"=> $getUser->email,
+                                            "user_type"=> $getUser->user_type_id,
+                                            "title"=> $activity->title,
+                                            "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                                            "start_date"=> $activity->start_date,
+                                            "start_time"=> $activity->start_time,
+                                            "company"=>  $companyObj,
+                                            "company_id"=>  $getUser->top_most_parent_id,
+                                         ];
+                                        pushNotification('activity',$companyObj,$objCom,$module,$id,$screen);
+                                    }
+                                    $obj  =[
+                                        "type"=> 'activity',
+                                        "user_id"=> $getUser->id,
+                                        "name"=> $getUser->name,
+                                        "email"=> $getUser->email,
+                                        "user_type"=> $getUser->user_type_id,
+                                        "title"=> $activity->title,
+                                        "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                                        "start_date"=> $activity->start_date,
+                                        "start_time"=> $activity->start_time,
+                                        "company"=>  $companyObj,
+                                        "company_id"=>  $getUser->top_most_parent_id,
 
-                            ];
-                            if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                    ];
+                                    if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
+                                        pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                    }
+                                    if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
+                                        sendMessage('activity',$obj,$companyObj);
+                                    }
+                                    
+                                    
+                                }
                             }
-                            if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
-                                sendMessage('activity',$obj,$companyObj);
+                            if(!empty($request->task) ){
+                                addTask($request->task,$activity->id);
                             }
+                        
+                       
                         }
-                    }
-                    if(!empty($request->task) ){
-                        addTask($request->task,$activity->id);
                     }
                 }
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
-                return prepareResult(true,getLangByLabelGroups('Activity','update') ,$activityList, $this->success);
+                return prepareResult(true,'Activity Update successfully' ,$activityList, $this->success);
             } else{
                  return prepareResult(false,'No date found',[], $this->unprocessableEntity);
             }
-              
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
@@ -546,7 +612,7 @@ class ActivityController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
             }
-            $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient:id,name','assignEmployee.employee:id,name,email','ImplementationPlan')->first();
+            $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient:id,name','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title')->first();
             return prepareResult(true,'View Activity' ,$activity, $this->success);
         }
         catch(Exception $exception) {
@@ -647,25 +713,73 @@ class ActivityController extends Controller
             $validator = Validator::make($request->all(),[
                 'activity_id' => 'required|exists:activities,id',   
                 'status'     => 'required|in:1,2,3',  
-                'question' => 'required',  
-                'option' => 'required',  
-                'comment' => 'required',  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
+            $option  = ActivityOption::where('id',$request->option)->first();
+            $is_journal_assign_module = checkAssignModule(3);
+            $is_deviation_assign_module = checkAssignModule(4);
+            $is_journal = ($option) ? $option->is_journal :'0';
+            $is_deviation = ($option) ? $option->is_deviation :'0';
+            $is_social = ($request->is_social) ? '1' :'0';
+
+            if($request->status == '1' || $request->status == '2'){
+                $validator = Validator::make($request->all(),[   
+                  'option' => 'required|exists:activity_options,id',   
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+    
+            }
+            if($request->status == '2' || $request->status == '3'){
+                $validator = Validator::make($request->all(),[   
+                'comment' => 'required',  
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                }
+    
+            }
+            
             $id = $request->activity_id;
             $activity = Activity::find($id);
             $activity->status = $request->status;
-            $activity->question = $request->question;
-            $activity->selected_option = $request->option;
+            $activity->selected_option = ($option) ? $option->option : null;
             $activity->comment = $request->comment;
             $activity->action_by = $user->id;
             $activity->save();
-            $activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
-           
-            return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
-            
+            if($activity){
+                //$start = $activity->start_date;
+                //$start = $activity->start_date;
+                $activityTimeLog = new ActivityTimeLog;
+                $activityTimeLog->activity_id = $activity->id;
+                $activityTimeLog->start_date = $activity->start_date;
+                $activityTimeLog->start_time = $activity->start_time;
+                $activityTimeLog->action_date = date('Y-m-d');
+                $activityTimeLog->action_time = date('H:i:s');
+                $activityTimeLog->action_by = $user->id;
+                $activityTimeLog->time_diff = $user->id;
+                $activityTimeLog->save();
+
+                $activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
+
+                $journal_id = null;
+                $deviation_id = null;
+                if($is_journal_assign_module == true && $is_journal == '1'){
+                   $journal =  journal(null,null,$activity->id,$activity->patient_id,$activity->category_id,$activity->subcategory_id,$activity->title,$activity->description,$is_deviation,$is_social);
+                   $journal_id = (!empty($journal)) ? $journal : null;
+                }
+                if($is_deviation_assign_module == true && $is_deviation == '1'){
+                    $deviation = deviation(null,$journal_id,$activity->id,$activity->patient_id,$activity->category_id,$activity->subcategory_id,$activity->title,$activity->description);
+                    $deviation_id = (!empty($deviation)) ? $deviation : null;
+                }
+               
+                return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
+            } else {
+                return prepareResult(false,'Opps! Something Went Wrong',[], $this->unprocessableEntity); 
+            }
         
         }
         catch(Exception $exception) {

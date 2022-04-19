@@ -10,6 +10,7 @@ use App\Models\IpAssigneToEmployee;
 use App\Models\IpTemplate;
 use App\Models\IpFollowUpCreation;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\Activity;
 use Validator;
 use Auth;
 use DB;
@@ -81,49 +82,50 @@ class PatientController extends Controller
             $user = getUser();
             
             $data = [ 'data' => $request->all() ];
-            $validator = Validator::make($data,[
-                'data.*.user_id' => 'required|exists:users,id',   
+            $validator = Validator::make($data,[ 
                 'data.*.category_id' => 'required|exists:category_masters,id',   
                 'data.*.subcategory_id' => 'required|exists:category_masters,id',   
-                'data.*.what_happened' => 'required',   
-                'data.*.how_it_happened' => 'required',      
-                'data.*.goal' => 'required',    
-                'data.*.plan_start_date' => 'required',   
-                'data.*.plan_start_time' => 'required',  
+                'data.*.title' => 'required',       
  
             ],
-            [
-            '*.user_id' =>  getLangByLabelGroups('IP','user_id'),   
+            [   
             '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
-            '*.what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
-            '*.how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),      
-            '*.goal' =>  getLangByLabelGroups('IP','goal'),      
-            '*.plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
-            '*.plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
+            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),             
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
             $ids = null;
             $impPlan_ids = [];
+            
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
                     $patientPlan->user_id = $patient['user_id'];
-                    $patientPlan->branch_id = $patient['branch_id'];
+                    $patientPlan->branch_id = getBranchId();
                     $patientPlan->category_id = $patient['category_id'];
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
-                    $patientPlan->what_happened = $patient['what_happened'];
-                    $patientPlan->how_it_happened = $patient['how_it_happened'];
+                    $patientPlan->title = $patient['title'];
                     $patientPlan->goal = $patient['goal'];
+                    $patientPlan->limitations = $patient['limitations'];
+                    $patientPlan->limitation_details = $patient['limitation_details'];
+                    $patientPlan->how_support_should_be_given = $patient['how_support_should_be_given'];
+                    $patientPlan->who_give_support =  json_encode($patient['who_give_support']);
                     $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->plan_start_date = $patient['plan_start_date'];
-                    $patientPlan->plan_start_time = $patient['plan_start_time'];
-                    $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
-                    $patientPlan->remark = $patient['remark'];
-                    $patientPlan->activity_message = $patient['activity_message'];
+                    $patientPlan->sub_goal_details = $patient['sub_goal_details'];
+                    $patientPlan->sub_goal_selected = $patient['sub_goal_selected'];
+                    $patientPlan->overall_goal = $patient['overall_goal'];
+                    $patientPlan->overall_goal_details = $patient['overall_goal_details'];
+                    $patientPlan->body_functions = $patient['body_functions'];
+                    $patientPlan->personal_factors = $patient['personal_factors'];
+                    $patientPlan->health_conditions = $patient['health_conditions'];
+                    $patientPlan->other_factors = $patient['other_factors'];
+                    $patientPlan->treatment = $patient['treatment'];
+                    $patientPlan->working_method = $patient['working_method'];
+                    $patientPlan->start_date = $patient['start_date'];
+                    $patientPlan->end_date = $patient['end_date'];
                     $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
+                    $patientPlan->documents = json_encode($patient['documents']);
                     $patientPlan->created_by = $user->id;
                     $patientPlan->save();
 
@@ -193,6 +195,11 @@ class PatientController extends Controller
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                             $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = $value['how_helped'];
+                            $personalInfo->is_other_name = $value['is_other_name'];
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -215,6 +222,7 @@ class PatientController extends Controller
                                     }
                                    
                                     $userSave->user_type_id = $user_type_id;
+                                    $userSave->branch_id = getBranchId();
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
                                     $userSave->top_most_parent_id = $top_most_parent_id;
@@ -234,15 +242,12 @@ class PatientController extends Controller
                                        $userSave->assignRole($role->name);
                                     }     
                                     if(env('IS_MAIL_ENABLE',false) == true){ 
-                                            $variables = ([
+                                           $content = ([
+                                            'company_id' => $userSave->top_most_parent_id,
                                             'name' => $userSave->name,
                                             'email' => $userSave->email,
-                                            'contact_number' => $userSave->contact_number,
-                                            'city' => $userSave->city,
-                                            'zipcode' => $userSave->zipcode,
-                                            ]);   
-                                        $emailTem = EmailTemplate::where('id','2')->first();           
-                                        $content = mailTemplateContent($emailTem->content,$variables);
+                                            'id' => $userSave->id,
+                                        ]);    
                                         Mail::to($userSave->email)->send(new WelcomeMail($content));
                                     }
                                     
@@ -269,26 +274,15 @@ class PatientController extends Controller
         try {
             $user = getUser();
             $data = [ 'data' => $request->all() ];
-            $validator = Validator::make($data,[
-                'data.*.user_id' => 'required|exists:users,id',   
+            $validator = Validator::make($data,[  
                 'data.*.category_id' => 'required|exists:category_masters,id',   
                 'data.*.subcategory_id' => 'required|exists:category_masters,id',   
-                'data.*.what_happened' => 'required',   
-                'data.*.how_it_happened' => 'required',      
-                'data.*.goal' => 'required',    
-                'data.*.plan_start_date' => 'required',   
-                'data.*.plan_start_time' => 'required',    
-                'data.*.reason_for_editing' => 'required',    
+                'data.*.title' => 'required',      
+                'data.*.reason_for_editing' => 'required',      
             ],
-            [   
-            '*.user_id' =>  getLangByLabelGroups('IP','user_id'),   
+            [    
             '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),   
-            '*.what_happened' =>  getLangByLabelGroups('IP','what_happened'),   
-            '*.how_it_happened' =>  getLangByLabelGroups('IP','how_it_happened'),      
-            '*.goal' =>  getLangByLabelGroups('IP','goal'), 
-            '*.plan_start_date' =>  getLangByLabelGroups('IP','plan_start_date'),   
-            '*.plan_start_time' =>  getLangByLabelGroups('IP','plan_start_time'),      
+            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),        
             ]);
            
             if ($validator->fails()) {
@@ -301,26 +295,41 @@ class PatientController extends Controller
             $ids = null;
             $impPlan_ids = [];
             $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
+
+            if(!$user->hasPermissionTo('isCategoryEditPermission-edit')){
+               return prepareResult(false,'You are not authorized to edit IP', [],$this->not_found);     
+            } 
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
                     $patientPlan->user_id = $patient['user_id'];
                     $patientPlan->parent_id = $parent_id;
-                    $patientPlan->branch_id = $patient['branch_id'];
+                    $patientPlan->branch_id = getBranchId();
                     $patientPlan->category_id = $patient['category_id'];
                     $patientPlan->subcategory_id = $patient['subcategory_id'];
-                    $patientPlan->what_happened = $patient['what_happened'];
-                    $patientPlan->how_it_happened = $patient['how_it_happened'];
+                    $patientPlan->title = $patient['title'];
                     $patientPlan->goal = $patient['goal'];
+                    $patientPlan->limitations = $patient['limitations'];
+                    $patientPlan->limitation_details = $patient['limitation_details'];
+                    $patientPlan->how_support_should_be_given = $patient['how_support_should_be_given'];
+                    $patientPlan->who_give_support =  json_encode($patient['who_give_support']);
                     $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->plan_start_date = $patient['plan_start_date'];
-                    $patientPlan->plan_start_time = $patient['plan_start_time'];
-                    $patientPlan->end_date = date('Y-m-d H:i:s',strtotime($patient['end_date']));
-                    $patientPlan->remark = $patient['remark'];
-                    $patientPlan->activity_message = $patient['activity_message'];
+                    $patientPlan->sub_goal_details = $patient['sub_goal_details'];
+                    $patientPlan->sub_goal_selected = $patient['sub_goal_selected'];
+                    $patientPlan->overall_goal = $patient['overall_goal'];
+                    $patientPlan->overall_goal_details = $patient['overall_goal_details'];
+                    $patientPlan->body_functions = $patient['body_functions'];
+                    $patientPlan->personal_factors = $patient['personal_factors'];
+                    $patientPlan->health_conditions = $patient['health_conditions'];
+                    $patientPlan->other_factors = $patient['other_factors'];
+                    $patientPlan->treatment = $patient['treatment'];
+                    $patientPlan->working_method = $patient['working_method'];
+                    $patientPlan->reason_for_editing = $patient['reason_for_editing'];
+                    $patientPlan->start_date = $patient['start_date'];
+                    $patientPlan->end_date = $patient['end_date'];
                     $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
-                    $patientPlan->reason_for_editing = $patient['reason_for_editing'] ;
-                    $patientPlan->created_by = $user->id;
+                    $patientPlan->documents = json_encode($patient['documents']);
+                    $patientPlan->edited_by = $user->id;
                     $patientPlan->save();
 
                     $impPlan_ids[] = $patientPlan->id;
@@ -344,6 +353,18 @@ class PatientController extends Controller
                         $ipAssigne->save();
 
 
+                    }
+
+                    /*------Check ip behalf actvity-----*/
+
+                    $checkActivity = Activity::where('ip_id',$id)->get();
+                    if(!empty($checkActivity)){
+                        foreach ($checkActivity as $key => $activity) {
+                            $updateCat = Activity::find($activity->id);
+                            $updateCat->category_id = $patient['category_id'];
+                            $updateCat->subcategory_id = $patient['subcategory_id'];
+                            $updateCat->save();
+                        }
                     }
                     /*-----------------Persons Informationn ----------------*/
                     if(is_array($patient['persons']) ){
@@ -386,7 +407,12 @@ class PatientController extends Controller
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                             $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
-                            $personalInfo->save() ;
+                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = $value['how_helped'];
+                            $personalInfo->is_other_name = $value['is_other_name'];
+                            $personalInfo->save();
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
                                 if(auth()->user()->user_type_id=='1'){
@@ -406,7 +432,8 @@ class PatientController extends Controller
                                         $userSave = new User;
                                         $userSave->unique_id = generateRandomNumber();
                                     }
-                                     $userSave->unique_id = generateRandomNumber();
+                                    $userSave->unique_id = generateRandomNumber();
+                                    $userSave->branch_id = getBranchId();
                                     $userSave->user_type_id = $user_type_id;
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
@@ -427,15 +454,12 @@ class PatientController extends Controller
                                        $userSave->assignRole($role->name);
                                     }     
                                     if(env('IS_MAIL_ENABLE',false) == true){ 
-                                            $variables = ([
+                                       $content = ([
+                                            'company_id' => $userSave->top_most_parent_id,
                                             'name' => $userSave->name,
                                             'email' => $userSave->email,
-                                            'contact_number' => $userSave->contact_number,
-                                            'city' => $userSave->city,
-                                            'zipcode' => $userSave->zipcode,
-                                            ]);   
-                                        $emailTem = EmailTemplate::where('id','2')->first();           
-                                        $content = mailTemplateContent($emailTem->content,$variables);
+                                            'id' => $userSave->id,
+                                        ]);    
                                         Mail::to($userSave->email)->send(new WelcomeMail($content));
                                     }
                                     
@@ -741,7 +765,7 @@ class PatientController extends Controller
         }
         if (is_null($request->input('goal')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "goal like '%" .trim(strtolower($request->input('goal'))) . "%')";
+             $w = $w . "(" . "goal_id like '%" .trim(strtolower($request->input('goal_id'))) . "%')";
 
              
         }

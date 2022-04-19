@@ -10,6 +10,7 @@ use App\Models\CompanyWorkShift;
 use App\Models\ActivityAssigne;
 use App\Models\CategoryMaster;
 use App\Models\PatientImplementationPlan;
+use App\Models\Comment;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,8 +20,10 @@ class Activity extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+    protected $appends = ['comments'];
     protected $fillable =[
         'top_most_parent_id',
+        'group_id',
 		'parent_id',
 		'ip_id',
 		'branch_id',
@@ -33,11 +36,12 @@ class Activity extends Model
 		'description',
 		'start_date',
 		'start_time',
+        'how_many_time',
         'is_repeat',
         'every',
         'repetition_type',
-        'week_days',
-        'month_day',
+        'how_many_time_array',
+        'repeat_dates',
         'end_date',
         'end_time',
 		'address_url',
@@ -50,7 +54,6 @@ class Activity extends Model
 		'edit_date',
 		'approved_by',
 		'approved_date',
-        'question',
         'selected_option',
         'comment',
         'internal_comment',
@@ -70,6 +73,9 @@ class Activity extends Model
         'in_time',
         'in_time_is_text_notify',
         'in_time_is_push_notify',
+        'is_risk',
+        'message',
+        'is_compulsory',
 		'status',
         'action_by',
         'entry_mode',
@@ -143,6 +149,14 @@ class Activity extends Model
     }
     public function setEndTimeAttribute($value) {
       $this->attributes['end_time'] =  (!empty($value)) ? date("H:i:s", strtotime($value)):null;
+    }
+
+    public function getCommentsAttribute()
+    {
+        $comments = Comment::where('source_name','Activity')->where('source_id',$this->id)->with('commentBy:id,name')->get();
+        return $comments;
+        
+
     }
 
 }

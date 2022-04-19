@@ -48,10 +48,10 @@ class CommentController extends Controller
 	        $user = getUser();
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(*) from comments WHERE comments.parent_id = comments.id) replyCount")))->with('commentBy:id,name')->whereRaw($whereRaw)
+                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(id) from comments WHERE comments.parent_id = comments.id) replyCount")))->whereNull('parent_id')->whereRaw($whereRaw)->with('reply:id,parent_id,comment,created_by')
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(*) from comments WHERE comments.parent_id = comments.id) replyCount")))->with('commentBy:id,name')->orderBy('id', 'DESC');
+                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(id) from comments WHERE comments.parent_id = comments.id) replyCount")))->whereNull('parent_id')->with('reply:id,parent_id,comment,created_by')->orderBy('id', 'DESC');
             }
             if(!empty($request->perPage))
             {

@@ -34,10 +34,7 @@ class CreateUsersTable extends Migration
             $table->string('gender')->nullable();
             $table->string('personal_number')->nullable();
             $table->string('organization_number')->nullable();
-            $table->foreignId('patient_type_id')->nullable();
-            $table->string('working_from')->nullable();
-            $table->string('working_to')->nullable();
-            $table->string('place_name')->nullable();
+            $table->string('patient_type_id')->nullable();
             $table->integer('country_id')->nullable();
             $table->string('city')->nullable();
             $table->string('postal_area')->nullable();
@@ -59,8 +56,8 @@ class CreateUsersTable extends Migration
             $table->boolean('is_secret')->default('0')->comment('1:Yes,0:No');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
             $table->boolean('is_fake')->default('0')->comment('1:Yes,0:No');
-            $table->boolean('is_risk')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_password_change')->default('0')->comment('1:Yes,0:No');
+            $table->text('documents')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->rememberToken();

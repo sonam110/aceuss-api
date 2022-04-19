@@ -87,7 +87,7 @@ class FollowUpsController extends Controller
                 "repeat_datetime.*.start_time"  => "required",     
             ],
             [
-                'ip_id.required' =>  getLangByLabelGroups('FollowUp','ip_id'),   
+                //'ip_id.required' =>  getLangByLabelGroups('FollowUp','ip_id'),   
                 'title.required' =>  getLangByLabelGroups('FollowUp','title'),   
                 'description.required' =>  getLangByLabelGroups('FollowUp','description'),           
             ]);
@@ -102,7 +102,7 @@ class FollowUpsController extends Controller
                 foreach ($request->repeat_datetime as $key => $followup) {
         	        $ipFollowups = new IpFollowUp;
         		 	$ipFollowups->ip_id = $request->ip_id ;
-                    $ipFollowups->branch_id = $request->branch_id ;
+                    $ipFollowups->branch_id = getBranchId() ;
         		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
         		 	$ipFollowups->title = $request->title;
         		 	$ipFollowups->description = $request->description;
@@ -113,6 +113,7 @@ class FollowUpsController extends Controller
         		 	$ipFollowups->remarks = $request->remarks;
                     $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
         		 	$ipFollowups->created_by = $user->id;
+                    $ipFollowups->documents = json_encode($request->documents);
         		 	$ipFollowups->save();
         		 	 /*-----------------Persons Informationn ----------------*/
                     if(is_array($request->persons) ){
@@ -156,6 +157,11 @@ class FollowUpsController extends Controller
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                             $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = $value['how_helped'];
+                            $personalInfo->is_other_name = $value['is_other_name'];
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -177,6 +183,7 @@ class FollowUpsController extends Controller
                                         $userSave->unique_id = generateRandomNumber();
                                     }
                                     $userSave->user_type_id = $user_type_id;
+                                    $userSave->branch_id = getBranchId();
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
                                     $userSave->top_most_parent_id = $top_most_parent_id;
@@ -269,7 +276,7 @@ class FollowUpsController extends Controller
                     $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
         	        $ipFollowups =  new  IpFollowUp;
         		 	$ipFollowups->ip_id = $request->ip_id ;
-                    $ipFollowups->branch_id = $request->branch_id ;
+                    $ipFollowups->branch_id = getBranchId() ;
         		 	$ipFollowups->parent_id = $parent_id;
         		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
         		 	$ipFollowups->title = $request->title;
@@ -281,6 +288,7 @@ class FollowUpsController extends Controller
                     $ipFollowups->remarks = $request->remarks;
         		 	$ipFollowups->reason_for_editing = $request->reason_for_editing;
         		 	$ipFollowups->edited_by = $user->id;
+                    $ipFollowups->documents = json_encode($request->documents);
                     $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
         		 	$ipFollowups->save();
                      /*-----------------Persons Informationn ----------------*/
@@ -325,6 +333,11 @@ class FollowUpsController extends Controller
                             $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
                             $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
+                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = $value['how_helped'];
+                            $personalInfo->is_other_name = $value['is_other_name'];
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -346,6 +359,7 @@ class FollowUpsController extends Controller
                                         $userSave->unique_id = generateRandomNumber();
                                     }
                                     $userSave->user_type_id = $user_type_id;
+                                    $userSave->branch_id = getBranchId();
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
                                     $userSave->top_most_parent_id = $top_most_parent_id;

@@ -1,67 +1,92 @@
+1. insatser klarat med personal
+2. kunde fixat sjalv
+3. kunden ville inte
+4.personal kunde inte
+
+avvikelse --deviation
+
+1. Efforts managed with staff
+2. Could fix himself
+3. The customer did not want
+4. Staff could not
+
+
+
+3. kunde fixat sjalv------ Journal
+3. kunden ville inte----Journal
+4.personal kunde inte-------Journal ------------ daviation
+
+
+Done - 
+done by employee - no action
+Done by patient - create journal
+
+Not done - 
+Not done by employee - deviation and journal
+Patient did not want - journal
+
+If journal create - ask for social journal or not
+
+
+
+Done - 
+done by employee - no action
+Done by patient - create journal
+
+Not done - 
+Not done by employee - deviation and journal
+Patient did not want - journal
+
+If journal create - ask for social journal or not
+
+
+
+
+
+ip document upload  show in patient view case
+and patient document show in ip list
+
+categoru subcategory permission update p
+
+
+update ip case chreck permiss
+
+
+request for permission send
+
+
 ALTER TABLE `users`
-  DROP `contact_person_name`,
-  DROP `contact_person_email`,
-  DROP `contact_person_phone`,
-  DROP `device_name`,
-  DROP `device_id`,
-  DROP `device_model`,
-  DROP `device_token`,
-  DROP `login_via`;
+  DROP `working_from`,
+  DROP `working_to`,
+  DROP `place_name`;
 
 
-  ALTER TABLE `users` ADD `unique_id` VARCHAR(191) NULL AFTER `id`, ADD UNIQUE `unique_id` (`unique_id`);
+
+7 no step
+
+approval assig
+  is_presented
+
+  is_participat
 
 
-  ALTER TABLE `emergency_contacts` ADD `user_id` BIGINT UNSIGNED NOT NULL AFTER `top_most_parent_id`;
+mobile bank id   count equal then approved
+menual ---  ip detail  send pdf to all --- direct approved ip
+digital signature --create account  
 
 
-  user table 
-
-patient custom id 
-is patient secret or not 
-
- for($w = $from; $w->lte($to); $w->addWeeks($every)) {
-                $date = Carbon::parse($w);
-                $weekNumber = $date->weekNumberInMonth;
-                $start =Carbon::parse($date->startOfWeek()->toDateString());
-                $end = Carbon::parse($date->endOfWeek()->toDateString());
-                $startd = $start->format('Y-m-d');
-                $endd = $end->format('Y-m-d');
-                  print_r($w->format('Y-m-d').'---');
-                 // print_r($end->format('Y-m-d').'/');
-                    //print_r($start->format('Y-m-d'));
-                    for($p = $start; $p->lte($end); $p->addDays()) {
-                        print_r($p->copy()->format('Y-m-d').'--');
-                        if(in_array($p->dayOfWeek, $week_days)){
-
-                            array_push($dateTimeFrame, $p->copy()->format('Y-m-d'));
-                        }
-                    }
-                
-
-            }
+activity me action perform me time save krna h
 
 
-            for($w = $from; $w->lte($to); $w->addWeeks($every)) {
-                $date = Carbon::parse($w);
-                $startWeek = $w->startOfWeek()->format('Y-m-d');
-                $weekNumber = $date->weekNumberInMonth;
-                $start = Carbon::createFromFormat("Y-m-d", $startWeek);
-                $end = $start->copy()->endOfWeek()->format('Y-m-d');
-                if($i == 1){
-                     $startdate = Carbon::createFromFormat("Y-m-d", $startWeek)->format('Y-m-d');
-                }
-                print_r($startdate);
-                foreach ($week_days as $key => $week) {
-                  if(strtotime($start_from) <= strtotime($startdate) && strtotime($start_from) <= strtotime($start->format('Y-m-d'))) {
-                    $dateTimeFrame[] = Carbon::parse($start)->addDay($week-1)->format('Y-m-d');
-                  }
-                   
-                }
-               
-               $i++;
-            }
+acrivity pending notification
+
+jouranal deviatiob filter
 
 
+switch view
+
+
+daywise all count /all activity done nnot done
+daywise deviation done not done
 
 

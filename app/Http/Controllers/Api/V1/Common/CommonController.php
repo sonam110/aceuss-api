@@ -12,6 +12,7 @@ use Auth;
 use Exception;
 use App\Models\User;
 use App\Models\SmsLog;
+
 use Illuminate\Support\Facades\Hash;
 class CommonController extends Controller
 {
@@ -78,6 +79,8 @@ class CommonController extends Controller
             
         }
     }
+
+   
 
 
      public function getUserList(Request $request)
@@ -198,7 +201,7 @@ class CommonController extends Controller
                 }
                 $updatePass = User::find($checkUser->id);
                 $updatePass->password = Hash::make($request->password);
-                $updatePass->is_password_change = '1';
+                $updatePass->is_password_change = '0';
                 $updatePass->save();
                 return prepareResult(true,"Password Change Successfully",$updatePass,'200');
            

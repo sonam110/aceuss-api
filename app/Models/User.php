@@ -28,6 +28,7 @@ use App\Models\AgencyWeeklyHour;
 use App\Models\EmployeeType;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\CompanySetting;
+use App\Models\PatientInformation;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -64,9 +65,6 @@ class User extends Authenticatable
         'personal_number',
         'organization_number',
         'patient_type_id',
-        'working_from',
-        'working_to',
-        'place_name',
         'country_id',
         'city',
         'postal_area',
@@ -88,8 +86,8 @@ class User extends Authenticatable
         'is_secret',
         'status',
         'is_fake',
-        'is_risk',
         'is_password_change',
+        'documents',
         'entry_mode',
     ];
 
@@ -172,7 +170,12 @@ class User extends Authenticatable
     }
     public function PatientType()
     {
-        return $this->belongsTo(EmployeeType::class,'patient_type_id','id');
+        return $this->hasMany(EmployeeType::class,'id','patient_type_id');
+    }
+
+    public function PatientInformation()
+    {
+        return $this->belongsTo(PatientInformation::class,'id','patient_id');
     }
 
     public function getLatestParent()

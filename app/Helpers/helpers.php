@@ -11,6 +11,9 @@ use App\Models\SmsLog;
 use App\Models\Comment;
 use App\Models\EmailTemplate;
 use App\Models\CompanySetting;
+use App\Models\AssigneModule;
+use App\Models\Journal;
+use App\Models\Deviation;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 function getUser() {
@@ -69,10 +72,6 @@ function findBranchTopParentId($branch_id) {
     
 }
 
-
-
-
- 
 function buildTree(array $elements, $parentId = null, $level =1) {
     $branch = [];
     foreach ($elements as $key => $element) {
@@ -214,7 +213,7 @@ function addTask($task,$resource_id){
 
 function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen)
 {
-    if(!empty($user))
+    if(!empty($obj['user_id']))
     {
         $userDeviceInfo = DeviceLoginHistory::where('user_id',$obj['user_id'])->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
         if(!empty($userDeviceInfo))
@@ -424,14 +423,53 @@ function companySetting($company_id){
     }
 }
 
-function activityTimeFrame($start_date,$is_repeat,$every,$repetition_type,$week_days,$month_day,$end_date)
+function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates)
 {
+   
     $from = Carbon::parse($start_date);
-    $to = Carbon::parse($end_date);
+    $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
     $start_from = $from->format('Y-m-d');
     $end_to = $to->format('Y-m-d');
     $dateTimeFrame = []; 
-    if($is_repeat == true && (!empty($end_date))){
+    if($is_repeat == true){
+        if($repetition_type == '1'){
+            for($d = $from; $d->lte($to); $d->addDay($every)) {
+                $dateTimeFrame[] = $d->format('Y-m-d');
+            }
+        }
+        elseif($repetition_type == '2'){
+           $dateTimeFrame  = $repeat_dates;
+          
+        }
+        elseif($repetition_type == '3'){
+             $dateTimeFrame  = $repeat_dates;
+           
+        }   
+        elseif($repetition_type == '4'){
+            $dateTimeFrame  = $repeat_dates;
+        }else{
+            $dateTimeFrame[] = $from->format('Y-m-d');
+        }
+        
+    } else {
+        for($d = $from; $d->lte($to); $d->addDay()) {
+            $dateTimeFrame[] = $d->format('Y-m-d');
+        }
+    }
+    
+    return $dateTimeFrame;
+}
+
+/*function activityTimeFrame($start_date,$is_repeat,$every,$repetition_type,$week_days,$month_day,$end_date)
+{
+   
+    $from = Carbon::parse($start_date);
+    $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
+    $start_from = $from->format('Y-m-d');
+    $end_to = $to->format('Y-m-d');
+
+    $dateTimeFrame = []; 
+    if($is_repeat == true){
         if($repetition_type == '1'){
             for($d = $from; $d->lte($to); $d->addDay($every)) {
                 $dateTimeFrame[] = $d->format('Y-m-d');
@@ -481,7 +519,7 @@ function activityTimeFrame($start_date,$is_repeat,$every,$repetition_type,$week_
         $dateTimeFrame[] = $from->format('Y-m-d');
     }
     return $dateTimeFrame;
-}
+}*/
  
 function monthDaysBetween($month_day, $start, $end,$every){
     $result = [];
@@ -509,6 +547,68 @@ function weekDaysBetween($requiredDays, $start, $end,$every){
     }
     
     return $result;
+}
+
+function getBranchId(){
+    if(auth()->user()->user_type_id=='11') {
+        $branch_id = auth()->user()->id;
+    }
+    else {
+        $branch_id = auth()->user()->branch_id;
+    } 
+    return $branch_id;
+}
+
+
+function checkAssignModule($module_id){
+
+    $checkModule = AssigneModule::where('user_id',auth()->user()->top_most_parent_id)->where('module_id',$module_id)->first();
+    $is_assign = ($checkModule) ? true :false;
+    return $is_assign;
+
+
+}
+
+function journal($parent_id,$deviation_id,$activity_id,$patient_id,$category_id,$subcategory_id,$title,$description,$is_deviation,$is_social){
+    $Journal = new Journal;
+    $Journal->parent_id = $parent_id;
+    $Journal->deviation_id = $deviation_id;
+    $Journal->activity_id = $activity_id;
+    $Journal->branch_id = getBranchId();
+    $Journal->patient_id = $patient_id;
+    $Journal->category_id = $category_id;
+    $Journal->subcategory_id = $subcategory_id;
+    $Journal->title = $title;
+    $Journal->description = $description;
+    $Journal->is_deviation = $is_deviation;
+    $Journal->is_social = $is_social;
+    $Journal->save();
+    if($Journal){
+        return $Journal->id;
+    }else {
+        return null;
+    }
+
+
+}
+function deviation($parent_id,$journal_id,$activity_id,$patient_id,$category_id,$subcategory_id,$title,$description){
+    $Deviation = new Deviation;
+    $Deviation->parent_id = $parent_id;
+    $Deviation->journal_id = $journal_id;
+    $Deviation->activity_id = $activity_id;
+    $Deviation->patient_id = $patient_id;
+    $Deviation->branch_id = $patient_id;
+    $Deviation->category_id = $category_id;
+    $Deviation->subcategory_id = $subcategory_id;
+    $Deviation->title = $title;
+    $Deviation->description = $description;
+    $Deviation->save();
+    if($Deviation){
+        return $Deviation->id;
+    }else {
+        return null;
+    }
+
 }
 
 ?>

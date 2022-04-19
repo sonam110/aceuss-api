@@ -15,6 +15,7 @@ class AddClmToRolesTable extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->foreignId('top_most_parent_id')->after('id')->nullable();
+            $table->foreignId('user_type_id')->after('top_most_parent_id')->nullable();
             $table->string('se_name')->after('guard_name');
             $table->boolean('is_default')->default(0)->after('se_name')->comment('1:Det Default role');
             $table->string('entry_mode')->after('is_default')->nullable();
@@ -30,6 +31,7 @@ class AddClmToRolesTable extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->dropColumn('top_most_parent_id');
+            $table->dropColumn('user_type_id');
             $table->dropColumn('se_name');
             $table->dropColumn('entry_mode');
         });

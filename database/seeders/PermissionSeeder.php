@@ -468,6 +468,19 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'EmailTemplate-delete', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-delete','belongs_to'=>'1']);
 
+           Permission::create(['name' => 'bank-browse', 'guard_name' => 'api','group_name'=>'bank','se_name'=>'bank-browse','belongs_to'=>'3']);
+
+        Permission::create(['name' => 'bank-add', 'guard_name' => 'api','group_name'=>'bank','se_name'=>'bank-add','belongs_to'=>'3']);
+        
+        Permission::create(['name' => 'bank-read', 'guard_name' => 'api','group_name'=>'bank','se_name'=>'bank-read','belongs_to'=>'3']);
+
+        Permission::create(['name' => 'bank-edit', 'guard_name' => 'api','group_name'=>'bank','se_name'=>'bank-edit','belongs_to'=>'3']);
+        
+        Permission::create(['name' => 'bank-delete', 'guard_name' => 'api','group_name'=>'bank','se_name'=>'bank-delete','belongs_to'=>'3']);
+
+
+         Permission::create(['name' => 'isCategoryEditPermission-edit', 'guard_name' => 'api','group_name'=>'isCategoryEditPermission','se_name'=>'isCategoryEditPermission-edit','belongs_to'=>'2']);
+
 
          
 

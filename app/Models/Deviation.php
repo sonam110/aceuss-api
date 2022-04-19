@@ -22,7 +22,7 @@ class Deviation extends Model
         'parent_id',
 		'journal_id',
 		'activity_id',
-		'top_most_parent_id';,
+		'top_most_parent_id',
 		'branch_id',
         'patient_id',
 		'emp_id',

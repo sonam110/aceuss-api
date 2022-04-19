@@ -21,30 +21,41 @@ class PatientImplementationPlan extends Model
     protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
-		'user_id',
-		'branch_id',
+        'user_id',
+        'branch_id',
         'parent_id',
-		'category_id',
-		'subcategory_id',
-		'what_happened',
-		'how_it_happened',
-		'goal',
-		'sub_goal',
-		'plan_start_date',
-		'plan_start_time',
+        'category_id',
+        'subcategory_id',
+        'title',
+        'save_as_template',
+        'goal',
+        'limitations',
+        'limitation_details',
+        'how_support_should_be_given',
+        'week_days',
+        'how_many_time',
+        'when_during_the_day',
+        'who_give_support',
+        'sub_goal',
+        'sub_goal_details',
+        'sub_goal_selected',
+        'overall_goal',
+        'overall_goal_details',
+        'body_functions',
+        'personal_factors',
+        'health_conditions',
+        'other_factors',
+        'treatment',
+        'working_method',
+        'start_date',
         'end_date',
-		'remark',
-		'activity_message',
-		'save_as_template',
-		'reason_for_editing',
-		'created_by',
-		'edited_by',
-		'approved_by',
-		'approved_date',
+        'documents',
+        'reason_for_editing',
+        'created_by',
+        'edited_by',
+        'approved_by',
+        'approved_date',
         'status',
-        'step_one_status',
-        'step_two_status',
-        'step_three_status',
         'entry_mode',
 		
     ];
@@ -98,6 +109,13 @@ class PatientImplementationPlan extends Model
     public function ipFollowUps()
     {
         return $this->hasMany(IpFollowUp::class,'ip_id','id');
+    }
+
+    public function setStartDateAndTimeAttribute($value) {
+      $this->attributes['start_date'] = (!empty($value)) ? date("Y-m-d", strtotime($value)) :null;
+    }
+    public function setEndDateAndTimeAttribute($value) {
+      $this->attributes['end_date'] =  (!empty($value)) ? date("Y-m-d", strtotime($value)) : null;
     }
 
     

@@ -27,7 +27,7 @@ class CreateDeviationsTable extends Migration
             $table->string('title');
             $table->text('description');
             $table->enum('status', ['0','1','2'])->default('0')->comment('0:Pending  , 1:Approved ,2:Rejected');
-            $table->boolean('not_a_deviation')->default(1);
+            $table->boolean('not_a_deviation')->default(0);
             $table->text('reason_of_not_being_deviation')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();

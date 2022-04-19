@@ -32,6 +32,7 @@ class CreateJournalsTable extends Migration
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->boolean('is_deviation')->default(0);
+            $table->boolean('is_social')->default(0);
             $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();

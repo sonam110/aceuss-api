@@ -12,6 +12,8 @@ use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\CompanySetting;
+use App\Models\UserTypeHasPermission;
+use App\Models\ActivityOption;
 class NoMiddlewareController extends Controller
 {
     
@@ -39,6 +41,18 @@ class NoMiddlewareController extends Controller
             {
                 $query = $query->get();
             }
+            return prepareResult(true,"Agency list",$query,$this->success);
+        } catch(Exception $exception) {
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+                
+        }
+        
+    }
+
+     /*---------------Activity options------------------------------------*/
+    public function activityOptions(){
+        try {
+            $query = ActivityOption::get();;
             return prepareResult(true,"Agency list",$query,$this->success);
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
@@ -94,7 +108,7 @@ class NoMiddlewareController extends Controller
             
         }
     }
-     public function passwordChange(Request $request)
+    public function passwordChange(Request $request)
     {
         try {
                 $validator = Validator::make($request->all(),[   
@@ -115,7 +129,7 @@ class NoMiddlewareController extends Controller
                     }
                     $updatePass = User::find($checkUser->id);
                     $updatePass->password = Hash::make($request->password);
-                    $updatePass->is_password_change = '1';
+                    $updatePass->is_password_change = '0';
                     $updatePass->save();
                     return prepareResult(true,"Password Change Successfully",$updatePass,'200');
                 } else {
@@ -128,5 +142,41 @@ class NoMiddlewareController extends Controller
                 
             }
        
+    }
+     public function userTypePermission(Request $request)
+    {
+        try {
+            $query = UserTypeHasPermission::select('*')->with('permission');
+            
+            if(!empty($request->user_type_id))
+            {
+                $query->where('user_type_id',$request->user_type_id);
+            }
+            if(!empty($request->per_page_record))
+            {
+                $perPage = $request->per_page_record;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                $query = $pagination;
+            }
+            else
+            {
+                $query = $query->get();
+            }
+
+            return prepareResult(true,"Permissions",$query,'200');
+        } catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], '500');
+            
+        }
     }
 }

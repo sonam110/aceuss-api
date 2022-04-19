@@ -78,7 +78,7 @@ class JournalController extends Controller
         	
 	        $Journal = new Journal;
 		 	$Journal->activity_id = $request->activity_id;
-		 	$Journal->branch_id = $request->branch_id;
+		 	$Journal->branch_id = getBranchId();
             $Journal->deviation_id = $request->deviation_id;
 		 	$Journal->ip_id = $request->ip_id;
 		 	$Journal->patient_id = $request->patient_id;
@@ -126,7 +126,7 @@ class JournalController extends Controller
         	$Journal = new  Journal;
 	       	$Journal->parent_id = $parent_id;
 		 	$Journal->activity_id = $request->activity_id;
-            $Journal->branch_id = $request->branch_id;
+            $Journal->branch_id = getBranchId();
 		 	$Journal->deviation_id = $request->deviation_id;
 		 	$Journal->ip_id = $request->ip_id;
 		 	$Journal->patient_id = $request->patient_id;

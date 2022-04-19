@@ -25,6 +25,7 @@ class CreateRequestForApprovalsTable extends Migration
             $table->foreignId('rejected_by')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
+            $table->tinyInteger('approval_type')->nullable()->comment('1:Manual, 2:Digital Signature, 3:Mobile Bank Id');
             $table->enum('status', ['0','1','2','3'])->default('0')->comment('0:inactive, 1:active, 2:approved ,3:rejected');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
