@@ -36,6 +36,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::post('password-change', 'Common\NoMiddlewareController@passwordChange'); 
 	Route::middleware('auth:api', 'isActiveToken','isAuthorized')->group(function () {
 		Route::post('/logout', 'Common\UserLoginController@logout');
+
+		Route::get('dashboard', 'Common\DashboardController@dashboard');
+
 		Route::post('/change-password', 'Common\UserLoginController@changePassword');
 		Route::get('user-detail', 'Common\UserLoginController@userDetail');
 	
@@ -45,7 +48,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('request-for-approval', 'Common\RequestApprovalController@requestForApproval');
 		Route::post('approval-request-list', 'Common\RequestApprovalController@approvalRequestList');
-		Route::post('approval-request', 'Common\RequestApprovalController@approvedRequest');
+		Route::post('approval-request/{id}', 'Common\RequestApprovalController@approvedRequest');
+		Route::post('reject-request', 'Common\RequestApprovalController@rejectRequest');
 
 		
 		
@@ -159,9 +163,13 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('ips', [App\Http\Controllers\Api\V1\User\PatientController::class, 'ipsList']);
 		Route::apiResource('ip', User\PatientController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-patient-plan','User\PatientController@approvedPatientPlan');
-		Route::post('patient-person-list','User\PatientController@patientPersonList');
+		Route::post('delete-person/{id}','User\PatientController@deletePerson');
 		Route::post('ip-template-list','User\PatientController@ipTemplateList');
 		Route::post('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
+
+		/*--------------Person add-------------------------*/
+		Route::post('patient-person-list','Common\PersonController@patientPersonList');
+		Route::apiResource('person', Common\PersonController::class)->only(['store','destroy','show', 'update']);
 
 
 		Route::post('ip-assigne-to-employee','User\PatientController@ipAssigneToEmployee');

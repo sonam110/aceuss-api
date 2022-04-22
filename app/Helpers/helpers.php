@@ -305,26 +305,28 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
                     }*/
                 }
             }
+
+            if($save_to_database == true)
+            {
+                $notification = new Notification;
+                $notification->user_id          = $obj['user_id'];
+                $notification->sender_id        = Auth::id();
+                $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
+                $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
+                $notification->type             = $obj['type'];;
+                $notification->user_type        = $obj['user_type'];
+                $notification->module           = $module;
+                $notification->title            = $title;
+                $notification->sub_title        = $title;
+                $notification->message          = $body;
+                $notification->image_url        = '';
+                $notification->screen           = $screen;
+                $notification->data_id          = $id;
+                $notification->read_status      = false;
+                $notification->save();
+            }
         }
-        if($save_to_database == true)
-        {
-            $notification = new Notification;
-            $notification->user_id          = $obj['user_id'];
-            $notification->sender_id        = Auth::id();
-            $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
-            $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-            $notification->type             = $obj['type'];;
-            $notification->user_type        = $obj['user_type'];
-            $notification->module           = $module;
-            $notification->title            = $title;
-            $notification->sub_title        = $title;
-            $notification->message          = $body;
-            $notification->image_url        = '';
-            $notification->screen           = $screen;
-            $notification->data_id          = $id;
-            $notification->read_status      = false;
-            $notification->save();
-        }
+        
     }
 }
 
@@ -609,6 +611,45 @@ function deviation($parent_id,$journal_id,$activity_id,$patient_id,$category_id,
         return null;
     }
 
+}
+
+function dates($value) {
+    $s = $value%60;
+    $m = floor(($value %3600)/60);
+    $h = floor(($value %86400)/3600);
+    $d = floor(($value %2592000)/86400);
+    $M = floor($value /2592000);
+    $data = "$h:$m:$s";
+    return $data;
+}
+function getDuration($totalDuration,$type="0")
+{
+    $duration = "";
+    $hours = floor($totalDuration / 3600);
+    $min = floor($totalDuration / 60) % 60;
+    $minuts = $min;//($min > 60) ? gmdate("I", $totalDuration % 3600): $min ;
+    $hours = ($hours>9?$hours:'0'.$hours);
+    $minuts = ($minuts>9?$minuts:'0'.$minuts);
+    $seconds = gmdate("s", $totalDuration % 60);
+    $diff = round($totalDuration / 3600).'h'.' '.$minuts.'m';
+    // dd($totalDuration);
+    if($hours > 0){
+        $duration .= $hours.'h ';
+    }else{
+        $duration .= '00h ';
+    }
+    if($minuts > 0 || $hours > 0){
+
+        $duration .=  $minuts.'m ';
+    }else{
+        $duration .= '00m ';
+    }
+    $duration .= $seconds.'s';
+    if($type=="0"){
+        return $diff;
+    }else{
+        return $duration;
+    }    
 }
 
 ?>

@@ -36,6 +36,7 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->text('how_helped')->nullable();
             $table->string('is_other_name')->nullable();
             $table->string('entry_mode')->nullable();
+            $table->boolean('is_approval_requested')->default(0);
             $table->timestamps();
         });
     }

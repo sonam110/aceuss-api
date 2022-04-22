@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use App\Models\UserType;
 use App\Models\User;
+use App\Models\EmployeeType;
 use Str;
 use DB;
 class RoleSeeder extends Seeder
@@ -34,6 +35,10 @@ class RoleSeeder extends Seeder
         $role9 = Role::create(['id' => '9','name' => 'ContactPerson','se_name' => 'ContactPerson', 'guard_name' => 'api','is_default'=>'1']);
         $role10 = Role::create(['id' => '10','name' => 'careTakerFamily','se_name' => 'careTakerFamily', 'guard_name' => 'api','is_default'=>'1']);
         $role11 = Role::create(['id' => '11','name' => 'Branch','se_name' => 'Branch', 'guard_name' => 'api','is_default'=>'1']);
+        $role12 = Role::create(['id' => '12','name' => 'Guardian','se_name' => 'Guardian', 'guard_name' => 'api','is_default'=>'1']);
+        $role13 = Role::create(['id' => '13','name' => 'Presented','se_name' => 'Presented', 'guard_name' => 'api','is_default'=>'1']);
+        $role14 = Role::create(['id' => '14','name' => 'Participated','se_name' => 'Participated', 'guard_name' => 'api','is_default'=>'1']);
+        $role15 = Role::create(['id' => '15','name' => 'Other','se_name' => 'Other', 'guard_name' => 'api','is_default'=>'1']);
 
         \DB::table('user_types')->truncate();
         $UserType1 = UserType::create(['id' => '1','name' => 'Super Admin']);
@@ -47,11 +52,16 @@ class RoleSeeder extends Seeder
         $UserType9 = UserType::create(['id' => '9','name' => 'ContactPerson']);
         $UserType10 = UserType::create(['id' => '10','name' => 'careTakerFamily']);
         $UserType11 = UserType::create(['id' => '11','name' => 'Branch']);
+        $UserType12 = UserType::create(['id' => '12','name' => 'Guardian']);
+        $UserType13 = UserType::create(['id' => '13','name' => 'Presented']);
+        $UserType14 = UserType::create(['id' => '14','name' => 'Participated']);
+        $UserType15 = UserType::create(['id' => '15','name' => 'Other']);
+   
 
         \DB::table('employee_types')->truncate();
-        $patientType1 = DB::table('employee_types')::create(['id' => '1','type'=>'patient','designation' => 'Minor Child']);
-        $patientType2 = DB::table('employee_types')::create(['id' => '2','type'=>'patient','designation' => 'Student']);
-        $patientType3 = DB::table('employee_types')::create(['id' => '3','type'=>'patient','designation' => 'Working']);
-        $patientType4 = DB::table('employee_types')::create(['id' => '4','type'=>'patient','designation' => 'Old age']);
+        $patientType1 = EmployeeType::create(['id' => '1','type'=>'patient','designation' => 'Minor Child']);
+        $patientType2 = EmployeeType::create(['id' => '2','type'=>'patient','designation' => 'Student']);
+        $patientType3 = EmployeeType::create(['id' => '3','type'=>'patient','designation' => 'Working']);
+        $patientType4 = EmployeeType::create(['id' => '4','type'=>'patient','designation' => 'Old age']);
     }
 }

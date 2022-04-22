@@ -175,7 +175,7 @@ class CompanyAccountController extends Controller
                 $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $packageSubscribe->save();
             }
-            if(is_array($request->modules) ){
+            if(is_array($request->modules)  && sizeof($request->modules) >0){
                 for ($i = 0;$i < sizeof($request->modules);$i++) {
                     if (!empty($request->modules[$i])) {
                         $assigneModule = new AssigneModule;
@@ -313,7 +313,7 @@ class CompanyAccountController extends Controller
                 $packageSubscribe->save();
             }
 
-            if(is_array($request->modules) ){
+            if(is_array($request->modules)  && sizeof($request->modules) >0 ){
                 $deletOld = AssigneModule::where('user_id',$user->id)->delete();
                 for ($i = 0;$i < sizeof($request->modules);$i++) {
                     if (!empty($request->modules[$i])) {
@@ -353,6 +353,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],$this->not_found);
             }
+            $updateStatus = User::where('id',$id)->update(['status'=>'2']);
             $userDelete = User::where('id',$id)->delete();
             return prepareResult(true, getLangByLabelGroups('UserValidation','delete'),[], $this->success);
                 

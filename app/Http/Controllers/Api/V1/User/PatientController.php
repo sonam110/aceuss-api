@@ -101,51 +101,51 @@ class PatientController extends Controller
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
-                    $patientPlan->user_id = $patient['user_id'];
+                    $patientPlan->user_id = @$patient['user_id'];
                     $patientPlan->branch_id = getBranchId();
-                    $patientPlan->category_id = $patient['category_id'];
-                    $patientPlan->subcategory_id = $patient['subcategory_id'];
-                    $patientPlan->title = $patient['title'];
-                    $patientPlan->goal = $patient['goal'];
-                    $patientPlan->limitations = $patient['limitations'];
-                    $patientPlan->limitation_details = $patient['limitation_details'];
-                    $patientPlan->how_support_should_be_given = $patient['how_support_should_be_given'];
-                    $patientPlan->who_give_support =  json_encode($patient['who_give_support']);
-                    $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->sub_goal_details = $patient['sub_goal_details'];
-                    $patientPlan->sub_goal_selected = $patient['sub_goal_selected'];
-                    $patientPlan->overall_goal = $patient['overall_goal'];
-                    $patientPlan->overall_goal_details = $patient['overall_goal_details'];
-                    $patientPlan->body_functions = $patient['body_functions'];
-                    $patientPlan->personal_factors = $patient['personal_factors'];
-                    $patientPlan->health_conditions = $patient['health_conditions'];
-                    $patientPlan->other_factors = $patient['other_factors'];
-                    $patientPlan->treatment = $patient['treatment'];
-                    $patientPlan->working_method = $patient['working_method'];
-                    $patientPlan->start_date = $patient['start_date'];
-                    $patientPlan->end_date = $patient['end_date'];
-                    $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
-                    $patientPlan->documents = json_encode($patient['documents']);
+                    $patientPlan->category_id = @$patient['category_id'];
+                    $patientPlan->subcategory_id = @$patient['subcategory_id'];
+                    $patientPlan->title = @$patient['title'];
+                    $patientPlan->goal = @$patient['goal'];
+                    $patientPlan->limitations = @$patient['limitations'];
+                    $patientPlan->limitation_details = @$patient['limitation_details'];
+                    $patientPlan->how_support_should_be_given = @$patient['how_support_should_be_given'];
+                    $patientPlan->who_give_support =  json_encode(@$patient['who_give_support']);
+                    $patientPlan->sub_goal = @$patient['sub_goal'];
+                    $patientPlan->sub_goal_details = @$patient['sub_goal_details'];
+                    $patientPlan->sub_goal_selected = @$patient['sub_goal_selected'];
+                    $patientPlan->overall_goal = @$patient['overall_goal'];
+                    $patientPlan->overall_goal_details = @$patient['overall_goal_details'];
+                    $patientPlan->body_functions = @$patient['body_functions'];
+                    $patientPlan->personal_factors = @$patient['personal_factors'];
+                    $patientPlan->health_conditions = @$patient['health_conditions'];
+                    $patientPlan->other_factors = @$patient['other_factors'];
+                    $patientPlan->treatment = @$patient['treatment'];
+                    $patientPlan->working_method = @$patient['working_method'];
+                    $patientPlan->start_date = @$patient['start_date'];
+                    $patientPlan->end_date = @$patient['end_date'];
+                    $patientPlan->save_as_template = (@$patient['save_as_template']) ? 1:0;
+                    $patientPlan->documents = json_encode(@$patient['documents']);
                     $patientPlan->created_by = $user->id;
                     $patientPlan->save();
 
                     $impPlan_ids[] = $patientPlan->id;
                     $ids = implode(', ',$impPlan_ids);
-                    if($patient['save_as_template'] == true){
+                    if(@$patient['save_as_template'] == true){
                         
-                        if (empty($patient['title'])) {
+                        if (empty(@$patient['title'])) {
                             return prepareResult(false,'Title field is required',[], $this->unprocessableEntity); 
                         }
                         $ipTemplate = new IpTemplate;
                         $ipTemplate->ip_id = $patientPlan->id;
-                        $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->template_title = @$patient['title'];
                         $ipTemplate->created_by = $user->id;
                         $ipTemplate->save();
                     }
                     /*-----------IP assigne to employee*/
-                    if(!empty($patient['emp_id']) ){
+                    if(!empty(@$patient['emp_id']) ){
                         $ipAssigne = new IpAssigneToEmployee;
-                        $ipAssigne->user_id = $patient['emp_id'];
+                        $ipAssigne->user_id = @$patient['emp_id'];
                         $ipAssigne->ip_id = $patientPlan->id;
                         $ipAssigne->status = '1';
                         $ipAssigne->save();
@@ -153,53 +153,53 @@ class PatientController extends Controller
 
                     }
                     /*-----------------Persons Informationn ----------------*/
-                    if(is_array($patient['persons']) ){
-                        foreach ($patient['persons'] as $key => $value) {
+                    if(is_array(@$patient['persons']) && sizeof(@$patient['persons']) >0 ){
+                        foreach (@$patient['persons'] as $key => $value) {
                             $is_user = false;
-                            if($value['is_family_member'] == true){
+                            if(@$value['is_family_member'] == true){
                                 $user_type_id ='8';
                                 $is_user = true;
                             }
-                            if($value['is_caretaker'] == true){
+                            if(@$value['is_caretaker'] == true){
                                 $user_type_id ='7';
                                 $is_user = true;
                             }
-                            if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
                                 $user_type_id ='10';
                                 $is_user = true;
                             }
-                            if($value['is_contact_person'] == true){
+                            if(@$value['is_contact_person'] == true){
                                 $user_type_id ='9';
                                 $is_user = true;
                             }
 
 
-                            if(is_null($value['id']) == false){
-                                $personalInfo = PersonalInfoDuringIp::find($value['id']);
-                                $getperson = PersonalInfoDuringIp::where('id',$value['id'])->first();
+                            if(is_null(@$value['id']) == false){
+                                $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
                                 $getUser = User::where('email',$getperson->email)->first();
                             } else{
                                 $personalInfo = new PersonalInfoDuringIp;
                             }
-                            $personalInfo->patient_id = $patient['user_id'];
+                            $personalInfo->patient_id = @$patient['user_id'];
                             $personalInfo->ip_id =$patientPlan->id;
-                            $personalInfo->name = $value['name'] ;
-                            $personalInfo->email = $value['email'] ;
-                            $personalInfo->contact_number = $value['contact_number'];
-                            $personalInfo->country_id = $value['country_id'];
-                            $personalInfo->city = $value['city'];
-                            $personalInfo->postal_area = $value['postal_area'];
-                            $personalInfo->zipcode = $value['zipcode'];
-                            $personalInfo->full_address = $value['full_address'] ;
-                            $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
-                            $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
-                            $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
-                            $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
-                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
-                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
-                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
-                            $personalInfo->how_helped = $value['how_helped'];
-                            $personalInfo->is_other_name = $value['is_other_name'];
+                            $personalInfo->name = @$value['name'] ;
+                            $personalInfo->email = @$value['email'] ;
+                            $personalInfo->contact_number = @$value['contact_number'];
+                            $personalInfo->country_id = @$value['country_id'];
+                            $personalInfo->city = @$value['city'];
+                            $personalInfo->postal_area = @$value['postal_area'];
+                            $personalInfo->zipcode = @$value['zipcode'];
+                            $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                            $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                            $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                            $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                            $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = @$value['how_helped'];
+                            $personalInfo->is_other_name = @$value['is_other_name'];
                             $personalInfo->save() ;
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -212,7 +212,7 @@ class PatientController extends Controller
                                 } else {
                                     $top_most_parent_id = auth()->user()->top_most_parent_id;
                                 }
-                                $checkAlreadyUser = User::where('email',$value['email'])->first();
+                                $checkAlreadyUser = User::where('email',@$value['email'])->first();
                                 if(empty($checkAlreadyUser)) {
                                     if(!empty($getUser)){
                                         $userSave = User::find($getUser->id);
@@ -226,15 +226,15 @@ class PatientController extends Controller
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
                                     $userSave->top_most_parent_id = $top_most_parent_id;
-                                    $userSave->name = $value['name'] ;
-                                    $userSave->email = $value['email'] ;
+                                    $userSave->name = @$value['name'] ;
+                                    $userSave->email = @$value['email'] ;
                                     $userSave->password = Hash::make('12345678');
-                                    $userSave->contact_number = $value['contact_number'];
-                                    $userSave->country_id = $value['country_id'];
-                                    $userSave->city = $value['city'];
-                                    $userSave->postal_area = $value['postal_area'];
-                                    $userSave->zipcode = $value['zipcode'];
-                                    $userSave->full_address = $value['full_address'] ;
+                                    $userSave->contact_number = @$value['contact_number'];
+                                    $userSave->country_id = @$value['country_id'];
+                                    $userSave->city = @$value['city'];
+                                    $userSave->postal_area = @$value['postal_area'];
+                                    $userSave->zipcode = @$value['zipcode'];
+                                    $userSave->full_address = @$value['full_address'] ;
                                     $userSave->save(); 
                                     if(!empty($user_type_id))
                                     {
@@ -302,52 +302,52 @@ class PatientController extends Controller
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
                     $patientPlan = new PatientImplementationPlan;
-                    $patientPlan->user_id = $patient['user_id'];
+                    $patientPlan->user_id = @$patient['user_id'];
                     $patientPlan->parent_id = $parent_id;
                     $patientPlan->branch_id = getBranchId();
-                    $patientPlan->category_id = $patient['category_id'];
-                    $patientPlan->subcategory_id = $patient['subcategory_id'];
-                    $patientPlan->title = $patient['title'];
-                    $patientPlan->goal = $patient['goal'];
-                    $patientPlan->limitations = $patient['limitations'];
-                    $patientPlan->limitation_details = $patient['limitation_details'];
-                    $patientPlan->how_support_should_be_given = $patient['how_support_should_be_given'];
-                    $patientPlan->who_give_support =  json_encode($patient['who_give_support']);
-                    $patientPlan->sub_goal = $patient['sub_goal'];
-                    $patientPlan->sub_goal_details = $patient['sub_goal_details'];
-                    $patientPlan->sub_goal_selected = $patient['sub_goal_selected'];
-                    $patientPlan->overall_goal = $patient['overall_goal'];
-                    $patientPlan->overall_goal_details = $patient['overall_goal_details'];
-                    $patientPlan->body_functions = $patient['body_functions'];
-                    $patientPlan->personal_factors = $patient['personal_factors'];
-                    $patientPlan->health_conditions = $patient['health_conditions'];
-                    $patientPlan->other_factors = $patient['other_factors'];
-                    $patientPlan->treatment = $patient['treatment'];
-                    $patientPlan->working_method = $patient['working_method'];
-                    $patientPlan->reason_for_editing = $patient['reason_for_editing'];
-                    $patientPlan->start_date = $patient['start_date'];
-                    $patientPlan->end_date = $patient['end_date'];
-                    $patientPlan->save_as_template = ($patient['save_as_template']) ? 1:0;
-                    $patientPlan->documents = json_encode($patient['documents']);
+                    $patientPlan->category_id = @$patient['category_id'];
+                    $patientPlan->subcategory_id = @$patient['subcategory_id'];
+                    $patientPlan->title = @$patient['title'];
+                    $patientPlan->goal = @$patient['goal'];
+                    $patientPlan->limitations = @$patient['limitations'];
+                    $patientPlan->limitation_details = @$patient['limitation_details'];
+                    $patientPlan->how_support_should_be_given = @$patient['how_support_should_be_given'];
+                    $patientPlan->who_give_support =  json_encode(@$patient['who_give_support']);
+                    $patientPlan->sub_goal = @$patient['sub_goal'];
+                    $patientPlan->sub_goal_details = @$patient['sub_goal_details'];
+                    $patientPlan->sub_goal_selected = @$patient['sub_goal_selected'];
+                    $patientPlan->overall_goal = @$patient['overall_goal'];
+                    $patientPlan->overall_goal_details = @$patient['overall_goal_details'];
+                    $patientPlan->body_functions = @$patient['body_functions'];
+                    $patientPlan->personal_factors = @$patient['personal_factors'];
+                    $patientPlan->health_conditions = @$patient['health_conditions'];
+                    $patientPlan->other_factors = @$patient['other_factors'];
+                    $patientPlan->treatment = @$patient['treatment'];
+                    $patientPlan->working_method = @$patient['working_method'];
+                    $patientPlan->reason_for_editing = @$patient['reason_for_editing'];
+                    $patientPlan->start_date = @$patient['start_date'];
+                    $patientPlan->end_date = @$patient['end_date'];
+                    $patientPlan->save_as_template = (@$patient['save_as_template']) ? 1:0;
+                    $patientPlan->documents = json_encode(@$patient['documents']);
                     $patientPlan->edited_by = $user->id;
                     $patientPlan->save();
 
                     $impPlan_ids[] = $patientPlan->id;
                     $ids = implode(', ',$impPlan_ids);
-                    if($patient['save_as_template'] == true){
-                        if (empty($patient['title'])) {
+                    if(@$patient['save_as_template'] == true){
+                        if (empty(@$patient['title'])) {
                             return prepareResult(false,'Title field is required',[], $this->unprocessableEntity); 
                         }
                         $ipTemplate = new IpTemplate;
                         $ipTemplate->ip_id = $patientPlan->id;
-                        $ipTemplate->template_title = $patient['title'];
+                        $ipTemplate->template_title = @$patient['title'];
                         $ipTemplate->created_by = $user->id;
                         $ipTemplate->save();
                     }
                     /*-----------IP assigne to employee*/
-                    if(!empty($patient['emp_id']) ){
+                    if(!empty(@$patient['emp_id']) ){
                         $ipAssigne = new IpAssigneToEmployee;
-                        $ipAssigne->user_id = $patient['emp_id'];
+                        $ipAssigne->user_id = @$patient['emp_id'];
                         $ipAssigne->ip_id = $patientPlan->id;
                         $ipAssigne->status = '1';
                         $ipAssigne->save();
@@ -361,57 +361,57 @@ class PatientController extends Controller
                     if(!empty($checkActivity)){
                         foreach ($checkActivity as $key => $activity) {
                             $updateCat = Activity::find($activity->id);
-                            $updateCat->category_id = $patient['category_id'];
-                            $updateCat->subcategory_id = $patient['subcategory_id'];
+                            $updateCat->category_id = @$patient['category_id'];
+                            $updateCat->subcategory_id = @$patient['subcategory_id'];
                             $updateCat->save();
                         }
                     }
                     /*-----------------Persons Informationn ----------------*/
-                    if(is_array($patient['persons']) ){
-                        foreach ($patient['persons'] as $key => $value) {
+                    if(is_array(@$patient['persons']) && sizeof(@$patient['persons']) >0 ){
+                        foreach (@$patient['persons'] as $key => $value) {
                             $is_user = false;
-                            if($value['is_family_member'] == true){
+                            if(@$value['is_family_member'] == true){
                                 $user_type_id ='8';
                                 $is_user = true;
                             }
-                            if($value['is_caretaker'] == true){
+                            if(@$value['is_caretaker'] == true){
                                 $user_type_id ='7';
                                 $is_user = true;
                             }
-                            if(($value['is_caretaker'] == true) && ($value['is_family_member'] == true )){
+                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
                                 $user_type_id ='10';
                                 $is_user = true;
                             }
-                            if($value['is_contact_person'] == true){
+                            if(@$value['is_contact_person'] == true){
                                 $user_type_id ='9';
                                 $is_user = true;
                             }
-                            if(is_null($value['id']) == false){
-                                $personalInfo = PersonalInfoDuringIp::find($value['id']);
-                                $getperson = PersonalInfoDuringIp::where('id',$value['id'])->first();
+                            if(is_null(@$value['id']) == false){
+                                $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
                                 $getUser = User::where('email',$getperson->email)->first();
                             } else{
                                 $personalInfo = new PersonalInfoDuringIp;
                             }
-                            $personalInfo->patient_id = $patient['user_id'];
+                            $personalInfo->patient_id = @$patient['user_id'];
                             $personalInfo->ip_id =$patientPlan->id;
-                            $personalInfo->name = $value['name'] ;
-                            $personalInfo->email = $value['email'] ;
-                            $personalInfo->contact_number = $value['contact_number'];
-                            $personalInfo->country_id = $value['country_id'];
-                            $personalInfo->city = $value['city'];
-                            $personalInfo->postal_area = $value['postal_area'];
-                            $personalInfo->zipcode = $value['zipcode'];
-                            $personalInfo->full_address = $value['full_address'] ;
-                            $personalInfo->is_family_member = ($value['is_family_member'] == true) ? $value['is_family_member'] : 0 ;
-                            $personalInfo->is_caretaker = ($value['is_caretaker'] == true) ? $value['is_caretaker'] : 0 ;
-                            $personalInfo->is_contact_person = ($value['is_contact_person'] == true) ? $value['is_contact_person'] : 0 ;
-                            $personalInfo->is_guardian = ($value['is_guardian'] == true) ? $value['is_guardian'] : 0 ;
-                            $personalInfo->is_other = ($value['is_other'] == true) ? $value['is_other'] : 0 ;
-                            $personalInfo->is_presented = ($value['is_presented'] == true) ? $value['is_presented'] : 0 ;
-                            $personalInfo->is_participated = ($value['is_participated'] == true) ? $value['is_participated'] : 0 ;
-                            $personalInfo->how_helped = $value['how_helped'];
-                            $personalInfo->is_other_name = $value['is_other_name'];
+                            $personalInfo->name = @$value['name'] ;
+                            $personalInfo->email = @$value['email'] ;
+                            $personalInfo->contact_number = @$value['contact_number'];
+                            $personalInfo->country_id = @$value['country_id'];
+                            $personalInfo->city = @$value['city'];
+                            $personalInfo->postal_area = @$value['postal_area'];
+                            $personalInfo->zipcode = @$value['zipcode'];
+                            $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                            $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                            $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                            $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                            $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = @$value['how_helped'];
+                            $personalInfo->is_other_name = @$value['is_other_name'];
                             $personalInfo->save();
                             /*-----Create Account /Entry in user table*/
                             if($is_user == true) {
@@ -424,7 +424,7 @@ class PatientController extends Controller
                                 } else {
                                     $top_most_parent_id = auth()->user()->top_most_parent_id;
                                 }
-                                $checkAlreadyUser = User::where('email',$value['email'])->first();
+                                $checkAlreadyUser = User::where('email',@$value['email'])->first();
                                 if(empty($checkAlreadyUser)) {
                                     if(!empty($getUser)){
                                         $userSave = User::find($getUser->id);
@@ -438,15 +438,15 @@ class PatientController extends Controller
                                     $userSave->role_id =  $user_type_id;
                                     $userSave->parent_id = $user->id;
                                     $userSave->top_most_parent_id = $top_most_parent_id;
-                                    $userSave->name = $value['name'] ;
-                                    $userSave->email = $value['email'] ;
+                                    $userSave->name = @$value['name'] ;
+                                    $userSave->email = @$value['email'] ;
                                     $userSave->password = Hash::make('12345678');
-                                    $userSave->contact_number = $value['contact_number'];
-                                    $userSave->country_id = $value['country_id'];
-                                    $userSave->city = $value['city'];
-                                    $userSave->postal_area = $value['postal_area'];
-                                    $userSave->zipcode = $value['zipcode'];
-                                    $userSave->full_address = $value['full_address'] ;
+                                    $userSave->contact_number = @$value['contact_number'];
+                                    $userSave->country_id = @$value['country_id'];
+                                    $userSave->city = @$value['city'];
+                                    $userSave->postal_area = @$value['postal_area'];
+                                    $userSave->zipcode = @$value['zipcode'];
+                                    $userSave->full_address = @$value['full_address'] ;
                                     $userSave->save(); 
                                     if(!empty($user_type_id))
                                     {
@@ -604,53 +604,7 @@ class PatientController extends Controller
         }
     }
 
-    public function patientPersonList(Request $request){
-        try {
-            $user = getUser();
-            $validator = Validator::make($request->all(),[
-                'patient_id' => 'required',   
-            ],
-            [
-            'patient_id' =>  'Patient Id is required',
-            ]);
-            if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-            }
-            $id = $request->patient_id;
-            $whereRaw = $this->getWhereRawFromRequest1($request);
-            if($whereRaw != '') { 
-                $query= PersonalInfoDuringIp::where('patient_id',$id)->whereRaw($whereRaw)->with('Country');
-            } else {
-                $query= PersonalInfoDuringIp::where('patient_id',$id)->with('Country');
-            }
-            if(!empty($request->perPage))
-            {
-                $perPage = $request->perPage;
-                $page = $request->input('page', 1);
-                $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
-
-                $pagination =  [
-                    'data' => $result,
-                    'total' => $total,
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
-                ];
-                return prepareResult(true,"Person list",$pagination,$this->success);
-            }
-            else
-            {
-                $query = $query->get();
-            }
-            
-            return prepareResult(true,'Person List' ,$query, $this->success);
-        }
-        catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
-        }
-    }
+  
 
     public function ipEditHistory(Request $request){
         try {
@@ -815,5 +769,27 @@ class PatientController extends Controller
             
         }
     }
+    /*public function deletePerson(Request $request, $id)
+    {
+        try {
+            $person= PersonalInfoDuringIp::where('id',$id)->first();
+            if (!is_object($person)) {
+                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],$this->not_found);
+            }
+            $user = User::where('email',$person->email)->first();
+            if($user){
+
+                $user->delete();
+            }
+            $person->delete();
+
+            return prepareResult(true,'Person Delete Successfully',[], $this->success);
+        }
+        catch(Exception $exception) {
+            \Log::info($exception);
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }*/
     
 }

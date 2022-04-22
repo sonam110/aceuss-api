@@ -16,6 +16,7 @@ class CreatePatientInformationTable extends Migration
         Schema::create('patient_information', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id');
+            $table->string('special_information')->nullable();
             $table->string('institute_name')->nullable();
             $table->string('institute_contact_number')->nullable();
             $table->text('institute_full_address')->nullable();

@@ -52,7 +52,7 @@ class CreateActivitiesTable extends Migration
             $table->text('external_comment')->nullable();
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Pending ,1:Done,2:Not Done,3:notapplicable');
-            $table->string('action_by')->nullable();
+            $table->foreignId('action_by')->nullable();
             $table->tinyInteger('remind_before_start')->default(0);
             $table->integer('before_minutes')->nullable();
             $table->tinyInteger('before_is_text_notify')->default(0);

@@ -8,6 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
 use App\Models\Activity;
 use App\Models\PatientImplementationPlan;
+use App\Models\PersonalInfoDuringIp;
 use App\Models\User;
 use App\Models\CategoryType;
 class RequestForApproval extends Model
@@ -28,6 +29,7 @@ class RequestForApproval extends Model
 		'approved_by',
 		'approved_date',
         'approval_type',
+        'other_info',
 		'status',
         'entry_mode',
     ];
@@ -42,8 +44,9 @@ class RequestForApproval extends Model
     }
     public function RequestedTo()
     {
-        return $this->belongsTo(User::class,'requested_to','id');
+        return $this->belongsTo(PersonalInfoDuringIp::class,'requested_to','id');
     }
+   
     public function RejectedBy()
     {
         return $this->belongsTo(User::class,'rejected_by','id');

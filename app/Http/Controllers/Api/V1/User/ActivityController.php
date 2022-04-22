@@ -28,7 +28,7 @@ class ActivityController extends Controller
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
                 $query =  Activity::whereRaw($whereRaw)
-                ->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title')
+                ->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')
                 ->orderBy('id', 'DESC');
             } else {
                 $query = Activity::orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
@@ -180,13 +180,13 @@ class ActivityController extends Controller
             $activity_ids = [];
             if(!empty($repeatedDates)) {
                 foreach ($repeatedDates as $key => $date) {
-                    if(is_array($request->how_many_time_array) ){
+                    if(is_array($request->how_many_time_array) && sizeof($request->how_many_time_array) > 0){
                         foreach ($request->how_many_time_array as $key => $time) {
                             $activity = new Activity;
                             $activity->ip_id = $request->ip_id;
                             $activity->group_id = $group_id;
                             $activity->branch_id = $branch_id;
-                            $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
+                            $activity->patient_id = $request->patient_id;
                             $activity->category_id = $request->category_id;
                             $activity->subcategory_id = $request->subcategory_id;
                             $activity->title = $request->title;
@@ -230,7 +230,7 @@ class ActivityController extends Controller
                             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                             $activity->save();
                             $activity_ids[] = $activity->id;
-                            if(is_array($request->employees) ){
+                            if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
                                 $validator = Validator::make($request->all(),[   
                                     "employees"    => "required|array",
                                     "employees.*"  => "required|distinct|exists:users,id",   
@@ -425,14 +425,14 @@ class ActivityController extends Controller
             $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
             if(!empty($repeatedDates)) {
                 foreach ($repeatedDates as $key => $date) {
-                    if(is_array($request->how_many_time_array) ){
+                    if(is_array($request->how_many_time_array)  && sizeof($request->how_many_time_array) > 0 ){
                         foreach ($request->how_many_time_array as $key => $time) {
                             $activity = new Activity;
                             $activity->ip_id = $request->ip_id;
                             $activity->parent_id = $parent_id;
                             $activity->group_id = $checkId->group_id;
                             $activity->branch_id = $branch_id;
-                            $activity->patient_id = ($ipCheck) ? $ipCheck->user_id : null;
+                            $activity->patient_id = $request->patient_id;
                             $activity->category_id = $request->category_id;
                             $activity->subcategory_id = $request->subcategory_id;
                             $activity->title = $request->title;
@@ -476,7 +476,7 @@ class ActivityController extends Controller
                             $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                             $activity->save();
                             $activity_ids[] = $activity->id;
-                            if(is_array($request->employees) ){
+                            if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
                                 $validator = Validator::make($request->all(),[   
                                     "employees"    => "required|array",
                                     "employees.*"  => "required|distinct|exists:users,id",   
@@ -612,7 +612,7 @@ class ActivityController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
             }
-            $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient:id,name','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title')->first();
+            $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient:id,name','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->first();
             return prepareResult(true,'View Activity' ,$activity, $this->success);
         }
         catch(Exception $exception) {
@@ -751,16 +751,20 @@ class ActivityController extends Controller
             $activity->action_by = $user->id;
             $activity->save();
             if($activity){
-                //$start = $activity->start_date;
-                //$start = $activity->start_date;
+                $start_date_time = $activity->start_date.' '.$activity->start_time;
+                $start_date = Carbon::parse($start_date_time);
+                $current = Carbon::now()->format('Y-m-d H:i:s');
+                $now = Carbon::parse($current);
+                $interval = $start_date->diffInSeconds($now);
+                $time_diff = dates($interval);
                 $activityTimeLog = new ActivityTimeLog;
                 $activityTimeLog->activity_id = $activity->id;
                 $activityTimeLog->start_date = $activity->start_date;
                 $activityTimeLog->start_time = $activity->start_time;
-                $activityTimeLog->action_date = date('Y-m-d');
-                $activityTimeLog->action_time = date('H:i:s');
+                $activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
+                $activityTimeLog->action_time = Carbon::now()->format('H:is');
                 $activityTimeLog->action_by = $user->id;
-                $activityTimeLog->time_diff = $user->id;
+                $activityTimeLog->time_diff = $time_diff;
                 $activityTimeLog->save();
 
                 $activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);

@@ -16,8 +16,10 @@ class CreateAgencyWeeklyHoursTable extends Migration
         Schema::create('agency_weekly_hours', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->double('weekly_hours_allocated')->default(0);
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

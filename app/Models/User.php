@@ -43,7 +43,7 @@ class User extends Authenticatable
      */
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
-    protected $appends = ['company_types'];
+    protected $appends = ['company_types','patient_types'];
     protected $fillable = [
         'unique_id',
         'custom_unique_id',
@@ -168,10 +168,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class,'parent_id', 'id');
     }
-    public function PatientType()
-    {
-        return $this->hasMany(EmployeeType::class,'id','patient_type_id');
-    }
+    
 
     public function PatientInformation()
     {
@@ -243,9 +240,18 @@ class User extends Authenticatable
 
     public function getCompanyTypesAttribute()
     {
-        if(is_null($this->company_type_id)== false){
+        if(is_null($this->company_type_id)== false && is_array($this->company_type_id) && sizeof(json_decode($this->company_type_id)) >0){
             $companyType = CompanyType::select('id','name')->whereIn('id',json_decode($this->company_type_id))->get();
             return (!empty($companyType)) ? $companyType : null;
+        }
+        
+
+    }
+    public function getPatientTypesAttribute()
+    {
+        if(is_null($this->patient_type_id)== false && is_array($this->company_type_id) && sizeof(json_decode($this->patient_type_id)) >0){
+            $patientTYpe = EmployeeType::select('id','designation')->whereIn('id',json_decode($this->patient_type_id))->get();
+            return (!empty($patientTYpe)) ? $patientTYpe : null;
         }
         
 

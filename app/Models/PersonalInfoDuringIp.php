@@ -35,6 +35,7 @@ class PersonalInfoDuringIp extends Model
         'is_participated',
         'how_helped',
         'is_other_name',
+        'is_approval_requested',
 		'entry_mode',
 	];
 

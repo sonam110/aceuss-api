@@ -22,6 +22,7 @@ class CreateRequestForApprovalsTable extends Migration
             $table->foreignId('request_type_id');
             $table->string('reason_for_requesting');
             $table->text('reason_for_rejection')->nullable();
+            $table->text('other_info')->nullable();
             $table->foreignId('rejected_by')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();

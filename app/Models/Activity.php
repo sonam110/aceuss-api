@@ -133,7 +133,12 @@ class Activity extends Model
         return $this->belongsTo(User::class,'approved_by','id');
     }
 
-     public function assignEmployee()
+    public function ActionByUser()
+    {
+        return $this->belongsTo(User::class,'action_by','id');
+    }
+
+    public function assignEmployee()
     {
         return $this->hasMany(ActivityAssigne::class,'activity_id','id');
     }

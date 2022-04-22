@@ -64,6 +64,7 @@
 	<div>
 	<center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	</center></div>
+    
 
     <table class="header table table-striped">
         <tr>
@@ -77,22 +78,9 @@
             <td class="title"><strong>Subcategory</strong></td>
             <td class="value">{{($ipfollowupInfo->subcategory) ? $ipfollowupInfo->subcategory->name : null}}</td>
         </tr>
-
         <tr>
-            <td class="title"><strong>What happened</strong></td>
-            <td class="value">{{$ipfollowupInfo->what_happened}}</td>
-        </tr>
-        <tr>
-            <td class="title"><strong>How it happened</strong></td>
-            <td class="value">{{$ipfollowupInfo->how_it_happened}}</td>
-        </tr>
-        <tr>
-            <td class="title"><strong>When it started</strong></td>
-            <td class="value">{{$ipfollowupInfo->when_it_started}}</td>
-        </tr>
-        <tr>
-            <td class="title"><strong>What to do</strong></td>
-            <td class="value">{{$ipfollowupInfo->what_to_do}}</td>
+            <td class="title"><strong>Title</strong></td>
+            <td class="value">{{$ipfollowupInfo->title}}</td>
         </tr>
         <tr>
             <td class="title"><strong>Goal</strong></td>
@@ -103,18 +91,43 @@
             <td class="value">{{$ipfollowupInfo->sub_goal}}</td>
         </tr>
         <tr>
-            <td class="title"><strong>Start date / Time</strong></td>
-            <td class="value">{{$ipfollowupInfo->plan_start_date}}
-            {{(!empty($ipfollowupInfo->plan_start_time) ? date('H:i:s', strtotime($ipfollowupInfo->plan_start_time)) : '')}} </td>
+            <td class="title"><strong>Sub goal Detail</strong></td>
+            <td class="value">{{$ipfollowupInfo->sub_goal_details}}</td>
+        </tr>
+
+        <tr>
+            <td class="title"><strong>Limitations</strong></td>
+            <td class="value">{{$ipfollowupInfo->limitations}}</td>
         </tr>
         <tr>
-            <td class="title"><strong>Activity message</strong></td>
-            <td class="value">{{$ipfollowupInfo->activity_message}}</td>
+            <td class="title"><strong>Health Condition</strong></td>
+            <td class="value">{{$ipfollowupInfo->health_conditions}}</td>
         </tr>
-    </table>
+        <tr>
+            <td class="title"><strong>Treatment</strong></td>
+            <td class="value">{{$ipfollowupInfo->treatment}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Working Method</strong></td>
+            <td class="value">{{$ipfollowupInfo->working_method}}</td>
+        </tr>
 
-	<table class="header table table-striped">
-		<tr>
+        
+        <tr>
+            <td class="title"><strong>Start date </strong></td>
+            <td class="value">{{$ipfollowupInfo->start_date}}
+            </td>
+        </tr>
+        <tr>
+            <td class="title"><strong>End date </strong></td>
+            <td class="value">{{$ipfollowupInfo->end_date}}
+            </td>
+        </tr>
+       
+    </table>
+    @if(isset($ipfollowupInfo->patient) && $ipfollowupInfo->patient->is_secret == true)
+      <table class="header table table-striped">
+        <tr>
             <td colspan="4" class="sub-title"><strong>Patient Info</strong></td>
         </tr>
         <tr>
@@ -136,18 +149,33 @@
             <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->personal_number : null}}</td>
             <td class="title"><strong>Joining date</strong></td>
             <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->joining_date : null}}</td>
-	    </tr>
+        </tr>
         <tr>
             
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
-            	{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->full_address : null}},
-	            {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->city : null}},
-	            {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->postal_area : null}},
-	            {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->zipcode : null}}
-	        </td>
+                {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->full_address : null}},
+                {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->city : null}},
+                {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->postal_area : null}},
+                {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->zipcode : null}}
+            </td>
         </tr>
     </table>
+   
+    @else
+     <table class="header table table-striped">
+        <tr>
+            <td colspan="4" class="sub-title"><strong>Unique Id</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Custom</strong></td>
+            <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->custom_unique_id : null}}</td>
+        
+        </tr>
+    </table>
+
+    @endif
+	
 
     @foreach($ipfollowupInfo->ipFollowUps as $key => $followup)
 	<table class="table table-striped">
