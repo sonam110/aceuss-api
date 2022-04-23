@@ -15,15 +15,23 @@ class DeviationController extends Controller
     {
         try {
 	        $user = getUser();
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branchChilds = branchChilds($branch_id);
+            $allChilds = array_merge($branchChilds,[$user->id]);
+            $query = Deviation::with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name');
+            if($user->user_type_id =='2'){
+                
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =   Deviation:::whereRaw($whereRaw)
-                ->orderBy('id', 'DESC')
-                ->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')
-               
+                $query =   $query->whereRaw($whereRaw)
+                ->orderBy('id', 'DESC');
+                
             } else {
-                $query =  Deviation::orderBy('id', 'DESC')
-                ->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')
+                $query =  $query->orderBy('id', 'DESC');
             }
             if(!empty($request->perPage))
             {

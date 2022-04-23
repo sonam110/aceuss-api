@@ -28,6 +28,9 @@ class FollowUpsController extends Controller
     {
         try {
 	        $user = getUser();
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branchChilds = branchChilds($branch_id);
+            $allChilds = array_merge($branchChilds,[$user->id]);
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             $parent_id = IpFollowUp::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
             $child_id  = [];
@@ -37,11 +40,17 @@ class FollowUpsController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $folloups_ids = array_merge($followup_without_parent,$child_id);
+            $query = IpFollowUp::whereIn('id',$folloups_ids);
+            if($user->user_type_id =='2'){
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
             if($whereRaw != '') { 
-                $query =  IpFollowUp::whereIn('id',$folloups_ids)->whereRaw($whereRaw)
+                $query =  $query->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = IpFollowUp::whereIn('id',$folloups_ids)->orderBy('id', 'DESC');
+                $query = $query->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))
@@ -153,6 +162,7 @@ class FollowUpsController extends Controller
                             $personalInfo->postal_area = @$value['postal_area'];
                             $personalInfo->zipcode = @$value['zipcode'];
                             $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
                             $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
@@ -329,6 +339,7 @@ class FollowUpsController extends Controller
                             $personalInfo->postal_area = @$value['postal_area'];
                             $personalInfo->zipcode = @$value['zipcode'];
                             $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
                             $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;

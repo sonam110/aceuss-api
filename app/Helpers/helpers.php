@@ -651,5 +651,51 @@ function getDuration($totalDuration,$type="0")
         return $duration;
     }    
 }
+/*function getBranchChildren()
+{
+    $user = getUser();
+    $branch_id  = $user->id;
+    $tree = Array();
+    $branchArray = [];
+    if (!empty($branch_id))
+    {
+        $tree = User::where('branch_id', $branch_id)->pluck('id')
+            ->toArray();
+        foreach ($tree as $key => $val)
+        {
+            $ids = getBranchChildren($val);
+            if (!empty($ids))
+            {
+                if (count($ids) > 0) $tree = array_merge($tree, $ids);
+            }
+        }
+    }
+     
+    return array_merge($tree,[$branch_id]);
+}*/
+
+function branchChilds($branch_id)
+{
+
+    $tree = Array();
+    if (!empty($branch_id))
+    {
+        $tree = User::where('branch_id',$branch_id)->pluck('id')
+            ->toArray();
+        foreach ($tree as $key => $val)
+        {
+            $ids = branchChilds($val);
+            if (!empty($ids))
+            {
+                if (count($ids) > 0) $tree = array_merge($tree, $ids);
+            }
+        }
+    }
+     
+    return $tree;
+}
+
+
+
 
 ?>

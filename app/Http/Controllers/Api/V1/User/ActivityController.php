@@ -25,13 +25,32 @@ class ActivityController extends Controller
     {
         try {
             $user = getUser();
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branchChilds = branchChilds($branch_id);
+            $allChilds = array_merge($branchChilds,[$user->id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
+            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email');
+            if($user->user_type_id =='2'){
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
+            
+            if($user->user_type_id =='3'){
+                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
+                $query = $query->whereIn('id',explode(',',$agnActivity));
+
+            }
+            if($user->user_type_id =='6'){
+                $query = $query->where('patient_id',$user->id);
+
+            }
             if($whereRaw != '') { 
-                $query =  Activity::whereRaw($whereRaw)
-                ->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')
+                $query = $query->whereRaw($whereRaw)
+                
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Activity::orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
+                $query = $query->orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
            
             if(!empty($request->perPage))
@@ -716,6 +735,10 @@ class ActivityController extends Controller
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $checkActivityAssigne = ActivityAssigne::where('user_id',$user->id)->where('activity_id',$request->activity_id)->first();
+            if(!is_object($checkActivityAssigne)){
+                return prepareResult(false,'You are not authorized to perform this action',[], $this->unprocessableEntity); 
             }
             $option  = ActivityOption::where('id',$request->option)->first();
             $is_journal_assign_module = checkAssignModule(3);

@@ -46,6 +46,7 @@ class FileUploadController extends Controller
                     $value->move($destinationPath, $fileName);
                     
                     $fileArray[] = [
+                        'title'         => $request->title,
                         'file_name'         => env('CDN_DOC_URL').$destinationPath.$fileName,
                         'file_extension'    => $value->getClientOriginalExtension(),
                         'uploading_file_name' => $value->getClientOriginalName(),
@@ -67,6 +68,7 @@ class FileUploadController extends Controller
                 $file->move($destinationPath, $fileName);
 
                 $fileInfo = [
+                    'title'         => $request->title,
                     'file_name'         => env('CDN_DOC_URL').$destinationPath.$fileName,
                     'file_extension'    => $file->getClientOriginalExtension(),
                     'uploading_file_name' => $file->getClientOriginalName(),

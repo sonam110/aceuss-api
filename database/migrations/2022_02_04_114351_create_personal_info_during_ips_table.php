@@ -26,6 +26,7 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->string('postal_code')->nullable();
             $table->string('zipcode')->nullable();
             $table->string('full_address')->nullable();
+            $table->string('personal_number')->nullable();
             $table->boolean('is_family_member')->default(0);
             $table->boolean('is_caretaker')->default(0);
             $table->boolean('is_contact_person')->default(0);

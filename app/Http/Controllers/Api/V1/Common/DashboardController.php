@@ -15,9 +15,13 @@ use App\Models\Activity;
 use App\Models\IpFollowUp;
 use App\Models\PatientImplementationPlan;
 use App\Models\Task;
+use App\Models\ActivityAssigne;
+use App\Models\AssignTask;
+use App\Models\IpAssigneToEmployee;
 class DashboardController extends Controller
 {
     public function dashboard(){
+        try {
         try {
             
             $user = getUser();
@@ -47,6 +51,27 @@ class DashboardController extends Controller
             	$date['taskCompleteCount'] = Task::where('top_most_parent_id',$user->id)->where('status','1')->count();
             	$date['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();
             	
+            }
+            if($user->user_type_id == '2'){
+                $date['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
+                $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
+                $date['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                $date['taskCount'] = AssignTask::where('user_id',$user->id)->count();
+                $date['AssignTaskCompleteCount'] = AssignTask::where('user_id',$user->id)->where('status','1')->count();
+                $date['AssignTaskPendingCount'] = AssignTask::where('user_id',$user->id)->where('status','0')->count();
+                $date['ipCount'] = IpAssigneToEmployee::where('user_id',$user->id)->count();
+                $date['ipCompleteCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','1')->count();
+                $date['ipPendingCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','0')->count();
+
+            }
+            if($user->user_type_id == '6'){
+                $date['activityCount'] = Activity::where('patient_id',$user->id)->count();
+                $date['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
+                $date['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
+                $date['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->count();
+                $date['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
+                $date['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
+
             }
             
             return prepareResult(true,'Dashboard' ,$date, $this->success);
