@@ -274,13 +274,16 @@ class UserController extends Controller
             if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
 
                 foreach ($request->weekly_hours as $key => $weekly_hours) {
-                    $agencyWeeklyHour = new AgencyWeeklyHour;
-                    $agencyWeeklyHour->user_id = $user->id;
-                    $agencyWeeklyHour->name = $weekly_hours['name'];
-                    $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
-                    $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
-                    $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
-                    $agencyWeeklyHour->save();
+                    if(!empty($weekly_hours['weekly_hours_allocated']))
+                    {
+                        $agencyWeeklyHour = new AgencyWeeklyHour;
+                        $agencyWeeklyHour->user_id = $user->id;
+                        $agencyWeeklyHour->name = $weekly_hours['name'];
+                        $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
+                        $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
+                        $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
+                        $agencyWeeklyHour->save();
+                    }
                 }
             }
             /*-----------------Persons Informationn ----------------*/
