@@ -9,21 +9,12 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
-class PackageController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
 
-    }
+class PackageController extends Controller
+{   
     public function packages(Request $request)
     {
         try {
-            
             $query = Package::select(array('packages.*', DB::raw("(SELECT count(*) from subscriptions WHERE packages.id = subscriptions.package_id) purchaseCount")));
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
@@ -59,14 +50,9 @@ class PackageController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -125,20 +111,16 @@ class PackageController extends Controller
             $package->is_enable_bankid_charges = ($request->is_enable_bankid_charges) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
-             return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, $this->success);
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try {
@@ -156,16 +138,10 @@ class PackageController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-         try {
+        DB::beginTransaction();
+        try {
             $user = getUser();
             $validator = Validator::make($request->all(),[   
                 'name' => 'required',   
@@ -227,23 +203,16 @@ class PackageController extends Controller
             $package->is_enable_bankid_charges = ($request->is_enable_bankid_charges) ? 1 : 0;
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
-            
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Package','update') ,$package, $this->success);
-                
-               
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);  
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try {
@@ -261,6 +230,7 @@ class PackageController extends Controller
             
         }
     }
+
     public function restorePackage(Request $request)
     {
         try {
@@ -280,8 +250,6 @@ class PackageController extends Controller
             }
             $package = Package::where('id',$id)->update(['status'=>'1']);
             return prepareResult(true,'Package Restore Successfully',[], $this->success);
-                
-                
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
@@ -289,7 +257,8 @@ class PackageController extends Controller
         }
     }
 
-     private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         
         if (is_null($request->input('status')) == false) {
@@ -335,11 +304,7 @@ class PackageController extends Controller
         if (is_null($request->input('is_enable_bankid_charges')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "is_enable_bankid_charges = "."'" .$request->input('is_enable_bankid_charges')."'".")";
-
-             
         }
-        
         return($w);
-
     }
 }
