@@ -13,6 +13,7 @@ class BankDetailController extends Controller
 {
 	public function banks(Request $request)
     {
+        
         try {
 	        $user = getUser();
             $query = BankDetail::where('user_id',$user->id)
@@ -49,6 +50,7 @@ class BankDetailController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -79,9 +81,12 @@ class BankDetailController extends Controller
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Bank','create') ,$bankDetail, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -107,6 +112,7 @@ class BankDetailController extends Controller
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[     
@@ -141,16 +147,18 @@ class BankDetailController extends Controller
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
+            DB::commit();
 	        return prepareResult(true, getLangByLabelGroups('Bank','update') ,$bankDetail, $this->success);
 			  
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
     public function destroy($id){
-    	
         try {
 	    	$user = getUser();
         	$checkId= BankDetail::where('user_id',$user->id)->where('id',$id)->first();

@@ -47,6 +47,7 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[ 
@@ -134,10 +135,14 @@ class BranchController extends Controller
                     $addType->save();
                 }
             }*/
+
+             DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -174,6 +179,7 @@ class BranchController extends Controller
      */
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[  
@@ -230,11 +236,15 @@ class BranchController extends Controller
 
             $role = Role::where('id','11')->first();
             $user->assignRole($role->name);
+
+            DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
                 
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

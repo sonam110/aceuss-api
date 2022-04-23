@@ -85,6 +85,7 @@ class FollowUpsController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$data = $request->repeat_datetime;
@@ -245,16 +246,19 @@ class FollowUpsController extends Controller
                     }
                 }
             }
-		 	
+		 	 DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$ipFollowups, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -424,11 +428,13 @@ class FollowUpsController extends Controller
                     }
                 }
             }
-            
+             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$ipFollowups, $this->success);
 			  
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

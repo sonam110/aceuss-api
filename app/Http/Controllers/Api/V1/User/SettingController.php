@@ -13,6 +13,7 @@ class SettingController extends Controller
 {
     public function settingUpdate(Request $request)
     { 
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[
@@ -43,10 +44,13 @@ class SettingController extends Controller
             $user->before_minute = $request->before_minute;
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
+             DB::commit();
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, $this->success);
                 
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

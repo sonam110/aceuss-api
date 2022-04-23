@@ -51,6 +51,7 @@ class PersonController extends Controller
     }
     
      public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -85,9 +86,12 @@ class PersonController extends Controller
             $personalInfo->how_helped = $request->how_helped;
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
+             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$personalInfo, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -112,6 +116,7 @@ class PersonController extends Controller
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -151,11 +156,14 @@ class PersonController extends Controller
             $personalInfo->how_helped = $request->how_helped;
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
+             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$personalInfo, $this->success);
 			    
 		       
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

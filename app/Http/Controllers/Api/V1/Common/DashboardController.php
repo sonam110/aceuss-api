@@ -21,7 +21,7 @@ use App\Models\IpAssigneToEmployee;
 class DashboardController extends Controller
 {
     public function dashboard(){
-        try {
+        DB::beginTransaction();
         try {
             
             $user = getUser();

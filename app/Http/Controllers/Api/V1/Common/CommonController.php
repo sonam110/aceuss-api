@@ -187,6 +187,7 @@ class CommonController extends Controller
     }
     public function patientPasswordChange(Request $request)
     {
+        DB::beginTransaction();
         try {
                 $validator = Validator::make($request->all(),[   
                     "user_id"  => "required|exists:users,id",    
@@ -203,10 +204,13 @@ class CommonController extends Controller
                 $updatePass->password = Hash::make($request->password);
                 $updatePass->is_password_change = '0';
                 $updatePass->save();
+                DB::commit();
                 return prepareResult(true,"Password Change Successfully",$updatePass,'200');
            
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

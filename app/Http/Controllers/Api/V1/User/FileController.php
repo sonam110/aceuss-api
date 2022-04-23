@@ -13,6 +13,7 @@ class FileController extends Controller
 {
 	public function files(Request $request)
     {
+       
         try {
 	        $user = getUser();
      		$query = File::orderBy('id', 'DESC')
@@ -49,6 +50,7 @@ class FileController extends Controller
     
 
     public function store(Request $request){
+       
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -82,6 +84,7 @@ class FileController extends Controller
     }
 
     public function update(Request $request,$id){
+       
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -121,6 +124,7 @@ class FileController extends Controller
     }
     public function destroy($id){
     	
+       
         try {
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();
@@ -137,6 +141,7 @@ class FileController extends Controller
         }
     }
     public function approvedFile(Request $request){
+       
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -163,6 +168,7 @@ class FileController extends Controller
         }
     }
     public function show($id){
+       
         try {
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();

@@ -112,6 +112,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
      public function store(Request $request) {
+        DB::beginTransaction();
         try {
 
             $userInfo = getUser();
@@ -390,9 +391,12 @@ class UserController extends Controller
                     }
                 }
             }
+              DB::commit();
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$user, '200');
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -406,7 +410,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-         try {
+        try {
             
             $checkId= User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
@@ -430,6 +434,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request,User $user){
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[
@@ -648,10 +653,13 @@ class UserController extends Controller
 
                 }
             }
+              DB::commit();
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, '200');
                 
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[],'500');
             
         }

@@ -24,6 +24,7 @@ class RequestApprovalController extends Controller
 {
     public function requestForApproval(Request $request)
     {
+        DB::beginTransaction();
         try {
         		$user = getUser();
                 $data = [ 'data' => $request->all() ];
@@ -165,6 +166,7 @@ class RequestApprovalController extends Controller
     	                    pushNotification('request-approval',$companyObj,$obj,'1','',$addRequest->id,'');
     	                }
                     }
+                     DB::commit();
                     $getRequest = RequestForApproval::whereIn('id',$ids)->get();
 	               return prepareResult(true,'Send successfully' ,$getRequest, $this->success);
                 
@@ -174,6 +176,8 @@ class RequestApprovalController extends Controller
             
             }
             catch(Exception $exception) {
+                 \Log::error($exception);
+                  DB::rollback();
                 return prepareResult(false, $exception->getMessage(),[], '500');
                 
             }

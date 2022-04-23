@@ -13,7 +13,8 @@ class ProfileController extends Controller
 {
 	public function updateProfile(Request $request)
     {
-	    try {
+	    DB::beginTransaction();
+        try {
 	            $userInfo = getUser();
 	            $validator = Validator::make($request->all(),[
 	                'name' => 'required',  
@@ -35,10 +36,13 @@ class ProfileController extends Controller
 	            $user->zipcode = $request->zipcode;
 	            $user->full_address = $request->full_address;
 	            $user->save();
+	             DB::commit();
 	            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, $this->success);
                 
    		}
         catch(Exception $exception) {
+        	 \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

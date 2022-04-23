@@ -68,6 +68,7 @@ class TaskController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
@@ -226,7 +227,7 @@ class TaskController extends Controller
 						}
 					}
 				}
-			
+			    DB::commit();
 				$taskList = Task::whereIn('id',$task_ids)->get();
 				return prepareResult(true,'Task Added successfully' ,$taskList, $this->success);
 
@@ -235,12 +236,15 @@ class TaskController extends Controller
             }
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[      
@@ -404,7 +408,7 @@ class TaskController extends Controller
 						}
 					}
 				}
-			
+			     DB::commit();
 				$taskList = Task::whereIn('id',$task_ids)->get();
 				return prepareResult(true,'Task Update successfully' ,$taskList, $this->success);
 
@@ -413,12 +417,14 @@ class TaskController extends Controller
             }
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
     public function destroy($id){
-    	
+
         try {
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();

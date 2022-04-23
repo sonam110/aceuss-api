@@ -48,6 +48,7 @@ class EmergencyContactController extends Controller
     
 
    public function store(Request $request){
+        DB::beginTransaction();
         try {
         	$user = getUser();
             $validator = Validator::make($request->all(),[
@@ -69,15 +70,19 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmergencyContact, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
            $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -103,11 +108,14 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$EmergencyContact, $this->success);
                 
                
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

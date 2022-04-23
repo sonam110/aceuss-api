@@ -12,6 +12,7 @@ use DB;
 class SalaryController extends Controller
 {
     public function updateSalaryDetail(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -43,9 +44,13 @@ class SalaryController extends Controller
 		 	$salaryDetail->salary_package_end_date = $request->salary_package_end_date;
             $salaryDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$salaryDetail->save();
+            DB::commit();
+
 	        return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

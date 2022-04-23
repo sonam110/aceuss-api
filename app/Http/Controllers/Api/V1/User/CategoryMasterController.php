@@ -13,6 +13,7 @@ class CategoryMasterController extends Controller
 {
     public function categories(Request $request)
     {
+        
         try {
 	        $user = getUser();
 	    	$whereRaw = $this->getWhereRawFromRequest($request);
@@ -57,6 +58,7 @@ class CategoryMasterController extends Controller
     }
     public function categoryParentList(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = getUser();
             
@@ -101,6 +103,7 @@ class CategoryMasterController extends Controller
     }
     public function categoryChildList(Request $request)
     {
+       
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -150,6 +153,7 @@ class CategoryMasterController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -184,15 +188,19 @@ class CategoryMasterController extends Controller
 		 	$categoryMaster->is_global = ($request->is_global) ? '1' :'0';
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$categoryMaster, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[ 
@@ -230,11 +238,14 @@ class CategoryMasterController extends Controller
             $categoryMaster->status = ($request->status) ? $request->status :'1';
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$categoryMaster, $this->success);
 			    
 		       
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

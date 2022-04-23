@@ -29,7 +29,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
-	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySetting');
+	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySettingDetail');
 	Route::get('user-type-list', 'Common\UserLoginController@userTypeList');
 	Route::post('verify-user-email', 'Common\UserLoginController@verifyUserEmail');
 		

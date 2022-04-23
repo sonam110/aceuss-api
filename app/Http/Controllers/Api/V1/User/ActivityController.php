@@ -92,6 +92,7 @@ class ActivityController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[   
@@ -321,6 +322,7 @@ class ActivityController extends Controller
                         }
                     }
                 }
+                 DB::commit();
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
                 return prepareResult(true,'Activity Added successfully' ,$activityList, $this->success);
             } else{
@@ -328,12 +330,15 @@ class ActivityController extends Controller
             }
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[   
@@ -568,6 +573,7 @@ class ActivityController extends Controller
                         }
                     }
                 }
+                 DB::commit();
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
                 return prepareResult(true,'Activity Update successfully' ,$activityList, $this->success);
             } else{
@@ -575,12 +581,15 @@ class ActivityController extends Controller
             }
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
     public function destroy($id){
         
+        DB::beginTransaction();
         try {
             $user = getUser();
             $checkId= Activity::where('id',$id)->first();
@@ -596,6 +605,7 @@ class ActivityController extends Controller
         }
     }
     public function approvedActivity(Request $request){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -640,6 +650,7 @@ class ActivityController extends Controller
         }
     }
      public function activityAssignments(Request $request){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -670,11 +681,14 @@ class ActivityController extends Controller
             $activityAssigne->assigned_by = $user->id;
             $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityAssigne->save();
+             DB::commit();
 
             $activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
             return prepareResult(true,getLangByLabelGroups('Activity','assigne') ,$activityAssigne, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -727,6 +741,7 @@ class ActivityController extends Controller
 
     public function activityAction(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -802,6 +817,7 @@ class ActivityController extends Controller
                     $deviation = deviation(null,$journal_id,$activity->id,$activity->patient_id,$activity->category_id,$activity->subcategory_id,$activity->title,$activity->description);
                     $deviation_id = (!empty($deviation)) ? $deviation : null;
                 }
+                 DB::commit();
                
                 return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
             } else {
@@ -810,6 +826,8 @@ class ActivityController extends Controller
         
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

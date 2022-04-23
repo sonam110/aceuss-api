@@ -57,6 +57,7 @@ class WordController extends Controller
     
 
    public function store(Request $request){
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
                 'name' => 'required',   
@@ -70,15 +71,19 @@ class WordController extends Controller
             $Word = new Word;
             $Word->name = $request->name;
             $Word->save();
+             DB::commit();
              return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Word, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
                 'name' => 'required',   
@@ -97,11 +102,14 @@ class WordController extends Controller
             $Word = Word::find($id);
             $Word->name = $request->name;
             $Word->save();
+             DB::commit();
             return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Word, $this->success);
                 
                
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

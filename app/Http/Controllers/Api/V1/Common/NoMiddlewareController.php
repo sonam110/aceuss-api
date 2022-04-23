@@ -91,7 +91,7 @@ class NoMiddlewareController extends Controller
         }
         
     }
-    public function companySetting($user_id)
+    public function companySettingDetail($user_id)
     { 
         try {
             $userInfo = getUser();
@@ -110,6 +110,7 @@ class NoMiddlewareController extends Controller
     }
     public function passwordChange(Request $request)
     {
+        DB::beginTransaction();
         try {
                 $validator = Validator::make($request->all(),[   
                     'email'     => 'required|email|exists:users,email',  
@@ -131,6 +132,7 @@ class NoMiddlewareController extends Controller
                     $updatePass->password = Hash::make($request->password);
                     $updatePass->is_password_change = '0';
                     $updatePass->save();
+                    DB::commit();
                     return prepareResult(true,"Password Change Successfully",$updatePass,'200');
                 } else {
                     return prepareResult(false,"Email and Date of birth does not match",[],'422');
@@ -138,6 +140,8 @@ class NoMiddlewareController extends Controller
             
             }
             catch(Exception $exception) {
+                \Log::error($exception);
+                DB::rollback();
                 return prepareResult(false, $exception->getMessage(),[], '500');
                 
             }

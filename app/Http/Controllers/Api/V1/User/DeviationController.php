@@ -64,6 +64,7 @@ class DeviationController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[  
@@ -97,15 +98,19 @@ class DeviationController extends Controller
 		 	$Deviation->reason_of_not_being_deviation = ($request->reason_of_not_being_deviation)? $request->reason_of_not_being_deviation :null;
             $Deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Deviation->save();
+             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Deviation','create') ,$Deviation, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[    
@@ -147,11 +152,13 @@ class DeviationController extends Controller
 		 	$Deviation->reason_for_editing = $request->reason_for_editing;
             $Deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Deviation->save();
-		 
+		  DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Deviation','update') ,$Deviation, $this->success);
 			  
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

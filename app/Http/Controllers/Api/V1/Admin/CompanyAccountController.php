@@ -117,6 +117,8 @@ class CompanyAccountController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
+
+
             $update_top_most_parent = User::where('id',$user->id)->update(['top_most_parent_id'=>$user->id,'branch_id'=>$user->id]);
             
             $role = Role::where('id','2')->first();
@@ -137,7 +139,7 @@ class CompanyAccountController extends Controller
             
             if(env('IS_MAIL_ENABLE',false) == true){ 
                 $content = ([
-                'company_id' => $user->top_most_parent_id,
+                'company_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'id' => $user->id,
@@ -179,6 +181,7 @@ class CompanyAccountController extends Controller
             $roles = Role::where('is_default','1')->whereNull('top_most_parent_id')->get();
             if(!empty($roles)) {
                 foreach ($roles as $key => $role) {
+                    $addRole = new Role;
                     $addRole->top_most_parent_id = $user->id;
                     $addRole->name = $user->id.'-'.Str::slug(substr($role->se_name, 0, 20));
                     $addRole->se_name  = $role->se_name;

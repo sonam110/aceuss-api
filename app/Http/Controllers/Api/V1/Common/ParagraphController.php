@@ -57,6 +57,7 @@ class ParagraphController extends Controller
     
 
    public function store(Request $request){
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
                 'paragraph' => 'required',   
@@ -70,15 +71,20 @@ class ParagraphController extends Controller
             $Paragraph = new Paragraph;
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
+            DB::commit();
+
              return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
                 'paragraph' => 'required',   
@@ -97,11 +103,14 @@ class ParagraphController extends Controller
             $Paragraph = Paragraph::find($id);
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
+             DB::commit();
             return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Paragraph, $this->success);
                 
                
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

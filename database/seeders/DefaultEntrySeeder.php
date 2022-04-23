@@ -10,6 +10,7 @@ use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\Package;
 use App\Models\ActivityOption;
+use App\Models\Module;
 class DefaultEntrySeeder extends Seeder
 {
     /**
@@ -67,11 +68,21 @@ class DefaultEntrySeeder extends Seeder
 
 
         ActivityOption::truncate();
-        $ActivityOption1 = ActivityOption::create(['id' => '1','option'=>'Efforts managed with staff on time','is_journal' => '0','is_deviation'=>'0']);
+        $ActivityOption1 = ActivityOption::create(['id' => '1','option'=>'Efforts managed with staff on time']);
         $ActivityOption1 = ActivityOption::create(['id' => '2','option'=>'Efforts managed with staff not on time','is_journal' => '1','is_deviation'=>'0']);
         $ActivityOption2 = ActivityOption::create(['id' => '3','option'=>'Could fix himself','is_journal' => '1','is_deviation'=>'0']);
         $ActivityOption3 = ActivityOption::create(['id' => '4','option'=>'The customer did not want','is_journal' => '1','is_deviation'=>'0']);
         $ActivityOption4 = ActivityOption::create(['id' => '5','option'=>'Staff could not','is_journal' => '1','is_deviation'=>'1']);
+
+
+         Module::truncate();
+        $Module1 = Module::create(['id' => '1','name'=>'Branch']);
+        $Module1 = Module::create(['id' => '2','name'=>'Employee']);
+        $Module2 = Module::create(['id' => '3','name'=>'Patient']);
+        $Module3 = Module::create(['id' => '4','name'=>'IP']);
+        $Module5 = Module::create(['id' => '5','name'=>'Activity']);
+        $Module6 = Module::create(['id' => '6','name'=>'Task']);
+        $Module7 = Module::create(['id' => '7','name'=>'FollowUps']);
 
     }
 }

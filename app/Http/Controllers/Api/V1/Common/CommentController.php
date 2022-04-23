@@ -14,6 +14,7 @@ class CommentController extends Controller
 {
     
     public function comment(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -34,10 +35,13 @@ class CommentController extends Controller
 		    $addComment->replied_to = ($parent) ? $parent->created_by : null;
 		    $addComment->created_by = $user->id;
 		    $addComment->save();
+            DB::commit();
 		
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$addComment, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

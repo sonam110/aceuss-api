@@ -97,6 +97,7 @@ class RoleController extends Controller
             return prepareResult(false,$validator->errors()->first(),[], '422'); 
         }
         
+        DB::beginTransaction();
         try {
             $role = new Role;
             if(auth()->user()->user_type_id=='1')
@@ -120,9 +121,11 @@ class RoleController extends Controller
             if($role) {
                 $role->syncPermissions($request->permissions);
             }
-            
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('role','create') ,$role, '200');
         } catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -164,7 +167,6 @@ class RoleController extends Controller
             return prepareResult(false,$validator->errors()->first(),[],'422'); 
         }
 
-        
         try {
             $roleInfo = Role::select('*');
             if(auth()->user()->user_type_id!='1')
@@ -181,11 +183,14 @@ class RoleController extends Controller
                 if($roleInfo) {
                     $roleInfo->syncPermissions($request->permissions);
                 }
+                DB::commit();
 
                 return prepareResult(true,getLangByLabelGroups('role','update') ,$roleInfo, '200');
             }
             return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],$this->not_found);
         } catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

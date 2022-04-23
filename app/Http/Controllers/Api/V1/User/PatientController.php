@@ -87,6 +87,7 @@ class PatientController extends Controller
         
     }
     public function store(Request $request){
+        DB::beginTransaction();
         try {
            
             $user = getUser();
@@ -268,6 +269,7 @@ class PatientController extends Controller
                         }
                     }
                 }
+                 DB::commit();
                 $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
                 return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, $this->success);
             } else {
@@ -276,12 +278,15 @@ class PatientController extends Controller
             
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $data = [ 'data' => $request->all() ];
@@ -482,7 +487,7 @@ class PatientController extends Controller
                         }
                     }
                 }
-
+                 DB::commit();
                 $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
                 return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, $this->success);
             } else {
@@ -491,6 +496,8 @@ class PatientController extends Controller
               
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -784,6 +791,7 @@ class PatientController extends Controller
     }
     /*public function deletePerson(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $person= PersonalInfoDuringIp::where('id',$id)->first();
             if (!is_object($person)) {

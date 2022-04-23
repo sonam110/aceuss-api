@@ -15,6 +15,7 @@ class CompanyController extends Controller
 {
 	public function workshifts(Request $request)
     {
+        DB::beginTransaction();
         try {
 	        $user = getUser();
             $whereRaw = $this->getWhereRawFromRequest($request);
@@ -56,6 +57,7 @@ class CompanyController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -94,6 +96,7 @@ class CompanyController extends Controller
     }
     public function show($id){
         
+        DB::beginTransaction();
         try {
             $user = getUser();
             $checkId= CompanyWorkShift::where('id',$id)->first();
@@ -110,6 +113,7 @@ class CompanyController extends Controller
         }
     }
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[ 
@@ -153,6 +157,7 @@ class CompanyController extends Controller
     }
     public function destroy($id){
     	
+        DB::beginTransaction();
         try {
             $user = getUser();
         	$checkId= CompanyWorkShift::where('id',$id)->first();
@@ -171,6 +176,7 @@ class CompanyController extends Controller
         }
     }
     public function shiftAssigneToEmployee(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -216,6 +222,7 @@ class CompanyController extends Controller
         }
     }
     public function viewshiftAssigne(Request $request){
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -243,6 +250,7 @@ class CompanyController extends Controller
 
     public function employeeList(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $employeeList = User::select('id','name')->where('user_type_id','3')

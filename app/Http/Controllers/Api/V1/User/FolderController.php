@@ -13,6 +13,7 @@ class FolderController extends Controller
 {
 	public function folders(Request $request)
     {
+       
         try {
 	        $user = getUser();
 	    	$whereRaw = $this->getWhereRawFromRequest($request);
@@ -55,6 +56,7 @@ class FolderController extends Controller
     }
     public function folderParentList(Request $request)
     {
+       
         try {
             $user = getUser();
             $folderParent = Folder::select('id','name')
@@ -72,6 +74,7 @@ class FolderController extends Controller
     
 
     public function store(Request $request){
+       
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -109,6 +112,7 @@ class FolderController extends Controller
     }
 
     public function update(Request $request,$id){
+       
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -152,6 +156,7 @@ class FolderController extends Controller
     }
     public function destroy($id){
     	
+       
         try {
 	    	$user = getUser();
         	$checkId= Folder::where('id',$id)->first();

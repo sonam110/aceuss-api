@@ -54,6 +54,7 @@ class DepartmentController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -83,9 +84,12 @@ class DepartmentController extends Controller
             $department->name = $request->name;
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
+              DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Department','create') ,$department, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
@@ -150,6 +154,7 @@ class DepartmentController extends Controller
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -185,10 +190,13 @@ class DepartmentController extends Controller
             $department->status = ($request->name) ? $request->status:'1';
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
+              DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Department','update'),$department, $this->success);
 			    
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }

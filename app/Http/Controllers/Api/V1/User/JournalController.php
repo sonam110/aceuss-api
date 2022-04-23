@@ -13,6 +13,7 @@ class JournalController extends Controller
 {
 	public function journals(Request $request)
     {
+      
         try {
 	        $user = getUser();
 	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
@@ -67,6 +68,7 @@ class JournalController extends Controller
     }
 
     public function store(Request $request){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -99,15 +101,19 @@ class JournalController extends Controller
 		 	$Journal->is_deviation = ($request->is_deviation)? $request->is_deviation :0;
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Journal->save();
+             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, $this->success);
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
     public function update(Request $request,$id){
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
@@ -149,17 +155,19 @@ class JournalController extends Controller
 		 	$Journal->reason_for_editing = $request->reason_for_editing;
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Journal->save();
-		 
+		       DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, $this->success);
 			  
         }
         catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
     public function destroy($id){
-    	
+  
         try {
 	    	$user = getUser();
         	$checkId= Journal::where('id',$id)->first();
@@ -177,6 +185,7 @@ class JournalController extends Controller
         }
     }
     public function approvedJournal(Request $request){
+    
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
