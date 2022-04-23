@@ -26,6 +26,7 @@ class PersonalInfoDuringIp extends Model
 		'postal_area',
 		'zipcode',
 		'full_address',
+        'personal_number',
 		'is_family_member',
 		'is_caretaker',
 		'is_contact_person',

@@ -117,6 +117,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('tasks', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'tasks']);
 		Route::apiResource('task',Common\TaskController::class)->only(['store','destroy','show', 'update']);
+		Route::post('activity-action','User\ActivityController@activityAction');
 
 		/*----------------Calander---------------------------*/
 		Route::post('calander-task', [App\Http\Controllers\Api\V1\Common\TaskController::class, 'calanderTask']);

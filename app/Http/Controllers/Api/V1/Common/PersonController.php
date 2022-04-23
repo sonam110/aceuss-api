@@ -74,6 +74,7 @@ class PersonController extends Controller
             $personalInfo->postal_area = $request->postal_area;
             $personalInfo->zipcode = $request->zipcode;
             $personalInfo->full_address = $request->full_address ;
+            $personalInfo->personal_number = $request->personal_number ;
             $personalInfo->is_family_member = ($request->is_family_member == true) ? 1 : 0 ;
             $personalInfo->is_caretaker = ($request->is_caretaker == true) ? 1 : 0 ;
             $personalInfo->is_contact_person = ($request->is_contact_person == true) ? 1 : 0 ;
@@ -139,6 +140,7 @@ class PersonController extends Controller
             $personalInfo->postal_area = $request->postal_area;
             $personalInfo->zipcode = $request->zipcode;
             $personalInfo->full_address = $request->full_address ;
+            $personalInfo->personal_number = $request->personal_number ;
             $personalInfo->is_family_member = ($request->is_family_member == true) ? 1 : 0 ;
             $personalInfo->is_caretaker = ($request->is_caretaker == true) ? 1 : 0 ;
             $personalInfo->is_contact_person = ($request->is_contact_person == true) ? 1 : 0 ;

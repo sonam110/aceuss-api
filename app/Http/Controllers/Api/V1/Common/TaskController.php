@@ -17,12 +17,23 @@ class TaskController extends Controller
     {
         try {
 	        $user = getUser();
+
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branchChilds = branchChilds($branch_id);
+            $allChilds = array_merge($branchChilds,[$user->id]);
+            $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date');
+            if($user->user_type_id =='2'){
+                
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =  Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date')->whereRaw($whereRaw)
+                $query =  $query->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
             } else {
-                $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date')->orderBy('id', 'DESC');
+                $query = $query->orderBy('id', 'DESC');
             }
             
             if(!empty($request->perPage))

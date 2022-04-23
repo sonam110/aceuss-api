@@ -29,7 +29,11 @@ class PatientController extends Controller
     {
         try {
             $user = getUser();
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branchChilds = branchChilds($branch_id);
+            $allChilds = array_merge($branchChilds,[$user->id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
+
             $parent_id = PatientImplementationPlan::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
             $child_id  = [];
             $ip_without_parent = PatientImplementationPlan::whereNull('parent_id')->whereNotIn('id',explode(',',$parent_id))->pluck('id')->all();
@@ -38,13 +42,19 @@ class PatientController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $ip_ids = array_merge($ip_without_parent,$child_id);
+            $query = PatientImplementationPlan::whereIn('id',$ip_ids);
+            if($user->user_type_id =='2'){
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
             if($whereRaw != '') { 
                 
-                $query =PatientImplementationPlan::whereIn('id',$ip_ids)->whereRaw($whereRaw)
+                $query = $query->whereRaw($whereRaw)
                 ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
                 ->orderBy('id', 'DESC');
             } else {
-                $query =PatientImplementationPlan::whereIn('id',$ip_ids)->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
+                $query = $query->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
                 ->orderBy('id', 'DESC');
             }
             if(!empty($request->perPage))
@@ -191,6 +201,7 @@ class PatientController extends Controller
                             $personalInfo->postal_area = @$value['postal_area'];
                             $personalInfo->zipcode = @$value['zipcode'];
                             $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
                             $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
@@ -403,6 +414,8 @@ class PatientController extends Controller
                             $personalInfo->postal_area = @$value['postal_area'];
                             $personalInfo->zipcode = @$value['zipcode'];
                             $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
                             $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
                             $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
                             $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;

@@ -227,6 +227,9 @@ class BranchController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->save();
+
+            $role = Role::where('id','11')->first();
+            $user->assignRole($role->name);
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
                 
