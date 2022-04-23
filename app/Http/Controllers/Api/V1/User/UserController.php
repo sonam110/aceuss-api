@@ -272,7 +272,7 @@ class UserController extends Controller
             }
              /*-------------patient weekly Hours-----------------------*/
             if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
-
+               
                 foreach ($request->weekly_hours as $key => $weekly_hours) {
                     $agencyWeeklyHour = new AgencyWeeklyHour;
                     $agencyWeeklyHour->user_id = $user->id;

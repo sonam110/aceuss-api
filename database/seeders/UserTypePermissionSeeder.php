@@ -28,18 +28,16 @@ class UserTypePermissionSeeder extends Seeder
         		$this->addPermissions($companyPermissions,$userType->id);
         	}
 
-        	$branchPermissions = Permission::select('id','name')->whereIn('belongs_to',['2','3'])->get();
+            if($userType->id  == '3'){
+                $this->addPermissions($companyPermissions,$userType->id);
+            }
         	if($userType->id  == '11'){
-        		$this->addPermissions($branchPermissions,$userType->id);
+        		$this->addPermissions($companyPermissions,$userType->id);
         	}
-
-        	$employeePermission = Permission::select('id','name')->whereIn('belongs_to',['2','3'])->get();
-        	if($userType->id  == '3'){
-        		$this->addPermissions($employeePermission,$userType->id);
-        	}
-        	$patientPermission = Permission::select('id','name')->whereIn('id',['176','177','178'])->get(); 
-        	if($userType->id  == '6'){
-        		$this->addPermissions($patientPermission,$userType->id);
+        	$defaultPermission = Permission::select('id','name')->whereIn('id',['11'])->get(); 
+            if($userType->id  != '1' || $userType->id != '2' || $userType->id != '3' || $userType->id != '11')
+        	{
+        		$this->addPermissions($defaultPermission,$userType->id);
         	}
         	
         }
