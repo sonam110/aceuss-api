@@ -9,18 +9,9 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class ParagraphController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
     public function paragraphs(Request $request)
     {
         try {
@@ -49,14 +40,11 @@ class ParagraphController extends Controller
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
-        
     }
 
-    
-
-   public function store(Request $request){
+    public function store(Request $request)
+    {
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
@@ -72,8 +60,7 @@ class ParagraphController extends Controller
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-
-             return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, $this->success);
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -83,7 +70,8 @@ class ParagraphController extends Controller
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(),[
@@ -103,20 +91,18 @@ class ParagraphController extends Controller
             $Paragraph = Paragraph::find($id);
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
-             DB::commit();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Paragraph, $this->success);
-                
-               
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
-    public function destroy($id){
-        
+    public function destroy($id)
+    {
         try {
             $checkId= Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {

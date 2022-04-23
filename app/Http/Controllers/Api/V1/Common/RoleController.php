@@ -10,6 +10,7 @@ use DB;
 use Str;
 use App\Models\User;
 use App\Models\UserTypeHasPermission;
+
 class RoleController extends Controller
 {
     protected $top_most_parent_id;
@@ -31,7 +32,6 @@ class RoleController extends Controller
     
     public function roles(Request $request)
     {
-        
         try {
             $query = Role::select('*')->with('permissions');
             if(auth()->user()->user_type_id!='1')
@@ -74,11 +74,9 @@ class RoleController extends Controller
             {
                 $query = $query->get();
             }
-
-         return prepareResult(true,"Roles",$query,'200');
+            return prepareResult(true,"Roles",$query,'200');
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
-            
         }
     }
 
@@ -118,16 +116,16 @@ class RoleController extends Controller
             $role->guard_name  = 'api';
             $role->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $role->save();
+            DB::commit();
             if($role) {
                 $role->syncPermissions($request->permissions);
             }
-            DB::commit();
+            
             return prepareResult(true,getLangByLabelGroups('role','create') ,$role, '200');
         } catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
-            
         }
     }
 
@@ -147,13 +145,11 @@ class RoleController extends Controller
             return prepareResult(false, getLangByLabelGroups('role','id_not_found'), [],$this->not_found);
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
-            
         }
     }
 
     public function update(Request $request, Role $role)
     {
-        
         $validator = \Validator::make($request->all(), [
             'user_type_id'   => 'required|exists:user_types,id', 
             'se_name'   => 'required',
@@ -167,6 +163,7 @@ class RoleController extends Controller
             return prepareResult(false,$validator->errors()->first(),[],'422'); 
         }
 
+        DB::beginTransaction();
         try {
             $roleInfo = Role::select('*');
             if(auth()->user()->user_type_id!='1')
@@ -180,19 +177,17 @@ class RoleController extends Controller
                 $roleInfo->se_name  = $request->se_name;
                 $roleInfo->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $roleInfo->save();
+                DB::commit();
                 if($roleInfo) {
                     $roleInfo->syncPermissions($request->permissions);
                 }
-                DB::commit();
-
                 return prepareResult(true,getLangByLabelGroups('role','update') ,$roleInfo, '200');
             }
             return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],$this->not_found);
         } catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
-            
         }
     }
 
@@ -217,6 +212,4 @@ class RoleController extends Controller
             
         }
     }
-
-
 }

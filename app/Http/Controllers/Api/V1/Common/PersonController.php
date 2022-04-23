@@ -9,10 +9,11 @@ use Validator;
 use Auth;
 use Exception;
 use App\Models\PersonalInfoDuringIp;
+
 class PersonController extends Controller
 {
-    
-     public function patientPersonList(Request $request){
+    public function patientPersonList(Request $request)
+    {
         try {
             $user = getUser();
             $whereRaw = $this->getWhereRawFromRequest($request);
@@ -46,11 +47,11 @@ class PersonController extends Controller
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
     
-     public function store(Request $request){
+    public function store(Request $request)
+    {
         DB::beginTransaction();
         try {
 	    	$user = getUser();
@@ -86,18 +87,18 @@ class PersonController extends Controller
             $personalInfo->how_helped = $request->how_helped;
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
-             DB::commit();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$personalInfo, $this->success);
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
-    public function show($id){
-        
+
+    public function show($id)
+    {
         try {
             $user = getUser();
             $personInfo= PersonalInfoDuringIp::where('id',$id)->with('patient:id,name,email','PatientImplementationPlan')->first();
@@ -111,11 +112,11 @@ class PersonController extends Controller
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-            
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
         DB::beginTransaction();
         try {
 	    	$user = getUser();
@@ -156,20 +157,18 @@ class PersonController extends Controller
             $personalInfo->how_helped = $request->how_helped;
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
-             DB::commit();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$personalInfo, $this->success);
-			    
-		       
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
-    public function destroy($id){
-    	
+
+    public function destroy($id)
+    {
         try {
             $user = getUser();
         	$checkId= PersonalInfoDuringIp::where('id',$id)->first();
@@ -179,16 +178,15 @@ class PersonController extends Controller
             
         	$personDelete = PersonalInfoDuringIp::where('id',$id)->delete();
          	return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
-		     	
-			    
-        }
+		}
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
-    private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
@@ -202,9 +200,6 @@ class PersonController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "follow_up_id = "."'" .$request->input('follow_up_id')."'".")";
         }
-        
-       
         return($w);
-
     }
 }

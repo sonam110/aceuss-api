@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\OauthAccessTokens;
 use Auth;
 use DB;
+
 class WebSocketController implements MessageComponentInterface {
 
     protected $clients;
@@ -18,14 +19,12 @@ class WebSocketController implements MessageComponentInterface {
     private $users;
     private $userresources;
 
-
-    public function __construct() {
+    public function __construct() 
+    {
         $this->clients = new \SplObjectStorage;
         $this->subscriptions = [];
         $this->users = [];
         $this->userresources = [];
-       
-       
     }
 
     /**
@@ -52,7 +51,8 @@ class WebSocketController implements MessageComponentInterface {
      * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
-    public function onMessage(ConnectionInterface $conn, $msg) {
+    public function onMessage(ConnectionInterface $conn, $msg) 
+    {
         $data = json_decode($msg);
         if (isset($data->command)) {
             if (isset($data->token)) {
@@ -134,7 +134,8 @@ class WebSocketController implements MessageComponentInterface {
         }
     }
 
-    public function onClose(ConnectionInterface $conn) {
+    public function onClose(ConnectionInterface $conn) 
+    {
         $this->clients->detach($conn);
         $conn->send(json_encode('Connection '.$conn->resourceId.' has disconnected'));
         unset($this->users[$conn->resourceId]);
@@ -149,12 +150,15 @@ class WebSocketController implements MessageComponentInterface {
         }
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e) {
+    public function onError(ConnectionInterface $conn, \Exception $e) 
+    {
         $conn->send(json_encode('An error has occurred '.$e->getMessage().''));
         $conn->close();
     }
     /*----get user id from token----------*/
-    function checkUserToken($token) {
+
+    function checkUserToken($token) 
+    {
         $result =[];
         // break up the token_name(token)en into its three parts
         $token_parts = explode('.', $token);

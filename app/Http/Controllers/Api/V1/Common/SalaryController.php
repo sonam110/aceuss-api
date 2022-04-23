@@ -9,9 +9,11 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class SalaryController extends Controller
 {
-    public function updateSalaryDetail(Request $request){
+    public function updateSalaryDetail(Request $request)
+    {
         DB::beginTransaction();
         try {
 	    	$user = getUser();
@@ -45,17 +47,17 @@ class SalaryController extends Controller
             $salaryDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$salaryDetail->save();
             DB::commit();
-
 	        return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, $this->success);
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
-    public function salaryDetail(Request $request){
+
+    public function salaryDetail(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -75,8 +77,7 @@ class SalaryController extends Controller
             return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, $this->success);
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);   
         }
     }
 }
