@@ -8,18 +8,10 @@ use App\Models\EmailTemplate;
 use Validator;
 use Auth;
 use DB;
+
 class EmailTemplateControlle extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-     public function emailTemplates(Request $request)
+    public function emailTemplates(Request $request)
     {
         try {
 
@@ -98,8 +90,6 @@ class EmailTemplateControlle extends Controller
 
     public function update(Request $request,$id)
     {
-        
-    
         DB::beginTransaction();
         try {
             $EmailTemplate = EmailTemplate::find($id);

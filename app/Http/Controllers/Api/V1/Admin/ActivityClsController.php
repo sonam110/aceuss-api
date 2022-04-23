@@ -9,17 +9,9 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class ActivityClsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
     public function activitycls(Request $request)
     {
         try {
@@ -53,13 +45,9 @@ class ActivityClsController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-     public function store(Request $request){
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -79,21 +67,17 @@ class ActivityClsController extends Controller
             $activityClassification->name = $request->name;
             $activityClassification->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityClassification->save();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Activity','create') ,$activityClassification, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try {
@@ -111,14 +95,9 @@ class ActivityClsController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -145,22 +124,17 @@ class ActivityClsController extends Controller
             $activityClassification->name = $request->name;
             $activityClassification->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityClassification->save();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Activity','update'),$activityClassification, $this->success);
-                
-               
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function destroy($id)
     {
         try {

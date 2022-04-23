@@ -22,17 +22,9 @@ use Exception;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+
 class CompanyAccountController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-       
-    }
     public function companies(Request $request)
     {
         try {
@@ -72,14 +64,9 @@ class CompanyAccountController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[ 
@@ -200,24 +187,21 @@ class CompanyAccountController extends Controller
                     $addRole->save();
                 }
             }
-            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            DB::commit();
+            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first();
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     public function show(User $user)
     {
-         try {
+        try {
             
             $checkId= User::where('id',$user->id)->first();
             if (!is_object($checkId)) {
@@ -236,15 +220,9 @@ class CompanyAccountController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, User $user)
     { 
+        DB::beginTransaction();
         try {
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[
@@ -321,33 +299,26 @@ class CompanyAccountController extends Controller
                         $assigneModule->user_id = $user->id;
                         $assigneModule->module_id = $request->modules[$i] ;
                         $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save() ;
-           
-
+                        $assigneModule->save();
                     }
                 }
             }
-           
+            DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
                 
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(User $user)
     {
         try {
-            
             $id = $user->id;
             $checkId= User::where('id',$id)->first();
             if (!is_object($checkId)) {
@@ -356,7 +327,6 @@ class CompanyAccountController extends Controller
             $updateStatus = User::where('id',$id)->update(['status'=>'2']);
             $userDelete = User::where('id',$id)->delete();
             return prepareResult(true, getLangByLabelGroups('UserValidation','delete'),[], $this->success);
-                
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
@@ -370,6 +340,5 @@ class CompanyAccountController extends Controller
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
         return($w);
-
     }
 }

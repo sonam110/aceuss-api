@@ -12,10 +12,10 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class ModuleController extends Controller
 {
-
-	public function modules(Request $request)
+    public function modules(Request $request)
     {
         try {
             $whereRaw = $this->getWhereRawFromRequest($request);
@@ -55,7 +55,9 @@ class ModuleController extends Controller
     	
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -75,14 +77,18 @@ class ModuleController extends Controller
 		 	$Module->name = $request->name;
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Module','create') ,$Module, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
-     public function show($id)
+    
+    public function show($id)
     {
         try {
             $checkId= Module::where('id',$id)->first();
@@ -99,7 +105,9 @@ class ModuleController extends Controller
         }
     }
 
-    public function update(Request $request,$id) {
+    public function update(Request $request,$id) 
+    {
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -127,17 +135,20 @@ class ModuleController extends Controller
             $Module->status = ($request->name) ? $request->status:'1';
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Module','update') ,$Module, $this->success);
 			    
 		       
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
-    public function destroy($id) {
-    	
+
+    public function destroy($id) 
+    {
         try {
         	$checkId= Module::where('id',$id)->first();
 			if (!is_object($checkId)) {
@@ -157,8 +168,9 @@ class ModuleController extends Controller
     }
 
     /* -------------Assigne Package ---------------------*/
-    public function assigenPackage(Request $request){
-        
+    public function assigenPackage(Request $request)
+    {
+        DB::beginTransaction();
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -197,18 +209,20 @@ class ModuleController extends Controller
             $packageSubscribe->status = '1';
             $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $packageSubscribe->save();
+            DB::commit();
             return prepareResult(true,'Package Assigned successfully' ,$packageSubscribe, $this->success);
                 
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-            
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);  
         }
     }
 
-    public function assigenModule(Request $request){
-        
+    public function assigenModule(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -226,19 +240,15 @@ class ModuleController extends Controller
                         $assigneModule->user_id = $request->user_id;
                         $assigneModule->module_id = $request->module_id[$i] ;
                         $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save() ;
-          
-
+                        $assigneModule->save();
                     }
                 }
             }
             $assignemodules = AssigneModule::where('user_id',$request->user_id)->with('Module:id,name')->get();
             return prepareResult(true,'Module assigne successfully' ,$assignemodules, $this->success);
-                
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-            
         }
     }
 
@@ -249,7 +259,5 @@ class ModuleController extends Controller
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
         return($w);
-
-    }
-    
+    } 
 }

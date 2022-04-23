@@ -69,7 +69,7 @@ class PermissionController extends Controller
             return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
         }
 
-        
+        DB::beginTransaction();
         try {
             $permission = new Permission;
             $permission->group_name  = $request->group_name;
@@ -79,10 +79,12 @@ class PermissionController extends Controller
             $permission->belongs_to  = empty($request->belongs_to) ? 1 : $request->belongs_to;
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
-            
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('permission','create') ,$permission, $this->success);
         } catch (\Throwable $exception) {
-             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
         }
     }
 
@@ -112,7 +114,7 @@ class PermissionController extends Controller
         'group_name.required' => getLangByLabelGroups('permission','group_name'),
         ]);
 
-        
+        DB::beginTransaction();
         try {
             $permission->group_name  = $request->group_name;
             $permission->name = $request->name;
@@ -120,9 +122,11 @@ class PermissionController extends Controller
             $permission->belongs_to  = empty($request->belongs_to) ? 1 : $request->belongs_to;
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
-            
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('permission','update') ,$permission, $this->success);
         } catch (\Throwable $e) {
+            \Log::error($e);
+            DB::rollback();
            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
         }
     }

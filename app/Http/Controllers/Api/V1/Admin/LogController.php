@@ -6,10 +6,10 @@ use App\Models\MobileBankIdLoginLog;
 use App\Models\SmsLog;
 use App\Models\MailLog;
 use Spatie\Activitylog\Models\Activity;
+use DB;
 
 class LogController extends Controller
 {
-    
     public function smsLog(Request $request)
     {
         try {
