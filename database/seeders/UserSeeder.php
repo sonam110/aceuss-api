@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
     public function run()
     {
         	
-            /*$adminUser = new User();
+            $adminUser = new User();
             $adminUser->id      	            = '1';
             $adminUser->unique_id               = generateRandomNumber();
             $adminUser->user_type_id            = '1';
@@ -31,14 +31,14 @@ class UserSeeder extends Seeder
             $adminUser->password      		    = \Hash::make(12345678);
             $adminUser->contact_number      	= '8103099592';
             $adminUser->status      			= '1';
-            $adminUser->save();*/
+            $adminUser->save();
 
             $adminRole = Role::where('id','1')->first();
             $companyRole = Role::where('id','2')->first();
             $branchRole = Role::where('id','11')->first();
             $employeeRole = Role::where('id','3')->first();
 
-          /*  $adminUser->assignRole($adminRole);*/
+            $adminUser->assignRole($adminRole);
             
 
             $adminPermissions = Permission::select('id','name')->whereIn('belongs_to',['1','3'])->get();
@@ -59,8 +59,8 @@ class UserSeeder extends Seeder
            
             $roles = Role::whereNotIn('id',['1','2','11'])->get();
             foreach ($roles as $key => $role) {
-                $defaultPermission = Permission::select('id','name')->whereIn('id',['11'])->first(); 
-                $role->givePermissionTo($defaultPermission);
+                $defaultPermission = Permission::select('id','name')->where('id','11')->first(); 
+                $role->givePermissionTo($defaultPermission->name);
             }
 
 
