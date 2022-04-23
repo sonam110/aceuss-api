@@ -18,22 +18,25 @@ use App\Models\Task;
 use App\Models\ActivityAssigne;
 use App\Models\AssignTask;
 use App\Models\IpAssigneToEmployee;
+
 class DashboardController extends Controller
 {
-    public function dashboard(){
+    public function dashboard()
+    {
         try {
-        try {
-            
             $user = getUser();
             $data = [];
-            if($user->user_type_id == '1'){
+            if($user->user_type_id == '1')
+            {
             	$date['companyCount'] = User::where('user_type_id','2')->count();
             	$date['packageCount'] = Package::count();
             	$date['moduelCount'] = Module::count();
             	$date['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
             	$date['licenseCount'] = User::whereNotNull('license_key')->count();
             }
-            if($user->user_type_id == '2'){
+
+            if($user->user_type_id == '2')
+            {
             	$date['employeeCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','3')->count();
             	$date['patientCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','6')->count();
             	$date['branchCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','11')->count();
@@ -49,10 +52,11 @@ class DashboardController extends Controller
             	$date['followupPendingCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','0')->count();
             	$date['taskCount'] = Task::where('top_most_parent_id',$user->id)->count();
             	$date['taskCompleteCount'] = Task::where('top_most_parent_id',$user->id)->where('status','1')->count();
-            	$date['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();
-            	
+            	$date['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();	
             }
-            if($user->user_type_id == '2'){
+
+            if($user->user_type_id == '2')
+            {
                 $date['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
                 $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
                 $date['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
@@ -62,24 +66,20 @@ class DashboardController extends Controller
                 $date['ipCount'] = IpAssigneToEmployee::where('user_id',$user->id)->count();
                 $date['ipCompleteCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','1')->count();
                 $date['ipPendingCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','0')->count();
-
             }
-            if($user->user_type_id == '6'){
+
+            if($user->user_type_id == '6')
+            {
                 $date['activityCount'] = Activity::where('patient_id',$user->id)->count();
                 $date['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
                 $date['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
                 $date['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->count();
                 $date['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
                 $date['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
-
             }
-            
-            return prepareResult(true,'Dashboard' ,$date, $this->success);
-                
+            return prepareResult(true,'Dashboard' ,$date, $this->success);    
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-                
-        }
-            
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);   
+        }  
     }
 }

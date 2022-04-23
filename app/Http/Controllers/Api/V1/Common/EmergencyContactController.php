@@ -10,6 +10,7 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class EmergencyContactController extends Controller
 {
     public function emergencyContact(Request $request)
@@ -39,15 +40,13 @@ class EmergencyContactController extends Controller
             return prepareResult(true,"EmergencyContact list",$query,$this->success);
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
-        }
-        
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);  
+        } 
     }
 
-    
-
-   public function store(Request $request){
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
         try {
         	$user = getUser();
             $validator = Validator::make($request->all(),[
@@ -66,18 +65,22 @@ class EmergencyContactController extends Controller
             $EmergencyContact->is_default = ($request->is_default) ? 1:0;
             $EmergencyContact->created_by = $user->id;
             $EmergencyContact->save();
+            DB::commit();
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
             return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmergencyContact, $this->success);
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error); 
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
+        DB::beginTransaction();
         try {
            $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -100,20 +103,22 @@ class EmergencyContactController extends Controller
             $EmergencyContact->is_default = ($request->is_default) ? 1:0;
             $EmergencyContact->created_by = $user->id;
             $EmergencyContact->save();
+            DB::commit();
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
             return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$EmergencyContact, $this->success);
-                
-               
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
-    public function destroy($id){
-        
+
+    public function destroy($id)
+    {
         try {
             $checkId= EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {

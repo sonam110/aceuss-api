@@ -12,8 +12,8 @@ use Auth;
 use Exception;
 use App\Models\User;
 use App\Models\SmsLog;
-
 use Illuminate\Support\Facades\Hash;
+
 class CommonController extends Controller
 {
     protected $top_most_parent_id;
@@ -32,6 +32,7 @@ class CommonController extends Controller
             return $next($request);
         });
     }
+
     public function permissionList(Request $request)
     {
         try {
@@ -80,10 +81,7 @@ class CommonController extends Controller
         }
     }
 
-   
-
-
-     public function getUserList(Request $request)
+    public function getUserList(Request $request)
     {
         try {
             $user = getUser();
@@ -122,8 +120,7 @@ class CommonController extends Controller
         }
     }
 
-
-     public function pateintTypes(Request $request)
+    public function pateintTypes(Request $request)
     {
         try {
             
@@ -156,7 +153,8 @@ class CommonController extends Controller
         }
     }
 
-    private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         
         if (is_null($request->input('user_type_id')) == false) {
@@ -168,7 +166,6 @@ class CommonController extends Controller
             $w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
         }
         return($w);
-
     }
 
     public function smsCallback(Request $request)
@@ -185,26 +182,26 @@ class CommonController extends Controller
         Log::channel('smslog')->info($request);
         return true;
     }
+
     public function patientPasswordChange(Request $request)
     {
         try {
-                $validator = Validator::make($request->all(),[   
-                    "user_id"  => "required|exists:users,id",    
-                    "password"  => 'required|min:8|max:30',   
-                ]);
-                if ($validator->fails()) {
-                     return prepareResult(false,$validator->errors()->first(),[], '422'); 
-                }
-                $checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
-                if(!is_object($checkUser)){
-                     return prepareResult(false,'User not found',[], '422'); 
-                }
-                $updatePass = User::find($checkUser->id);
-                $updatePass->password = Hash::make($request->password);
-                $updatePass->is_password_change = '0';
-                $updatePass->save();
-                return prepareResult(true,"Password Change Successfully",$updatePass,'200');
-           
+            $validator = Validator::make($request->all(),[   
+                "user_id"  => "required|exists:users,id",    
+                "password"  => 'required|min:8|max:30',   
+            ]);
+            if ($validator->fails()) {
+                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
+            }
+            $checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
+            if(!is_object($checkUser)){
+                 return prepareResult(false,'User not found',[], '422'); 
+            }
+            $updatePass = User::find($checkUser->id);
+            $updatePass->password = Hash::make($request->password);
+            $updatePass->is_password_change = '0';
+            $updatePass->save();
+            return prepareResult(true,"Password Change Successfully",$updatePass,'200');
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');

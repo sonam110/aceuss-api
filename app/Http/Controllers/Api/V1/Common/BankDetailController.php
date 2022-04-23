@@ -9,6 +9,7 @@ use Validator;
 use Auth;
 use Exception;
 use DB;
+
 class BankDetailController extends Controller
 {
 	public function banks(Request $request)
@@ -48,7 +49,9 @@ class BankDetailController extends Controller
     	
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
@@ -76,18 +79,22 @@ class BankDetailController extends Controller
 		 	$bankDetail->is_default = ($request->is_default) ? '1' :'0';
             $bankDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$bankDetail->save();
+            DB::commit();
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
 	        return prepareResult(true,getLangByLabelGroups('Bank','create') ,$bankDetail, $this->success);
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
     }
-     public function show($id){
-        
+    
+    public function show($id)
+    {
         try {
             $user = getUser();
             $checkId= BankDetail::where('user_id',$user->id)->where('id',$id)->first();
@@ -97,16 +104,15 @@ class BankDetailController extends Controller
             
             $bankDetail = BankDetail::where('id',$id)->with('User:id,name')->first();
             return prepareResult(true,'view bank detail',$bankDetail, $this->success);
-                
-                
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-            
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
+        DB::beginTransaction();
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[     
@@ -138,6 +144,7 @@ class BankDetailController extends Controller
 		 	$bankDetail->is_default = ($request->is_default) ? '1' :'0';
             $bankDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$bankDetail->save();
+            DB::commit();
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
@@ -145,12 +152,14 @@ class BankDetailController extends Controller
 			  
         }
         catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
     }
-    public function destroy($id){
-    	
+
+    public function destroy($id)
+    {
         try {
 	    	$user = getUser();
         	$checkId= BankDetail::where('user_id',$user->id)->where('id',$id)->first();
@@ -160,24 +169,19 @@ class BankDetailController extends Controller
             
         	$bankDetail = BankDetail::where('id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('Bank','delete'),[], $this->success);
-		     	
-			    
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
-            
         }
     }
-    private function getWhereRawFromRequest(Request $request) {
+
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
         return($w);
-
-    }
-
-   
-    
+    } 
 }

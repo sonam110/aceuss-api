@@ -22,17 +22,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+
 class UserLoginController extends Controller
 {
-	 /* ------------------------------------
-        @Url:  /login
-        @Description:  Login Api
-        @method : Post
-        @Parameters : email,password
-        @Output: returns Success Or Fail.
-    --------------------------------------- */
-    public function login(Request $request){
-
+    public function login(Request $request)
+    {
         $validator = Validator::make($request->all(),[
             $this->username() => 'required|email',
             'password' => 'required|string',
@@ -146,21 +140,15 @@ class UserLoginController extends Controller
                    
                 } else {
                     return prepareResult(false,getLangByLabelGroups('LoginValidation','wrong_password'),[],$this->unprocessableEntity);
-                    
                 }   
-                
             } else {
                 return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);
-              
             }
         }
         catch(Exception $exception) {
            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-           
-            
-        }
-
-    }
+       }
+   }
 
     protected function validateLogin(Request $request)
     {
@@ -217,7 +205,8 @@ class UserLoginController extends Controller
         @Output: returns Success Or Fail.
     --------------------------------------- */
 
-    public function forgetPassword(Request $request){
+    public function forgetPassword(Request $request)
+    {
         try {
             $validator = Validator::make($request->all(),[
                 "email" => 'required|email',
@@ -273,7 +262,9 @@ class UserLoginController extends Controller
             
         }
     }
-    public function resetPassword($token){
+
+    public function resetPassword($token)
+    {
         if($token){
             $usertoken =[
                 'token'=> $token,
@@ -285,7 +276,8 @@ class UserLoginController extends Controller
 
     }
 
-    public function verifyOtp(Request $request){
+    public function verifyOtp(Request $request)
+    {
         try {
             $input = $request->only('email','token');
             $validator = Validator::make($input, [
@@ -315,7 +307,8 @@ class UserLoginController extends Controller
        
     }
 
-    public function passwordReset(Request $request){
+    public function passwordReset(Request $request)
+    {
         try {
             $input = $request->only('email','token', 'password', 'password_confirmation');
             $validator = Validator::make($input, [
@@ -354,7 +347,9 @@ class UserLoginController extends Controller
         }
        
     }
-    public function passwordResetInMobile(Request $request){
+
+    public function passwordResetInMobile(Request $request)
+    {
         try {
             $input = $request->only('email', 'password', 'password_confirmation');
             $validator = Validator::make($input, [
@@ -392,8 +387,8 @@ class UserLoginController extends Controller
        
     }
 
-    public function logout(Request $request){
-        
+    public function logout(Request $request)
+    {
         $user = getUser();
         if (!is_object($user)) {
             return prepareResult(false,"User Not Found", [],$this->not_found);
@@ -415,6 +410,7 @@ class UserLoginController extends Controller
            return Str::substr($header, 7);
        }
     }
+
     /* ------------------------------------
         @Url:  /change-password
         @Description:  change Password Api
@@ -422,7 +418,8 @@ class UserLoginController extends Controller
         @Parameters : old_password,new_password,new_password_confirmation
         @Output: returns Success Or Fail.
     --------------------------------------- */
-    public function changePassword(Request $request){
+    public function changePassword(Request $request)
+    {
         try {
 
             $user = auth()->user();
@@ -463,8 +460,11 @@ class UserLoginController extends Controller
             
         }
     }
+
     /*---------------User------------------------------------*/
-    public function userTypeList(){
+
+    public function userTypeList()
+    {
         $userTypeList = UserType::whereNotIn('id',['1','2'])->select('id','name')->get();
         if($userTypeList) {
             return prepareResult(true,'User type List' ,$userTypeList, $this->success);
@@ -487,7 +487,8 @@ class UserLoginController extends Controller
         }
     }
 
-    public function userDetail(Request $request){
+    public function userDetail(Request $request)
+    {
         try {
             
             $user = getUser();
@@ -500,7 +501,8 @@ class UserLoginController extends Controller
         }
             
     }
-     /*---------------conntry list------------------------------------*/
+     
+    /*---------------conntry list------------------------------------*/
     public function countryList(Request $request){
         try {
         $query = DB::table('countries')->select('id','name')->orderby('id','ASC');

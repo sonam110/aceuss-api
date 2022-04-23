@@ -11,6 +11,7 @@ use Auth;
 use Exception;
 use DB;
 use Carbon\Carbon;
+
 class TaskController extends Controller
 {
     public function tasks(Request $request)
@@ -56,18 +57,15 @@ class TaskController extends Controller
             {
                 $query = $query->get();
             }
-            
-            return prepareResult(true,"Task list",$query,$this->success);
-	       
+            return prepareResult(true,"Task list",$query,$this->success); 
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
-            
         }
-    	
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
@@ -417,8 +415,9 @@ class TaskController extends Controller
             
         }
     }
-    public function destroy($id){
-    	
+
+    public function destroy($id)
+    {
         try {
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
@@ -434,7 +433,8 @@ class TaskController extends Controller
         }
     }
     
-    public function show($id){
+    public function show($id)
+    {
         try {
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
@@ -449,7 +449,9 @@ class TaskController extends Controller
             
         }
     }
-    public function calanderTask(Request $request){
+
+    public function calanderTask(Request $request)
+    {
         try {
 	    	$user = getUser();
 	    	$whereRaw = $this->getWhereRawFromRequest($request);
@@ -515,7 +517,8 @@ class TaskController extends Controller
         }
     }
 
-    private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
