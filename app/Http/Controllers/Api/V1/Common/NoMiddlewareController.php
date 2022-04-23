@@ -146,11 +146,18 @@ class NoMiddlewareController extends Controller
      public function userTypePermission(Request $request)
     {
         try {
-            $query = UserTypeHasPermission::select('*')->with('permission');
+            $query = UserTypeHasPermission::select('user_type_has_permissions.*')->with('permission');
             
+            if(!empty($request->belongs_to))
+            {
+                $query->join('permissions', function($join) {
+                    $join->on('user_type_has_permissions.permission_id', '=', 'permissions.id');
+                })
+                ->where('permissions.belongs_to',$request->belongs_to);
+            }
             if(!empty($request->user_type_id))
             {
-                $query->where('user_type_id',$request->user_type_id);
+                $query->where('user_type_has_permissions.user_type_id',$request->user_type_id);
             }
             if(!empty($request->per_page_record))
             {
