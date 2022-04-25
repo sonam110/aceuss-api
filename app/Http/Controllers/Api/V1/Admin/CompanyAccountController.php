@@ -119,7 +119,7 @@ class CompanyAccountController extends Controller
             $user->save();
 
 
-            $update_top_most_parent = User::where('id',$user->id)->update(['top_most_parent_id'=>$user->id,'branch_id'=>$user->id]);
+            $update_top_most_parent = User::where('id',$user->id)->update(['top_most_parent_id'=>$user->id]);
             
             $role = Role::where('id','2')->first();
             $user->assignRole($role->name);

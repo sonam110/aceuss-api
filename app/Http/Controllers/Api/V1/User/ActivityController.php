@@ -28,8 +28,7 @@ class ActivityController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$user->id]);
-            print_r($allChilds);
-            die;
+           
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email');
             if($user->user_type_id =='2'){
