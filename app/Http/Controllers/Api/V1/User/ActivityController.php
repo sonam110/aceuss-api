@@ -20,6 +20,16 @@ use DB;
 use Carbon\Carbon;
 class ActivityController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:activity-browse',['except' => ['show']]);
+        $this->middleware('permission:activity-add', ['only' => ['store']]);
+        $this->middleware('permission:activity-edit', ['only' => ['update']]);
+        $this->middleware('permission:activity-read', ['only' => ['show']]);
+        $this->middleware('permission:activity-delete', ['only' => ['destroy']]);
+        
+    }
     
     public function activities(Request $request)
     {
@@ -71,7 +81,7 @@ class ActivityController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Activity list",$pagination,$this->success);
+                return prepareResult(true,"Activity list",$pagination,config('httpcodes.success'));
             }
             else
             {
@@ -82,11 +92,11 @@ class ActivityController extends Controller
                 } 
             }
             
-            return prepareResult(true,"Activity list",$query,$this->success);
+            return prepareResult(true,"Activity list",$query,config('httpcodes.success'));
            
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -114,7 +124,7 @@ class ActivityController extends Controller
             'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $end_date = $request->end_date;
             $every = '1';
@@ -126,7 +136,7 @@ class ActivityController extends Controller
                     'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
             }
             if($request->is_repeat){
@@ -138,7 +148,7 @@ class ActivityController extends Controller
                         "repeat_dates.*"  => "required|string|distinct",        
                     ]);
                     if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                     }
 
                 }
@@ -150,7 +160,7 @@ class ActivityController extends Controller
                     "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -160,7 +170,7 @@ class ActivityController extends Controller
                     "after_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -170,7 +180,7 @@ class ActivityController extends Controller
                     "emergency_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -179,7 +189,7 @@ class ActivityController extends Controller
                     "in_time_is_text_notify"    => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -259,7 +269,7 @@ class ActivityController extends Controller
                                         "employees.*"  => "required|distinct|exists:users,id",   
                                     ]);
                                     if ($validator->fails()) {
-                                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                                     }
                                     foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
@@ -330,15 +340,15 @@ class ActivityController extends Controller
                 }
                  DB::commit();
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
-                return prepareResult(true,'Activity Added successfully' ,$activityList, $this->success);
+                return prepareResult(true,'Activity Added successfully' ,$activityList, config('httpcodes.success'));
             } else{
-                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -365,7 +375,7 @@ class ActivityController extends Controller
             'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $end_date = $request->end_date;
             $every = '1';
@@ -377,7 +387,7 @@ class ActivityController extends Controller
                     'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
             }
             if($request->is_repeat){
@@ -389,7 +399,7 @@ class ActivityController extends Controller
                         "repeat_dates.*"  => "required|string|distinct",        
                     ]);
                     if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                     }
 
                 }
@@ -401,7 +411,7 @@ class ActivityController extends Controller
                     "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -411,7 +421,7 @@ class ActivityController extends Controller
                     "after_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -421,7 +431,7 @@ class ActivityController extends Controller
                     "emergency_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -430,7 +440,7 @@ class ActivityController extends Controller
                     "in_time_is_text_notify"    => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -446,7 +456,7 @@ class ActivityController extends Controller
             }
             $checkId = Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
         
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -514,7 +524,7 @@ class ActivityController extends Controller
                                         "employees.*"  => "required|distinct|exists:users,id",   
                                     ]);
                                     if ($validator->fails()) {
-                                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                                     }
                                     foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
@@ -587,15 +597,15 @@ class ActivityController extends Controller
                 }
                  DB::commit();
                 $activityList = Activity::whereIn('id',$activity_ids)->get();
-                return prepareResult(true,'Activity Update successfully' ,$activityList, $this->success);
+                return prepareResult(true,'Activity Update successfully' ,$activityList, config('httpcodes.success'));
             } else{
-                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -606,13 +616,13 @@ class ActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->delete();
-            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], $this->success);
+            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -627,22 +637,22 @@ class ActivityController extends Controller
             'id' => getLangByLabelGroups('Activity','id'),   
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->id;
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::find($id);
             $activity->approved_by = $user->id;
             $activity->approved_date = date('Y-m-d');
             $activity->status = '1';
             $activity->save();
-            return prepareResult(true,getLangByLabelGroups('Activity','approve') ,$activity, $this->success);
+            return prepareResult(true,getLangByLabelGroups('Activity','approve') ,$activity, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -651,13 +661,13 @@ class ActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient:id,name','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->first();
-            return prepareResult(true,'View Activity' ,$activity, $this->success);
+            return prepareResult(true,'View Activity' ,$activity, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -674,16 +684,16 @@ class ActivityController extends Controller
             'user_id' => getLangByLabelGroups('Activity','user_id'),    
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
   
             $checkId= Activity::where('id',$request->activity_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $check_already = ActivityAssigne::where('user_id',$request->user_id)->where('activity_id',$request->activity_id)->first();
             if (is_object($check_already)) {
-                return prepareResult(false,'This activity is already assigned for this employee', [],$this->not_found);
+                return prepareResult(false,'This activity is already assigned for this employee', [],config('httpcodes.not_found'));
             }
             $activityAssigne = new ActivityAssigne;
             $activityAssigne->activity_id = $request->activity_id;
@@ -696,12 +706,12 @@ class ActivityController extends Controller
              DB::commit();
 
             $activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
-            return prepareResult(true,getLangByLabelGroups('Activity','assigne') ,$activityAssigne, $this->success);
+            return prepareResult(true,getLangByLabelGroups('Activity','assigne') ,$activityAssigne, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -716,7 +726,7 @@ class ActivityController extends Controller
             'parent_id' =>  'Parent id is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->parent_id;
             $parent_id = 
@@ -735,17 +745,17 @@ class ActivityController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Activity list",$pagination,$this->success);
+                return prepareResult(true,"Edited Activity list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Activity Ip List' ,$query, $this->success);
+            return prepareResult(true,'Activity Ip List' ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -761,7 +771,7 @@ class ActivityController extends Controller
                 'status'     => 'required|in:1,2,3',  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $is_action_perform = false;
             $isAssignEmp = ActivityAssigne::where('user_id',$user->id)->where('activity_id',$request->activity_id)->first();
@@ -774,7 +784,7 @@ class ActivityController extends Controller
             }
             
             if($is_action_perform == false){
-                return prepareResult(false,'You are not authorized to perform this action',[], $this->unprocessableEntity); 
+                return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
             }
             $option  = ActivityOption::where('id',$request->option)->first();
             $is_journal_assign_module = checkAssignModule(3);
@@ -788,7 +798,7 @@ class ActivityController extends Controller
                   'option' => 'required|exists:activity_options,id',   
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
     
             }
@@ -797,7 +807,7 @@ class ActivityController extends Controller
                 'comment' => 'required',  
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
     
             }
@@ -808,6 +818,7 @@ class ActivityController extends Controller
             $activity->selected_option = ($option) ? $option->option : null;
             $activity->comment = $request->comment;
             $activity->action_by = $user->id;
+            $activity->action_date = date('Y-m-d');
             $activity->save();
             if($activity){
                 $start_date_time = $activity->start_date.' '.$activity->start_time;
@@ -840,16 +851,16 @@ class ActivityController extends Controller
                 }
                  DB::commit();
                
-                return prepareResult(true,'Action Done successfully' ,$activity, $this->success);
+                return prepareResult(true,'Action Done successfully' ,$activity, config('httpcodes.success'));
             } else {
-                return prepareResult(false,'Opps! Something Went Wrong',[], $this->unprocessableEntity); 
+                return prepareResult(false,'Opps! Something Went Wrong',[], config('httpcodes.bad_request')); 
             }
         
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         

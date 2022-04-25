@@ -77,9 +77,9 @@ class DashboardController extends Controller
                 $date['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
                 $date['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
             }
-            return prepareResult(true,'Dashboard' ,$date, $this->success);    
+            return prepareResult(true,'Dashboard' ,$date, config('httpcodes.success'));    
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);   
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  
     }
 }

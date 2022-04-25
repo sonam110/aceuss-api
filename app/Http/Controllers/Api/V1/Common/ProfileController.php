@@ -21,7 +21,7 @@ class ProfileController extends Controller
                 'email'     => 'required|email|unique:users,email,'.$userInfo->id,
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = User::find($userInfo->id);
             $user->name = $request->name;
@@ -37,12 +37,12 @@ class ProfileController extends Controller
             $user->full_address = $request->full_address;
             $user->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, $this->success);
+            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
         	\Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

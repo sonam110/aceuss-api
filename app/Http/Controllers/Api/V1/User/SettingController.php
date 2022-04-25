@@ -11,6 +11,12 @@ use Exception;
 use App\Models\CompanySetting;
 class SettingController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:settings-edit', ['only' => ['settingUpdate']]);
+        
+    }
     public function settingUpdate(Request $request)
     { 
         DB::beginTransaction();
@@ -23,7 +29,7 @@ class SettingController extends Controller
                 'company_address' => 'required', 
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkSettings = CompanySetting::where('user_id',$userInfo->id)->first();
             if(empty($checkSettings)){
@@ -45,13 +51,13 @@ class SettingController extends Controller
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
              DB::commit();
-            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, $this->success);
+            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

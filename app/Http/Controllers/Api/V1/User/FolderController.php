@@ -39,17 +39,17 @@ class FolderController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Folder list",$pagination,$this->success);
+                return prepareResult(true,"Folder list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Folder list",$query,$this->success);
+            return prepareResult(true,"Folder list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -63,10 +63,10 @@ class FolderController extends Controller
                 ->whereNull('parent_id')
                 ->get();
           
-            return prepareResult(true,"Folder list",$folderParent,$this->success);
+            return prepareResult(true,"Folder list",$folderParent,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -84,16 +84,16 @@ class FolderController extends Controller
             'name.required' => 'Name is required',
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = Folder::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,"This name Already Exist.",[], $this->unprocessableEntity); 
+              	return prepareResult(false,"This name Already Exist.",[], config('httpcodes.bad_request')); 
         	}
             if($request->parent_id) {
                 $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,"Parent not found.",[], $this->not_found); 
+                    return prepareResult(false,"Parent not found.",[], config('httpcodes.not_found')); 
                 }
             }
             
@@ -103,10 +103,10 @@ class FolderController extends Controller
 		 	$folder->visible_to_users = $request->visible_to_users;
             $folder->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$folder->save();
-	        return prepareResult(true,'Folder Added successfully' ,$folder, $this->success);
+	        return prepareResult(true,'Folder Added successfully' ,$folder, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -122,21 +122,21 @@ class FolderController extends Controller
             'name.required' => 'Name is required',
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Folder::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
             $checkAlready = Folder::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,"This Name Already Exist.",[], $this->unprocessableEntity); 
+              	return prepareResult(false,"This Name Already Exist.",[], config('httpcodes.bad_request')); 
         	}
             $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
             if($request->parent_id) {
                 $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,"Parent not found.",[], $this->not_found); 
+                    return prepareResult(false,"Parent not found.",[], config('httpcodes.not_found')); 
                 }
             }
 	        $folder = Folder::find($id);
@@ -145,12 +145,12 @@ class FolderController extends Controller
 		 	$folder->visible_to_users = $request->visible_to_users;
             $folder->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$folder->save();
-	        return prepareResult(true,'Folder Updated successfully' ,$folder, $this->success);
+	        return prepareResult(true,'Folder Updated successfully' ,$folder, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -161,16 +161,16 @@ class FolderController extends Controller
 	    	$user = getUser();
         	$checkId= Folder::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
             
         	$folder = Folder::where('id',$id)->delete();
-         	return prepareResult(true,'Folder delete successfully' ,[], $this->success);
+         	return prepareResult(true,'Folder delete successfully' ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }

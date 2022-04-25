@@ -46,9 +46,9 @@ class PermissionController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,"Permissions",$query,$this->success);
+            return prepareResult(true,"Permissions",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -66,7 +66,7 @@ class PermissionController extends Controller
         'group_name.required' => getLangByLabelGroups('permission','group_name'),
         ]);
         if ($validator->fails()) {
-            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         }
 
         DB::beginTransaction();
@@ -80,11 +80,11 @@ class PermissionController extends Controller
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('permission','create') ,$permission, $this->success);
+            return prepareResult(true,getLangByLabelGroups('permission','create') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -93,11 +93,11 @@ class PermissionController extends Controller
         try {
             if($permission)
             {
-                 return prepareResult(true,'Permissions' ,$permission, $this->success);
+                 return prepareResult(true,'Permissions' ,$permission, config('httpcodes.success'));
             }
-            return prepareResult(false, getLangByLabelGroups('permission','per_not_found'), [],$this->not_found);
+            return prepareResult(false, getLangByLabelGroups('permission','per_not_found'), [],config('httpcodes.not_found'));
         } catch (\Throwable $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -123,11 +123,11 @@ class PermissionController extends Controller
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('permission','update') ,$permission, $this->success);
+            return prepareResult(true,getLangByLabelGroups('permission','update') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $e) {
             \Log::error($e);
             DB::rollback();
-           return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -136,9 +136,9 @@ class PermissionController extends Controller
         //Temporary enabled, after deployment removed this function
         try {
             $permission->delete();
-           return prepareResult(true,getLangByLabelGroups('permission','delete') ,[], $this->success);
+           return prepareResult(true,getLangByLabelGroups('permission','delete') ,[], config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -147,9 +147,9 @@ class PermissionController extends Controller
         try {
             $permissions = PermissionExtend::select('group_name')->with('groupWisePermissions')->groupBy('group_name')->get();
             
-             return prepareResult(true,'Groupwsir Permission' ,$permission, $this->success);
+             return prepareResult(true,'Groupwsir Permission' ,$permission, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-           return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 }

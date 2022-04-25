@@ -54,10 +54,10 @@ class LogController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,"Sms Log",$query,$this->success);
+            return prepareResult(true,"Sms Log",$query,config('httpcodes.success'));
         } catch (\Throwable $e) {
             \Log::error($e);
-           return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 

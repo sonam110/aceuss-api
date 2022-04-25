@@ -12,6 +12,16 @@ use DB;
 
 class WordController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:words-browse',['except' => ['show']]);
+        $this->middleware('permission:words-add', ['only' => ['store']]);
+        $this->middleware('permission:words-edit', ['only' => ['update']]);
+        $this->middleware('permission:words-read', ['only' => ['show']]);
+        $this->middleware('permission:words-delete', ['only' => ['destroy']]);
+        
+    }
     public function words(Request $request)
     {
         try {
@@ -30,16 +40,16 @@ class WordController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Word list",$pagination,$this->success);
+                return prepareResult(true,"Word list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Word list",$Word,$this->success);
+            return prepareResult(true,"Word list",$Word,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -56,18 +66,18 @@ class WordController extends Controller
             'name.required' => getLangByLabelGroups('CompanyType','name'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $Word = new Word;
             $Word->name = $request->name;
             $Word->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Word, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Word, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -82,23 +92,23 @@ class WordController extends Controller
             'name.required' => getLangByLabelGroups('CompanyType','name'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = Word::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Word = Word::find($id);
             $Word->name = $request->name;
             $Word->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Word, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Word, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -107,15 +117,15 @@ class WordController extends Controller
         try {
             $checkId= Word::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Word = Word::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

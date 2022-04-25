@@ -31,16 +31,16 @@ class EmergencyContactController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"EmergencyContact list",$pagination,$this->success);
+                return prepareResult(true,"EmergencyContact list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"EmergencyContact list",$query,$this->success);
+            return prepareResult(true,"EmergencyContact list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);  
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
         } 
     }
 
@@ -56,7 +56,7 @@ class EmergencyContactController extends Controller
             'user_id.required' => 'User Id  Field is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = new EmergencyContact;
@@ -69,12 +69,12 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmergencyContact, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error); 
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error')); 
         }
     }
 
@@ -90,11 +90,11 @@ class EmergencyContactController extends Controller
             'user_id.required' => 'User Id  Field is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = EmergencyContact::find($id);
@@ -107,12 +107,12 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$EmergencyContact, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -122,14 +122,14 @@ class EmergencyContactController extends Controller
         try {
             $checkId= EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $EmergencyContact = EmergencyContact::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

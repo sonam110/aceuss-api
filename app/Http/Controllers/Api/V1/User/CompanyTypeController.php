@@ -11,6 +11,16 @@ use Exception;
 use DB;
 class CompanyTypeController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:companyType-browse',['except' => ['show']]);
+        $this->middleware('permission:companyType-add', ['only' => ['store']]);
+        $this->middleware('permission:companyType-edit', ['only' => ['update']]);
+        $this->middleware('permission:companyType-read', ['only' => ['show']]);
+        $this->middleware('permission:companyType-delete', ['only' => ['destroy']]);
+        
+    }
 	public function companyTypes(Request $request)
     {
         try {
@@ -36,16 +46,16 @@ class CompanyTypeController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"CompanyType list",$pagination,$this->success);
+                return prepareResult(true,"CompanyType list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-		    return prepareResult(true,"CompanyType list",$query,$this->success);
+		    return prepareResult(true,"CompanyType list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -62,11 +72,11 @@ class CompanyTypeController extends Controller
             'name.required' => getLangByLabelGroups('CompanyType','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CompanyType::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('CompanyType','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false, getLangByLabelGroups('CompanyType','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $companyType = new CompanyType;
@@ -75,12 +85,12 @@ class CompanyTypeController extends Controller
             $companyType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyType->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$companyType, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$companyType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -91,16 +101,16 @@ class CompanyTypeController extends Controller
             $user = getUser();
             $checkId= CompanyType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $companyType = CompanyType::where('id',$id)->first();
-            return prepareResult(true,'View Compan Type' ,$companyType, $this->success);
+            return prepareResult(true,'View Compan Type' ,$companyType, config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -116,15 +126,15 @@ class CompanyTypeController extends Controller
             'name.required' => getLangByLabelGroups('CompanyType','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CompanyType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CompanyType::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CompanyType','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('CompanyType','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $companyType = CompanyType::find($id);
 		 	$companyType->name = $request->name;
@@ -132,14 +142,14 @@ class CompanyTypeController extends Controller
             $companyType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyType->save();
               DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$companyType, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$companyType, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -148,16 +158,16 @@ class CompanyTypeController extends Controller
             $user = getUser();
         	$checkId= CompanyType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$companyType = CompanyType::where('id',$id)->delete();
-         	return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+         	return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

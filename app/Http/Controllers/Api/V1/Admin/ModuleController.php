@@ -15,6 +15,16 @@ use DB;
 
 class ModuleController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:modules-browse',['except' => ['show']]);
+        $this->middleware('permission:modules-add', ['only' => ['store']]);
+        $this->middleware('permission:modules-edit', ['only' => ['update']]);
+        $this->middleware('permission:modules-read', ['only' => ['show']]);
+        $this->middleware('permission:modules-delete', ['only' => ['destroy']]);
+        
+    }
     public function modules(Request $request)
     {
         try {
@@ -39,17 +49,17 @@ class ModuleController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Module list",$pagination,$this->success);
+                return prepareResult(true,"Module list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
 		    
-		    return prepareResult(true,"Module list",$query,$this->success);
+		    return prepareResult(true,"Module list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -67,23 +77,23 @@ class ModuleController extends Controller
             'name.required' => getLangByLabelGroups('Module','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = Module::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('Module','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('Module','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $Module = new Module;
 		 	$Module->name = $request->name;
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Module','create') ,$Module, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Module','create') ,$Module, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -93,14 +103,14 @@ class ModuleController extends Controller
         try {
             $checkId= Module::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Module','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Module','id_not_found'), [],config('httpcodes.not_found'));
             }
             $module = Module::where('id',$id)->first();
-            return prepareResult(true,'View Module',$module, $this->success);
+            return prepareResult(true,'View Module',$module, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -118,16 +128,16 @@ class ModuleController extends Controller
             'name.required' => getLangByLabelGroups('Module','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Module::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Module','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Module','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Module::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('Module','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('Module','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $Module = Module::find($id);
@@ -136,14 +146,14 @@ class ModuleController extends Controller
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Module','update') ,$Module, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Module','update') ,$Module, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -152,17 +162,17 @@ class ModuleController extends Controller
         try {
         	$checkId= Module::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Module','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('Module','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$Module = Module::findOrFail($id);
             $Module->delete();
-         	return prepareResult(true, getLangByLabelGroups('Module','delete') ,[], $this->success);
+         	return prepareResult(true, getLangByLabelGroups('Module','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -178,11 +188,11 @@ class ModuleController extends Controller
                 'package_id' =>  'required',
             ]);
             if ($validator->fails()) {
-            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId= Package::where('id',$request->package_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
             $checkAlreadyAssigne= Subscription::where('user_id',$request->user_id)->where('id',$request->package_id)->first();
             if (is_object($checkAlreadyAssigne)) {
@@ -210,14 +220,14 @@ class ModuleController extends Controller
             $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $packageSubscribe->save();
             DB::commit();
-            return prepareResult(true,'Package Assigned successfully' ,$packageSubscribe, $this->success);
+            return prepareResult(true,'Package Assigned successfully' ,$packageSubscribe, config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);  
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));  
         }
     }
 
@@ -230,7 +240,7 @@ class ModuleController extends Controller
                 'module_id' =>  'required',
             ]);
             if ($validator->fails()) {
-            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             if(is_array($request->module_id) ){
                 $deletOld = AssigneModule::where('user_id',$request->user_id)->delete();
@@ -245,10 +255,10 @@ class ModuleController extends Controller
                 }
             }
             $assignemodules = AssigneModule::where('user_id',$request->user_id)->with('Module:id,name')->get();
-            return prepareResult(true,'Module assigne successfully' ,$assignemodules, $this->success);
+            return prepareResult(true,'Module assigne successfully' ,$assignemodules, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
 

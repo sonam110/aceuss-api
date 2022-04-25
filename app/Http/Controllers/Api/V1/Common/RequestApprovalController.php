@@ -22,6 +22,14 @@ use PDF;
 
 class RequestApprovalController extends Controller
 {
+     public function __construct()
+    {
+
+        $this->middleware('permission:requests-browse',['only' => ['approvalRequestList']]);
+        $this->middleware('permission:requests-add', ['only' => ['requestForApproval']]);
+       
+    }
+
     public function requestForApproval(Request $request)
     {
         try {
@@ -169,7 +177,7 @@ class RequestApprovalController extends Controller
                     }
                 }
                 $getRequest = RequestForApproval::whereIn('id',$ids)->get();
-               return prepareResult(true,'Send successfully' ,$getRequest, $this->success);
+               return prepareResult(true,'Send successfully' ,$getRequest, config('httpcodes.success'));
             
             } else {
            	  return prepareResult(false, 'Opps! Somthing went wrong',[], '500');
@@ -205,15 +213,15 @@ class RequestApprovalController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"All Approval Request  list",$pagination,$this->success);
+                return prepareResult(true,"All Approval Request  list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"All Approval Request  list",$query,$this->success);
+            return prepareResult(true,"All Approval Request  list",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
 
@@ -224,7 +232,7 @@ class RequestApprovalController extends Controller
             $approval_request =  RequestForApproval::where('id',$id)->first();
             $is_approved = false;
             if (!is_object($approval_request)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             if($approval_request->request_type == '2'){
                 $ip  = PatientImplementationPlan::where('id',$approval_request->request_type_id)->first();
@@ -251,7 +259,7 @@ class RequestApprovalController extends Controller
                     $user_role->givePermissionTo(['isCategoryEditPermission-edit']);
                 }
             }
-            return prepareResult(true,"Approved successfully",$approval_request,$this->success);
+            return prepareResult(true,"Approved successfully",$approval_request,config('httpcodes.success'));
                 
             }
         catch(Exception $exception) {
@@ -273,7 +281,7 @@ class RequestApprovalController extends Controller
             }
             $rejest_request =  RequestForApproval::where('id',$request->id)->first();
             $updateRequest = RequestForApproval::where('id',$request->id)->update(['status'=>'3','rejected_by'=>$user->id,'reason_for_rejection'=> $request->reason_for_rejection]);
-            return prepareResult(true,"Reject successfully",$rejest_request,$this->success);
+            return prepareResult(true,"Reject successfully",$rejest_request,config('httpcodes.success'));
             
         }
         catch(Exception $exception) {

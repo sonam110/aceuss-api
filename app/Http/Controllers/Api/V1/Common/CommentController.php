@@ -24,7 +24,7 @@ class CommentController extends Controller
         		    
 	        ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
             $parent = Comment::where('id',$request->parent_id)->first();
 	        $addComment = new Comment;
@@ -36,10 +36,10 @@ class CommentController extends Controller
 		    $addComment->created_by = $user->id;
 		    $addComment->save();
 		
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$addComment, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$addComment, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -69,16 +69,16 @@ class CommentController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Comment list",$pagination,$this->success);
+                return prepareResult(true,"Comment list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-		    return prepareResult(true,"Comment list",$query,$this->success);
+		    return prepareResult(true,"Comment list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

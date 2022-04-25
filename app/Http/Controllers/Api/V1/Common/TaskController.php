@@ -14,6 +14,17 @@ use Carbon\Carbon;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:task-browse',['except' => ['show']]);
+        $this->middleware('permission:task-add', ['only' => ['store']]);
+        $this->middleware('permission:task-edit', ['only' => ['update']]);
+        $this->middleware('permission:task-read', ['only' => ['show']]);
+        $this->middleware('permission:task-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:calendar-browse', ['only' => ['calanderTask']]);
+        
+    }
     public function tasks(Request $request)
     {
         try {
@@ -58,16 +69,16 @@ class TaskController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Task list",$pagination,$this->success);
+                return prepareResult(true,"Task list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Task list",$query,$this->success); 
+            return prepareResult(true,"Task list",$query,config('httpcodes.success')); 
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -91,7 +102,7 @@ class TaskController extends Controller
             'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 		   $end_date = $request->end_date;
             $every = '1';
@@ -103,7 +114,7 @@ class TaskController extends Controller
                     'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
             }
             if($request->is_repeat){
@@ -115,7 +126,7 @@ class TaskController extends Controller
                         "repeat_dates.*"  => "required|string|distinct",        
                     ]);
                     if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                     }
 
                 }
@@ -127,7 +138,7 @@ class TaskController extends Controller
                     "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -137,7 +148,7 @@ class TaskController extends Controller
                     "after_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -147,7 +158,7 @@ class TaskController extends Controller
                     "emergency_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -156,7 +167,7 @@ class TaskController extends Controller
                     "in_time_is_text_notify"    => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -219,7 +230,7 @@ class TaskController extends Controller
     		                            "employees.*"  => "required|distinct|exists:users,id",   
     		                        ]);
     		                        if ($validator->fails()) {
-    		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+    		                            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		                        }
     						        foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
@@ -240,14 +251,14 @@ class TaskController extends Controller
 				}
 			
 				$taskList = Task::whereIn('id',$task_ids)->get();
-				return prepareResult(true,'Task Added successfully' ,$taskList, $this->success);
+				return prepareResult(true,'Task Added successfully' ,$taskList, config('httpcodes.success'));
 
 			}else{
-                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -271,7 +282,7 @@ class TaskController extends Controller
             'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 		   $end_date = $request->end_date;
             $every = '1';
@@ -283,7 +294,7 @@ class TaskController extends Controller
                     'end_date' => 'before:' .$dateValidate. '',                         
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
             }
             if($request->is_repeat){
@@ -295,7 +306,7 @@ class TaskController extends Controller
                         "repeat_dates.*"  => "required|string|distinct",        
                     ]);
                     if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                        return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                     }
 
                 }
@@ -307,7 +318,7 @@ class TaskController extends Controller
                     "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -317,7 +328,7 @@ class TaskController extends Controller
                     "after_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -327,7 +338,7 @@ class TaskController extends Controller
                     "emergency_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
@@ -336,13 +347,13 @@ class TaskController extends Controller
                     "in_time_is_text_notify"    => "required",        
                 ]);
                 if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
             }
             $checkId = Task::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
 		    $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
             $group_id = generateRandomNumber();
@@ -404,7 +415,7 @@ class TaskController extends Controller
     		                            "employees.*"  => "required|distinct|exists:users,id",   
     		                        ]);
     		                        if ($validator->fails()) {
-    		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+    		                            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		                        }
     						        foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
@@ -425,14 +436,14 @@ class TaskController extends Controller
 				}
 			
 				$taskList = Task::whereIn('id',$task_ids)->get();
-				return prepareResult(true,'Task Update successfully' ,$taskList, $this->success);
+				return prepareResult(true,'Task Update successfully' ,$taskList, config('httpcodes.success'));
 
 			}else{
-                 return prepareResult(false,'No date found',[], $this->unprocessableEntity);
+                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -443,13 +454,13 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$Task = Task::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('FollowUp','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('FollowUp','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -460,13 +471,13 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name')->first();
-	        return prepareResult(true,'View Task' ,$Task, $this->success);
+	        return prepareResult(true,'View Task' ,$Task, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -509,7 +520,7 @@ class TaskController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Calander Task",$pagination,$this->success);
+                return prepareResult(true,"Calander Task",$pagination,config('httpcodes.success'));
             }
             else
             {
@@ -527,13 +538,13 @@ class TaskController extends Controller
 		    		
 		    	}
 		    	
-		    	return prepareResult(true,'Calander Task' ,$data, $this->success);
+		    	return prepareResult(true,'Calander Task' ,$data, config('httpcodes.success'));
           	}
         	
 	        
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -548,7 +559,7 @@ class TaskController extends Controller
             'parent_id' =>  'Parent id is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->parent_id;
             $parent_id = 
@@ -567,17 +578,17 @@ class TaskController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Task list",$pagination,$this->success);
+                return prepareResult(true,"Edited Task list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Edited Task list' ,$query, $this->success);
+            return prepareResult(true,'Edited Task list' ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -591,7 +602,7 @@ class TaskController extends Controller
                 'status'     => 'required|in:1,2,3',  
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $is_action_perform = false;
            
@@ -604,26 +615,29 @@ class TaskController extends Controller
                 $is_action_perform = true; 
             }
             if($is_action_perform == false){
-                return prepareResult(false,'You are not authorized to perform this action',[], $this->unprocessableEntity); 
+                return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
             }
             
             $id = $request->task_id;
             $task = Task::find($id);
             $task->status = $request->status;
+            $task->action_by = $user->id;
+            $task->action_date = date('Y-m-d');
+            $task->comment = $request->comment;
             $task->save();
 
-            $updateStatus = AssignTask::where('task_id',$request->task_id)->update(['status'=>'1']);
+            $updateStatus = AssignTask::where('task_id',$request->task_id)->update(['status'=> $request->status]);
             
             DB::commit();
                
-            return prepareResult(true,'Action Done successfully' ,$task, $this->success);
+            return prepareResult(true,'Action Done successfully' ,$task, config('httpcodes.success'));
            
         
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+            \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         

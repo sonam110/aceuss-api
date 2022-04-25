@@ -31,7 +31,7 @@ class SalaryController extends Controller
             'salary_package_end_date.after' =>  getLangByLabelGroups('Salary','salary_package_end_date_after'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = SalaryDetail::where('user_id',$request->user_id)->first(); 
         	if($checkAlready) {
@@ -47,12 +47,12 @@ class SalaryController extends Controller
             $salaryDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$salaryDetail->save();
             DB::commit();
-	        return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, $this->success);
+	        return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -67,17 +67,17 @@ class SalaryController extends Controller
             'user_id.required' => getLangByLabelGroups('Salary','user_id'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkAlready = SalaryDetail::where('user_id',$request->user_id)->first(); 
             if (!is_object($checkAlready)) {
-                return prepareResult(false,'User not found', [],$this->not_found);
+                return prepareResult(false,'User not found', [],config('httpcodes.not_found'));
             }
             $salaryDetail = SalaryDetail::where('user_id',$request->user_id)->with('User:id,name')->first(); 
-            return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, $this->success);
+            return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);   
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));   
         }
     }
 }

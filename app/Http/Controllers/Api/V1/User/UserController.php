@@ -28,11 +28,11 @@ class UserController extends Controller
     public function __construct()
     {
 
-        /*$this->middleware('permission:users-browse',['except' => ['show']]);
+        $this->middleware('permission:users-browse',['except' => ['show']]);
         $this->middleware('permission:users-add', ['only' => ['store']]);
         $this->middleware('permission:users-edit', ['only' => ['update']]);
         $this->middleware('permission:users-read', ['only' => ['show']]);
-        $this->middleware('permission:users-delete', ['only' => ['destroy']]);*/
+        $this->middleware('permission:users-delete', ['only' => ['destroy']]);
         
         $this->middleware(function ($request, $next) {
             if(auth()->user()->user_type_id=='1') {
@@ -64,7 +64,7 @@ class UserController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation');
+            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');

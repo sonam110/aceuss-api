@@ -12,6 +12,16 @@ use DB;
 
 class ParagraphController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:paragraphs-browse',['except' => ['show']]);
+        $this->middleware('permission:paragraphs-add', ['only' => ['store']]);
+        $this->middleware('permission:paragraphs-edit', ['only' => ['update']]);
+        $this->middleware('permission:paragraphs-read', ['only' => ['show']]);
+        $this->middleware('permission:paragraphs-delete', ['only' => ['destroy']]);
+        
+    }
     public function paragraphs(Request $request)
     {
         try {
@@ -30,16 +40,16 @@ class ParagraphController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Paragraph list",$pagination,$this->success);
+                return prepareResult(true,"Paragraph list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Paragraph list",$Paragraph,$this->success);
+            return prepareResult(true,"Paragraph list",$Paragraph,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -54,18 +64,18 @@ class ParagraphController extends Controller
             'paragraph.required' => 'Paragraph Field is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $Paragraph = new Paragraph;
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -81,23 +91,23 @@ class ParagraphController extends Controller
             'paragraph.required' => 'Paragraph Field is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Paragraph = Paragraph::find($id);
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Paragraph, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -106,14 +116,14 @@ class ParagraphController extends Controller
         try {
             $checkId= Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $Paragraph = Paragraph::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

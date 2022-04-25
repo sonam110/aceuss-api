@@ -24,6 +24,16 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 class FollowUpsController extends Controller
 {
+     public function __construct()
+    {
+
+        $this->middleware('permission:followup-browse',['except' => ['show']]);
+        $this->middleware('permission:followup-add', ['only' => ['store']]);
+        $this->middleware('permission:followup-edit', ['only' => ['update']]);
+        $this->middleware('permission:followup-read', ['only' => ['show']]);
+        $this->middleware('permission:followup-delete', ['only' => ['destroy']]);
+        
+    }
 	public function followups(Request $request)
     {
         try {
@@ -40,7 +50,7 @@ class FollowUpsController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $folloups_ids = array_merge($followup_without_parent,$child_id);
-            $query = IpFollowUp::whereIn('id',$folloups_ids);
+            $query = IpFollowUp::whereIn('id',$folloups_ids)->with('ActionByUser:id,name,email');
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
@@ -67,18 +77,18 @@ class FollowUpsController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Follow ups list",$pagination,$this->success);
+                return prepareResult(true,"Follow ups list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Follow ups list",$query,$this->success);
+            return prepareResult(true,"Follow ups list",$query,config('httpcodes.success'));
 	    
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -102,11 +112,11 @@ class FollowUpsController extends Controller
                 'description.required' =>  getLangByLabelGroups('FollowUp','description'),           
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
         	$ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
         	if(!$ipCheck) {
-              	return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], $this->not_found); 
+              	return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], config('httpcodes.not_found')); 
         	}
             if(is_array($request->repeat_datetime)   && sizeof($request->repeat_datetime) > 0){
                 foreach ($request->repeat_datetime as $key => $followup) {
@@ -256,12 +266,12 @@ class FollowUpsController extends Controller
                 }
             }
 		 	 DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$ipFollowups, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -283,16 +293,16 @@ class FollowUpsController extends Controller
                 'description.required' =>  getLangByLabelGroups('FollowUp','description'),           
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
             if(!$ipCheck) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], $this->not_found); 
+                return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], config('httpcodes.not_found')); 
             }
         	
         	$checkId = IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
             if(is_array($request->repeat_datetime)  && sizeof($request->repeat_datetime) > 0 ){
                 foreach ($request->repeat_datetime as $key => $followup) {
@@ -447,13 +457,13 @@ class FollowUpsController extends Controller
                 }
             }
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$ipFollowups, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$ipFollowups, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -463,14 +473,14 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$IpFollowUp = IpFollowUp::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('FollowUp','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('FollowUp','delete') ,[], config('httpcodes.success'));
 		     	
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -479,13 +489,13 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan')->first();
-	        return prepareResult(true,'View Patient plan' ,$ipFollowups, $this->success);
+        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan','ActionByUser:id,name,email')->first();
+	        return prepareResult(true,'View Patient plan' ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -499,22 +509,22 @@ class FollowUpsController extends Controller
             'id' =>  getLangByLabelGroups('FollowUp','id'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$id = $request->id;
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
             $ipFollowups = IpFollowUp::find($id);
 		 	$ipFollowups->approved_by = $user->id;
 		 	$ipFollowups->approved_date = date('Y-m-d');
 		 	$ipFollowups->status = '1';
 		 	$ipFollowups->save();
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','approve') ,$ipFollowups, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','approve') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -525,25 +535,31 @@ class FollowUpsController extends Controller
             $user = getUser();
             $validator = Validator::make($request->all(),[
                 'follow_up_id' => 'required|exists:ip_follow_ups,id',   
+                'witness' => 'required',   
+                'witness.*' => 'required|distinct|exists:users,id',   
             ],
             [
             'id' =>  getLangByLabelGroups('FollowUp','id'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->follow_up_id;
             $checkId= IpFollowUp::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
             $ipFollowups = IpFollowUp::find($id);
             $ipFollowups->is_completed = '1';
             $ipFollowups->status = '2';
+            $ipFollowups->action_by = $user->id;
+            $ipFollowups->action_date = date('Y-m-d');
+            $ipFollowups->comment = $request->comment;
+            $ipFollowups->witness = json_encode($request->witness);
             $ipFollowups->save();
             if(is_array($request->question_answer) ){
                 foreach ($request->question_answer as $key => $ans) {
-                    if(!empty($value['answer']))
+                    if(!empty($ans['answer']))
                     {
                         $checkQuestion = FollowupComplete::where('follow_up_id',$request->follow_up_id)->where('question_id',$ans['question_id'])->first();
                         if(is_object($checkQuestion)){
@@ -566,12 +582,12 @@ class FollowUpsController extends Controller
                     
                 }
             }
-            return prepareResult(true,'Followup completed' ,$ipFollowups, $this->success);
+            return prepareResult(true,'Followup completed' ,$ipFollowups, config('httpcodes.success'));
             
         
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -586,7 +602,7 @@ class FollowUpsController extends Controller
             'parent_id' =>  'Parent id is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->parent_id;
             $parent_id = 
@@ -605,17 +621,17 @@ class FollowUpsController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Folllowup list",$pagination,$this->success);
+                return prepareResult(true,"Edited Folllowup list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Edited Folllowup List' ,$query, $this->success);
+            return prepareResult(true,'Edited Folllowup List' ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

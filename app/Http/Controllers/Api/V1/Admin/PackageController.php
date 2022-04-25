@@ -12,6 +12,16 @@ use DB;
 
 class PackageController extends Controller
 {   
+     public function __construct()
+    {
+
+        $this->middleware('permission:packages-browse',['except' => ['show']]);
+        $this->middleware('permission:packages-add', ['only' => ['store']]);
+        $this->middleware('permission:packages-edit', ['only' => ['update']]);
+        $this->middleware('permission:packages-read', ['only' => ['show']]);
+        $this->middleware('permission:packages-delete', ['only' => ['destroy']]);
+        
+    }
     public function packages(Request $request)
     {
         try {
@@ -36,16 +46,16 @@ class PackageController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Package list",$pagination,$this->success);
+                return prepareResult(true,"Package list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Package list",$query,$this->success);
+            return prepareResult(true,"Package list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -70,7 +80,7 @@ class PackageController extends Controller
             'number_of_employees.required' =>  getLangByLabelGroups('Package','number_of_employees'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $discounted_price  = 0;
             if($request->is_on_offer){
@@ -83,7 +93,7 @@ class PackageController extends Controller
                 'discount_value.required' => getLangByLabelGroups('Package','discount_value'),
                 ]); 
                 if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
                 if($request->discount_type == '1'){
@@ -112,12 +122,12 @@ class PackageController extends Controller
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, $this->success);
+            return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -126,14 +136,14 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->first();
-            return prepareResult(true,'View Package',$package, $this->success);
+            return prepareResult(true,'View Package',$package, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -158,11 +168,11 @@ class PackageController extends Controller
             'number_of_employees.required' =>  getLangByLabelGroups('Package','number_of_employees'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $discounted_price  = 0;
             if($request->is_on_offer){
@@ -175,7 +185,7 @@ class PackageController extends Controller
                 'discount_value.required' => getLangByLabelGroups('Package','discount_value'),
                 ]); 
                 if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
 
                 if($request->discount_type == '1'){
@@ -204,12 +214,12 @@ class PackageController extends Controller
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Package','update') ,$package, $this->success);
+            return prepareResult(true,getLangByLabelGroups('Package','update') ,$package, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);  
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
         }
     }
 
@@ -218,15 +228,15 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'2']);
-            return prepareResult(true,getLangByLabelGroups('Package','delete'),[], $this->success);
+            return prepareResult(true,getLangByLabelGroups('Package','delete'),[], config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -241,18 +251,18 @@ class PackageController extends Controller
             'id.required' => 'Id field is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->id;
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'1']);
-            return prepareResult(true,'Package Restore Successfully',[], $this->success);
+            return prepareResult(true,'Package Restore Successfully',[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }

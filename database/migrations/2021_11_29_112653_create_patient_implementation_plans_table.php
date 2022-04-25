@@ -50,6 +50,9 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->foreignId('edited_by')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
+            $table->foreignId('action_by')->nullable();
+            $table->date('action_date')->nullable();
+            $table->text('comment')->nullable();
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
             $table->softDeletes();

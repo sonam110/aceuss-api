@@ -55,6 +55,9 @@ class PatientImplementationPlan extends Model
         'edited_by',
         'approved_by',
         'approved_date',
+        'action_by',
+        'action_date',
+        'comment',
         'status',
         'entry_mode',
 		

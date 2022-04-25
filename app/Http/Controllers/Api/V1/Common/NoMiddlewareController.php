@@ -36,15 +36,15 @@ class NoMiddlewareController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Agency list",$pagination,$this->success);
+                return prepareResult(true,"Agency list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Agency list",$query,$this->success);
+            return prepareResult(true,"Agency list",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);     
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));     
         } 
     }
 
@@ -53,9 +53,9 @@ class NoMiddlewareController extends Controller
     {
         try {
             $query = ActivityOption::get();;
-            return prepareResult(true,"Agency list",$query,$this->success);
+            return prepareResult(true,"Agency list",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         } 
     }
 
@@ -78,15 +78,15 @@ class NoMiddlewareController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Country list",$pagination,$this->success);
+                return prepareResult(true,"Country list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Country list",$query,$this->success);
+            return prepareResult(true,"Country list",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);       
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));       
         }
     }
 
@@ -97,12 +97,12 @@ class NoMiddlewareController extends Controller
             
             $checkSettings = CompanySetting::select(array('company_settings.*', DB::raw("(SELECT organization_number from users WHERE users.id = ".$user_id.") organization_number")))->where('user_id',$user_id)->first();
             if(!is_object($checkSettings)){
-                 return prepareResult(false,'User not found',[], $this->unprocessableEntity); 
+                 return prepareResult(false,'User not found',[], config('httpcodes.bad_request')); 
             }
-            return prepareResult(true,'CompanySettings',$checkSettings, $this->success);     
+            return prepareResult(true,'CompanySettings',$checkSettings, config('httpcodes.success'));     
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error); 
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error')); 
         }
     }
 

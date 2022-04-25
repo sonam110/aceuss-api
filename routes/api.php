@@ -168,6 +168,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('delete-person/{id}','User\PatientController@deletePerson');
 		Route::post('ip-template-list','User\PatientController@ipTemplateList');
 		Route::post('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
+		Route::post('ip-action','User\PatientController@ipAction');
 
 		/*--------------Person add-------------------------*/
 		Route::post('patient-person-list','Common\PersonController@patientPersonList');

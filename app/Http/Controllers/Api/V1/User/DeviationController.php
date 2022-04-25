@@ -11,6 +11,16 @@ use DB;
 use Exception
 class DeviationController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:deviation-browse',['except' => ['show']]);
+        $this->middleware('permission:deviation-add', ['only' => ['store']]);
+        $this->middleware('permission:deviation-edit', ['only' => ['update']]);
+        $this->middleware('permission:deviation-read', ['only' => ['show']]);
+        $this->middleware('permission:deviation-delete', ['only' => ['destroy']]);
+        
+    }
 	public function deviations(Request $request)
     {
         try {
@@ -47,17 +57,17 @@ class DeviationController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Deviation list",$pagination,$this->success);
+                return prepareResult(true,"Deviation list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Deviation list",$query,$this->success);
+            return prepareResult(true,"Deviation list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -78,7 +88,7 @@ class DeviationController extends Controller
                 'description' =>  getLangByLabelGroups('Deviation','description'),     
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
         	
@@ -99,12 +109,12 @@ class DeviationController extends Controller
             $Deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Deviation->save();
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Deviation','create') ,$Deviation, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Deviation','create') ,$Deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -124,12 +134,12 @@ class DeviationController extends Controller
                 'description' =>  getLangByLabelGroups('Deviation','description'),     
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Deviation::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
@@ -153,13 +163,13 @@ class DeviationController extends Controller
             $Deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Deviation->save();
 		  DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Deviation','update') ,$Deviation, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Deviation','update') ,$Deviation, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -169,15 +179,15 @@ class DeviationController extends Controller
 	    	$user = getUser();
         	$checkId= Deviation::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$Deviation = Deviation::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Deviation','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('Deviation','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -191,23 +201,23 @@ class DeviationController extends Controller
                 'id' =>  getLangByLabelGroups('Journal','id'),   
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$id = $request->id;
         	$checkId= Deviation::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
             $Deviation = Deviation::find($id);
 		 	$Deviation->approved_by = $user->id;
 		 	$Deviation->approved_date = date('Y-m-d');
 		 	$Deviation->status = '1';
 		 	$Deviation->save();
-	        return prepareResult(true,getLangByLabelGroups('Deviation','approve') ,$Deviation, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Deviation','approve') ,$Deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -217,14 +227,14 @@ class DeviationController extends Controller
         	$checkId= Deviation::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
 
         	$Deviation = Deviation::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
-	        return prepareResult(true,'View Patient plan' ,$Deviation, $this->success);
+	        return prepareResult(true,'View Patient plan' ,$Deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

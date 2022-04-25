@@ -56,6 +56,9 @@ class CreateTasksTable extends Migration
             $table->tinyInteger('in_time_is_push_notify')->default(0);
             $table->foreignId('created_by');
             $table->foreignId('edited_by')->nullable();
+            $table->foreignId('action_by')->nullable();
+            $table->date('action_date')->nullable();
+            $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Not Done,1:Done');
             $table->softDeletes();
             $table->timestamps();

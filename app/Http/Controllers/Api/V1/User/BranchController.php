@@ -19,6 +19,14 @@ use Spatie\Permission\Models\Permission;
 class BranchController extends Controller
 {
    
+
+   public function __construct()
+    {
+
+        $this->middleware('permission:branch-add', ['only' => ['store']]);
+        $this->middleware('permission:branch-edit', ['only' => ['update']]);
+        
+    }
     /**
      * Display a listing of the resource.
      *
@@ -67,7 +75,7 @@ class BranchController extends Controller
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             if(auth()->user()->user_type_id=='1'){
                 $top_most_parent_id = auth()->user()->id;
@@ -82,7 +90,7 @@ class BranchController extends Controller
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->branch_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], $this->unprocessableEntity);
+                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], config('httpcodes.bad_request'));
 
             }
            
@@ -138,12 +146,12 @@ class BranchController extends Controller
 
              DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, $this->success);
+            return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -192,7 +200,7 @@ class BranchController extends Controller
             'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
             if(auth()->user()->user_type_id=='1'){
@@ -207,12 +215,12 @@ class BranchController extends Controller
 
             $checkId = User::where('id',$id)->where('top_most_parent_id',$top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('UserValidation','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->branch_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], $this->unprocessableEntity);
+                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], config('httpcodes.bad_request'));
 
             }
             
@@ -239,13 +247,13 @@ class BranchController extends Controller
 
             DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, $this->success);
+            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

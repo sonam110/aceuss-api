@@ -1,123 +1,15 @@
-1. insatser klarat med personal
-2. kunde fixat sjalv
-3. kunden ville inte
-4.personal kunde inte
-
-avvikelse --deviation
-
-1. Efforts managed with staff
-2. Could fix himself
-3. The customer did not want
-4. Staff could not
 
 
 
-3. kunde fixat sjalv------ Journal
-3. kunden ville inte----Journal
-4.personal kunde inte-------Journal ------------ daviation
+1. follow kiske samne complete hua uska aaray and competeed by and date
 
-
-Done - 
-done by employee - no action
-Done by patient - create journal
-
-Not done - 
-Not done by employee - deviation and journal
-Patient did not want - journal
-
-If journal create - ask for social journal or not
+2. Ip complete - ip comppleted and date   --- death case if yes delete  activity/task 
 
 
 
-Done - 
-done by employee - no action
-Done by patient - create journal
-
-Not done - 
-Not done by employee - deviation and journal
-Patient did not want - journal
-
-If journal create - ask for social journal or not
+-----------comment
 
 
-
-
-
-ip document upload  show in patient view case
-and patient document show in ip list
-
-categoru subcategory permission update p
-
-
-update ip case chreck permiss
-
-
-request for permission send
-
-
-ALTER TABLE `users`
-  DROP `working_from`,
-  DROP `working_to`,
-  DROP `place_name`;
-
-
-
-7 no step
-
-
-https://docs.google.com/document/d/1fik5XvD4i-PbjdzHwM6eTLDh8PgvJiZd/edit
-
-
-approval assig
-  is_presented
-
-  is_participat
-
-
-mobile bank id   count equal then approved
-menual ---  ip detail  send pdf to all --- direct approved ip
-digital signature --create account  
-
-
-activity me action perform me time save krna h--done
-
-
-acrivity pending notification
-
-jouranal deviatiob filter -
-
-
-switch view
-
-
-daywise all count /all activity done nnot done
-daywise deviation done not done
-
-
-
-
-
-https://docs.google.com/document/d/1fik5XvD4i-PbjdzHwM6eTLDh8PgvJiZd/edit
-
-
-company 
-
-new changes----------------------------
-
-
-1..ip and actciity assigne list employee wise and patient wise
-
-patient all detail   
-all list
-
-
-add title
-
-document upload admin ---------------- admin  title /file  public api/private api
-
-admin ki document list
-
-
-company ki document list
+task   - comment
 
 

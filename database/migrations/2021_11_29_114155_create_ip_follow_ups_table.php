@@ -33,6 +33,10 @@ class CreateIpFollowUpsTable extends Migration
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->longText('documents')->nullable();
+            $table->foreignId('action_by')->nullable();
+            $table->date('action_date')->nullable();
+            $table->text('comment')->nullable();
+            $table->text('witness')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0:Pending,1:Approved,2:Completed,3:Reject,4:Hold');
             $table->softDeletes();
             $table->string('entry_mode')->nullable();

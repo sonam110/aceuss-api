@@ -16,6 +16,14 @@ class RoleController extends Controller
     protected $top_most_parent_id;
     public function __construct()
     {
+
+
+        $this->middleware('permission:role-browse',['except' => ['show']]);
+        $this->middleware('permission:role-add', ['only' => ['store']]);
+        $this->middleware('permission:role-edit', ['only' => ['update']]);
+        $this->middleware('permission:role-read', ['only' => ['show']]);
+        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+
         $this->middleware(function ($request, $next) {
             if(auth()->user()->user_type_id=='1') {
                 $this->top_most_parent_id = auth()->user()->id;
@@ -142,7 +150,7 @@ class RoleController extends Controller
             {
                 return prepareResult(true,'View Role',$roleInfo, '200');
             }
-            return prepareResult(false, getLangByLabelGroups('role','id_not_found'), [],$this->not_found);
+            return prepareResult(false, getLangByLabelGroups('role','id_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -183,7 +191,7 @@ class RoleController extends Controller
                 }
                 return prepareResult(true,getLangByLabelGroups('role','update') ,$roleInfo, '200');
             }
-            return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],$this->not_found);
+            return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -205,7 +213,7 @@ class RoleController extends Controller
                 $roleInfo->delete();
                  return prepareResult(true,getLangByLabelGroups('role','delete') ,[], '200');
             }
-            return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],$this->not_found);
+            return prepareResult(false, getLangByLabelGroups('role','role_not_found'), [],config('httpcodes.not_found'));
             
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');

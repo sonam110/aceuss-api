@@ -50,10 +50,10 @@ class SMSTemplateController extends Controller
                 $query = $query->get();
             }
 
-             return prepareResult(true,"Template list",$query,$this->success);
+             return prepareResult(true,"Template list",$query,config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -65,7 +65,7 @@ class SMSTemplateController extends Controller
         ]);
 
         if ($validation->fails()) {
-           return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity); 
+           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
         }
 
         DB::beginTransaction();
@@ -76,11 +76,11 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$smsTemplate, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -89,12 +89,12 @@ class SMSTemplateController extends Controller
         try {
             if($smsTemplate)
             {
-                return prepareResult(true,'show Template' ,$smsTemplate, $this->success);
+                return prepareResult(true,'show Template' ,$smsTemplate, config('httpcodes.success'));
             }
-            return prepareResult(false, 'Record Not Found', [],$this->not_found);
+            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -105,7 +105,7 @@ class SMSTemplateController extends Controller
         ]);
 
         if ($validation->fails()) {
-           return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity); 
+           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
         }
 
         DB::beginTransaction();
@@ -114,11 +114,11 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$smsTemplate, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -128,13 +128,13 @@ class SMSTemplateController extends Controller
             if(auth()->user()->user_type_id=='1')
             {
                 $smsTemplate->delete();
-                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
             }
-           return prepareResult(false, 'Record Not Found', [],$this->not_found);
+           return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             
         } catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 }

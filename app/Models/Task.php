@@ -63,6 +63,9 @@ class Task extends Model
         'in_time_is_push_notify',
 		'created_by',
 		'edited_by',
+        'action_by',
+        'action_date',
+        'comment',
 		'status',
     ];
 

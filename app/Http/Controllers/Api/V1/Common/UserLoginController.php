@@ -38,7 +38,7 @@ class UserLoginController extends Controller
             ]);
 
         if ($validator->fails()) {
-            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         }
         try {
             $user = User::where('email',$request->email)->with('TopMostParent:id,user_type_id,name,email')->first();
@@ -47,16 +47,16 @@ class UserLoginController extends Controller
                 
                 if (Hash::check($request->password, $user->password)) {
                     if($user->status == '0' ) { 
-                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_inactive'),[],$this->unauthorized);
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_inactive'),[],config('httpcodes.unauthorized'));
                     }
                     if($user->status == '2') { 
-                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_deactive'),[],$this->unauthorized);
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_deactive'),[],config('httpcodes.unauthorized'));
                     }
                     
                     if ($this->attemptLogin($request)) {
                             $token = auth()->user()->createToken('authToken')->accessToken;
                             if (empty($token)) {
-                                return prepareResult(false,getLangByLabelGroups('LoginValidation','unable_generate_token'),[], $this->unprocessableEntity);
+                                return prepareResult(false,getLangByLabelGroups('LoginValidation','unable_generate_token'),[], config('httpcodes.bad_request'));
                             }else{
                                  //======= login history==================//
                                 $history =  DeviceLoginHistory::where('user_id',$user->id)->get();
@@ -133,20 +133,20 @@ class UserLoginController extends Controller
                                     
                                 }
                                 $user['permissions']  = $userPermission;
-                             return prepareResult(true,"User Logged in successfully",$user,$this->success);
+                             return prepareResult(true,"User Logged in successfully",$user,config('httpcodes.success'));
                             }
                         
                     }
                    
                 } else {
-                    return prepareResult(false,getLangByLabelGroups('LoginValidation','wrong_password'),[],$this->unprocessableEntity);
+                    return prepareResult(false,getLangByLabelGroups('LoginValidation','wrong_password'),[],config('httpcodes.bad_request'));
                 }   
             } else {
-                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-           return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
        }
    }
 
@@ -217,15 +217,15 @@ class UserLoginController extends Controller
             'email.email' => getLangByLabelGroups('LoginValidation','email_invalid'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = User::where('email',$request->email)->first();
             if (!empty($user)) {
                     if ($user->status == '0') { 
-                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_inactive'),[],$this->bed_request);
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_inactive'),[],config('httpcodes.bad_request'));
                     }
                     if ($user->status == '2') { 
-                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_deactive'),[],$this->bed_request);
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','account_deactive'),[],config('httpcodes.bad_request'));
                     }
                    
                     if($request->device == "mobile") {
@@ -251,14 +251,14 @@ class UserLoginController extends Controller
                     if(env('IS_MAIL_ENABLE',false) == true){   
                         Mail::to($user->email)->send(new SendResetPassworkLink($content));
                     }
-                return prepareResult(true,getLangByLabelGroups('LoginValidation','password_reset_link'),$content,$this->success);
+                return prepareResult(true,getLangByLabelGroups('LoginValidation','password_reset_link'),$content,config('httpcodes.success'));
 
             }else{
-                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -269,9 +269,9 @@ class UserLoginController extends Controller
             $usertoken =[
                 'token'=> $token,
             ];
-            return prepareResult(true,'Token',$usertoken,$this->success);
+            return prepareResult(true,'Token',$usertoken,config('httpcodes.success'));
         } else {
-            return prepareResult(false,'Token not found',[],$this->bed_request);
+            return prepareResult(false,'Token not found',[],config('httpcodes.bad_request'));
         }
 
     }
@@ -290,18 +290,18 @@ class UserLoginController extends Controller
             'email.email' => getLangByLabelGroups('LoginValidation','email_invalid'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = User::select('id','email','password_token')->where('email',$request->email)->where('password_token',$request->token)->first();
             if (!empty($user)) {
 
-                return prepareResult(true,'User Info',$user,$this->success);
+                return prepareResult(true,'User Info',$user,config('httpcodes.success'));
             }else {
-                return prepareResult(false,'Invalid Otp',[],$this->bed_request);
+                return prepareResult(false,'Invalid Otp',[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
        
@@ -325,7 +325,7 @@ class UserLoginController extends Controller
             'password.confirmed' =>  getLangByLabelGroups('PasswordReset','confirm_password'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = User::where('email',$request->email)->where('password_token',$request->token)->first();
             $password = $request->password;
@@ -336,13 +336,13 @@ class UserLoginController extends Controller
                     $user->save();
                 });
 
-                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],$this->success);
+                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));
             }else {
-                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
        
@@ -364,7 +364,7 @@ class UserLoginController extends Controller
             'password.confirmed' =>  getLangByLabelGroups('PasswordReset','confirm_password'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = User::where('email',$request->email)->first();
 
@@ -375,13 +375,13 @@ class UserLoginController extends Controller
                     $user->password_token = '';
                     $user->save();
                 
-                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],$this->success);
+                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));
             }else {
-                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],$this->bed_request);
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
        
@@ -391,14 +391,14 @@ class UserLoginController extends Controller
     {
         $user = getUser();
         if (!is_object($user)) {
-            return prepareResult(false,"User Not Found", [],$this->not_found);
+            return prepareResult(false,"User Not Found", [],config('httpcodes.not_found'));
         }
         if(Auth::check()) {
             $token = $request->bearerToken();
             Auth::user()->token()->revoke();
-            return prepareResult(true,'Logout Successfully',[],$this->success);
+            return prepareResult(true,'Logout Successfully',[],config('httpcodes.success'));
         }else{
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
 
     }
@@ -436,7 +436,7 @@ class UserLoginController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
            
 
@@ -444,18 +444,18 @@ class UserLoginController extends Controller
                 $data['password'] =  \Hash::make($request->new_password);
                 $updatePass = User::updateOrCreate(['id' => $user->id],$data);
 
-                return prepareResult(true,"Password Updated Successfully." ,[], $this->success);
+                return prepareResult(true,"Password Updated Successfully." ,[], config('httpcodes.success'));
                 
                
             }else{
 
-                return prepareResult(false,'Incorrect old password, Please try again with correct password',[],$this->unprocessableEntity);
+                return prepareResult(false,'Incorrect old password, Please try again with correct password',[],config('httpcodes.bad_request'));
                
 
             }
         }
         catch(Exception $exception) {
-           return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+           return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
            
             
         }
@@ -467,9 +467,9 @@ class UserLoginController extends Controller
     {
         $userTypeList = UserType::whereNotIn('id',['1','2'])->select('id','name')->get();
         if($userTypeList) {
-            return prepareResult(true,'User type List' ,$userTypeList, $this->success);
+            return prepareResult(true,'User type List' ,$userTypeList, config('httpcodes.success'));
         } else{
-            return prepareResult(true,'No user type Found' ,[], $this->not_found);
+            return prepareResult(true,'No user type Found' ,[], config('httpcodes.not_found'));
         }
     }
 
@@ -479,10 +479,10 @@ class UserLoginController extends Controller
         if($request->email){
             $user = User::where('email',$request->email)->where('status','1')->first();
             if ($user) {
-                return prepareResult(true,'Email found' ,[], $this->success);
+                return prepareResult(true,'Email found' ,[], config('httpcodes.success'));
             }
             else {
-                return prepareResult(false,getLangByLabelGroups('LoginValidation','email_not_exists'),[], $this->not_found);
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','email_not_exists'),[], config('httpcodes.not_found'));
             }
         }
     }
@@ -493,10 +493,10 @@ class UserLoginController extends Controller
             
             $user = getUser();
             $userDetail = User::where('id',$user->id)->where('top_most_parent_id',$user->top_most_parent_id)->with('UserType:id,name','TopMostParent:id,user_type_id,name,email','Parent:id,name','CategoryMaster:id,created_by,name','Department:id,name','weeklyHours')->first();
-            return prepareResult(true,'User detail' ,$userDetail, $this->success);
+            return prepareResult(true,'User detail' ,$userDetail, config('httpcodes.success'));
                 
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
                 
         }
             
@@ -520,15 +520,15 @@ class UserLoginController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Country list",$pagination,$this->success);
+                return prepareResult(true,"Country list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Country list",$query,$this->success);
+            return prepareResult(true,"Country list",$query,config('httpcodes.success'));
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
                 
         }
         

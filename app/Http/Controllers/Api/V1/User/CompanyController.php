@@ -40,17 +40,17 @@ class CompanyController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"WorkShift list",$pagination,$this->success);
+                return prepareResult(true,"WorkShift list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"WorkShift list",$query,$this->success);
+            return prepareResult(true,"WorkShift list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -72,11 +72,11 @@ class CompanyController extends Controller
             'shift_end_time.after' =>  getLangByLabelGroups('Company','shift_end_time_after'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CompanyWorkShift::where('shift_name',$request->shift_name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('Company','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('Company','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $companyWorkShift = new CompanyWorkShift;
 		 	$companyWorkShift->user_id = $user->id;
@@ -87,10 +87,10 @@ class CompanyController extends Controller
 		 	$companyWorkShift->status = '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyWorkShift->save();
-	        return prepareResult(true,getLangByLabelGroups('Company','create') ,$companyWorkShift, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Company','create') ,$companyWorkShift, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -101,14 +101,14 @@ class CompanyController extends Controller
             $user = getUser();
             $checkId= CompanyWorkShift::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'), [],config('httpcodes.not_found'));
             }
             $companyWorkShift = CompanyWorkShift::where('id',$id)->first();
-            return prepareResult(true,'View Workshift' ,$companyWorkShift, $this->success);
+            return prepareResult(true,'View Workshift' ,$companyWorkShift, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -128,15 +128,15 @@ class CompanyController extends Controller
             'shift_end_time.after' =>  getLangByLabelGroups('Company','shift_end_time_after'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CompanyWorkShift::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Company','id_not_found'), [],$this->not_found);
+                return prepareResult(false, getLangByLabelGroups('Company','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CompanyWorkShift::where('id','!=',$id)->where('shift_name',$request->shift_name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('Company','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false, getLangByLabelGroups('Company','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $companyWorkShift = CompanyWorkShift::find($id);
@@ -147,11 +147,11 @@ class CompanyController extends Controller
 		 	$companyWorkShift->status = ($request->status) ? $request->status : '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyWorkShift->save();
-	        return prepareResult(true,getLangByLabelGroups('Company','update') ,$companyWorkShift, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Company','update') ,$companyWorkShift, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -162,16 +162,16 @@ class CompanyController extends Controller
             $user = getUser();
         	$checkId= CompanyWorkShift::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$companyWorkShift = CompanyWorkShift::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Company','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('Company','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -193,15 +193,15 @@ class CompanyController extends Controller
             'shift_end_date.after' => getLangByLabelGroups('Company','shift_end_date_after'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = ShiftAssigne::where('user_id',$request->user_id)->where('shift_id',$request->shift_id)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('Company','shift_already_assigne'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('Company','shift_already_assigne'),[], config('httpcodes.bad_request')); 
         	}
             $checkShiftAlreadyAssigne = ShiftAssigne::where('user_id',$request->user_id)->where('shift_start_date', '<=', $request->shift_end_date)->where('shift_end_date', '>=', $request->shift_start_date)->first(); 
             if($checkShiftAlreadyAssigne) {
-                return prepareResult(false,getLangByLabelGroups('Company','shift_already_assigne_date'),[], $this->unprocessableEntity); 
+                return prepareResult(false,getLangByLabelGroups('Company','shift_already_assigne_date'),[], config('httpcodes.bad_request')); 
             }
         	
 	        $shiftAssigne = new ShiftAssigne;
@@ -214,10 +214,10 @@ class CompanyController extends Controller
             $shiftAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$shiftAssigne->save();
 		 	$shiftDetail = ShiftAssigne::where('id',$shiftAssigne->id)->with('User:id,name','CompanyWorkShift')->first();
-	        return prepareResult(true,getLangByLabelGroups('Company','create'),$shiftDetail, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Company','create'),$shiftDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -232,18 +232,18 @@ class CompanyController extends Controller
             'assigne_id.required' => getLangByLabelGroups('Company','id'),
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkAlready = ShiftAssigne::where('id',$request->assigne_id)->first(); 
             if($checkAlready) {
-                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'),[], $this->unprocessableEntity); 
+                return prepareResult(false,getLangByLabelGroups('Company','id_not_found'),[], config('httpcodes.bad_request')); 
             }
 
             $shiftDetail = ShiftAssigne::where('id',$request->assigne_id)->with('User:id,name','CompanyWorkShift')->first();
-            return prepareResult(true,'View assigne shift',$shiftDetail, $this->success);
+            return prepareResult(true,'View assigne shift',$shiftDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -256,10 +256,10 @@ class CompanyController extends Controller
             $employeeList = User::select('id','name')->where('user_type_id','3')
                 ->orderBy('id', 'DESC')
                 ->get();
-            return prepareResult(true,"Employee list",$employeeList,$this->success);
+            return prepareResult(true,"Employee list",$employeeList,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         

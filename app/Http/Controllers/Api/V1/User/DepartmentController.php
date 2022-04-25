@@ -11,6 +11,16 @@ use Exception;
 use DB;
 class DepartmentController extends Controller
 {
+     public function __construct()
+    {
+
+        $this->middleware('permission:departments-browse',['except' => ['show']]);
+        $this->middleware('permission:departments-add', ['only' => ['store']]);
+        $this->middleware('permission:departments-edit', ['only' => ['update']]);
+        $this->middleware('permission:departments-read', ['only' => ['show']]);
+        $this->middleware('permission:departments-delete', ['only' => ['destroy']]);
+        
+    }
 	public function departments(Request $request)
     {
         try {
@@ -37,17 +47,17 @@ class DepartmentController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Department list",$pagination,$this->success);
+                return prepareResult(true,"Department list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Department list",$query,$this->success);
+            return prepareResult(true,"Department list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -65,17 +75,17 @@ class DepartmentController extends Controller
             ]);
 
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = Department::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('Department','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false, getLangByLabelGroups('Department','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 
             $topParent = findTopParentId($request->parent_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->parent_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create department more than five level ',[], $this->unprocessableEntity);
+                return prepareResult(false,'Child level exceed you do not create department more than five level ',[], config('httpcodes.bad_request'));
 
             }
 	        $department = new Department;
@@ -86,12 +96,12 @@ class DepartmentController extends Controller
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
               DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Department','create') ,$department, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Department','create') ,$department, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -141,15 +151,15 @@ class DepartmentController extends Controller
             $user = getUser();
             $checkId= Department::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $department = Department::where('id',$id)->with('User:id,name')->first();
-            return prepareResult(true,'View Department',$department, $this->success);
+            return prepareResult(true,'View Department',$department, config('httpcodes.success'));
                  
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -166,23 +176,23 @@ class DepartmentController extends Controller
             'name.required' => getLangByLabelGroups('Department','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Department::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('Department','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('Department','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 
             $topParent = findTopParentId($request->parent_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->parent_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create department more than five level ',[], $this->unprocessableEntity);
+                return prepareResult(false,'Child level exceed you do not create department more than five level ',[], config('httpcodes.bad_request'));
 
             }
 	        $department = Department::find($id);
@@ -192,13 +202,13 @@ class DepartmentController extends Controller
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
               DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Department','update'),$department, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Department','update'),$department, config('httpcodes.success'));
 			    
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -208,16 +218,16 @@ class DepartmentController extends Controller
 	    	$user = getUser();
         	$checkId= Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$department = Department::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Department','delete'),[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('Department','delete'),[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }

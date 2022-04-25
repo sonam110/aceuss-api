@@ -78,6 +78,7 @@ class Activity extends Model
         'is_compulsory',
 		'status',
         'action_by',
+        'action_date',
         'entry_mode',
 	];
     public function ImplementationPlan()

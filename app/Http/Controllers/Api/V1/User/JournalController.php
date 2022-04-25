@@ -11,6 +11,16 @@ use DB;
 use Exception;
 class JournalController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:journal-browse',['except' => ['show']]);
+        $this->middleware('permission:journal-add', ['only' => ['store']]);
+        $this->middleware('permission:journal-edit', ['only' => ['update']]);
+        $this->middleware('permission:journal-read', ['only' => ['show']]);
+        $this->middleware('permission:journal-delete', ['only' => ['destroy']]);
+        
+    }
 	public function journals(Request $request)
     {
       
@@ -50,18 +60,18 @@ class JournalController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Journal list",$pagination,$this->success);
+                return prepareResult(true,"Journal list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Journal list",$query,$this->success);
+            return prepareResult(true,"Journal list",$query,config('httpcodes.success'));
 	    
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -84,7 +94,7 @@ class JournalController extends Controller
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
 	        $Journal = new Journal;
@@ -102,12 +112,12 @@ class JournalController extends Controller
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Journal->save();
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -129,13 +139,13 @@ class JournalController extends Controller
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
         	$checkId = Journal::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$Journal = new  Journal;
@@ -156,13 +166,13 @@ class JournalController extends Controller
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Journal->save();
 		       DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -172,15 +182,15 @@ class JournalController extends Controller
 	    	$user = getUser();
         	$checkId= Journal::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$Journal = Journal::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Journal','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('Journal','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -195,23 +205,23 @@ class JournalController extends Controller
                 'id' =>  getLangByLabelGroups('Journal','id'),   
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$id = $request->id;
         	$checkId= Journal::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
             $Journal = Journal::find($id);
 		 	$Journal->approved_by = $user->id;
 		 	$Journal->approved_date = date('Y-m-d');
 		 	$Journal->status = '1';
 		 	$Journal->save();
-	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$Journal, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$Journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -221,14 +231,14 @@ class JournalController extends Controller
         	$checkId= Journal::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
 
         	$Journal = Journal::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
-	        return prepareResult(true,'View Patient plan' ,$Journal, $this->success);
+	        return prepareResult(true,'View Patient plan' ,$Journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

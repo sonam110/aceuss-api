@@ -240,7 +240,8 @@ class User extends Authenticatable
 
     public function getCompanyTypesAttribute()
     {
-        if(is_null($this->company_type_id)== false && is_array($this->company_type_id) && sizeof(json_decode($this->company_type_id)) >0){
+
+        if(is_null($this->company_type_id)== false && is_array(json_decode($this->company_type_id)) && sizeof(json_decode($this->company_type_id)) >0){
             $companyType = CompanyType::select('id','name')->whereIn('id',json_decode($this->company_type_id))->get();
             return (!empty($companyType)) ? $companyType : null;
         }
@@ -249,7 +250,7 @@ class User extends Authenticatable
     }
     public function getPatientTypesAttribute()
     {
-        if(is_null($this->patient_type_id)== false && is_array($this->patient_type_id) && sizeof(json_decode($this->patient_type_id)) >0){
+        if(is_null($this->patient_type_id)== false && is_array(json_decode($this->patient_type_id)) && sizeof(json_decode($this->patient_type_id)) >0){
             $patientTYpe = EmployeeType::select('id','designation')->whereIn('id',json_decode($this->patient_type_id))->get();
             return (!empty($patientTYpe)) ? $patientTYpe : null;
         }

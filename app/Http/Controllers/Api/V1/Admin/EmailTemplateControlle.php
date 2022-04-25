@@ -11,6 +11,16 @@ use DB;
 
 class EmailTemplateControlle extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('permission:EmailTemplate-browse',['except' => ['show']]);
+        $this->middleware('permission:EmailTemplate-add', ['only' => ['store']]);
+        $this->middleware('permission:EmailTemplate-edit', ['only' => ['update']]);
+        $this->middleware('permission:EmailTemplate-read', ['only' => ['show']]);
+        $this->middleware('permission:EmailTemplate-delete', ['only' => ['destroy']]);
+        
+    }
     public function emailTemplates(Request $request)
     {
         try {
@@ -30,16 +40,16 @@ class EmailTemplateControlle extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Email Template list",$pagination,$this->success);
+                return prepareResult(true,"Email Template list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Email Template list",$companyType,$this->success);
+            return prepareResult(true,"Email Template list",$companyType,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -52,7 +62,7 @@ class EmailTemplateControlle extends Controller
         ]);
 
         if ($validation->fails()) {
-           return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity); 
+           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
         }
 
         DB::beginTransaction();
@@ -66,11 +76,11 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmailTemplate, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -79,12 +89,12 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
-             return prepareResult(true,'View Template' ,$checkId, $this->success);
+             return prepareResult(true,'View Template' ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -100,11 +110,11 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$EmailTemplate, $this->success);
+            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
@@ -113,18 +123,18 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 EmailTemplate::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], $this->success);
+                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
             }
-           return prepareResult(false, 'Record Not Found', [],$this->not_found);
+           return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             
         } catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 }

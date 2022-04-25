@@ -32,17 +32,17 @@ class FileController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"File list",$pagination,$this->success);
+                return prepareResult(true,"File list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"File list",$query,$this->success);
+            return prepareResult(true,"File list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -60,7 +60,7 @@ class FileController extends Controller
         		'file_url' => 'required',      
 	        ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
 	        $file = new File;
             $file->folder_id = $request->folder_id;
@@ -75,10 +75,10 @@ class FileController extends Controller
 		 	$file->visible_to_users = $request->visible_to_users;
             $file->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$file->save();
-	        return prepareResult(true,'file Added successfully' ,$file, $this->success);
+	        return prepareResult(true,'file Added successfully' ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -94,11 +94,11 @@ class FileController extends Controller
             'name.required' => 'Name is required',
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
 	        $file = File::find($id);
 		 	$file->top_most_parent_id = $user->top_most_parent_id;
@@ -113,12 +113,12 @@ class FileController extends Controller
 		 	$file->visible_to_users = $request->visible_to_users;
             $file->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$file->save();
-	        return prepareResult(true,'file Updated successfully' ,$file, $this->success);
+	        return prepareResult(true,'file Updated successfully' ,$file, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -129,14 +129,14 @@ class FileController extends Controller
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
         	$file = File::where('id',$id)->delete();
-         	return prepareResult(true,'file delete successfully' ,[], $this->success);
+         	return prepareResult(true,'file delete successfully' ,[], config('httpcodes.success'));
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -148,22 +148,22 @@ class FileController extends Controller
         		'id' => 'required',   
 	        ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$id = $request->id;
         	$checkId= File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
             $file = File::find($id);
 		 	$file->approved_by = $user->id;
 		 	$file->approved_date = date('Y-m-d');
 		 	$file->status = '1';
 		 	$file->save();
-	        return prepareResult(true,'File successfully approved' ,$file, $this->success);
+	        return prepareResult(true,'File successfully approved' ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -173,13 +173,13 @@ class FileController extends Controller
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],$this->not_found);
+                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
             }
             $file = File::where('id',$id)->with('Folder:id,name')->first();
-	        return prepareResult(true,'File successfully approved' ,$file, $this->success);
+	        return prepareResult(true,'File successfully approved' ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

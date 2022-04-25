@@ -36,16 +36,16 @@ class CategoryTypeController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"CategoryType list",$pagination,$this->success);
+                return prepareResult(true,"CategoryType list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"CategoryType list",$query,$this->success);
+            return prepareResult(true,"CategoryType list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -61,21 +61,21 @@ class CategoryTypeController extends Controller
             'name.required' => getLangByLabelGroups('CategoryType','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CategoryType::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CategoryType','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryType','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $categoryType = new CategoryType;
 		 	$categoryType->created_by = $user->id;
 		 	$categoryType->name = $request->name;
             $categoryType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryType->save();
-	        return prepareResult(true,getLangByLabelGroups('CategoryType','create') ,$categoryType, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CategoryType','create') ,$categoryType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -85,16 +85,16 @@ class CategoryTypeController extends Controller
             $user = getUser();
             $checkId= CategoryType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $categoryType = CategoryType::where('id',$id)->first();
-            return prepareResult(true,'Category Type view' ,$categoryType, $this->success);
+            return prepareResult(true,'Category Type view' ,$categoryType, config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -110,16 +110,16 @@ class CategoryTypeController extends Controller
             'name.required' => getLangByLabelGroups('CategoryType','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryType::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('CategoryType','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryType','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $categoryType = CategoryType::find($id);
@@ -127,12 +127,12 @@ class CategoryTypeController extends Controller
             $categoryType->status = ($request->status) ? $request->status:'1';
             $categoryType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryType->save();
-	        return prepareResult(true,getLangByLabelGroups('CategoryType','update') ,$categoryType, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CategoryType','update') ,$categoryType, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -142,17 +142,17 @@ class CategoryTypeController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryType = CategoryType::findOrFail($id);
             $categoryType->delete();
-         	return prepareResult(true,getLangByLabelGroups('CategoryType','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('CategoryType','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }

@@ -11,6 +11,18 @@ use Exception;
 use DB;
 class CategoryMasterController extends Controller
 {
+     public function __construct()
+    {
+
+        $this->middleware('permission:categories-browse',['except' => ['show']]);
+        $this->middleware('permission:categories-add', ['only' => ['store']]);
+        $this->middleware('permission:categories-edit', ['only' => ['update']]);
+        $this->middleware('permission:categories-read', ['only' => ['show']]);
+        $this->middleware('permission:categories-delete', ['only' => ['destroy']]);
+        
+       
+    }
+    
     public function categories(Request $request)
     {
         
@@ -42,16 +54,16 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category list",$pagination,$this->success);
+                return prepareResult(true,"Category list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category list",$query,$this->success);
+            return prepareResult(true,"Category list",$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     	
@@ -86,17 +98,17 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category Parent  list",$pagination,$this->success);
+                return prepareResult(true,"Category Parent  list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category Parent  list",$query,$this->success);
+            return prepareResult(true,"Category Parent  list",$query,config('httpcodes.success'));
           
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -113,7 +125,7 @@ class CategoryMasterController extends Controller
             'parent_id.required' => 'Category parent id  is required',
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = CategoryMaster::select('id','name')->where('parent_id',$request->parent_id);
@@ -137,16 +149,16 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category Childs  list",$pagination,$this->success);
+                return prepareResult(true,"Category Childs  list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category Childs  list",$query,$this->success);
+            return prepareResult(true,"Category Childs  list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
         
@@ -165,16 +177,16 @@ class CategoryMasterController extends Controller
             'name.required' => getLangByLabelGroups('CategoryMaster','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CategoryMaster::where('category_type_id',$request->category_type_id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], $this->not_found); 
+                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
             
@@ -189,12 +201,12 @@ class CategoryMasterController extends Controller
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$categoryMaster, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$categoryMaster, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -212,21 +224,21 @@ class CategoryMasterController extends Controller
             'name.required' => getLangByLabelGroups('CategoryMaster','name'),
             ]);
 	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CategoryMaster::where('category_type_id',$request->category_type_id)->where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryMaster::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], $this->unprocessableEntity); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
             $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], $this->not_found); 
+                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
 	        $categoryMaster = CategoryMaster::find($id);
@@ -239,14 +251,14 @@ class CategoryMasterController extends Controller
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$categoryMaster, $this->success);
+	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$categoryMaster, config('httpcodes.success'));
 			    
 		       
         }
         catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
     }
@@ -256,16 +268,16 @@ class CategoryMasterController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryMaster::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryMaster = CategoryMaster::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('CategoryMaster','delete') ,[], $this->success);
+         	return prepareResult(true,getLangByLabelGroups('CategoryMaster','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }
@@ -275,16 +287,16 @@ class CategoryMasterController extends Controller
             $user = getUser();
             $checkId= CategoryMaster::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],$this->not_found);
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $categoryMaster = CategoryMaster::where('id',$id)->with('Parent:id,name','CategoryType:id,name','children')->first();
-            return prepareResult(true,'Category view',$categoryMaster, $this->success);
+            return prepareResult(true,'Category view',$categoryMaster, config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
     }

@@ -17,6 +17,7 @@ class IpFollowUp extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+    protected $appends = ['witness_List'];
     protected $fillable =[
     'ip_id',
 	'top_most_parent_id',
@@ -36,7 +37,11 @@ class IpFollowUp extends Model
 	'approved_by',
 	'approved_date',
     'documents',
+    'action_by',
+    'action_date',
 	'status',
+    'witness',
+    'comment',
     'entry_mode',
 
 
@@ -77,4 +82,19 @@ class IpFollowUp extends Model
     {
         return $this->hasMany(FollowupComplete::class,'follow_up_id','id');
     }
+    public function ActionByUser()
+    {
+        return $this->belongsTo(User::class,'action_by','id');
+    }
+
+    public function getWitnessListAttribute()
+    {
+        if(is_null($this->witness)== false && is_array(json_decode($this->witness)) && sizeof(json_decode($this->witness)) >0){
+            $witnessList = User::select('id','name','email')->whereIn('id',json_decode($this->witness))->get();
+            return (!empty($witnessList)) ? $witnessList : null;
+        }
+        
+
+    }
+
 }

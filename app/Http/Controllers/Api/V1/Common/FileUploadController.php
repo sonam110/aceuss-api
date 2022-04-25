@@ -22,7 +22,7 @@ class FileUploadController extends Controller
             ]);
         }
         if ($validation->fails()) {
-            return prepareResult(false,$validation->errors()->first(),[], $this->unprocessableEntity);
+            return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request'));
         }
         try
         {
@@ -38,7 +38,7 @@ class FileUploadController extends Controller
                     $extension = strtolower($value->getClientOriginalExtension());
                     if(!in_array($extension, $formatCheck))
                     {
-                        return prepareResult(false,getLangByLabelGroups('fileUploadValidation','file_not_allowed'),[], $this->unprocessableEntity);
+                        return prepareResult(false,getLangByLabelGroups('fileUploadValidation','file_not_allowed'),[], config('httpcodes.bad_request'));
                     }
                     $fileName   = time().'-'.rand(0,99999).'.' . $value->getClientOriginalExtension();
                     $extension = $value->getClientOriginalExtension();
@@ -53,7 +53,7 @@ class FileUploadController extends Controller
                     ];
                 }
 
-                return prepareResult(true,"File upload",$fileArray,$this->success);
+                return prepareResult(true,"File upload",$fileArray,config('httpcodes.success'));
             }
             else
             {
@@ -62,7 +62,7 @@ class FileUploadController extends Controller
                 $fileSize = $file->getSize();
                 if(!in_array($extension, $formatCheck))
                 {
-                    return prepareResult(false,getLangByLabelGroups('fileUploadValidation','file_not_allowed'),[], $this->unprocessableEntity);
+                    return prepareResult(false,getLangByLabelGroups('fileUploadValidation','file_not_allowed'),[], config('httpcodes.bad_request'));
                 }
                 
                 $file->move($destinationPath, $fileName);
@@ -73,12 +73,12 @@ class FileUploadController extends Controller
                     'file_extension'    => $file->getClientOriginalExtension(),
                     'uploading_file_name' => $file->getClientOriginalName(),
                 ];
-                return prepareResult(true,"File upload",$fileInfo,$this->success);
+                return prepareResult(true,"File upload",$fileInfo,config('httpcodes.success'));
             }   
         }
         catch (\Throwable $exception) {
             \Log::error($exception);
-            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 }
