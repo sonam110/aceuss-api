@@ -227,20 +227,25 @@ class UserController extends Controller
             if($request->user_type_id == '6'){
                 $patientInfo = new PatientInformation;
                 $patientInfo->patient_id = $user->id;
+                $patientInfo->institute_contact_person = $request->institute_contact_person;
                 $patientInfo->institute_name = $request->institute_name;
                 $patientInfo->institute_contact_number = $request->institute_contact_number;
                 $patientInfo->institute_full_address = $request->institute_full_address;
+                $patientInfo->institute_week_days = json_encode($request->institute_week_days);
                 $patientInfo->classes_from = $request->classes_from;
                 $patientInfo->classes_to = $request->classes_to;
                 $patientInfo->company_name = $request->company_name;
+                $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_full_address = $request->company_full_address;
                 $patientInfo->from_timing = $request->from_timing;
                 $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->company_week_days = json_encode($request->company_week_days);
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;
                 $patientInfo->another_activity = $request->another_activity;
                 $patientInfo->another_activity_name = $request->another_activity_name;
+                $patientInfo->another_activity_contact_person = $request->another_activity_contact_person;
                 $patientInfo->activitys_contact_number = $request->activitys_contact_number;
                 $patientInfo->activitys_full_address = $request->activitys_full_address;
                 $patientInfo->week_days = json_encode($request->week_days);
@@ -263,14 +268,14 @@ class UserController extends Controller
             if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
                
                 foreach ($request->weekly_hours as $key => $weekly_hours) {
-                    if(!empty($weekly_hours['weekly_hours_allocated']))
+                    if(!empty(@$weekly_hours['weekly_hours_allocated']))
                     {
                         $agencyWeeklyHour = new AgencyWeeklyHour;
                         $agencyWeeklyHour->user_id = $user->id;
-                        $agencyWeeklyHour->name = $weekly_hours['name'];
-                        $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
-                        $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
-                        $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
+                        $agencyWeeklyHour->name = @$weekly_hours['name'];
+                        $agencyWeeklyHour->weekly_hours_allocated = @$weekly_hours['weekly_hours_allocated'];
+                        $agencyWeeklyHour->start_date = @$weekly_hours['start_date'];
+                        $agencyWeeklyHour->end_date = @$weekly_hours['end_date'];
                         $agencyWeeklyHour->save();
                     }
                 }
@@ -533,14 +538,14 @@ class UserController extends Controller
             if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
                 $deleteOld = AgencyWeeklyHour::where('user_id',$user->id)->delete();
                  foreach ($request->weekly_hours as $key => $weekly_hours) {
-                    if(!empty($weekly_hours['weekly_hours_allocated']))
+                    if(!empty(@$weekly_hours['weekly_hours_allocated']))
                     {
                         $agencyWeeklyHour = new AgencyWeeklyHour;
                         $agencyWeeklyHour->user_id = $user->id;
-                        $agencyWeeklyHour->name = $weekly_hours['name'];
-                        $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
-                        $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
-                        $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
+                        $agencyWeeklyHour->name = @$weekly_hours['name'];
+                        $agencyWeeklyHour->weekly_hours_allocated = @$weekly_hours['weekly_hours_allocated'];
+                        $agencyWeeklyHour->start_date = @$weekly_hours['start_date'];
+                        $agencyWeeklyHour->end_date = @$weekly_hours['end_date'];
                         $agencyWeeklyHour->save();
                     }
                 }

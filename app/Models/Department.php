@@ -22,6 +22,7 @@ class Department extends Model
         'user_id',
         'top_most_parent_id',
         'parent_id',
+        'branch_id',
         'name',
         'status',
         'entry_mode',

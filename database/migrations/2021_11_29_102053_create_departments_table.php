@@ -18,6 +18,7 @@ class CreateDepartmentsTable extends Migration
             $table->foreignId('user_id');
             $table->foreignId('top_most_parent_id')->nullable();
             $table->foreignId('parent_id')->nullable();
+            $table->integer('branch_id')->nullable();
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');

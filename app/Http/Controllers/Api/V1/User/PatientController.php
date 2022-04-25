@@ -169,7 +169,7 @@ class PatientController extends Controller
                         if(is_array(@$patient['persons']) && sizeof(@$patient['persons']) >0 ){
                             foreach (@$patient['persons'] as $key => $value) {
                                 if(!empty(@$value['name']))
-                    ``          {
+                               {
                                     $is_user = false;
                                     if(@$value['is_family_member'] == true){
                                         $user_type_id ='8';

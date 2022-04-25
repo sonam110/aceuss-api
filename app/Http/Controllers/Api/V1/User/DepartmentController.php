@@ -80,6 +80,7 @@ class DepartmentController extends Controller
             }
 	        $department = new Department;
 		 	$department->user_id = $user->id;
+            $department->branch_id = getBranchId();
 		 	$department->parent_id = $request->parent_id;
             $department->name = $request->name;
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';

@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserTypePermissionSeeder::class);
         $this->call(LabelSeeder::class);
         $this->call(DefaultEntrySeeder::class);
+        $this->call(CategorySubCat::class);
     }
 }
