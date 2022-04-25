@@ -25,10 +25,9 @@ class ActivityController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $branch_id = (!empty($user->branch_id)) ? $user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$user->id]);
-           
+            $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email');
             if($user->user_type_id =='2'){
@@ -36,6 +35,7 @@ class ActivityController extends Controller
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
+
 
             if($user->user_type_id =='3'){
                 $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
@@ -706,7 +706,7 @@ class ActivityController extends Controller
         }
     }
 
-     public function activityEditHistory(Request $request){
+    public function activityEditHistory(Request $request){
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -763,8 +763,17 @@ class ActivityController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
             }
-            $checkActivityAssigne = ActivityAssigne::where('user_id',$user->id)->where('activity_id',$request->activity_id)->first();
-            if(!is_object($checkActivityAssigne)){
+            $is_action_perform = false;
+            $isAssignEmp = ActivityAssigne::where('user_id',$user->id)->where('activity_id',$request->activity_id)->first();
+            if(is_object($isAssignEmp)){
+                $is_action_perform = true; 
+            }
+            $isBranch = Activity::where('branch_id',$user->id)->where('id',$request->activity_id)->first();
+            if(is_object($isBranch)){
+                $is_action_perform = true; 
+            }
+            
+            if($is_action_perform == false){
                 return prepareResult(false,'You are not authorized to perform this action',[], $this->unprocessableEntity); 
             }
             $option  = ActivityOption::where('id',$request->option)->first();

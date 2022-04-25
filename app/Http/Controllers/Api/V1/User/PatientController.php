@@ -30,8 +30,8 @@ class PatientController extends Controller
         try {
             $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchChilds = branchChilds($branch_id);
-            $allChilds = array_merge($branchChilds,[$user->id]);
+            $branchids = branchChilds($branch_id);
+            $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
 
             $parent_id = PatientImplementationPlan::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
@@ -47,6 +47,16 @@ class PatientController extends Controller
                 $query = $query->orderBy('id','DESC');
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
+            }
+
+            if($user->user_type_id =='3'){
+                $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
+                $query = $query->whereIn('id',explode(',',$ipAssigne));
+
+            }
+            if($user->user_type_id =='6'){
+                $query = $query->where('user_id',$user->id);
+
             }
             if($whereRaw != '') { 
                 
@@ -111,7 +121,7 @@ class PatientController extends Controller
             
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
-                    if(!empty(@$patient['user_id']))
+                    if(!empty(@$patient['category_id']))
                     {
                         $patientPlan = new PatientImplementationPlan;
                         $patientPlan->user_id = @$patient['user_id'];
@@ -323,7 +333,7 @@ class PatientController extends Controller
             } 
             if(is_array($data['data']) ){
                 foreach ($data['data'] as $key => $patient) {
-                    if(!empty(@$patient['user_id']))
+                    if(!empty(@$patient['category_id']))
                     {
                         $patientPlan = new PatientImplementationPlan;
                         $patientPlan->user_id = @$patient['user_id'];

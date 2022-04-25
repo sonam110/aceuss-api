@@ -62,8 +62,8 @@ class UserController extends Controller
         try {
             $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchChilds = branchChilds($branch_id);
-            $allChilds = array_merge($branchChilds,[$user->id]);
+            $branchids = branchChilds($branch_id);
+            $allChilds = array_merge($branchids,[$branch_id]);
             $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from ip_assigne_to_employees WHERE ip_assigne_to_employees.user_id = users.id ) assignIpCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation');
             if($user->user_type_id =='2'){
                 

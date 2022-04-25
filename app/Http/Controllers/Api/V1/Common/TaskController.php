@@ -20,8 +20,8 @@ class TaskController extends Controller
 	        $user = getUser();
 
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchChilds = branchChilds($branch_id);
-            $allChilds = array_merge($branchChilds,[$user->id]);
+            $branchids = branchChilds($branch_id);
+            $allChilds = array_merge($branchids,[$branch_id]);
             $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date');
             if($user->user_type_id =='2'){
                 
@@ -29,6 +29,13 @@ class TaskController extends Controller
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
+
+            if($user->user_type_id =='3'){
+                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id')->implode(',');
+                $query = $query->whereIn('id',explode(',',$assTask));
+
+            }
+           
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
                 $query =  $query->whereRaw($whereRaw)
@@ -206,24 +213,25 @@ class TaskController extends Controller
     						    $task->created_by =$user->id;
     						    $task->save();
     						    $task_ids[] = $task->id;
-    						    if(is_array($request->employees) ){
-                                    if(!empty($employee))
-                                    {
-        						    	$validator = Validator::make($request->all(),[   
-        		                            "employees"    => "required|array",
-        		                            "employees.*"  => "required|distinct|exists:users,id",   
-        		                        ]);
-        		                        if ($validator->fails()) {
-        		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-        		                        }
-        						        foreach ($request->employees as $key => $employee) {
+    						    if(is_array($request->employees) && sizeof($request->employees) > 0 ){
+                                    	$validator = Validator::make($request->all(),[   
+    		                            "employees"    => "required|array",
+    		                            "employees.*"  => "required|distinct|exists:users,id",   
+    		                        ]);
+    		                        if ($validator->fails()) {
+    		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+    		                        }
+    						        foreach ($request->employees as $key => $employee) {
+                                        if(!empty($employee))
+                                        {
+                                
         						            $taskAssign = new AssignTask;
         						            $taskAssign->task_id = $task->id;
         						            $taskAssign->user_id = $employee;
         						            $taskAssign->assignment_date = date('Y-m-d');
         						            $taskAssign->assigned_by = $user->id;
         						            $taskAssign->save();
-        						        }
+    						           }
                                     }
     						    }
                             }
@@ -390,25 +398,26 @@ class TaskController extends Controller
     						    $task->created_by =$user->id;
     						    $task->save();
     						    $task_ids[] = $task->id;
-    						    if(is_array($request->employees) ){
-                                     if(!empty($employee))
+    						    if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
+    						    	$validator = Validator::make($request->all(),[   
+    		                            "employees"    => "required|array",
+    		                            "employees.*"  => "required|distinct|exists:users,id",   
+    		                        ]);
+    		                        if ($validator->fails()) {
+    		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+    		                        }
+    						        foreach ($request->employees as $key => $employee) {
+                                        if(!empty($employee))
                                         {
-            						    	$validator = Validator::make($request->all(),[   
-            		                            "employees"    => "required|array",
-            		                            "employees.*"  => "required|distinct|exists:users,id",   
-            		                        ]);
-            		                        if ($validator->fails()) {
-            		                            return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
-            		                        }
-            						        foreach ($request->employees as $key => $employee) {
-            						            $taskAssign = new AssignTask;
-            						            $taskAssign->task_id = $task->id;
-            						            $taskAssign->user_id = $employee;
-            						            $taskAssign->assignment_date = date('Y-m-d');
-            						            $taskAssign->assigned_by = $user->id;
-            						            $taskAssign->save();
-            						        }
-                                        }
+        						            $taskAssign = new AssignTask;
+        						            $taskAssign->task_id = $task->id;
+        						            $taskAssign->user_id = $employee;
+        						            $taskAssign->assignment_date = date('Y-m-d');
+        						            $taskAssign->assigned_by = $user->id;
+        						            $taskAssign->save();
+        						        }
+                                    }
+                                        
     						    }
                             }
 						}
@@ -527,6 +536,97 @@ class TaskController extends Controller
             return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
             
         }
+    }
+
+    public function taskEditHistory(Request $request){
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'parent_id' => 'required|exists:activities,id',   
+            ],
+            [
+            'parent_id' =>  'Parent id is required',
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $id = $request->parent_id;
+            $parent_id = 
+            $query= Task::where('parent_id',$id);
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Edited Task list",$pagination,$this->success);
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            
+            return prepareResult(true,'Edited Task list' ,$query, $this->success);
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+    }
+     public function taskAction(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'task_id' => 'required|exists:activities,id',   
+                'status'     => 'required|in:1,2,3',  
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], $this->unprocessableEntity); 
+            }
+            $is_action_perform = false;
+           
+            $isAssignEmp = AssignTask::where('user_id',$user->id)->where('task_id',$request->task_id)->first();
+            if(is_object($isAssignEmp)){
+                $is_action_perform = true; 
+            }
+            $isBranch = Task::where('branch_id',$user->id)->where('id',$request->task_id)->first();
+            if(is_object($isBranch)){
+                $is_action_perform = true; 
+            }
+            if($is_action_perform == false){
+                return prepareResult(false,'You are not authorized to perform this action',[], $this->unprocessableEntity); 
+            }
+            
+            $id = $request->task_id;
+            $task = Task::find($id);
+            $task->status = $request->status;
+            $task->save();
+
+            $updateStatus = AssignTask::where('task_id',$request->task_id)->update(['status'=>'1']);
+            
+            DB::commit();
+               
+            return prepareResult(true,'Action Done successfully' ,$task, $this->success);
+           
+        
+        }
+        catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], $this->internal_server_error);
+            
+        }
+        
     }
 
     private function getWhereRawFromRequest(Request $request) 

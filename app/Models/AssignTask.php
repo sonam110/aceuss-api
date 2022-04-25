@@ -9,7 +9,7 @@ class AssignTask extends Model
 {
     use HasFactory;
     protected $fillable =[
-        'activity_id',
+        'task_id',
 		'user_id',
 		'assignment_date',
 		'assignment_day',

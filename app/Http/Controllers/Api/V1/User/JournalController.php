@@ -17,8 +17,8 @@ class JournalController extends Controller
         try {
 	        $user = getUser();
 	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchChilds = branchChilds($branch_id);
-            $allChilds = array_merge($branchChilds,[$user->id]);
+            $branchids = branchChilds($branch_id);
+            $allChilds = array_merge($branchids,[$branch_id]);
             $query = Journal::with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')';'
             if($user->user_type_id =='2'){
                 

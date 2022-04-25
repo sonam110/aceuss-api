@@ -29,8 +29,8 @@ class FollowUpsController extends Controller
         try {
 	        $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchChilds = branchChilds($branch_id);
-            $allChilds = array_merge($branchChilds,[$user->id]);
+            $branchids = branchChilds($branch_id);
+            $allChilds = array_merge($branchids,[$branch_id]);
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             $parent_id = IpFollowUp::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
             $child_id  = [];
