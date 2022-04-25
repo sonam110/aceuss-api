@@ -21,7 +21,7 @@ class isActiveToken
     {
        
         $user = Auth::user();
-        if((Auth::check() &&  $user) {
+        if(Auth::check() &&  $user) {
             $userSerialize = serialize($user);
             $userUnserializeArray = (array) unserialize($userSerialize);
 
