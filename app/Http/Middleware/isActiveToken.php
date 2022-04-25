@@ -21,34 +21,36 @@ class isActiveToken
     {
        
         $user = Auth::user();
-        $userSerialize = serialize($user);
-        $userUnserializeArray = (array) unserialize($userSerialize);
+        if((Auth::check() &&  $user) {
+            $userSerialize = serialize($user);
+            $userUnserializeArray = (array) unserialize($userSerialize);
 
-        $arrayKeys = array_keys($userUnserializeArray);
-        foreach ($arrayKeys as $value)
-        {
+            $arrayKeys = array_keys($userUnserializeArray);
+            foreach ($arrayKeys as $value)
+            {
 
-            if (strpos($value, 'accessToken') !== false) {
+                if (strpos($value, 'accessToken') !== false) {
 
-                $userAccessTokenArray = (array) $userUnserializeArray[$value];
-                $arrayAccessKeys = array_keys($userAccessTokenArray);
-                foreach ($arrayAccessKeys as $arrayAccessValue) {
+                    $userAccessTokenArray = (array) $userUnserializeArray[$value];
+                    $arrayAccessKeys = array_keys($userAccessTokenArray);
+                    foreach ($arrayAccessKeys as $arrayAccessValue) {
 
-                    if (strpos($arrayAccessValue, 'original') !== false) {
+                        if (strpos($arrayAccessValue, 'original') !== false) {
 
-                        $userTokenId = $userAccessTokenArray[$arrayAccessValue]['id'];
-                        $checkToken = OauthAccessTokens::where([
-                            ['id', '=', $userTokenId],
-                            ['expires_at', '>', Carbon::now()]
-                        ])->first();
+                            $userTokenId = $userAccessTokenArray[$arrayAccessValue]['id'];
+                            $checkToken = OauthAccessTokens::where([
+                                ['id', '=', $userTokenId],
+                                ['expires_at', '>', Carbon::now()]
+                            ])->first();
 
-                        if ( !$checkToken ) {
-                            return response()->json([
-                                'success'=>false,
-                                'message'=> 'Token time has expired. Please log in again.',
-                                'payload'=> [],
-                                'code'=> '301'
-                            ]);
+                            if ( !$checkToken ) {
+                                return response()->json([
+                                    'success'=>false,
+                                    'message'=> 'Token time has expired. Please log in again.',
+                                    'payload'=> [],
+                                    'code'=> '301'
+                                ]);
+                            }
                         }
                     }
                 }

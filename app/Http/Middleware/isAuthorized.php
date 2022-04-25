@@ -16,8 +16,9 @@ class isAuthorized
      */
     public function handle(Request $request, Closure $next)
     {
+
         $user = getUser();
-        if(isset($user->status) && $user->status != 1)
+        if(Auth::check() && isset($user) && $user->status != 1)
         {
              return response()->json([
                 'success'=> false,

@@ -16,6 +16,7 @@ use App\Models\Journal;
 use App\Models\Deviation;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
+
 function getUser() {
     return auth('api')->user();
 }
@@ -35,20 +36,23 @@ function prepareResult($status, $message, $payload, $status_code)
     
 }
 function getTopParent($id) {
-    $adminAgg = [];
-    $patents = User::select('id')->get()->toArray();
-    //dd($patents);
-    $tree = Array();
-    $tree = User::where('id',Auth::user()->parent_id)->where('id','<', Auth::id())->orderBy('id','DESC')->pluck('parent_id')->toArray();
-    //dd($tree);
-    foreach ($tree as $key => $val) {
-        $ids = getTopParent($id);
-        if (!empty($ids)) {
-            if (count($ids) > 0) $tree = array_merge($tree, $ids);
+    if(Auth::check()){
+        $adminAgg = [];
+        $patents = User::select('id')->get()->toArray();
+        //dd($patents);
+        $tree = Array();
+        $tree = User::where('id',Auth::user()->parent_id)->where('id','<', Auth::id())->orderBy('id','DESC')->pluck('parent_id')->toArray();
+        //dd($tree);
+        foreach ($tree as $key => $val) {
+            $ids = getTopParent($id);
+            if (!empty($ids)) {
+                if (count($ids) > 0) $tree = array_merge($tree, $ids);
+            }
         }
+        //dd($tree);
+        return $tree;
     }
-    //dd($tree);
-    return $tree;
+    return null;
 }
 
 function findTopParentId($parent_id) {
@@ -96,11 +100,14 @@ function buildTree(array $elements, $parentId = null, $level =1) {
 
 function getLatestParent()
 {
-    $user = User::find(Auth::id());
-    if($user->parentUnit) {
-        return $user->parentUnit->getLatestParent();
+    if(Auth::check()){
+        $user = User::find(Auth::id());
+        if($user->parentUnit) {
+            return $user->parentUnit->getLatestParent();
+        }
+        return $user;
     }
-    return $user;
+    return null;
 }
 function getChildren($parent_id)
 {
@@ -389,13 +396,16 @@ function smslog($top_most_parent_id,$type_id ,$resource_id, $phone_number, $mess
 }
 function comment($source_id, $source_namen,$comment) 
 { 
-    $addComment = new Comment;
-    $addComment->source_id = $source_id ;
-    $addComment->source_name = $source_namen;
-    $addComment->comment = $comment;
-    $addComment->created_by = Auth::id();
-    $addComment->save();
-    return $addComment;
+    if(Auth::check()){
+        $addComment = new Comment;
+        $addComment->source_id = $source_id ;
+        $addComment->source_name = $source_namen;
+        $addComment->comment = $comment;
+        $addComment->created_by = Auth::id();
+        $addComment->save();
+        return $addComment;
+    }
+    return null;
 }
 
 function generateRandomNumber($len = 12) {
@@ -552,21 +562,26 @@ function weekDaysBetween($requiredDays, $start, $end,$every){
 }
 
 function getBranchId(){
-    if(auth()->user()->user_type_id=='11') {
-        $branch_id = auth()->user()->id;
+    if(Auth::check()){
+        if(auth()->user()->user_type_id=='11') {
+            $branch_id = auth()->user()->id;
+        }
+        else {
+            $branch_id = auth()->user()->branch_id;
+        } 
+        return $branch_id;
     }
-    else {
-        $branch_id = auth()->user()->branch_id;
-    } 
-    return $branch_id;
+    return null;
 }
 
 
 function checkAssignModule($module_id){
-
-    $checkModule = AssigneModule::where('user_id',auth()->user()->top_most_parent_id)->where('module_id',$module_id)->first();
-    $is_assign = ($checkModule) ? true :false;
-    return $is_assign;
+    if(Auth::check()){
+        $checkModule = AssigneModule::where('user_id',auth()->user()->top_most_parent_id)->where('module_id',$module_id)->first();
+        $is_assign = ($checkModule) ? true :false;
+        return $is_assign;
+    }
+    return null;
 
 
 }

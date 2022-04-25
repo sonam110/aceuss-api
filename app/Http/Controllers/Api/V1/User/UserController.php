@@ -168,24 +168,12 @@ class UserController extends Controller
                 }
 
             }
-            /*if(!empty($request->patient_type_id)){
-                if($request->patient_type_id == '2' || $request->patient_type_id == '3' ){
-                    $validator = Validator::make($request->all(),[
-                        'working_from' => 'required', 
-                        'working_to' => 'required',
-                        'place_name' => 'required', 
-                    ]);
-                    if ($validator->fails()) {
-                        return prepareResult(false,$validator->errors()->first(),[], '422'); 
-                    }
-
-                }
-            }*/
+           
 
             $password = Hash::make($request->password);
             $is_password_change = false;
             $is_fake = false;
-            if($request->is_fake == true){
+            if($request->is_fake == true  && $request->user_type_id == '6'){
                 $is_fake = true;
                 $is_password_change = true;
                 $password = Str::random(12);
@@ -291,100 +279,103 @@ class UserController extends Controller
             if($request->user_type_id == '6') {
                 if(is_array($request->persons) && sizeof($request->persons) >0 ){
                     foreach ($request->persons as $key => $value) {
-                        $is_user = false;
-                        if(@$value['is_family_member'] == true){
-                            $user_type_id ='8';
-                            $is_user = true;
-                        }
-                        if(@$value['is_caretaker'] == true){
-                            $user_type_id ='7';
-                            $is_user = true;
-                        }
-                        if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                            $user_type_id ='10';
-                            $is_user = true;
-                        }
-                        if(@$value['is_contact_person'] == true){
-                            $user_type_id ='9';
-                            $is_user = true;
-                        }
-                        if(is_null(@$value['id']) == false){
-                            $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                            $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                            $getUser = User::where('email',$getperson->email)->first();
-                        } else{
-                            $personalInfo = new PersonalInfoDuringIp;
-                        }
-                        $personalInfo->patient_id = $user->id;
-                        $personalInfo->name = @$value['name'] ;
-                        $personalInfo->email = @$value['email'] ;
-                        $personalInfo->contact_number = @$value['contact_number'];
-                        $personalInfo->country_id = @$value['country_id'];
-                        $personalInfo->city = @$value['city'];
-                        $personalInfo->postal_area = @$value['postal_area'];
-                        $personalInfo->zipcode = @$value['zipcode'];
-                        $personalInfo->full_address = @$value['full_address'] ;
-                        $personalInfo->personal_number = @$value['personal_number'] ;
-                        $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                        $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                        $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                        $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                        $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                        $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                        $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                        $personalInfo->how_helped = @$value['how_helped'];
-                        $personalInfo->is_other_name = @$value['is_other_name'];
-                        $personalInfo->save() ;
-                        /*-----Create Account /Entry in user table*/
-                        if($is_user == true) {
-                            if(auth()->user()->user_type_id=='1'){
-                                $top_most_parent_id = auth()->user()->id;
+                        if(!empty($value['name']))
+                        {
+                            $is_user = false;
+                            if(@$value['is_family_member'] == true){
+                                $user_type_id ='8';
+                                $is_user = true;
                             }
-                            elseif(auth()->user()->user_type_id=='2')
-                            {
-                                $top_most_parent_id = auth()->user()->id;
-                            } else {
-                                $top_most_parent_id = auth()->user()->top_most_parent_id;
+                            if(@$value['is_caretaker'] == true){
+                                $user_type_id ='7';
+                                $is_user = true;
                             }
-                            $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                            if(empty($checkAlreadyUser)) {
-                                if(!empty($getUser)){
-                                    $userSave = User::find($getUser->id);
-                                } else {
-                                    $userSave = new User;
-                                    $userSave->unique_id = generateRandomNumber();
+                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                                $user_type_id ='10';
+                                $is_user = true;
+                            }
+                            if(@$value['is_contact_person'] == true){
+                                $user_type_id ='9';
+                                $is_user = true;
+                            }
+                            if(is_null(@$value['id']) == false){
+                                $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                $getUser = User::where('email',$getperson->email)->first();
+                            } else{
+                                $personalInfo = new PersonalInfoDuringIp;
+                            }
+                            $personalInfo->patient_id = $user->id;
+                            $personalInfo->name = @$value['name'] ;
+                            $personalInfo->email = @$value['email'] ;
+                            $personalInfo->contact_number = @$value['contact_number'];
+                            $personalInfo->country_id = @$value['country_id'];
+                            $personalInfo->city = @$value['city'];
+                            $personalInfo->postal_area = @$value['postal_area'];
+                            $personalInfo->zipcode = @$value['zipcode'];
+                            $personalInfo->full_address = @$value['full_address'] ;
+                            $personalInfo->personal_number = @$value['personal_number'] ;
+                            $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                            $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                            $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                            $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                            $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                            $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                            $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                            $personalInfo->how_helped = @$value['how_helped'];
+                            $personalInfo->is_other_name = @$value['is_other_name'];
+                            $personalInfo->save() ;
+                            /*-----Create Account /Entry in user table*/
+                            if($is_user == true) {
+                                if(auth()->user()->user_type_id=='1'){
+                                    $top_most_parent_id = auth()->user()->id;
                                 }
-                                $userSave->unique_id = generateRandomNumber();
-                                $userSave->branch_id =   getBranchId();
-                                $userSave->user_type_id = $user_type_id;
-                                $userSave->role_id =  $user_type_id;
-                                $userSave->parent_id = $user->id;
-                                $userSave->top_most_parent_id = $top_most_parent_id;
-                                $userSave->name = @$value['name'] ;
-                                $userSave->email = @$value['email'] ;
-                                $userSave->password = Hash::make('12345678');
-                                $userSave->contact_number = @$value['contact_number'];
-                                $userSave->country_id = @$value['country_id'];
-                                $userSave->city = @$value['city'];
-                                $userSave->postal_area = @$value['postal_area'];
-                                $userSave->zipcode = @$value['zipcode'];
-                                $userSave->full_address = @$value['full_address'] ;
-                                $userSave->save(); 
-                                if(!empty($user_type_id))
+                                elseif(auth()->user()->user_type_id=='2')
                                 {
-                                   $role = Role::where('id',$user_type_id)->first();
-                                   $userSave->assignRole($role->name);
-                                }     
-                                if(env('IS_MAIL_ENABLE',false) == true){ 
-                                        $content = ([
-                                        'company_id' => $userSave->top_most_parent_id,
-                                        'name' => $userSave->name,
-                                        'email' => $userSave->email,
-                                        'id' => $userSave->id,
-                                        ]);    
-                                    Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                    $top_most_parent_id = auth()->user()->id;
+                                } else {
+                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
                                 }
-                                
+                                $checkAlreadyUser = User::where('email',@$value['email'])->first();
+                                if(empty($checkAlreadyUser)) {
+                                    if(!empty($getUser)){
+                                        $userSave = User::find($getUser->id);
+                                    } else {
+                                        $userSave = new User;
+                                        $userSave->unique_id = generateRandomNumber();
+                                    }
+                                    $userSave->unique_id = generateRandomNumber();
+                                    $userSave->branch_id =   getBranchId();
+                                    $userSave->user_type_id = $user_type_id;
+                                    $userSave->role_id =  $user_type_id;
+                                    $userSave->parent_id = $user->id;
+                                    $userSave->top_most_parent_id = $top_most_parent_id;
+                                    $userSave->name = @$value['name'] ;
+                                    $userSave->email = @$value['email'] ;
+                                    $userSave->password = Hash::make('12345678');
+                                    $userSave->contact_number = @$value['contact_number'];
+                                    $userSave->country_id = @$value['country_id'];
+                                    $userSave->city = @$value['city'];
+                                    $userSave->postal_area = @$value['postal_area'];
+                                    $userSave->zipcode = @$value['zipcode'];
+                                    $userSave->full_address = @$value['full_address'] ;
+                                    $userSave->save(); 
+                                    if(!empty($user_type_id))
+                                    {
+                                       $role = Role::where('id',$user_type_id)->first();
+                                       $userSave->assignRole($role->name);
+                                    }     
+                                    if(env('IS_MAIL_ENABLE',false) == true){ 
+                                            $content = ([
+                                            'company_id' => $userSave->top_most_parent_id,
+                                            'name' => $userSave->name,
+                                            'email' => $userSave->email,
+                                            'id' => $userSave->id,
+                                            ]);    
+                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                    }
+                                    
+                                }
                             }
                         }
 
@@ -542,112 +533,118 @@ class UserController extends Controller
             if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
                 $deleteOld = AgencyWeeklyHour::where('user_id',$user->id)->delete();
                  foreach ($request->weekly_hours as $key => $weekly_hours) {
-                    $agencyWeeklyHour = new AgencyWeeklyHour;
-                    $agencyWeeklyHour->user_id = $user->id;
-                    $agencyWeeklyHour->name = $weekly_hours['name'];
-                    $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
-                    $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
-                    $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
-                    $agencyWeeklyHour->save();
+                    if(!empty($weekly_hours['weekly_hours_allocated']))
+                    {
+                        $agencyWeeklyHour = new AgencyWeeklyHour;
+                        $agencyWeeklyHour->user_id = $user->id;
+                        $agencyWeeklyHour->name = $weekly_hours['name'];
+                        $agencyWeeklyHour->weekly_hours_allocated = $weekly_hours['weekly_hours_allocated'];
+                        $agencyWeeklyHour->start_date = $weekly_hours['start_date'];
+                        $agencyWeeklyHour->end_date = $weekly_hours['end_date'];
+                        $agencyWeeklyHour->save();
+                    }
                 }
             }
              
             /*-----------------Persons Informationn ----------------*/
             if(is_array($request->persons) && sizeof($request->persons) >0){
                 foreach ($request->persons as $key => $value) {
-                    $is_user = false;
-                    if(@$value['is_family_member'] == true){
-                        $user_type_id ='8';
-                        $is_user = true;
-                    }
-                    if(@$value['is_caretaker'] == true){
-                        $user_type_id ='7';
-                        $is_user = true;
-                    }
-                    if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                        $user_type_id ='10';
-                        $is_user = true;
-                    }
-                    if(@$value['is_contact_person'] == true){
-                        $user_type_id ='9';
-                        $is_user = true;
-                    }
-                    if(is_null(@$value['id']) == false){
-                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                        $getUser = User::where('email',$getperson->email)->first();
-                    } else{
-                        $personalInfo = new PersonalInfoDuringIp;
-                    }
-                    $personalInfo->patient_id = $user->id;
-                    $personalInfo->name = $value['name'] ;
-                    $personalInfo->email = $value['email'] ;
-                    $personalInfo->contact_number = @$value['contact_number'];
-                    $personalInfo->country_id = @$value['country_id'];
-                    $personalInfo->city = @$value['city'];
-                    $personalInfo->postal_area = @$value['postal_area'];
-                    $personalInfo->zipcode = @$value['zipcode'];
-                    $personalInfo->full_address = @$value['full_address'] ;
-                    $personalInfo->personal_number = @$value['personal_number'] ;
-                    $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                    $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                    $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                    $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                    $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                    $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                    $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                    $personalInfo->how_helped = @$value['how_helped'];
-                    $personalInfo->is_other_name = @$value['is_other_name'];
-                    $personalInfo->save() ;
-                    /*-----Create Account /Entry in user table*/
-                    if($is_user == true) {
-                        if(auth()->user()->user_type_id=='1'){
-                            $top_most_parent_id = auth()->user()->id;
+                    if(!empty($value['name']))
+                    {
+                        $is_user = false;
+                        if(@$value['is_family_member'] == true){
+                            $user_type_id ='8';
+                            $is_user = true;
                         }
-                        elseif(auth()->user()->user_type_id=='2')
-                        {
-                            $top_most_parent_id = auth()->user()->id;
-                        } else {
-                            $top_most_parent_id = auth()->user()->top_most_parent_id;
+                        if(@$value['is_caretaker'] == true){
+                            $user_type_id ='7';
+                            $is_user = true;
                         }
-                        $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                        if(empty($checkAlreadyUser)) {
-                            if(!empty($getUser)){
-                                $userSave = User::find($getUser->id);
-                            } else {
-                                $userSave = new User;
-                                $userSave->unique_id = generateRandomNumber();
+                        if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                            $user_type_id ='10';
+                            $is_user = true;
+                        }
+                        if(@$value['is_contact_person'] == true){
+                            $user_type_id ='9';
+                            $is_user = true;
+                        }
+                        if(is_null(@$value['id']) == false){
+                            $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                            $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                            $getUser = User::where('email',$getperson->email)->first();
+                        } else{
+                            $personalInfo = new PersonalInfoDuringIp;
+                        }
+                        $personalInfo->patient_id = $user->id;
+                        $personalInfo->name = $value['name'] ;
+                        $personalInfo->email = $value['email'] ;
+                        $personalInfo->contact_number = @$value['contact_number'];
+                        $personalInfo->country_id = @$value['country_id'];
+                        $personalInfo->city = @$value['city'];
+                        $personalInfo->postal_area = @$value['postal_area'];
+                        $personalInfo->zipcode = @$value['zipcode'];
+                        $personalInfo->full_address = @$value['full_address'] ;
+                        $personalInfo->personal_number = @$value['personal_number'] ;
+                        $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                        $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                        $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                        $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                        $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                        $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                        $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                        $personalInfo->how_helped = @$value['how_helped'];
+                        $personalInfo->is_other_name = @$value['is_other_name'];
+                        $personalInfo->save() ;
+                        /*-----Create Account /Entry in user table*/
+                        if($is_user == true) {
+                            if(auth()->user()->user_type_id=='1'){
+                                $top_most_parent_id = auth()->user()->id;
                             }
-                            $userSave->branch_id = getBranchId();
-                            $userSave->user_type_id = $user_type_id;
-                            $userSave->role_id =  $user_type_id;
-                            $userSave->parent_id = $user->id;
-                            $userSave->top_most_parent_id = $top_most_parent_id;
-                            $userSave->name = @$value['name'] ;
-                            $userSave->email = @$value['email'] ;
-                            $userSave->password = Hash::make('12345678');
-                            $userSave->contact_number = @$value['contact_number'];
-                            $userSave->country_id = @$value['country_id'];
-                            $userSave->city = @$value['city'];
-                            $userSave->postal_area = @$value['postal_area'];
-                            $userSave->zipcode = @$value['zipcode'];
-                            $userSave->full_address = @$value['full_address'] ;
-                            $userSave->save(); 
-                            if(!empty($user_type_id))
+                            elseif(auth()->user()->user_type_id=='2')
                             {
-                               $role = Role::where('id',$user_type_id)->first();
-                               $userSave->assignRole($role->name);
-                            }     
-                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                $content = ([
-                                    'company_id' => $userSave->top_most_parent_id,
-                                    'name' => $userSave->name,
-                                    'email' => $userSave->email,
-                                    'id' => $userSave->id,
-                                ]);    
-                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                $top_most_parent_id = auth()->user()->id;
+                            } else {
+                                $top_most_parent_id = auth()->user()->top_most_parent_id;
                             }
-                            
+                            $checkAlreadyUser = User::where('email',@$value['email'])->first();
+                            if(empty($checkAlreadyUser)) {
+                                if(!empty($getUser)){
+                                    $userSave = User::find($getUser->id);
+                                } else {
+                                    $userSave = new User;
+                                    $userSave->unique_id = generateRandomNumber();
+                                }
+                                $userSave->branch_id = getBranchId();
+                                $userSave->user_type_id = $user_type_id;
+                                $userSave->role_id =  $user_type_id;
+                                $userSave->parent_id = $user->id;
+                                $userSave->top_most_parent_id = $top_most_parent_id;
+                                $userSave->name = @$value['name'] ;
+                                $userSave->email = @$value['email'] ;
+                                $userSave->password = Hash::make('12345678');
+                                $userSave->contact_number = @$value['contact_number'];
+                                $userSave->country_id = @$value['country_id'];
+                                $userSave->city = @$value['city'];
+                                $userSave->postal_area = @$value['postal_area'];
+                                $userSave->zipcode = @$value['zipcode'];
+                                $userSave->full_address = @$value['full_address'] ;
+                                $userSave->save(); 
+                                if(!empty($user_type_id))
+                                {
+                                   $role = Role::where('id',$user_type_id)->first();
+                                   $userSave->assignRole($role->name);
+                                }     
+                                if(env('IS_MAIL_ENABLE',false) == true){ 
+                                    $content = ([
+                                        'company_id' => $userSave->top_most_parent_id,
+                                        'name' => $userSave->name,
+                                        'email' => $userSave->email,
+                                        'id' => $userSave->id,
+                                    ]);    
+                                    Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                }
+                                
+                            }
                         }
                     }
 

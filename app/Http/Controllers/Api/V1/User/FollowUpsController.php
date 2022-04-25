@@ -110,138 +110,147 @@ class FollowUpsController extends Controller
         	}
             if(is_array($request->repeat_datetime)   && sizeof($request->repeat_datetime) > 0){
                 foreach ($request->repeat_datetime as $key => $followup) {
-        	        $ipFollowups = new IpFollowUp;
-        		 	$ipFollowups->ip_id = $request->ip_id ;
-                    $ipFollowups->branch_id = getBranchId() ;
-        		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
-        		 	$ipFollowups->title = $request->title;
-        		 	$ipFollowups->description = $request->description;
-                    $ipFollowups->start_date = $followup['start_date'];
-                    $ipFollowups->start_time = $followup['start_time'];
-        		 	$ipFollowups->end_date = $followup['end_date'];
-        		 	$ipFollowups->end_time = $followup['end_time'];
-        		 	$ipFollowups->remarks = $request->remarks;
-                    $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-        		 	$ipFollowups->created_by = $user->id;
-                    $ipFollowups->documents = json_encode($request->documents);
-        		 	$ipFollowups->save();
-        		 	 /*-----------------Persons Informationn ----------------*/
-                    if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
-                        foreach ($request->persons as $key => $value) {
-                            $is_user = false;
-                            if(@$value['is_family_member'] == true){
-                                $user_type_id ='8';
-                                $is_user = true;
-                            }
-                            if(@$value['is_caretaker'] == true){
-                                $user_type_id ='7';
-                                $is_user = true;
-                            }
-                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                                $user_type_id ='10';
-                                $is_user = true;
-                            }
-                            if(@$value['is_contact_person'] == true){
-                                $user_type_id ='9';
-                                $is_user = true;
-                            }
-                            if(is_null(@$value['id']) == false){
-                                $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                $getUser = User::where('email',$getperson->email)->first();
-                            } else{
-                                $personalInfo = new PersonalInfoDuringIp;
-                            }
-                            $personalInfo->patient_id =$ipCheck->user_id;
-                            $personalInfo->ip_id = $request->ip_id ;
-                            $personalInfo->follow_up_id = $ipFollowups->id ;
-                            $personalInfo->name = @$value['name'] ;
-                            $personalInfo->email = @$value['email'] ;
-                            $personalInfo->contact_number = @$value['contact_number'];
-                            $personalInfo->country_id = @$value['country_id'];
-                            $personalInfo->city = @$value['city'];
-                            $personalInfo->postal_area = @$value['postal_area'];
-                            $personalInfo->zipcode = @$value['zipcode'];
-                            $personalInfo->full_address = @$value['full_address'] ;
-                            $personalInfo->personal_number = @$value['personal_number'] ;
-                            $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                            $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                            $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                            $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                            $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                            $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                            $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                            $personalInfo->how_helped = @$value['how_helped'];
-                            $personalInfo->is_other_name = @$value['is_other_name'];
-                            $personalInfo->save() ;
-                            /*-----Create Account /Entry in user table*/
-                            if($is_user == true) {
-                                if(auth()->user()->user_type_id=='1'){
-                                    $top_most_parent_id = auth()->user()->id;
-                                }
-                                elseif(auth()->user()->user_type_id=='2')
+                    if(!empty($followup['start_date']))
+                    {
+            	        $ipFollowups = new IpFollowUp;
+            		 	$ipFollowups->ip_id = $request->ip_id ;
+                        $ipFollowups->branch_id = getBranchId() ;
+            		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
+            		 	$ipFollowups->title = $request->title;
+            		 	$ipFollowups->description = $request->description;
+                        $ipFollowups->start_date = $followup['start_date'];
+                        $ipFollowups->start_time = $followup['start_time'];
+            		 	$ipFollowups->end_date = $followup['end_date'];
+            		 	$ipFollowups->end_time = $followup['end_time'];
+            		 	$ipFollowups->remarks = $request->remarks;
+                        $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            		 	$ipFollowups->created_by = $user->id;
+                        $ipFollowups->documents = json_encode($request->documents);
+            		 	$ipFollowups->save();
+            		 	 /*-----------------Persons Informationn ----------------*/
+                        if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
+                            foreach ($request->persons as $key => $value) {
+                                if(!empty($value['name']))
                                 {
-                                    $top_most_parent_id = auth()->user()->id;
-                                } else {
-                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                    $is_user = false;
+                                    if(@$value['is_family_member'] == true){
+                                        $user_type_id ='8';
+                                        $is_user = true;
+                                    }
+                                    if(@$value['is_caretaker'] == true){
+                                        $user_type_id ='7';
+                                        $is_user = true;
+                                    }
+                                    if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                                        $user_type_id ='10';
+                                        $is_user = true;
+                                    }
+                                    if(@$value['is_contact_person'] == true){
+                                        $user_type_id ='9';
+                                        $is_user = true;
+                                    }
+                                    if(is_null(@$value['id']) == false){
+                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                        $getUser = User::where('email',$getperson->email)->first();
+                                    } else{
+                                        $personalInfo = new PersonalInfoDuringIp;
+                                    }
+                                    $personalInfo->patient_id =$ipCheck->user_id;
+                                    $personalInfo->ip_id = $request->ip_id ;
+                                    $personalInfo->follow_up_id = $ipFollowups->id ;
+                                    $personalInfo->name = @$value['name'] ;
+                                    $personalInfo->email = @$value['email'] ;
+                                    $personalInfo->contact_number = @$value['contact_number'];
+                                    $personalInfo->country_id = @$value['country_id'];
+                                    $personalInfo->city = @$value['city'];
+                                    $personalInfo->postal_area = @$value['postal_area'];
+                                    $personalInfo->zipcode = @$value['zipcode'];
+                                    $personalInfo->full_address = @$value['full_address'] ;
+                                    $personalInfo->personal_number = @$value['personal_number'] ;
+                                    $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                                    $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                                    $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                                    $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                                    $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                                    $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                                    $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                                    $personalInfo->how_helped = @$value['how_helped'];
+                                    $personalInfo->is_other_name = @$value['is_other_name'];
+                                    $personalInfo->save() ;
+                                    /*-----Create Account /Entry in user table*/
+                                    if($is_user == true) {
+                                        if(auth()->user()->user_type_id=='1'){
+                                            $top_most_parent_id = auth()->user()->id;
+                                        }
+                                        elseif(auth()->user()->user_type_id=='2')
+                                        {
+                                            $top_most_parent_id = auth()->user()->id;
+                                        } else {
+                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                        }
+                                        $checkAlreadyUser = User::where('email',@$value['email'])->first();
+                                        if(empty($checkAlreadyUser)) {
+                                            if(!empty($getUser)){
+                                                $userSave = User::find($getUser->id);
+                                            } else {
+                                                $userSave = new User;
+                                                $userSave->unique_id = generateRandomNumber();
+                                            }
+                                            $userSave->user_type_id = $user_type_id;
+                                            $userSave->branch_id = getBranchId();
+                                            $userSave->role_id =  $user_type_id;
+                                            $userSave->parent_id = $user->id;
+                                            $userSave->top_most_parent_id = $top_most_parent_id;
+                                            $userSave->name = @$value['name'] ;
+                                            $userSave->email = @$value['email'] ;
+                                            $userSave->password = Hash::make('12345678');
+                                            $userSave->contact_number = @$value['contact_number'];
+                                            $userSave->country_id = @$value['country_id'];
+                                            $userSave->city = @$value['city'];
+                                            $userSave->postal_area = @$value['postal_area'];
+                                            $userSave->zipcode = @$value['zipcode'];
+                                            $userSave->full_address = @$value['full_address'] ;
+                                            $userSave->save(); 
+                                            if(!empty($user_type_id))
+                                            {
+                                               $role = Role::where('id',$user_type_id)->first();
+                                               $userSave->assignRole($role->name);
+                                            }     
+                                            if(env('IS_MAIL_ENABLE',false) == true){ 
+                                                    $variables = ([
+                                                    'name' => $userSave->name,
+                                                    'email' => $userSave->email,
+                                                    'contact_number' => $userSave->contact_number,
+                                                    'city' => $userSave->city,
+                                                    'zipcode' => $userSave->zipcode,
+                                                    ]);   
+                                                $emailTem = EmailTemplate::where('id','2')->first();           
+                                                $content = mailTemplateContent($emailTem->content,$variables);
+                                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                            }
+                                            
+                                        }
+                                    }
                                 }
-                                $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                                if(empty($checkAlreadyUser)) {
-                                    if(!empty($getUser)){
-                                        $userSave = User::find($getUser->id);
-                                    } else {
-                                        $userSave = new User;
-                                        $userSave->unique_id = generateRandomNumber();
-                                    }
-                                    $userSave->user_type_id = $user_type_id;
-                                    $userSave->branch_id = getBranchId();
-                                    $userSave->role_id =  $user_type_id;
-                                    $userSave->parent_id = $user->id;
-                                    $userSave->top_most_parent_id = $top_most_parent_id;
-                                    $userSave->name = @$value['name'] ;
-                                    $userSave->email = @$value['email'] ;
-                                    $userSave->password = Hash::make('12345678');
-                                    $userSave->contact_number = @$value['contact_number'];
-                                    $userSave->country_id = @$value['country_id'];
-                                    $userSave->city = @$value['city'];
-                                    $userSave->postal_area = @$value['postal_area'];
-                                    $userSave->zipcode = @$value['zipcode'];
-                                    $userSave->full_address = @$value['full_address'] ;
-                                    $userSave->save(); 
-                                    if(!empty($user_type_id))
-                                    {
-                                       $role = Role::where('id',$user_type_id)->first();
-                                       $userSave->assignRole($role->name);
-                                    }     
-                                    if(env('IS_MAIL_ENABLE',false) == true){ 
-                                            $variables = ([
-                                            'name' => $userSave->name,
-                                            'email' => $userSave->email,
-                                            'contact_number' => $userSave->contact_number,
-                                            'city' => $userSave->city,
-                                            'zipcode' => $userSave->zipcode,
-                                            ]);   
-                                        $emailTem = EmailTemplate::where('id','2')->first();           
-                                        $content = mailTemplateContent($emailTem->content,$variables);
-                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
-                                    }
-                                    
+
+                            }
+                        }
+
+                        /*----------------Question Data--------------------*/
+                        if(is_array($request->questions)  && sizeof($request->questions) > 0 ){
+                            foreach ($request->questions as $key => $ques) {
+                                if(!empty($ques))
+                                {
+                                    $getQues = Question::where('id',$ques)->first();
+                                    $question = new FollowupComplete;
+                                    $question->follow_up_id = $ipFollowups->id;;
+                                    $question->question_id = $ques;
+                                    $question->question = ($getQues) ? $getQues->question : null;
+                                    $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                    $question->save();
                                 }
                             }
-
-                        }
-                    }
-
-                    /*----------------Question Data--------------------*/
-                    if(is_array($request->questions)  && sizeof($request->questions) > 0 ){
-                        foreach ($request->questions as $key => $ques) {
-                            $getQues = Question::where('id',$ques)->first();
-                            $question = new FollowupComplete;
-                            $question->follow_up_id = $ipFollowups->id;;
-                            $question->question_id = $ques;
-                            $question->question = ($getQues) ? $getQues->question : null;
-                            $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                            $question->save();
                         }
                     }
                 }
@@ -287,143 +296,152 @@ class FollowUpsController extends Controller
             }
             if(is_array($request->repeat_datetime)  && sizeof($request->repeat_datetime) > 0 ){
                 foreach ($request->repeat_datetime as $key => $followup) {
-                    $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	        $ipFollowups =  new  IpFollowUp;
-        		 	$ipFollowups->ip_id = $request->ip_id ;
-                    $ipFollowups->branch_id = getBranchId() ;
-        		 	$ipFollowups->parent_id = $parent_id;
-        		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
-        		 	$ipFollowups->title = $request->title;
-                    $ipFollowups->description = $request->description;
-                    $ipFollowups->start_date = $followup['start_date'];
-                    $ipFollowups->start_time = $followup['start_time'];
-                    $ipFollowups->end_date = $followup['end_date'];
-                    $ipFollowups->end_time = $followup['end_time'];
-                    $ipFollowups->remarks = $request->remarks;
-        		 	$ipFollowups->reason_for_editing = $request->reason_for_editing;
-        		 	$ipFollowups->edited_by = $user->id;
-                    $ipFollowups->documents = json_encode($request->documents);
-                    $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-        		 	$ipFollowups->save();
-                     /*-----------------Persons Informationn ----------------*/
-                    if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
-                        foreach ($request->persons as $key => $value) {
-                            $is_user = false;
-                            if(@$value['is_family_member'] == true){
-                                $user_type_id ='8';
-                                $is_user = true;
-                            }
-                            if(@$value['is_caretaker'] == true){
-                                $user_type_id ='7';
-                                $is_user = true;
-                            }
-                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                                $user_type_id ='10';
-                                $is_user = true;
-                            }
-                            if(@$value['is_contact_person'] == true){
-                                $user_type_id ='9';
-                                $is_user = true;
-                            }
-                            if(is_null(@$value['id']) == false){
-                                $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                $getUser = User::where('email',$getperson->email)->first();
-                            } else{
-                                $personalInfo = new PersonalInfoDuringIp;
-                            }
-                            $personalInfo->ip_id =$request->ip_id;
-                            $personalInfo->follow_up_id = $ipFollowups->id ;
-                            $personalInfo->patient_id =$ipCheck->user_id;
-                            $personalInfo->name = @$value['name'] ;
-                            $personalInfo->email = @$value['email'] ;
-                            $personalInfo->contact_number = @$value['contact_number'];
-                            $personalInfo->country_id = @$value['country_id'];
-                            $personalInfo->city = @$value['city'];
-                            $personalInfo->postal_area = @$value['postal_area'];
-                            $personalInfo->zipcode = @$value['zipcode'];
-                            $personalInfo->full_address = @$value['full_address'] ;
-                            $personalInfo->personal_number = @$value['personal_number'] ;
-                            $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                            $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                            $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                            $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                            $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                            $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                            $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                            $personalInfo->how_helped = @$value['how_helped'];
-                            $personalInfo->is_other_name = @$value['is_other_name'];
-                            $personalInfo->save() ;
-                            /*-----Create Account /Entry in user table*/
-                            if($is_user == true) {
-                                if(auth()->user()->user_type_id=='1'){
-                                    $top_most_parent_id = auth()->user()->id;
-                                }
-                                elseif(auth()->user()->user_type_id=='2')
+                    if(!empty($followup['start_date']))
+                    {
+                        $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
+            	        $ipFollowups =  new  IpFollowUp;
+            		 	$ipFollowups->ip_id = $request->ip_id ;
+                        $ipFollowups->branch_id = getBranchId() ;
+            		 	$ipFollowups->parent_id = $parent_id;
+            		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
+            		 	$ipFollowups->title = $request->title;
+                        $ipFollowups->description = $request->description;
+                        $ipFollowups->start_date = $followup['start_date'];
+                        $ipFollowups->start_time = $followup['start_time'];
+                        $ipFollowups->end_date = $followup['end_date'];
+                        $ipFollowups->end_time = $followup['end_time'];
+                        $ipFollowups->remarks = $request->remarks;
+            		 	$ipFollowups->reason_for_editing = $request->reason_for_editing;
+            		 	$ipFollowups->edited_by = $user->id;
+                        $ipFollowups->documents = json_encode($request->documents);
+                        $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            		 	$ipFollowups->save();
+                         /*-----------------Persons Informationn ----------------*/
+                        if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
+                            foreach ($request->persons as $key => $value) {
+                                if(!empty($value['name']))
                                 {
-                                    $top_most_parent_id = auth()->user()->id;
-                                } else {
-                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                    $is_user = false;
+                                    if(@$value['is_family_member'] == true){
+                                        $user_type_id ='8';
+                                        $is_user = true;
+                                    }
+                                    if(@$value['is_caretaker'] == true){
+                                        $user_type_id ='7';
+                                        $is_user = true;
+                                    }
+                                    if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                                        $user_type_id ='10';
+                                        $is_user = true;
+                                    }
+                                    if(@$value['is_contact_person'] == true){
+                                        $user_type_id ='9';
+                                        $is_user = true;
+                                    }
+                                    if(is_null(@$value['id']) == false){
+                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                        $getUser = User::where('email',$getperson->email)->first();
+                                    } else{
+                                        $personalInfo = new PersonalInfoDuringIp;
+                                    }
+                                    $personalInfo->ip_id =$request->ip_id;
+                                    $personalInfo->follow_up_id = $ipFollowups->id ;
+                                    $personalInfo->patient_id =$ipCheck->user_id;
+                                    $personalInfo->name = @$value['name'] ;
+                                    $personalInfo->email = @$value['email'] ;
+                                    $personalInfo->contact_number = @$value['contact_number'];
+                                    $personalInfo->country_id = @$value['country_id'];
+                                    $personalInfo->city = @$value['city'];
+                                    $personalInfo->postal_area = @$value['postal_area'];
+                                    $personalInfo->zipcode = @$value['zipcode'];
+                                    $personalInfo->full_address = @$value['full_address'] ;
+                                    $personalInfo->personal_number = @$value['personal_number'] ;
+                                    $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                                    $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                                    $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                                    $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                                    $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                                    $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
+                                    $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
+                                    $personalInfo->how_helped = @$value['how_helped'];
+                                    $personalInfo->is_other_name = @$value['is_other_name'];
+                                    $personalInfo->save() ;
+                                    /*-----Create Account /Entry in user table*/
+                                    if($is_user == true) {
+                                        if(auth()->user()->user_type_id=='1'){
+                                            $top_most_parent_id = auth()->user()->id;
+                                        }
+                                        elseif(auth()->user()->user_type_id=='2')
+                                        {
+                                            $top_most_parent_id = auth()->user()->id;
+                                        } else {
+                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                        }
+                                        $checkAlreadyUser = User::where('email',@$value['email'])->first();
+                                        if(empty($checkAlreadyUser)) {
+                                            if(!empty($getUser)){
+                                                $userSave = User::find($getUser->id);
+                                            } else {
+                                                $userSave = new User;
+                                                $userSave->unique_id = generateRandomNumber();
+                                            }
+                                            $userSave->user_type_id = $user_type_id;
+                                            $userSave->branch_id = getBranchId();
+                                            $userSave->role_id =  $user_type_id;
+                                            $userSave->parent_id = $user->id;
+                                            $userSave->top_most_parent_id = $top_most_parent_id;
+                                            $userSave->name = @$value['name'] ;
+                                            $userSave->email = @$value['email'] ;
+                                            $userSave->password = Hash::make('12345678');
+                                            $userSave->contact_number = @$value['contact_number'];
+                                            $userSave->country_id = @$value['country_id'];
+                                            $userSave->city = @$value['city'];
+                                            $userSave->postal_area = @$value['postal_area'];
+                                            $userSave->zipcode = @$value['zipcode'];
+                                            $userSave->full_address = @$value['full_address'] ;
+                                            $userSave->save();
+                                            
+                                            if(env('IS_MAIL_ENABLE',false) == true){ 
+                                                    $variables = ([
+                                                    'name' => $userSave->name,
+                                                    'email' => $userSave->email,
+                                                    'contact_number' => $userSave->contact_number,
+                                                    'city' => $userSave->city,
+                                                    'zipcode' => $userSave->zipcode,
+                                                    ]);   
+                                                $emailTem = EmailTemplate::where('id','2')->first();           
+                                                $content = mailTemplateContent($emailTem->content,$variables);
+                                                Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                            }
+                                            if(!empty($user_type_id))
+                                            {
+                                               $role = Role::where('id',$user_type_id)->first();
+                                               $userSave->assignRole($role->name);
+                                            }
+                                        }
+                                    }
                                 }
-                                $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                                if(empty($checkAlreadyUser)) {
-                                    if(!empty($getUser)){
-                                        $userSave = User::find($getUser->id);
-                                    } else {
-                                        $userSave = new User;
-                                        $userSave->unique_id = generateRandomNumber();
-                                    }
-                                    $userSave->user_type_id = $user_type_id;
-                                    $userSave->branch_id = getBranchId();
-                                    $userSave->role_id =  $user_type_id;
-                                    $userSave->parent_id = $user->id;
-                                    $userSave->top_most_parent_id = $top_most_parent_id;
-                                    $userSave->name = @$value['name'] ;
-                                    $userSave->email = @$value['email'] ;
-                                    $userSave->password = Hash::make('12345678');
-                                    $userSave->contact_number = @$value['contact_number'];
-                                    $userSave->country_id = @$value['country_id'];
-                                    $userSave->city = @$value['city'];
-                                    $userSave->postal_area = @$value['postal_area'];
-                                    $userSave->zipcode = @$value['zipcode'];
-                                    $userSave->full_address = @$value['full_address'] ;
-                                    $userSave->save();
-                                    
-                                    if(env('IS_MAIL_ENABLE',false) == true){ 
-                                            $variables = ([
-                                            'name' => $userSave->name,
-                                            'email' => $userSave->email,
-                                            'contact_number' => $userSave->contact_number,
-                                            'city' => $userSave->city,
-                                            'zipcode' => $userSave->zipcode,
-                                            ]);   
-                                        $emailTem = EmailTemplate::where('id','2')->first();           
-                                        $content = mailTemplateContent($emailTem->content,$variables);
-                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
-                                    }
-                                    if(!empty($user_type_id))
-                                    {
-                                       $role = Role::where('id',$user_type_id)->first();
-                                       $userSave->assignRole($role->name);
-                                    }
+
+                                
+                            }
+                        }
+
+                       
+                         /*----------------Question Data--------------------*/
+                        if(is_array($request->questions)  && sizeof($request->question) > 0 ){
+                            foreach ($request->questions as $key => $ques) {
+                                if(!empty($ques))
+                                {
+                                    $getQues = Question::where('id',$ques)->first();
+                                    $question = new FollowupComplete;
+                                    $question->follow_up_id = $ipFollowups->id;;
+                                    $question->question_id = $ques;
+                                    $question->question = ($getQues) ? $getQues->question : null;
+                                    $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                    $question->save();
                                 }
                             }
-
-                            
-                        }
-                    }
-
-                   
-                     /*----------------Question Data--------------------*/
-                    if(is_array($request->questions)  && sizeof($request->question) > 0 ){
-                        foreach ($request->questions as $key => $ques) {
-                            $getQues = Question::where('id',$ques)->first();
-                            $question = new FollowupComplete;
-                            $question->follow_up_id = $ipFollowups->id;;
-                            $question->question_id = $ques;
-                            $question->question = ($getQues) ? $getQues->question : null;
-                            $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                            $question->save();
                         }
                     }
                 }
@@ -525,20 +543,23 @@ class FollowUpsController extends Controller
             $ipFollowups->save();
             if(is_array($request->question_answer) ){
                 foreach ($request->question_answer as $key => $ans) {
-                    $checkQuestion = FollowupComplete::where('follow_up_id',$request->follow_up_id)->where('question_id',$ans['question_id'])->first();
-                    if(is_object($checkQuestion)){
-                        $question = FollowupComplete::find($checkQuestion->id);
-                        $question->answer = $ans['answer'];
-                        $question->save();
-                    }else {
-                        $getQues = Question::where('id',$ans['question_id'])->first();
-                        $question = new FollowupComplete;
-                        $question->follow_up_id = $request->follow_up_id;;
-                        $question->question_id = $ans['question_id'];
-                        $question->question = ($getQues) ? $getQues->question : null;
-                        $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                        $question->answer = $ans['answer'];
-                        $question->save();
+                    if(!empty($value['answer']))
+                    {
+                        $checkQuestion = FollowupComplete::where('follow_up_id',$request->follow_up_id)->where('question_id',$ans['question_id'])->first();
+                        if(is_object($checkQuestion)){
+                            $question = FollowupComplete::find($checkQuestion->id);
+                            $question->answer = $ans['answer'];
+                            $question->save();
+                        }else {
+                            $getQues = Question::where('id',$ans['question_id'])->first();
+                            $question = new FollowupComplete;
+                            $question->follow_up_id = $request->follow_up_id;;
+                            $question->question_id = $ans['question_id'];
+                            $question->question = ($getQues) ? $getQues->question : null;
+                            $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $question->answer = $ans['answer'];
+                            $question->save();
+                        }
                     }
                     
                     

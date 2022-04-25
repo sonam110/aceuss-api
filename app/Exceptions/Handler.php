@@ -13,7 +13,7 @@ class Handler extends ExceptionHandler
      * @var string[]
      */
     protected $dontReport = [
-        //
+        \League\OAuth2\Server\Exception\OAuthServerException::class
     ];
 
     /**
@@ -54,6 +54,10 @@ class Handler extends ExceptionHandler
 
              return response(['success' => false, 'message' =>'Unauthenticated', "code" => 401], 401);
 
+        }
+
+        if ($exception instanceof \League\OAuth2\Server\Exception\OAuthServerException && $exception->getCode() == 9) {
+            return response(['success' => false, 'message' =>'Unauthenticated', "code" => 401], 401);
         }
        return parent::render($request, $exception);
     }

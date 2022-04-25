@@ -23,7 +23,7 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->string('contact_number')->nullable();
             $table->integer('country_id')->nullable();
             $table->string('city')->nullable();
-            $table->string('postal_code')->nullable();
+            $table->string('postal_area')->nullable();
             $table->string('zipcode')->nullable();
             $table->string('full_address')->nullable();
             $table->string('personal_number')->nullable();
