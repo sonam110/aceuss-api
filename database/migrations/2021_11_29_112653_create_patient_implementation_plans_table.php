@@ -54,6 +54,13 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->date('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->boolean('status')->default(0);
+            $table->tinyInteger('step_one')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_two')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_three')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_four')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_five')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_six')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_seven')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();

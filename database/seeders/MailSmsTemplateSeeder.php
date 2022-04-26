@@ -31,27 +31,27 @@ class MailSmsTemplateSeeder extends Seeder
 
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'activity';
-        $smsTemplate->mail_subject = 'Activity Assigned';
-        $smsTemplate->sms_body = "Dear {{name}}, New Activity {{title}} is assigne  for patient id
+        $smsTemplate->mail_subject = 'New Activity Assigned';
+        $smsTemplate->sms_body = "Dear {{name}}, New Activity {{title}} is assigne to you  for patient id
 		{{patient_id}} Activity start at
 		{{start_date}}
-		{{start_time}.";
-        $smsTemplate->notify_body = "Dear {{name}}, New Activity {{title}} is assigne  for patient id
+		{{start_time}}.";
+        $smsTemplate->notify_body = "Dear {{name}}, New Activity {{title}} is assigned to yout  for patient id
 		{{patient_id}} Activity start at
 		{{start_date}}
-		{{start_time}.";
+		{{start_time}}.";
         $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
         $smsTemplate->save();
 
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'task';
-        $smsTemplate->mail_subject = 'Task Assigned';
-        $smsTemplate->sms_body = "Dear {{name}}, New task {{title}} is assigne task start at
+        $smsTemplate->mail_subject = 'New Task Assigned';
+        $smsTemplate->sms_body = "Dear {{name}}, New task {{title}} is assigne task to your and  start at
 		{{start_date}}
-		{{start_time}.";
-        $smsTemplate->notify_body = "Dear {{name}}, New task {{title}} is assigne task start at
+		{{start_time}}.";
+        $smsTemplate->notify_body = "Dear {{name}}, New task {{title}} is assigne to you and  task start at
 		{{start_date}}
-		{{start_time}.";
+		{{start_time}}.";
         $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
         $smsTemplate->save();
     }

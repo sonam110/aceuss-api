@@ -161,6 +161,13 @@ class PatientController extends Controller
                         $patientPlan->end_date = @$patient['end_date'];
                         $patientPlan->save_as_template = (@$patient['save_as_template']) ? 1:0;
                         $patientPlan->documents = json_encode(@$patient['documents']);
+                        $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
+                        $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
+                        $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
+                        $patientPlan->step_four = (!empty(@$patient['step_four'])) ? @$patient['step_four']:0;
+                        $patientPlan->step_five = (!empty(@$patient['step_five'])) ? @$patient['step_five']:0;
+                        $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
+                        $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                         $patientPlan->created_by = $user->id;
                         $patientPlan->save();
 
@@ -373,8 +380,15 @@ class PatientController extends Controller
                         $patientPlan->reason_for_editing = @$patient['reason_for_editing'];
                         $patientPlan->start_date = @$patient['start_date'];
                         $patientPlan->end_date = @$patient['end_date'];
-                        $patientPlan->save_as_template = (@$patient['save_as_template']) ? 1:0;
+                        $patientPlan->save_as_template = (@$patient['save_as_template'] == true) ? 1:0;
                         $patientPlan->documents = json_encode(@$patient['documents']);
+                        $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
+                        $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
+                        $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
+                        $patientPlan->step_four = (!empty(@$patient['step_four'])) ? @$patient['step_four']:0;
+                        $patientPlan->step_five = (!empty(@$patient['step_five'])) ? @$patient['step_five']:0;
+                        $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
+                        $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                         $patientPlan->edited_by = $user->id;
                         $patientPlan->save();
 

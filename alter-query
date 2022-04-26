@@ -1,15 +1,1 @@
-
-
-
-1. follow kiske samne complete hua uska aaray and competeed by and date
-
-2. Ip complete - ip comppleted and date   --- death case if yes delete  activity/task 
-
-
-
------------comment
-
-
-task   - comment
-
-
+ALTER TABLE `patient_implementation_plans` ADD `step_one` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `documents`, ADD `step_two` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_one`, ADD `step_three` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_two`, ADD `step_four` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_three`, ADD `step_five` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_four`, ADD `step_six` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_five`, ADD `step_seven` TINYINT NOT NULL DEFAULT '0' COMMENT '0:Pending,1:Partial Completed,2:Completed' AFTER `step_six`;

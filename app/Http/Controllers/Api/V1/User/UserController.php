@@ -64,7 +64,7 @@ class UserController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status', DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
+            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status','step_one','step_two','step_three','step_four','step_five', DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id ) ipCount"), DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');
@@ -209,12 +209,17 @@ class UserController extends Controller
             $user->user_color = $request->user_color;
             $user->disease_description = $request->disease_description;
             $user->created_by = $userInfo->id;
-            $user->is_substitute = ($request->is_substitute) ? 1:0 ;
-            $user->is_regular = ($request->is_regular) ? 1:0 ;
-            $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
-            $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->is_secret = ($request->is_secret) ? 1:0 ;
+            $user->is_substitute = ($request->is_substitute == true) ? 1:0 ;
+            $user->is_regular = ($request->is_regular == true) ? 1:0 ;
+            $user->is_seasonal = ($request->is_seasonal == true) ? 1:0 ;
+            $user->is_file_required = ($request->is_file_required == true) ? 1:0 ;
+            $user->is_secret = ($request->is_secret == true) ? 1:0 ;
             $user->is_fake =  $is_fake;
+            $user->step_one = (!empty($request->step_one)) ? $request->step_one:0 ;
+            $user->step_two = (!empty($request->step_two)) ? $request->step_two:0 ;
+            $user->step_three = (!empty($request->step_three)) ? $request->step_three:0 ;
+            $user->step_four = (!empty($request->step_four)) ? $request->step_four:0 ;
+            $user->step_five = (!empty($request->step_five)) ? $request->step_five:0 ;
             $user->is_password_change =  $is_password_change;
             $user->documents = json_encode($request->documents);
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
@@ -490,6 +495,11 @@ class UserController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->is_secret = ($request->is_secret) ? 1:0 ;
+            $user->step_one = (!empty($request->step_one)) ? $request->step_one:0 ;
+            $user->step_two = (!empty($request->step_two)) ? $request->step_two:0 ;
+            $user->step_three = (!empty($request->step_three)) ? $request->step_three:0 ;
+            $user->step_four = (!empty($request->step_four)) ? $request->step_four:0 ;
+            $user->step_five = (!empty($request->step_five)) ? $request->step_five:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->documents = json_encode($request->documents);
             $user->save();

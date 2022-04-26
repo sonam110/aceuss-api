@@ -20,6 +20,7 @@ class CreateAssignTasksTable extends Migration
             $table->date('assignment_date')->nullable();
             $table->foreignId('assigned_by');
             $table->tinyInteger('status')->default(0)->comment('0:Not Done,1:done');
+            $table->tinyInteger('is_notify')->default(0)->comment('0:Not send,1:send');
             $table->timestamps();
         });
     }

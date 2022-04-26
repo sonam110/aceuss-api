@@ -46,7 +46,7 @@ class ParagraphController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Paragraph list",$Paragraph,config('httpcodes.success'));
+            return prepareResult(true,"Paragraph list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

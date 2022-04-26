@@ -46,7 +46,6 @@ class ActivityController extends Controller
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
-
             if($user->user_type_id =='3'){
                 $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
                 $query = $query->whereIn('id',explode(',',$agnActivity));

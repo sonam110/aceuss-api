@@ -88,6 +88,11 @@ class User extends Authenticatable
         'is_fake',
         'is_password_change',
         'documents',
+        'step_one',
+        'step_two',
+        'step_three',
+        'step_four',
+        'step_five',
         'entry_mode',
     ];
 

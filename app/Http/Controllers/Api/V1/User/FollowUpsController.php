@@ -50,7 +50,7 @@ class FollowUpsController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $folloups_ids = array_merge($followup_without_parent,$child_id);
-            $query = IpFollowUp::whereIn('id',$folloups_ids)->with('ActionByUser:id,name,email');
+            $query = IpFollowUp::whereIn('id',$folloups_ids)->with('ActionByUser:id,name,email','PatientImplementationPlan.patient');
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
@@ -491,7 +491,7 @@ class FollowUpsController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan','ActionByUser:id,name,email')->first();
+        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
 	        return prepareResult(true,'View Patient plan' ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {

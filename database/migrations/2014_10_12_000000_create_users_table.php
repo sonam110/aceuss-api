@@ -58,6 +58,11 @@ class CreateUsersTable extends Migration
             $table->boolean('is_fake')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_password_change')->default('0')->comment('1:Yes,0:No');
             $table->text('documents')->nullable();
+            $table->tinyInteger('step_one')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_two')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_three')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_four')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
+            $table->tinyInteger('step_five')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->rememberToken();

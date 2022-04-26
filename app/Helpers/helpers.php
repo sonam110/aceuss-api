@@ -238,12 +238,12 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
                     '{{email}}' => $obj['email'],
                     '{{title}}' => $obj['title'],
                     '{{patient_id}}' => $obj['patient_id'],
-                    '{{start_date}}' => $obj['start_date '],
+                    '{{start_date}}' => $obj['start_date'],
                     '{{start_time}}' => $obj['start_time'],
                     '{{company_name}}' => $companyObj['company_name'],
                     '{{company_address}}' =>  $companyObj['company_address'],
                 ];
-                $body = strReplaceAssoc($arrayVal, $message);
+                $body = strReplaceAssoc($arrayVal, $body);
                 $title = strReplaceAssoc($arrayVal, $title);
                 if(!empty($userDeviceInfo->device_token))
                 {
@@ -355,7 +355,7 @@ function sendMessage($sms_for,$obj, $companyObj)
             '{{email}}' => $obj['email'],
             '{{title}}' => $obj['title'],
             '{{patient_id}}' => $obj['patient_id'],
-            '{{start_date}}' => $obj['start_date '],
+            '{{start_date}}' => $obj['start_date'],
             '{{start_time}}' => $obj['start_time'],
             '{{company_name}}' => $companyObj['company_name'],
             '{{company_address}}' =>  $companyObj['company_address'],

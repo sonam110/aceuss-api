@@ -46,7 +46,7 @@ class WordController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Word list",$Word,config('httpcodes.success'));
+            return prepareResult(true,"Word list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
