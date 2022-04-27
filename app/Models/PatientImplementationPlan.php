@@ -11,6 +11,7 @@ use App\Traits\TopMostParentId;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\IpAssigneToEmployee;
 use App\Models\IpFollowUp;
+use App\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 class PatientImplementationPlan extends Model
 {
@@ -110,6 +111,14 @@ class PatientImplementationPlan extends Model
     public function persons()
     {
         return $this->hasMany(PersonalInfoDuringIp::class,'ip_id','id');
+    }
+    public function patientPlan()
+    {
+        return $this->hasMany(self::class,'user_id','user_id');
+    }
+    public function patientActivity()
+    {
+        return $this->hasMany(Activity::class,'user_id','patient_id');
     }
     public function assignEmployee()
     {

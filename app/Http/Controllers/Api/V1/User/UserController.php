@@ -683,6 +683,117 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
+
+     public function importPatient(Request $request,User $user){
+        DB::beginTransaction();
+        try {
+            $userInfo = getUser();
+            $validator = Validator::make($request->all(),[
+                 'file'     => 'required|array|max:20000|min:1'
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], '422'); 
+            }
+            
+            if($request->user_type_id == '6' || $request->user_type_id =='3'){
+                $validator = Validator::make($request->all(),[
+                    'personal_number' => 'required|digits:12|unique:users,personal_number,'.$user->id, 
+                ]);
+                if ($validator->fails()) {
+                    return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                }
+
+            }
+            
+            $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
+            if (!is_object($checkId)) {
+                return prepareResult(false, getLangByLabelGroups('UserValidation','id_not_found'), [],'404');
+            }
+            
+            $user->user_type_id = $request->user_type_id;
+            $user->role_id = $request->role_id;
+            $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
+            $user->govt_id = $request->govt_id;
+            $user->dept_id = $request->dept_id;
+            $user->country_id = $request->country_id;
+            $user->city = $request->city;
+            $user->postal_area = $request->postal_area;
+            $user->name = $request->name;
+            $user->contact_number = $request->contact_number;
+            $user->gender = $request->gender;
+            $user->personal_number = $request->personal_number;
+            $user->organization_number = $request->organization_number;
+            $user->patient_type_id = (!empty($request->patient_type_id)) ? json_encode($request->patient_type_id) : null;
+            $user->zipcode = $request->zipcode;
+            $user->full_address = $request->full_address;
+            $user->joining_date = $request->joining_date;
+            $user->establishment_year = $request->establishment_year;
+            $user->user_color = $request->user_color;
+            $user->disease_description = $request->disease_description;
+            $user->is_substitute = ($request->is_substitute) ? 1:0 ;
+            $user->is_regular = ($request->is_regular) ? 1:0 ;
+            $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
+            $user->is_file_required = ($request->is_file_required) ? 1:0 ;
+            $user->is_secret = ($request->is_secret) ? 1:0 ;
+            $user->step_one = (!empty($request->step_one)) ? $request->step_one:0 ;
+            $user->step_two = (!empty($request->step_two)) ? $request->step_two:0 ;
+            $user->step_three = (!empty($request->step_three)) ? $request->step_three:0 ;
+            $user->step_four = (!empty($request->step_four)) ? $request->step_four:0 ;
+            $user->step_five = (!empty($request->step_five)) ? $request->step_five:0 ;
+            $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->documents = json_encode($request->documents);
+            $user->save();
+            \DB::table('model_has_roles')->where('model_id',$user->id)->delete();
+            if(!empty($request->input('role_id')))
+            {
+                $role = Role::where('id',$request->role_id)->first();
+                $user->assignRole($role->name);
+            }
+
+
+            if($request->user_type_id == '6'){
+                $checkPatientAlready = PatientInformation::where('patient_id',$user->id)->first();
+                if(is_object($checkPatientAlready)){
+                    $patientInfo =  PatientInformation::find($checkPatientAlready->id);
+                } else{
+                    $patientInfo = new PatientInformation;
+                }
+                
+                $patientInfo->patient_id = $user->id;
+                $patientInfo->institute_name = $request->institute_name;
+                $patientInfo->institute_contact_number = $request->institute_contact_number;
+                $patientInfo->institute_full_address = $request->institute_full_address;
+                $patientInfo->classes_from = $request->classes_from;
+                $patientInfo->classes_to = $request->classes_to;
+                $patientInfo->company_name = $request->company_name;
+                $patientInfo->company_contact_number = $request->company_contact_number;
+                $patientInfo->company_full_address = $request->company_full_address;
+                $patientInfo->from_timing = $request->from_timing;
+                $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->special_information = $request->special_information;
+                $patientInfo->aids = $request->aids;
+                $patientInfo->another_activity = $request->another_activity;
+                $patientInfo->another_activity_name = $request->another_activity_name;
+                $patientInfo->activitys_contact_number = $request->activitys_contact_number;
+                $patientInfo->activitys_full_address = $request->activitys_full_address;
+                $patientInfo->week_days = json_encode($request->week_days);
+                $patientInfo->issuer_name = $request->issuer_name;
+                $patientInfo->number_of_hours = $request->number_of_hours;
+                $patientInfo->period = $request->period;
+                $patientInfo->save();
+              
+            }
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, '200');
+                
+        }
+        catch(Exception $exception) {
+             \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[],'500');
+            
+        }
+    }
     public function destroy(User $user)
     {
         try {

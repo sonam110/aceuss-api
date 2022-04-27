@@ -150,6 +150,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		 /*-------------User Managment ------------------------*/
 	   	Route::post('users', [App\Http\Controllers\Api\V1\User\UserController::class, 'users']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
+		Route::post('import-patient', [App\Http\Controllers\Api\V1\User\UserController::class, 'importPatient']);
 
 		/*-------------Branch -------------------*/
 		Route::apiResource('branch', User\BranchController::class)->only(['store','update']);

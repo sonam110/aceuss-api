@@ -54,7 +54,7 @@ class PatientController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $ip_ids = array_merge($ip_without_parent,$child_id);
-            $query = PatientImplementationPlan::whereIn('id',$ip_ids);
+            $query = PatientImplementationPlan::whereIn('id',$ip_ids)->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')->withCount(['patient.persons','patient.patientPlan','patient.patientActivity','ipFollowUps']);
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
@@ -64,20 +64,17 @@ class PatientController extends Controller
             if($user->user_type_id =='3'){
                 $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
                 $query = $query->whereIn('id',explode(',',$ipAssigne));
-
             }
             if($user->user_type_id =='6'){
                 $query = $query->where('user_id',$user->id);
 
             }
             if($whereRaw != '') { 
-                
                 $query = $query->whereRaw($whereRaw)
-                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
+                
                 ->orderBy('id', 'DESC');
             } else {
-                $query = $query->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
-                ->orderBy('id', 'DESC');
+                $query = $query->orderBy('id', 'DESC');
             }
             if(!empty($request->perPage))
             {

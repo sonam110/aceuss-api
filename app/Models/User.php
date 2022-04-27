@@ -29,6 +29,8 @@ use App\Models\EmployeeType;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\CompanySetting;
 use App\Models\PatientInformation;
+use App\Models\PatientImplementationPlan;
+use App\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -242,6 +244,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(self::class, 'branch_id');
     }
+    public function patientPlan()
+    {
+        return $this->hasMany(PatientImplementationPlan::class,'user_id','id');
+    }
+    public function patientActivity()
+    {
+        return $this->hasMany(Activity::class,'patient_id','id');
+    }
+
 
     public function getCompanyTypesAttribute()
     {
