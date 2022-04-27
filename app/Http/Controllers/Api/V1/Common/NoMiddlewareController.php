@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\CompanySetting;
 use App\Models\UserTypeHasPermission;
 use App\Models\ActivityOption;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class NoMiddlewareController extends Controller
 {
@@ -177,11 +179,42 @@ class NoMiddlewareController extends Controller
             }
             else
             {
-                $query = $query->get();
+                $query = $query->toSql();
             }
             return prepareResult(true,"Permissions",$query,'200');
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
+    }
+
+    public function allPermissions(Request $request)
+    {
+        $permissions = Permission::withoutGlobalScope('top_most_parent_id')
+            ->get();
+
+        $user_type_has_permissions = UserTypeHasPermission::where('user_type_id', $request->user_type_id)
+            ->withoutGlobalScope('top_most_parent_id')
+            ->get();
+
+        $returnData = [
+            'permissions' => $permissions,
+            'user_type_has_permissions' => $user_type_has_permissions
+
+        ];  
+        return prepareResult(true,"Permissions", $returnData,'200');
+    }
+
+    public function addUserTypeHasPermissions(Request $request)
+    {
+        $deleteAll = UserTypeHasPermission::where('user_type_id', $request->user_type_id)
+            ->withoutGlobalScope('top_most_parent_id')
+            ->delete();
+        foreach ($request->permissions as $key => $permission) {
+            $add =  new UserTypeHasPermission;
+            $add->user_type_id = $request->user_type_id;
+            $add->permission_id = $permission;
+            $add->save();
+        }
+        return prepareResult(true,"Permissions assigned",[],'200');
     }
 }

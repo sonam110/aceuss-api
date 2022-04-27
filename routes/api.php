@@ -230,6 +230,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('download-patient-import-sample-file', [App\Http\Controllers\Api\V1\Common\ImportDataController::class, 'downloadPatientImportSampleFile']);
 		
 
+		//get permissions and relation by user_type_id
+		Route::post('all-permissions', [App\Http\Controllers\Api\V1\Common\NoMiddlewareController::class, 'allPermissions']);
+		Route::post('add-user-type-has-permissions', [App\Http\Controllers\Api\V1\Common\NoMiddlewareController::class, 'addUserTypeHasPermissions']);
 
 	});
 });

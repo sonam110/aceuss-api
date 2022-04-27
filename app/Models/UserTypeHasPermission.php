@@ -10,6 +10,11 @@ class UserTypeHasPermission extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_type_id',
+        'permission_id'
+    ];
+
 	public function allUserTypes()
     {
         return $this->belongsToMany(UserType::class, 'user_types')->withTimestamps();
