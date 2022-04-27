@@ -87,10 +87,9 @@ class UserLoginController extends Controller
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;
-                                $permissionIds   = DB::table('role_has_permissions')->where('role_id',$user->role_id)->pluck('permission_id')->implode(',');
-                                $permissions = DB::table('permissions')->whereIn('id',explode(',',$permissionIds))->groupby('group_name')->orderby('id','ASC')->get();
+                                $permissionIds   = DB::table('role_has_permissions')->where('role_id',$user->role_id)->pluck('permission_id');
 
-
+                                $permissions = DB::table('permissions')->select('group_name')->whereIn('id', $permissionIds)->groupby('group_name')->orderby('id','ASC')->get();
                                 $userPermission = [];
                                 foreach ($permissions as $key => $value) {
                                     
@@ -99,7 +98,11 @@ class UserLoginController extends Controller
                                     $is_edit = false;
                                     $is_read = false;
                                     $is_delete = false;
-                                    $permissionGroup = DB::table('permissions')->where('group_name',$value->group_name)->orderby('id','ASC')->get();
+                                    $permissionGroup = DB::table('permissions')
+                                    ->whereIn('id', $permissionIds)
+                                    ->where('group_name', $value->group_name)
+                                    ->orderby('id','ASC')
+                                    ->get();
                                     $permArray[$value->group_name] =[];
                                     foreach ($permissionGroup as $key => $permission) {
                                         $per = explode('-',$permission->name);
@@ -126,10 +129,10 @@ class UserLoginController extends Controller
                                             "delete" => $is_delete,
 
                                         ];
-                                       
                                     }
                                    
                                     $userPermission = $permArray;
+
                                     
                                 }
                                 $user['permissions']  = $userPermission;

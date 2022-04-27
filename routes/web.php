@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/optimize', function () {
+    \Artisan::call('optimize:clear');
+    return 'done';
+});

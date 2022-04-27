@@ -785,8 +785,15 @@ class PatientController extends Controller
             if($is_action_perform == false){
                 return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
             }
-            $id = $request->ip_id;
+
             $ipAction = PatientImplementationPlan::find($id);
+            if($ipAction->status==0 && $request->status==2)
+            {
+                return prepareResult(false,'Cannot complete this IP because the IP is not yet approved. please go back and approve this IP first.',[], config('httpcodes.bad_request')); 
+            }
+
+            $id = $request->ip_id;
+            
             $ipAction->status = $request->status;
             $ipAction->action_by = $user->id;
             $ipAction->action_date = date('Y-m-d');
