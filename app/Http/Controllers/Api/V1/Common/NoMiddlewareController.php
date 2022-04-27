@@ -189,8 +189,12 @@ class NoMiddlewareController extends Controller
 
     public function allPermissions(Request $request)
     {
-        $permissions = Permission::withoutGlobalScope('top_most_parent_id')
-            ->get();
+        $permissions = Permission::withoutGlobalScope('top_most_parent_id');
+        if(!empty($request->belongs_to))
+        {
+            $permissions->where('belongs_to', $request->belongs_to);
+        }
+        $permissions = $permissions->get();
 
         $user_type_has_permissions = UserTypeHasPermission::where('user_type_id', $request->user_type_id)
             ->withoutGlobalScope('top_most_parent_id')
