@@ -33,7 +33,7 @@ class DeviationController extends Controller
                 
                 $query = $query->orderBy('id','DESC');
             } else{
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query =  $query->whereIn('id',$allChilds);
             }
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 

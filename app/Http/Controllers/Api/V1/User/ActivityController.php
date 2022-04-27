@@ -43,7 +43,7 @@ class ActivityController extends Controller
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query =  $query->whereIn('id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
