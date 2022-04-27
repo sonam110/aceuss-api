@@ -92,7 +92,7 @@ class NoMiddlewareController extends Controller
         }
     }
 
-    public function companySetting($user_id)
+    public function companySettingDetail($user_id)
     { 
         try {
             $userInfo = getUser();
@@ -155,7 +155,9 @@ class NoMiddlewareController extends Controller
                 $query->join('permissions', function($join) {
                     $join->on('user_type_has_permissions.permission_id', '=', 'permissions.id');
                 })
-                ->where('permissions.belongs_to',$request->belongs_to);
+                ->where('permissions.belongs_to',$request->belongs_to)
+                ->orWhere('name', 'dashboard-browse')
+                ->groupBy('name');
             }
             if(!empty($request->user_type_id))
             {
@@ -179,7 +181,7 @@ class NoMiddlewareController extends Controller
             }
             else
             {
-                $query = $query->toSql();
+                $query = $query->get();
             }
             return prepareResult(true,"Permissions",$query,'200');
         } catch(Exception $exception) {
@@ -192,7 +194,8 @@ class NoMiddlewareController extends Controller
         $permissions = Permission::withoutGlobalScope('top_most_parent_id');
         if(!empty($request->belongs_to))
         {
-            $permissions->where('belongs_to', $request->belongs_to);
+            $permissions->where('belongs_to', $request->belongs_to)
+            ->orWhere('name', 'dashboard-browse');
         }
         $permissions = $permissions->get();
 
