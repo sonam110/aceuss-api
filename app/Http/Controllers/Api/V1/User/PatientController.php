@@ -54,7 +54,14 @@ class PatientController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $ip_ids = array_merge($ip_without_parent,$child_id);
-            $query = PatientImplementationPlan::whereIn('id',$ip_ids)->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')->withCount(['patient.persons','patient.patientPlan','patient.patientActivity','ipFollowUps']);
+            $query = PatientImplementationPlan::whereIn('id',$ip_ids)
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
+            ->withCount(['ipFollowUps'])
+            ->with(
+                ['patient' => function ($query) {
+                    $query->withCount(['persons','patientPlan','patientActivity']);
+                }]
+            );
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{

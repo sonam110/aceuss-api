@@ -225,7 +225,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('comment-list', [App\Http\Controllers\Api\V1\Common\CommentController::class, 'commentList']);
 
 
-	
+		/*import*/
+		Route::post('patient-import', [App\Http\Controllers\Api\V1\Common\ImportDataController::class, 'patientImport']);
+		Route::get('download-patient-import-sample-file', [App\Http\Controllers\Api\V1\Common\ImportDataController::class, 'downloadPatientImportSampleFile']);
+		
 
 
 	});
