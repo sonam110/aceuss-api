@@ -14,6 +14,7 @@ use App\Models\CompanySetting;
 use App\Models\AssigneModule;
 use App\Models\Journal;
 use App\Models\Deviation;
+use App\Models\MobileBankIdLoginLog;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 
@@ -710,7 +711,48 @@ function branchChilds($branch_id)
     return $tree;
 }
 
+function bankIdVerification($personalNumber, $person_id)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '945610088ce511434ad87fa50e567c7d').'&authenticateServiceKey='.env('BANKIDAPISECRET', '3e73749b89a9ee32369fa25910c4c4e9'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id));
 
+    $headers = array();
+    $headers[] = 'Accept: application/json';
+    $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+    $result = curl_exec($ch);
 
-?>
+    if (curl_errno($ch)) {
+        $message = curl_error($ch);
+        curl_close($ch);
+        \Log::error('something_went_wrong:curl error: '. $message);
+        return null;
+    } elseif(!empty($resDecode['errorObject'])) {
+        $message = $resDecode['errorObject']['message'];
+        \Log::error('something_went_wrong:curl error: '. $message);
+        return null;
+    } else {
+        $resDecode = json_decode($result, true);
+        return $resDecode;
+    }
+}
+
+function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name)
+{
+    $checkSession = MobileBankIdLoginLog::where('sessionId', $sessionId)->count();
+    if($checkSession<1)
+    {
+        //Create Mobile BankID log
+        $mobileBankIdLoginLog = new MobileBankIdLoginLog;
+        $mobileBankIdLoginLog->top_most_parent_id = $top_most_parent_id;
+        $mobileBankIdLoginLog->sessionId = $sessionId;
+        $mobileBankIdLoginLog->personnel_number = $personnel_number;
+        $mobileBankIdLoginLog->name = $name;
+        $mobileBankIdLoginLog->save();
+    }
+    return true;
+}

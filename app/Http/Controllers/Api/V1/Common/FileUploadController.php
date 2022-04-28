@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Common;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\AdminFile;
 
 class FileUploadController extends Controller
 {
@@ -44,6 +45,12 @@ class FileUploadController extends Controller
                     $extension = $value->getClientOriginalExtension();
                     $fileSize = $value->getSize();
                     $value->move($destinationPath, $fileName);
+
+                    if($request->store_in_db==1)
+                    {
+                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1);
+                    }
+                    
                     
                     $fileArray[] = [
                         'title'         => $request->title,
@@ -66,7 +73,11 @@ class FileUploadController extends Controller
                 }
                 
                 $file->move($destinationPath, $fileName);
-
+                if($request->store_in_db==1)
+                {
+                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1);
+                }
+                
                 $fileInfo = [
                     'title'         => $request->title,
                     'file_name'         => env('CDN_DOC_URL').$destinationPath.$fileName,
@@ -80,5 +91,16 @@ class FileUploadController extends Controller
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
+    }
+
+    private function storeFileInDB($title, $file_path, $is_public)
+    {
+        $filesave = new AdminFile;
+        $filesave->title = $title;
+        $filesave->file_path = $file_path;
+        $filesave->is_public = $is_public;
+        $filesave->title = auth()->id();
+        $filesave->save();
+        return true;
     }
 }

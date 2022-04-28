@@ -149,7 +149,8 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
-           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
        }
    }
 

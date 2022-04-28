@@ -10,6 +10,7 @@ use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\IpAssigneToEmployee;
+use App\Models\RequestForApproval;
 use App\Models\IpFollowUp;
 use App\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -83,6 +84,10 @@ class PatientImplementationPlan extends Model
     public function Parent()
     {
           return $this->belongsTo(self::class,'parent_id','id');
+    }
+    public function requestForApprovals()
+    {
+         return $this->hasMany(RequestForApproval::class, 'request_type_id', 'id');
     }
     public function children()
     {

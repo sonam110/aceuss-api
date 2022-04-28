@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\CompanyId;;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
 use App\Traits\TopMostParentId;
 use Str;
 class MobileBankIdLoginLog extends Model
 {
-    use HasFactory, CompanyId, LogsActivity,TopMostParentId;
+    use HasFactory, LogsActivity,TopMostParentId;
 
     protected $fillable = [
         'uuid', 'top_most_parent_id', 'sessionId', 'personnel_number', 'name'

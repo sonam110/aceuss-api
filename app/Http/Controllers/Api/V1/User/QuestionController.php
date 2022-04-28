@@ -72,11 +72,14 @@ class QuestionController extends Controller
             }
 
             foreach ($query as $key => $group) {
-               $questionList = Question::where('group_name',$group->group_name)->get();
-               $group_questions[]=[
-                "group_name" => $group->group_name,
-                "questions" => $questionList,
-               ];
+               $questionList = Question::where('group_name',$group->group_name)->where('is_visible', $request->is_visible)->get();
+               if($questionList->count()>0)
+               {
+                   $group_questions[]=[
+                    "group_name" => $group->group_name,
+                    "questions" => $questionList,
+                   ];
+               }
             }
 
 
@@ -202,6 +205,10 @@ class QuestionController extends Controller
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+        }
+        if (is_null($request->input('is_visible')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "is_visible = "."'" .$request->input('is_visible')."'".")";
         }
         return($w);
 

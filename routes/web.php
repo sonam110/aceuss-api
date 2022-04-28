@@ -21,3 +21,6 @@ Route::get('/optimize', function () {
     \Artisan::call('optimize:clear');
     return 'done';
 });
+
+Route::get('/verified/{person_id}', [App\Http\Controllers\CallbackController::class, 'verified']);
+

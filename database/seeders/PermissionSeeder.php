@@ -49,14 +49,14 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'notifications-delete', 'guard_name' => 'api','group_name'=>'notifications','se_name'=>'notifications-delete','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'requests-browse', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-browse','belongs_to'=>'1']);
+        Permission::create(['name' => 'requests-browse', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-browse','belongs_to'=>'3']);
 
-         Permission::create(['name' => 'requests-add', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-add','belongs_to'=>'1']);
-         Permission::create(['name' => 'requests-read', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-read','belongs_to'=>'1']);
+         Permission::create(['name' => 'requests-add', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-add','belongs_to'=>'3']);
+         Permission::create(['name' => 'requests-read', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-read','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'requests-edit', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-edit','belongs_to'=>'1']);
+        Permission::create(['name' => 'requests-edit', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-edit','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'requests-delete', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-delete','belongs_to'=>'1']);
+        Permission::create(['name' => 'requests-delete', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-delete','belongs_to'=>'3']);
 
         Permission::create(['name' => 'users-browse', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-browse','belongs_to'=>'3']);
 
@@ -346,8 +346,18 @@ class PermissionSeeder extends Seeder
 
          Permission::create(['name' => 'calendar-browse', 'guard_name' => 'api','group_name'=>'calendar','se_name'=>'calendar-browse','belongs_to'=>'2']);
 
+         Permission::create(['name' => 'patientimport-add', 'guard_name' => 'api','group_name'=>'import','se_name'=>'patientimport-add','belongs_to'=>'2']);
 
-         
+
+         Permission::create(['name' => 'files-browse', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-browse','belongs_to'=>'3']);
+
+         Permission::create(['name' => 'files-read', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-read','belongs_to'=>'3']);
+
+         Permission::create(['name' => 'files-edit', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-edit','belongs_to'=>'3']);
+
+         Permission::create(['name' => 'files-add', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-add','belongs_to'=>'3']);
+
+         Permission::create(['name' => 'files-delete', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-delete','belongs_to'=>'3']);
 
           
 

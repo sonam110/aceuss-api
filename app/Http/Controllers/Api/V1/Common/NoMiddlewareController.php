@@ -150,7 +150,7 @@ class NoMiddlewareController extends Controller
         try {
             $query = UserTypeHasPermission::select('user_type_has_permissions.*')->with('permission');
             
-            if(!empty($request->belongs_to))
+            /*if(!empty($request->belongs_to))
             {
                 $query->join('permissions', function($join) {
                     $join->on('user_type_has_permissions.permission_id', '=', 'permissions.id');
@@ -160,7 +160,7 @@ class NoMiddlewareController extends Controller
                         ->orWhere('permissions.name', 'dashboard-browse');
                 })
                 ->groupBy('permissions.name');
-            }
+            }*/
             if(!empty($request->user_type_id))
             {
                 $query->where('user_type_has_permissions.user_type_id',$request->user_type_id);

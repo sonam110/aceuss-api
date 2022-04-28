@@ -33,8 +33,8 @@ class RequestApprovalController extends Controller
     public function requestForApproval(Request $request)
     {
         try {
-    		$user = getUser();
-            $data = [ 'data' => $request->all() ];
+            $user = getUser();
+            $data = $request->all();
             $validator = Validator::make($request->all(),[   
                 'data.*.request_type'     => 'required|exists:category_types,id',      
                 'data.*.request_type_id' => 'required',      
@@ -44,25 +44,34 @@ class RequestApprovalController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
             $ids = [];
-            if(is_array($data['data']) && sizeof($data['data']) >0 ){
-                foreach ($data['data'] as $key => $value) {
-                    if(!empty($value['request_type']))
+            if(is_array($request->requested_to) && sizeof($request->requested_to) >0 ){
+                foreach ($request->requested_to as $key => $value) {
+                    if(!empty($request->request_type))
                     {
-                        $addRequest = new RequestForApproval;
+                        $checkExist = RequestForApproval::where('requested_by', $user->id)->where('requested_to', $value)->where('request_type', $request->request_type)->where('request_type_id', $request->request_type_id)->first();
+                        if($checkExist)
+                        {
+                            $addRequest = $checkExist;
+                        }
+                        else
+                        {
+                            $addRequest = new RequestForApproval;
+                        }
+
                         $addRequest->requested_by = $user->id;
-                        $addRequest->requested_to = (!empty(@$value['requested_to'])) ? @$value['requested_to']: $user->top_most_parent_id;
-                        $addRequest->request_type = @$value['request_type'];
-                        $addRequest->request_type_id = @$value['request_type_id'];
-                        $addRequest->reason_for_requesting = @$value['reason_for_requesting'];
-                        $addRequest->approval_type = @$value['approval_type'];
+                        $addRequest->requested_to = $value;
+                        $addRequest->request_type = $request->request_type;
+                        $addRequest->request_type_id = $request->request_type_id;
+                        $addRequest->reason_for_requesting = $request->reason_for_requesting;
+                        $addRequest->approval_type = $request->approval_type;
                         $addRequest->save();  
-        	            $ids[] = $addRequest->id;
-                        if(@$value['request_type'] == '2'){
-                               $person = PersonalInfoDuringIp::where('id',@$value['requested_to'])->first(); 
+                        $ids[] = $addRequest->id;
+                        if($request->request_type == '2'){
+                               $person = PersonalInfoDuringIp::where('id',$value)->first(); 
                                if(is_object($person)){
                                     $person->is_approval_requested  = '1';
                                     $person->save(); 
-                                    if(@$value['approval_type'] =='2'){
+                                    if($request->approval_type =='2'){
                                         if($person->is_family_member == true){
                                             $user_type_id ='8';
                                         }
@@ -134,53 +143,68 @@ class RequestApprovalController extends Controller
                                             
                                     } 
                                 }
-                            if(@$value['approval_type'] =='1'){
-                                $patientPlan = PatientImplementationPlan::where('id',@$value['request_type_id'])->with('Parent','Category','Subcategory','CreatedBy','patient','persons.Country','children')->first();
-                                $patientPlan->status ="1";
-                                $patientPlan->approved_by = @$value['requested_to'];
-                                $patientPlan->approved_date = date('Y-m-d');
-                                $patientPlan->save();
-
-                                $filename = $patientPlan->id."-".time().".pdf";
-                                $data['ip'] = $patientPlan; 
-                                $data['person'] = $person; 
-                                $data['bankid_verified'] = 'yes';
-                                $pdf = PDF::loadView('print-ip', $data);
-                                $pdf->save('reports/ip/'.$filename);
-                                $url = env('CDN_DOC_URL').'reports/ip/'.$filename;
-
-                                $requestApproved = RequestForApproval::where('id',$addRequest->id)->update(['status'=>'2','other_info'=> $url]);
-
+                            if($request->approval_type =='1'){
+                                $patientImpPlan = PatientImplementationPlan::where('id',$request->request_type_id)->first();
+                                $patientImpPlan->status ="1";
+                                $patientImpPlan->approved_by = $value;
+                                $patientImpPlan->approved_date = date('Y-m-d');
+                                $patientImpPlan->save();
                             }
                         }
-    	                $companyObj = companySetting($user->top_most_parent_id);
-    	                if(@$value['request_type'] == '9' || @$value['request_type'] == '2'){
-    	                	$ip = PatientImplementationPlan::where('id',@$value['request_type_id'])->first();
-    	                }
-    	                $obj  =[
-    	                    "type"=> 'request-approval',
-    	                    "user_id"=> @$value['requested_to'],
-    	                    "name"=> $user->name,
-    	                    "email"=> $user->email,
-    	                    "user_type"=> $user->user_type_id,
-    	                    "title"=> ($ip) ? $ip->title : @$value['reason_for_requesting'],
-    	                    "patient_id"=>  null,
-    	                    "start_date"=> '',
-    	                    "start_time"=> '',
-    	                    "company"=>  $companyObj,
-    	                    "company_id"=>  $user->top_most_parent_id,
 
-    	                ];
-    	                if(env('IS_NOTIFICATION_ENABLE')== true){
-    	                    pushNotification('request-approval',$companyObj,$obj,'1','',$addRequest->id,'');
-    	                }
+                        if($request->approval_type == '2') {
+                            $companyObj = companySetting($user->top_most_parent_id);
+                            if($request->request_type == '9' || $request->request_type == '2'){
+                                $ip = PatientImplementationPlan::where('id',$request->request_type_id)->first();
+                            }
+                            $obj  =[
+                                "type"=> 'request-approval',
+                                "user_id"=> $value,
+                                "name"=> $user->name,
+                                "email"=> $user->email,
+                                "user_type"=> $user->user_type_id,
+                                "title"=> ($ip) ? $ip->title : $request->reason_for_requesting,
+                                "patient_id"=>  null,
+                                "start_date"=> '',
+                                "start_time"=> '',
+                                "company"=>  $companyObj,
+                                "company_id"=>  $user->top_most_parent_id,
+
+                            ];
+                            if(env('IS_NOTIFICATION_ENABLE')== true){
+                                pushNotification('request-approval',$companyObj,$obj,'1','',$addRequest->id,'');
+                            }
+                        }
                     }
+                }
+                if($request->approval_type == '1') {
+                    $filename = $patientImpPlan->id."-".time().".pdf";
+                    $data['ip'] = $patientImpPlan;
+                    $pdf = PDF::loadView('print-ip', $data);
+                    $pdf->save('reports/ip/'.$filename);
+                    $url = env('CDN_DOC_URL').'reports/ip/'.$filename;
+                    $requestApproved = RequestForApproval::whereIn('id',[$ids])->update(['status'=>'2','other_info'=> $url]);
+                    return prepareResult(true,'Download PDF' ,$url, config('httpcodes.success'));
+                }
+                elseif($request->approval_type == '2') {
+                    $url = [];
+                    foreach ($request->requested_to as $key => $person) {
+                        $getPersonalNumber = PersonalInfoDuringIp::find($person);
+                        if($getPersonalNumber)
+                        {
+                            if(!empty($getPersonalNumber->personal_number))
+                            {
+                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person);
+                            }
+                        }
+                    }
+                    return prepareResult(true,'Mobile BankID Link' ,$url, config('httpcodes.success'));
                 }
                 $getRequest = RequestForApproval::whereIn('id',$ids)->get();
                return prepareResult(true,'Send successfully' ,$getRequest, config('httpcodes.success'));
             
             } else {
-           	  return prepareResult(false, 'Opps! Somthing went wrong',[], '500');
+              return prepareResult(false, 'Opps! Somthing went wrong',[], '500');
             }
         
         }
@@ -196,7 +220,7 @@ class RequestApprovalController extends Controller
             $query = RequestForApproval::with('RequestedBy:id,name','RequestedTo:id,name','ApprovedBy:id,name')->orderby('id','ASC');
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-            	$query->whereRaw($whereRaw);
+                $query->whereRaw($whereRaw);
 
             } 
             if(!empty($request->perPage))

@@ -4,9 +4,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\SmsLog;
-use App\Models\MailLog;
 use Spatie\Activitylog\Models\Activity;
 use DB;
+use Log;
 
 class LogController extends Controller
 {
@@ -15,7 +15,7 @@ class LogController extends Controller
         try {
             $query = SmsLog::select('*')->with('company:id,name')->orderBy('created_at', 'DESC');
             if(!empty($request->top_most_parent_id))
-            
+            {
                 $query->where('top_most_parent_id', $request->top_most_parent_id);
             }
 
@@ -56,10 +56,109 @@ class LogController extends Controller
 
             return prepareResult(true,"Sms Log",$query,config('httpcodes.success'));
         } catch (\Throwable $e) {
-            \Log::error($e);
+            Log::error($e);
            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
+    public function mobileBankIdLog(Request $request)
+    {
+        try {
+            $query = MobileBankIdLoginLog::select('*')->with('company:id,name')->orderBy('created_at', 'DESC');
+            if(!empty($request->top_most_parent_id))
+            {
+                $query->where('top_most_parent_id', $request->top_most_parent_id);
+            }
+
+            if(!empty($request->personnel_number))
+            {
+                $query->where('personnel_number', $request->personnel_number);
+            }
+
+            if(!empty($request->name))
+            {
+                $query->where('name', 'LIKE', '%'.$request->name.'%');
+            }
+
+            if(!empty($request->per_page_record))
+            {
+                $perPage = $request->per_page_record;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                $query = $pagination;
+            }
+            else
+            {
+                $query = $query->get();
+            }
+
+            return prepareResult(true,"Mobile BankID Log",$query,config('httpcodes.success'));
+        } catch (\Throwable $e) {
+            Log::error($e);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function activitiesLog(Request $request)
+    {
+        try {
+            $query = Activity::select('*')->orderBy('created_at', 'DESC');
+            if(!empty($request->properties))
+            {
+                $query->where('properties', 'LIKE', '%'.$request->properties.'%');
+            }
+
+            if(!empty($request->per_page_record))
+            {
+                $perPage = $request->per_page_record;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                $query = $pagination;
+            }
+            else
+            {
+                $query = $query->get();
+            }
+
+            return prepareResult(true,"Activity Log",$query,config('httpcodes.success'));
+        } catch (\Throwable $e) {
+            Log::error($e);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function activityLogInfo($activity_id)
+    {
+        try {
+            $query = Activity::find($activity_id);
+            if($query)
+            {
+                //$query = $query->changes();
+                return prepareResult(true,"Ictivity Info Log",$query,config('httpcodes.success'));
+            }
+            return response(prepareResult(true, [], trans('translate.record_not_found')), config('httpcodes.not_found'));
+        } catch (\Throwable $e) {
+            Log::error($e);
+           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
     
 }

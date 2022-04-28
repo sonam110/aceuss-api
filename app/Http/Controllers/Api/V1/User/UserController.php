@@ -28,11 +28,11 @@ class UserController extends Controller
     public function __construct()
     {
 
-        $this->middleware('permission:users-browse',['except' => ['show']]);
+        /*$this->middleware('permission:users-browse patients-browse',['only' => ['show']]);
         $this->middleware('permission:users-add', ['only' => ['store']]);
         $this->middleware('permission:users-edit', ['only' => ['update']]);
         $this->middleware('permission:users-read', ['only' => ['show']]);
-        $this->middleware('permission:users-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:users-delete', ['only' => ['destroy']]);*/
         
         $this->middleware(function ($request, $next) {
             if(auth()->user()->user_type_id=='1') {

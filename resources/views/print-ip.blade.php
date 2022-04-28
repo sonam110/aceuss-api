@@ -56,10 +56,13 @@
     .value {
         font-size: 14px;
     }
+    .page-break {
+        page-break-after: always;
+    }
 </style>
 <body>
     <h2>
-        <center><span class="main-title">IP Followups</span></center>
+        <center><span class="main-title">Implementation Plan</span></center>
     </h2>
     <div>
     <center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -67,9 +70,6 @@
     
 
     <table class="header table table-striped">
-        <tr>
-            <td colspan="2" class="sub-title"><strong>IP Info</strong></td>
-        </tr>
         <tr>
             <td class="title"><strong>Category</strong></td>
             <td class="value">{{($ip->category) ? $ip->category->name : null}}</td>
@@ -83,35 +83,63 @@
             <td class="value">{{$ip->title}}</td>
         </tr>
         <tr>
+            <td class="title"><strong>Limitations</strong></td>
+            <td class="value">{{$ip->limitations}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Limitation Detail</strong></td>
+            <td class="value">{{$ip->limitation_details}}</td>
+        </tr>
+        <tr>
             <td class="title"><strong>Goal</strong></td>
             <td class="value">{{$ip->goal}}</td>
         </tr>
-        <tr>
-            <td class="title"><strong>Sub goal</strong></td>
-            <td class="value">{{$ip->sub_goal}}</td>
-        </tr>
-        <tr>
-            <td class="title"><strong>Sub goal Detail</strong></td>
-            <td class="value">{{$ip->sub_goal_details}}</td>
-        </tr>
-
         <tr>
             <td class="title"><strong>Limitations</strong></td>
             <td class="value">{{$ip->limitations}}</td>
         </tr>
         <tr>
-            <td class="title"><strong>Health Condition</strong></td>
+            <td class="title"><strong>Sub goal</strong></td>
+            <td class="value">{{$ip->sub_goal_selected}}</td>
+        </tr>
+        <tr>
+            <td class="value" colspan="2">{{$ip->sub_goal_details}}</td>
+        </tr>
+        <tr>
+            <td class="value" colspan="2">{{$ip->sub_goal}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Overall goal</strong></td>
+            <td class="value">{{$ip->overall_goal}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Overall goal details</strong></td>
+            <td class="value">{{$ip->overall_goal_details}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Body functions</strong></td>
+            <td class="value">{{$ip->body_functions}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>personal factors</strong></td>
+            <td class="value">{{$ip->personal_factors}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>health conditions</strong></td>
             <td class="value">{{$ip->health_conditions}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>other factors</strong></td>
+            <td class="value">{{$ip->other_factors}}</td>
         </tr>
         <tr>
             <td class="title"><strong>Treatment</strong></td>
             <td class="value">{{$ip->treatment}}</td>
         </tr>
         <tr>
-            <td class="title"><strong>Working Method</strong></td>
+            <td class="title"><strong>Working method</strong></td>
             <td class="value">{{$ip->working_method}}</td>
-        </tr>
-        
+        </tr>        
         
         <tr>
             <td class="title"><strong>Start date </strong></td>
@@ -127,48 +155,68 @@
     </table>
       <table class="header table table-striped">
         <tr>
-            <td colspan="4" class="sub-title"><strong>User Info</strong></td>
+            <td colspan="4" class="sub-title"><strong>Patient Info</strong></td>
         </tr>
+        @if($ip->patient)
+        @if($ip->patient->is_secret==0)
         <tr>
             <td class="title"><strong>Name</strong></td>
-            <td class="value">{{($person) ? $person->name : null}}</td>
+            <td class="value">{{($ip->patient) ? $ip->patient->name : null}}</td>
+            <td class="title"><strong>Personal Number</strong></td>
+            <td class="value">{{($ip->patient) ? $ip->patient->personal_number : null}}</td>
+        </tr>
+
+        <tr>
+            <td class="title"><strong>Patient ID</strong></td>
+            <td class="value">{{($ip->patient) ? $ip->patient->custom_unique_id : null}}</td>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{($person) ? $person->email : null}}</td>
+            <td class="value">{{($ip->patient) ? $ip->patient->email : null}}</td>
         </tr>
 
         <tr>
+            <td class="title"><strong>Gender</strong></td>
+            <td class="value">{{($ip->patient) ? $ip->patient->gender : null}}</td>
             <td class="title"><strong>Contact Number</strong></td>
-            <td class="value">{{($person) ? $person->contact_number : null}}</td>
+            <td class="value">{{($ip->patient) ? $ip->patient->contact_number : null}}</td>
         </tr>
 
         <tr>
-            
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
-                {{($person) ? $person->full_address : null}},
-                {{($person) ? $person->city : null}},
-                {{($person) ? $person->postal_area : null}},
-                {{($person) ? $person->zipcode : null}}
             </td>
+                {{($ip->patient) ? $ip->patient->full_address : null}},
+                {{($ip->patient) ? $ip->patient->city : null}},
+                {{($ip->patient) ? $ip->patient->postal_area : null}},
+                {{($ip->patient) ? $ip->patient->zipcode : null}}
         </tr>
+        @else
+        <tr>
+            <td class="title"><strong>Patient ID</strong></td>
+            <td class="value" colspan="3">{{($ip->patient) ? $ip->patient->custom_unique_id : null}}</td>
+        </tr>
+        @endif
+        @else
+        <tr>
+            <td class="title" colspan="4"><strong>Information not found</strong></td>
+        </tr>
+        @endif
     </table>
 
-    <hr>
+    <div class="page-break"></div>
     <br>
     <table class="table table-striped">
         <tbody>
             <tr>
-                @if($bankid_verified=='yes')
-                    <td><center><strong>Signed By</strong></center></td>
-                @endif
-                <td><center><strong>Date & Time</strong></center></td>
+                <td class="sub-title" colspan="2"><strong>Approved By</strong></td>
             </tr>
+            @foreach($ip->requestForApprovals as $key => $person)
+            @if($person->RequestedTo)
             <tr>
-                @if($bankid_verified=='yes')
-                    <td><center><strong>{{($person) ? $person->name : null}}</strong></center></td>
-                @endif
-                <td><center><strong>{{date('Y-m-d H:i:s')}}</strong></center></td>
+                <td><strong>{{$key+1}}: {{$person->RequestedTo->name}}</strong></td>
+                <td><br><center><strong>__________________________</strong></center></td>
             </tr>
+            @endif
+            @endforeach
         </tbody>
     </table>
 </body>

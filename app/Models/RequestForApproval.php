@@ -63,7 +63,7 @@ class RequestForApproval extends Model
             $result['activity'] = Activity::select('id','title','description','start_date','start_time','end_date','end_time')->where('id',$this->request_type_id)->first();
         }
         if($this->request_type == '2'){
-            $result['ip'] = PatientImplementationPlan::select('id','title','goal','start_date','sub_goal','end_date')->where('request_type','2')->where('id',$this->request_type_id)->first();
+            $result['ip'] = PatientImplementationPlan::select('id','title','goal','start_date','sub_goal','end_date')->where('id',$this->request_type_id)->first();
         }
         if($this->request_type == '7'){
             $result['patient'] = User::select('id','name','email','contact_number','personal_number')->where('request_type','1')->first();

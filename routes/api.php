@@ -27,6 +27,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 	Route::get('activity-options', 'Common\NoMiddlewareController@activityOptions');
 
+	Route::post('admin-files', 'Common\AdminFileController@adminFiles');
+
 
 	Route::post('category-types', [App\Http\Controllers\Api\V1\User\CategoryTypeController::class, 'categoryTypes']);
 	Route::get('company-setting/{user_id}', 'Common\NoMiddlewareController@companySettingDetail');
@@ -94,12 +96,16 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	     	Route::post('email-templates', [App\Http\Controllers\Api\V1\Admin\EmailTemplateControlle::class, 'emailTemplates']);
 			Route::apiResource('email-template',Admin\EmailTemplateControlle::class)->only(['store','destroy','show', 'update']);
 
+			Route::apiResource('admin-file',Common\AdminFileController::class)->only(['destroy']);
+
 			Route::get('sms-callback', [App\Http\Controllers\Api\V1\Common\CommonController::class, 'smsCallback'])->name('sms-callback');
 			Route::get('test-message-send', [App\Http\Controllers\Api\V1\Common\CommonController::class, 'testMessageSend'])->name('test-message-send');
 
-			 //Logs
-	
+			//Logs
+		    Route::post('mobile-bank-id-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'mobileBankIdLog']);
 		    Route::post('sms-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'smsLog']);
+		    Route::post('activities-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'activitiesLog']);
+		    Route::get('activities-log-info/{activity_id}', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'activityLogInfo']);
 		   
 		});
 

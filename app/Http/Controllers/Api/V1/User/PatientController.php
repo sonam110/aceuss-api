@@ -778,7 +778,12 @@ class PatientController extends Controller
             if(is_object($isAssignEmp)){
                 $is_action_perform = true; 
             }
-            $isBranch = PatientImplementationPlan::where('branch_id',$user->id)->where('id',$request->ip_id)->first();
+            $isBranch = PatientImplementationPlan::where('id',$request->ip_id)
+                ->where(function ($q) use ($user) {
+                    $q->where('branch_id', $user->id)
+                        ->orWhere('top_most_parent_id', auth()->user()->id);
+                })
+                ->first();
             if(is_object($isBranch)){
                 $is_action_perform = true; 
             }
