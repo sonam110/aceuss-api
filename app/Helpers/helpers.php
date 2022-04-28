@@ -224,28 +224,34 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
     if(!empty($obj['user_id']))
     {
         $userDeviceInfo = DeviceLoginHistory::where('user_id',$obj['user_id'])->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
+
+        $title = false;
+        $body = false;
+        $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
+       
+        if($getMsg)
+        {
+            $body = $getMsg->notify_body;
+            $title = $getMsg->mail_subject;
+            $arrayVal = [
+                '{{name}}'  => $obj['name'],
+                '{{email}}' => $obj['email'],
+                '{{title}}' => $obj['title'],
+                '{{patient_id}}' => $obj['patient_id'],
+                '{{start_date}}' => $obj['start_date'],
+                '{{start_time}}' => $obj['start_time'],
+                '{{company_name}}' => $companyObj['company_name'],
+                '{{company_address}}' =>  $companyObj['company_address'],
+            ];
+            $body = strReplaceAssoc($arrayVal, $body);
+            $title = strReplaceAssoc($arrayVal, $title);
+        }
+
+
         if(!empty($userDeviceInfo))
         { 
-            $title = false;
-            $body = false;
-            $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
-           
             if($getMsg)
             {
-                $body = $getMsg->notify_body;
-                $title = $getMsg->mail_subject;
-                $arrayVal = [
-                    '{{name}}'  => $obj['name'],
-                    '{{email}}' => $obj['email'],
-                    '{{title}}' => $obj['title'],
-                    '{{patient_id}}' => $obj['patient_id'],
-                    '{{start_date}}' => $obj['start_date'],
-                    '{{start_time}}' => $obj['start_time'],
-                    '{{company_name}}' => $companyObj['company_name'],
-                    '{{company_address}}' =>  $companyObj['company_address'],
-                ];
-                $body = strReplaceAssoc($arrayVal, $body);
-                $title = strReplaceAssoc($arrayVal, $title);
                 if(!empty($userDeviceInfo->device_token))
                 {
                     $push = new PushNotification('fcm');
@@ -313,29 +319,29 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
                     }*/
                 }
             }
-
-            if($save_to_database == true)
-            {
-                $notification = new Notification;
-                $notification->user_id          = $obj['user_id'];
-                $notification->sender_id        = Auth::id();
-                $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
-                $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-                $notification->type             = $obj['type'];;
-                $notification->user_type        = $obj['user_type'];
-                $notification->module           = $module;
-                $notification->title            = $title;
-                $notification->sub_title        = $title;
-                $notification->message          = $body;
-                $notification->image_url        = '';
-                $notification->screen           = $screen;
-                $notification->data_id          = $id;
-                $notification->read_status      = false;
-                $notification->save();
-            }
+        }
+        if($save_to_database == true)
+        {
+            $notification = new Notification;
+            $notification->user_id          = $obj['user_id'];
+            $notification->sender_id        = Auth::id();
+            $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
+            $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
+            $notification->type             = $obj['type'];;
+            $notification->user_type        = $obj['user_type'];
+            $notification->module           = $module;
+            $notification->title            = $title;
+            $notification->sub_title        = $title;
+            $notification->message          = $body;
+            $notification->image_url        = '';
+            $notification->screen           = $screen;
+            $notification->data_id          = $id;
+            $notification->read_status      = false;
+            $notification->save();
         }
         
     }
+    return true;
 }
 
 function strReplaceAssoc(array $replace, $subject) 

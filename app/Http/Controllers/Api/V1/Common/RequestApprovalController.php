@@ -152,7 +152,7 @@ class RequestApprovalController extends Controller
                             }
                         }
 
-                        if($request->approval_type == '2') {
+                        if($request->approval_type == '3') {
                             $companyObj = companySetting($user->top_most_parent_id);
                             if($request->request_type == '9' || $request->request_type == '2'){
                                 $ip = PatientImplementationPlan::where('id',$request->request_type_id)->first();
@@ -172,7 +172,7 @@ class RequestApprovalController extends Controller
 
                             ];
                             if(env('IS_NOTIFICATION_ENABLE')== true){
-                                pushNotification('request-approval',$companyObj,$obj,'1','',$addRequest->id,'');
+                                pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'');
                             }
                         }
                     }
