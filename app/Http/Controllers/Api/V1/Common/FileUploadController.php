@@ -97,7 +97,7 @@ class FileUploadController extends Controller
     {
         if(!empty($user_type_id))
         {
-            foreach ($user_type_id as $key => $usertype) {
+            foreach (explode(',', $user_type_id) as $key => $usertype) {
                 $filesave = new AdminFile;
                 $filesave->title = $title;
                 $filesave->file_path = $file_path;
