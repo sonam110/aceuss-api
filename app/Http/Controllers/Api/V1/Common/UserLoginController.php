@@ -11,6 +11,8 @@ use App\Models\AssigneModule;
 use App\Models\Package;
 use App\Models\EmailTemplate;
 use App\Models\DeviceLoginHistory;
+use App\Models\AdminFile;
+use App\Models\FileAccessLog;
 use Validator;
 use Auth;
 use DB;
@@ -89,6 +91,34 @@ class UserLoginController extends Controller
                                 $user['roles']    = @Auth::user()->roles[0]->name;
                                 $role   = Role::where('name', $user['roles'])->first();
                                 $user['permissions']  = $role->permissions()->select('id','name as action','group_name as subject','se_name')->get();
+                                if(auth()->user()->top_most_parent_id!=1)
+                                {
+                                    $checkFileAccess = AdminFile::where('user_type_id', auth()->user()->user_type_id)
+                                        ->first();
+                                    if($checkFileAccess)
+                                    {
+                                        $checkLog = FileAccessLog::where('admin_file_id', $checkFileAccess->id)
+                                        ->where('user_id', auth()->id())
+                                        ->first();
+                                        if($checkLog)
+                                        {
+                                            $user['file_access'] = null;
+                                        }
+                                        else
+                                        {
+                                            $user['file_access'] = $checkFileAccess;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $user['file_access'] = null;
+                                    }
+                                }
+                                else
+                                {
+                                    $user['file_access'] = null;
+                                }
+                                
                              return prepareResult(true,"User Logged in successfully",$user,config('httpcodes.success'));
                             }
                         

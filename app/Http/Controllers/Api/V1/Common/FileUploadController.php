@@ -48,7 +48,7 @@ class FileUploadController extends Controller
 
                     if($request->store_in_db==1)
                     {
-                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1);
+                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id);
                     }
                     
                     
@@ -75,7 +75,7 @@ class FileUploadController extends Controller
                 $file->move($destinationPath, $fileName);
                 if($request->store_in_db==1)
                 {
-                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1);
+                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id);
                 }
                 
                 $fileInfo = [
@@ -93,14 +93,31 @@ class FileUploadController extends Controller
         }
     }
 
-    private function storeFileInDB($title, $file_path, $is_public)
+    private function storeFileInDB($title, $file_path, $is_public, $user_type_id=null)
     {
-        $filesave = new AdminFile;
-        $filesave->title = $title;
-        $filesave->file_path = $file_path;
-        $filesave->is_public = $is_public;
-        $filesave->created_by = auth()->id();
-        $filesave->save();
+        if(!empty($user_type_id))
+        {
+            foreach ($user_type_id as $key => $usertype) {
+                $filesave = new AdminFile;
+                $filesave->title = $title;
+                $filesave->file_path = $file_path;
+                $filesave->is_public = $is_public;
+                $filesave->created_by = auth()->id();
+                $filesave->user_type_id = $usertype);
+                $filesave->save();
+            }
+        }
+        else
+        {
+            $filesave = new AdminFile;
+            $filesave->top_most_parent_id = auth()->user()->top_most_parent_id;
+            $filesave->title = $title;
+            $filesave->file_path = $file_path;
+            $filesave->is_public = $is_public;
+            $filesave->created_by = auth()->id();
+            $filesave->save();
+        }
+        
         return true;
     }
 }

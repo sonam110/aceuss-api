@@ -109,6 +109,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		   
 		});
 
+		Route::post('file-access-log', 'Common\AdminFileController@fileAccessLog');
+		Route::post('company-files', 'Common\AdminFileController@companyFiles');
+		Route::apiResource('company-file-delete',Common\AdminFileController::class)->only(['destroy']);
 
 		Route::post('update-profile', 'Common\ProfileController@updateProfile');
 		Route::post('setting-update', 'User\SettingController@settingUpdate');

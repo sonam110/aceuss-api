@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class AdminFile extends Model
+class FileAccessLog extends Model
 {
     use HasFactory, TopMostParentId, LogsActivity;
 
@@ -16,6 +16,6 @@ class AdminFile extends Model
     protected static $logOnlyDirty = true;
     
     protected $fillable = [
-        'top_most_parent_id','title','file_path','is_public','created_by','user_type_id'
+        'top_most_parent_id','admin_file_id','user_id'
     ];
 }
