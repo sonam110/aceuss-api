@@ -103,7 +103,7 @@ class FileUploadController extends Controller
                 $filesave->file_path = $file_path;
                 $filesave->is_public = $is_public;
                 $filesave->created_by = auth()->id();
-                $filesave->user_type_id = $usertype);
+                $filesave->user_type_id = $usertype;
                 $filesave->save();
             }
         }

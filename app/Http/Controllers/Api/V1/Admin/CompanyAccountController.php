@@ -203,7 +203,7 @@ class CompanyAccountController extends Controller
 
                     //permissions assigned
                     foreach ($role->permissions as $key => $permission) {
-                        $$addRole->givePermissionTo($permission->name);
+                        $addRole->givePermissionTo($permission->name);
                     }
                 }
             }
