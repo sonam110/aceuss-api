@@ -18,6 +18,7 @@ use Auth;
 use Exception;
 use DB;
 use Carbon\Carbon;
+
 class ActivityController extends Controller
 {
     public function __construct()
@@ -780,7 +781,13 @@ class ActivityController extends Controller
             if(is_object($isAssignEmp)){
                 $is_action_perform = true; 
             }
-            $isBranch = Activity::where('branch_id',$user->id)->where('id',$request->activity_id)->first();
+
+            $isBranch = Activity::where('branch_id', $user->id)->where('id',$request->activity_id)->first();
+            if(is_object($isBranch)){
+                $is_action_perform = true; 
+            }
+
+            $isBranch = Activity::where('top_most_parent_id', auth()->id())->where('id',$request->activity_id)->first();
             if(is_object($isBranch)){
                 $is_action_perform = true; 
             }
@@ -878,7 +885,25 @@ class ActivityController extends Controller
             ]);
 
             Activity::whereIn('id', $request->activity_ids)->delete();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
+    public function activityTag(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = getUser();
+            Activity::where('id', $request->activity_id)->update([
+                'activity_tag' => $request->activity_tag
+            ]);
+            DB::commit();
+            return prepareResult(true, 'Activity tag added.' ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

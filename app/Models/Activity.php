@@ -80,6 +80,7 @@ class Activity extends Model
         'action_by',
         'action_date',
         'entry_mode',
+        'activity_tag',
         'action_comment'
 	];
     public function ImplementationPlan()

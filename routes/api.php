@@ -203,6 +203,14 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('activity-edit-history','User\ActivityController@activityEditHistory');
 
 		Route::post('activity-action','User\ActivityController@activityAction');
+
+		Route::post('activity-tag','User\ActivityController@activityTag');
+
+		Route::post('trashed-activites', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'trashedActivites']);
+		Route::delete('trashed-activites-permanent-delete/{id}', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'destroy']);
+		Route::get('trashed-activites-restore/{id}', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'restore']);
+
+
 		/*-------------Journal ------------------------*/
 		Route::post('journals', [App\Http\Controllers\Api\V1\User\JournalController::class, 'journals']);
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);

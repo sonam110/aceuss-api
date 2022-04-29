@@ -37,7 +37,7 @@ class SettingController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $user = CompanySetting::where('user_id', $this->top_most_parent_id)->first();
-            if($user->count()<1){
+            if(!$user){
             	$user = new CompanySetting;
             }
             $user->user_id = $userInfo->id;
