@@ -4,6 +4,7 @@
 /public/uploads
 /public/reports
 /storage/*.key
+aceuss-api.zip
 /vendor
 .env
 .env.backup

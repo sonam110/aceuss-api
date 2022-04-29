@@ -195,6 +195,7 @@ class RequestApprovalController extends Controller
                             if(!empty($getPersonalNumber->personal_number))
                             {
                                 $url[] = bankIdVerification($getPersonalNumber->personal_number, $person);
+                                $url[$key]['person_id'] = $person;
                             }
                         }
                     }
