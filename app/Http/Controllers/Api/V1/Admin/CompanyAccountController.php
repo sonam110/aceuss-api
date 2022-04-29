@@ -199,6 +199,11 @@ class CompanyAccountController extends Controller
                     $addRole->guard_name  = 'api';
                     $addRole->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                     $addRole->save();
+
+                    //permissions assigned
+                    foreach ($role->permissions as $key => $permission) {
+                        $$addRole->givePermissionTo($permission->name);
+                    }
                 }
             }
             DB::commit();
