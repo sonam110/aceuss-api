@@ -5,14 +5,43 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\MobileBankIdLoginLog;
+use App\Models\PatientImplementationPlan;
 
 class CallbackController extends Controller
 {
-    public function verified(Request $request, $person_id)
+    public function verified(Request $request, $person_id, $group_token)
     {
         $getPerson = PersonalInfoDuringIp::find(base64_decode($person_id));
         if($getPerson)
         {
+            //update status
+            $requestForApproval = RequestForApproval::where('group_token', $group_token)
+            ->where('requested_to', $getPerson->id)
+            ->update([
+                'status' => 2
+            ]);
+
+            //check all approved
+            $checkTotalPerson = RequestForApproval::select(\DB::raw('COUNT(id) as total_request_for_approve'),
+            \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_approved'))
+                ->where('group_token', $group_token)
+                ->first();
+
+            if($checkTotalPerson->total_request_for_approve == $checkTotalPerson->total_approved)
+            {
+                $ip_ids = RequestForApproval::select('request_type_id')
+                    ->where('group_token', $group_token)
+                    ->groupBy('request_type_id')
+                    ->get();
+
+                //update IP as Approved
+                PatientImplementationPlan::whereIn('id', $ip_ids)
+                ->update([
+                    'status' => 1,
+                    'approved_date' => date('Y-m-d')
+                ]);
+            }
+
             $sessionId = $request->grandidsession;
             $checkSession = mobileBankIdLoginLog::where('sessionId', $sessionId)->count();
             if($checkSession>0)

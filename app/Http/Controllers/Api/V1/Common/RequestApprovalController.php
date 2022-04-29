@@ -19,6 +19,8 @@ use App\Models\PatientImplementationPlan;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\User;
 use PDF;
+use Str;
+
 
 class RequestApprovalController extends Controller
 {
@@ -36,150 +38,166 @@ class RequestApprovalController extends Controller
             $user = getUser();
             $data = $request->all();
             $validator = Validator::make($request->all(),[   
-                'data.*.request_type'     => 'required|exists:category_types,id',      
-                'data.*.request_type_id' => 'required',      
-                'data.*.requested_to' => 'required',           
+                'request_type'     => 'required|exists:category_types,id',      
+                'request_type_id' => 'required|array|min:1',      
+                'requested_to' => 'required|array|min:1',           
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
             $ids = [];
-            if(is_array($request->requested_to) && sizeof($request->requested_to) >0 ){
-                foreach ($request->requested_to as $key => $value) {
-                    if(!empty($request->request_type))
+            $group_token = Str::random(10);
+            if(is_array($request->requested_to) && sizeof($request->requested_to) >0 )
+            {
+                foreach ($request->requested_to as $key => $value) 
+                {
+                    foreach ($request->request_type_id as $nkey => $requestTypeId) 
                     {
-                        $checkExist = RequestForApproval::where('requested_by', $user->id)->where('requested_to', $value)->where('request_type', $request->request_type)->where('request_type_id', $request->request_type_id)->first();
+                        $checkExist = RequestForApproval::where('requested_by', $user->id)
+                            ->where('requested_to', $value)
+                            ->where('request_type', $request->request_type)
+                            ->where('request_type_id', $requestTypeId)
+                            ->first();
                         if($checkExist)
                         {
                             $addRequest = $checkExist;
+                            $group_token = $addRequest->group_token;
                         }
                         else
                         {
                             $addRequest = new RequestForApproval;
+                            $addRequest->group_token = $group_token;
                         }
 
                         $addRequest->requested_by = $user->id;
                         $addRequest->requested_to = $value;
                         $addRequest->request_type = $request->request_type;
-                        $addRequest->request_type_id = $request->request_type_id;
+                        $addRequest->request_type_id = $requestTypeId;
                         $addRequest->reason_for_requesting = $request->reason_for_requesting;
                         $addRequest->approval_type = $request->approval_type;
+                        if($request->approval_type == '1') 
+                        {
+                            $addRequest->status = 2; //approved
+                        }
                         $addRequest->save();  
                         $ids[] = $addRequest->id;
-                        if($request->request_type == '2'){
-                               $person = PersonalInfoDuringIp::where('id',$value)->first(); 
-                               if(is_object($person)){
-                                    $person->is_approval_requested  = '1';
-                                    $person->save(); 
-                                    if($request->approval_type =='2'){
-                                        if($person->is_family_member == true){
-                                            $user_type_id ='8';
-                                        }
-                                        if($person->is_caretaker == true){
-                                            $user_type_id ='7';
-                                        }
-                                        if(($person->is_caretaker == true) && ($person->is_family_member == true )){
-                                            $user_type_id ='10';
-                                        }
-                                        if($person->is_contact_person == true){
-                                            $user_type_id ='9';
-                                        }
-                                        if($person->is_guardian == true){
-                                            $user_type_id ='12';
-                                        }
-                                        if($person->is_other == true){
-                                            $user_type_id ='15';
-                                        }
-                                        if($person->is_presented == true){
-                                            $user_type_id ='13';
-                                        }
-                                        if($person->is_participated == true){
-                                            $user_type_id ='14';
-                                        }
-                               
-                                        if(auth()->user()->user_type_id=='1'){
-                                            $top_most_parent_id = auth()->user()->id;
-                                        }
-                                        elseif(auth()->user()->user_type_id=='2')
+                        if($request->request_type == '2')
+                        {
+                            $person = PersonalInfoDuringIp::where('id',$value)->first(); 
+                            if(is_object($person))
+                            {
+                                $person->is_approval_requested  = '1';
+                                $person->save(); 
+                                if($request->approval_type =='2')
+                                {
+                                    if($person->is_family_member == true){
+                                        $user_type_id ='8';
+                                    }
+                                    if($person->is_caretaker == true){
+                                        $user_type_id ='7';
+                                    }
+                                    if(($person->is_caretaker == true) && ($person->is_family_member == true )){
+                                        $user_type_id ='10';
+                                    }
+                                    if($person->is_contact_person == true){
+                                        $user_type_id ='9';
+                                    }
+                                    if($person->is_guardian == true){
+                                        $user_type_id ='12';
+                                    }
+                                    if($person->is_other == true){
+                                        $user_type_id ='15';
+                                    }
+                                    if($person->is_presented == true){
+                                        $user_type_id ='13';
+                                    }
+                                    if($person->is_participated == true){
+                                        $user_type_id ='14';
+                                    }
+                           
+                                    $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                    $getUser = User::where('email',$person->email)->withTrashed()->first();
+                                    if(empty($getUser))
+                                    {
+                                        $userSave = new User;
+                                        $userSave->unique_id = generateRandomNumber();
+                                        $userSave->user_type_id = $user_type_id;
+                                        $userSave->branch_id = getBranchId();
+                                        $userSave->role_id =  $user_type_id;
+                                        $userSave->parent_id = $user->id;
+                                        $userSave->top_most_parent_id = $top_most_parent_id;
+                                        $userSave->name = $person->name ;
+                                        $userSave->email = $person->email ;
+                                        $userSave->password = Hash::make('12345678');
+                                        $userSave->contact_number = $person->contact_number;
+                                        $userSave->country_id = $person->country_id;
+                                        $userSave->city = $person->city;
+                                        $userSave->postal_area = $person->postal_area;
+                                        $userSave->zipcode = $person->zipcode;
+                                        $userSave->full_address = $person->full_address ;
+                                        $userSave->save(); 
+                                        if(!empty($user_type_id))
                                         {
-                                            $top_most_parent_id = auth()->user()->id;
-                                        } else {
-                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
+                                           $role = Role::where('id',$user_type_id)->first();
+                                           $userSave->assignRole($role->name);
+                                        }     
+                                        if(env('IS_MAIL_ENABLE',false) == true){ 
+                                               $content = ([
+                                                'company_id' => $userSave->top_most_parent_id,
+                                                'name' => $userSave->name,
+                                                'email' => $userSave->email,
+                                                'id' => $userSave->id,
+                                            ]);    
+                                            Mail::to($userSave->email)->send(new WelcomeMail($content));
                                         }
-                                        $getUser = User::where('email',$person->email)->withTrashed()->first();
-                                        if(empty($getUser)){
-                                            $userSave = new User;
-                                            $userSave->unique_id = generateRandomNumber();
-                                            $userSave->user_type_id = $user_type_id;
-                                            $userSave->branch_id = getBranchId();
-                                            $userSave->role_id =  $user_type_id;
-                                            $userSave->parent_id = $user->id;
-                                            $userSave->top_most_parent_id = $top_most_parent_id;
-                                            $userSave->name = $person->name ;
-                                            $userSave->email = $person->email ;
-                                            $userSave->password = Hash::make('12345678');
-                                            $userSave->contact_number = $person->contact_number;
-                                            $userSave->country_id = $person->country_id;
-                                            $userSave->city = $person->city;
-                                            $userSave->postal_area = $person->postal_area;
-                                            $userSave->zipcode = $person->zipcode;
-                                            $userSave->full_address = $person->full_address ;
-                                            $userSave->save(); 
-                                            if(!empty($user_type_id))
-                                            {
-                                               $role = Role::where('id',$user_type_id)->first();
-                                               $userSave->assignRole($role->name);
-                                            }     
-                                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                                   $content = ([
-                                                    'company_id' => $userSave->top_most_parent_id,
-                                                    'name' => $userSave->name,
-                                                    'email' => $userSave->email,
-                                                    'id' => $userSave->id,
-                                                ]);    
-                                                Mail::to($userSave->email)->send(new WelcomeMail($content));
-                                            }
-                                        }
-                                            
-                                    } 
-                                }
+                                    }
+                                        
+                                } 
+                            }
                             if($request->approval_type =='1'){
-                                $patientImpPlan = PatientImplementationPlan::where('id',$request->request_type_id)->first();
-                                $patientImpPlan->status ="1";
-                                $patientImpPlan->approved_by = $value;
-                                $patientImpPlan->approved_date = date('Y-m-d');
-                                $patientImpPlan->save();
+                                $patientImpPlan = PatientImplementationPlan::where('id', $requestTypeId)
+                                ->update([
+                                    'status' => 1,
+                                    'approved_by' => $value,
+                                    'approved_date' => date('Y-m-d')
+                                ]);
                             }
                         }
 
-                        if($request->approval_type == '3') {
-                            $companyObj = companySetting($user->top_most_parent_id);
-                            if($request->request_type == '9' || $request->request_type == '2'){
-                                $ip = PatientImplementationPlan::where('id',$request->request_type_id)->first();
-                            }
-                            $obj  =[
-                                "type"=> 'request-approval',
-                                "user_id"=> $value,
-                                "name"=> $user->name,
-                                "email"=> $user->email,
-                                "user_type"=> $user->user_type_id,
-                                "title"=> ($ip) ? $ip->title : $request->reason_for_requesting,
-                                "patient_id"=>  null,
-                                "start_date"=> '',
-                                "start_time"=> '',
-                                "company"=>  $companyObj,
-                                "company_id"=>  $user->top_most_parent_id,
+                        if($request->approval_type == '3') 
+                        {
+                            if($nkey==0)
+                            {
+                                $companyObj = companySetting($user->top_most_parent_id);
+                                if($request->request_type == '9' || $request->request_type == '2'){
+                                    $ip = PatientImplementationPlan::where('id', $requestTypeId)->first();
+                                }
+                            
+                                $obj = [
+                                    "type"=> 'request-approval',
+                                    "user_id"=> $value,
+                                    "name"=> $user->name,
+                                    "email"=> $user->email,
+                                    "user_type"=> $user->user_type_id,
+                                    "title"=> ($ip) ? $ip->title : $request->reason_for_requesting,
+                                    "patient_id"=>  null,
+                                    "start_date"=> '',
+                                    "start_time"=> '',
+                                    "company"=>  $companyObj,
+                                    "company_id"=>  $user->top_most_parent_id,
 
-                            ];
-                            if(env('IS_NOTIFICATION_ENABLE')== true){
-                                pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'');
+                                ];
+                                if(env('IS_NOTIFICATION_ENABLE')== true){
+                                    pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'');
+                                }
                             }
                         }
                     }
                 }
                 if($request->approval_type == '1') {
-                    $filename = $patientImpPlan->id."-".time().".pdf";
-                    $data['ip'] = $patientImpPlan;
+                    $patientImpPlan = PatientImplementationPlan::whereIn('id', $request->request_type_id)->get();
+                    $filename = $group_token."-".time().".pdf";
+                    $data['ips'] = $patientImpPlan;
                     $pdf = PDF::loadView('print-ip', $data);
                     $pdf->save('reports/ip/'.$filename);
                     $url = env('CDN_DOC_URL').'reports/ip/'.$filename;
@@ -194,8 +212,9 @@ class RequestApprovalController extends Controller
                         {
                             if(!empty($getPersonalNumber->personal_number))
                             {
-                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person);
+                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person, $group_token);
                                 $url[$key]['person_id'] = $person;
+                                $url[$key]['group_token'] = $group_token;
                             }
                         }
                     }
@@ -259,18 +278,38 @@ class RequestApprovalController extends Controller
             if (!is_object($approval_request)) {
                 return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
             }
-            if($approval_request->request_type == '2'){
-                $ip  = PatientImplementationPlan::where('id',$approval_request->request_type_id)->first();
-                $checktotalCount = RequestForApproval::where('request_type_id',$approval_request->request_type_id)->count();
-                $checkAprrovalCount = RequestForApproval::where('request_type_id',$approval_request->request_type_id)->where('status','2')->count();
-                if($checktotalCount == $checkAprrovalCount ){
-                    $updateRequest = RequestForApproval::where('request_type_id',$approval_request->request_type_id)->update(['status'=>'2','approved_by'=>$user->id,'approved_date'=>date('Y-m-d')]);
-                    $ip->status ='2';
-                    $ip->approved_by = $approval_request->requested_to;
-                    $ip->approved_date = date('Y-m-d');
-                    $ip->save();
+            $group_token = $approval_request->group_token;
+
+            if($approval_request->request_type == '2')
+            {                
+                //update status
+                $requestForApproval = RequestForApproval::where('group_token', $group_token)
+                ->where('requested_to', $user->id)
+                ->update([
+                    'status' => 2
+                ]);
+
+                $checkTotalPerson = RequestForApproval::select(\DB::raw('COUNT(id) as total_request_for_approve'),
+            \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_approved'))
+                ->where('group_token', $group_token)
+                ->first();
+
+                if($checkTotalPerson->total_request_for_approve == $checkTotalPerson->total_approved)
+                {
+                    $ip_ids = RequestForApproval::select('request_type_id')
+                        ->where('group_token', $group_token)
+                        ->groupBy('request_type_id')
+                        ->get();
+
+                    //update IP as Approved
+                    PatientImplementationPlan::whereIn('id', $ip_ids)
+                    ->update([
+                        'status' => 1,
+                        'approved_date' => date('Y-m-d')
+                    ]);
                 }
             }
+
             if($approval_request->request_type == '9'){
 
                 $approved = RequestForApproval::find($id);

@@ -87,55 +87,8 @@ class UserLoginController extends Controller
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;
-                                $permissionIds   = DB::table('role_has_permissions')->where('role_id',$user->role_id)->pluck('permission_id');
-
-                                $permissions = DB::table('permissions')->select('group_name')->whereIn('id', $permissionIds)->groupby('group_name')->orderby('id','ASC')->get();
-                                $userPermission = [];
-                                foreach ($permissions as $key => $value) {
-                                    
-                                    $is_browse = false;
-                                    $is_add = false;
-                                    $is_edit = false;
-                                    $is_read = false;
-                                    $is_delete = false;
-                                    $permissionGroup = DB::table('permissions')
-                                    ->whereIn('id', $permissionIds)
-                                    ->where('group_name', $value->group_name)
-                                    ->orderby('id','ASC')
-                                    ->get();
-                                    $permArray[$value->group_name] =[];
-                                    foreach ($permissionGroup as $key => $permission) {
-                                        $per = explode('-',$permission->name);
-                                        if($per[1] == 'browse'){
-                                          $is_browse =true;  
-                                        }
-                                        if($per[1] == 'add'){
-                                          $is_add =true;  
-                                        }
-                                        if($per[1] == 'edit'){
-                                          $is_edit =true;  
-                                        }
-                                        if($per[1] == 'read'){
-                                          $is_read =true;  
-                                        }
-                                        if($per[1] == 'delete'){
-                                          $is_delete =true;  
-                                        }
-                                        $permArray[$value->group_name] = [
-                                            "browse" => $is_browse,
-                                            "add" => $is_add,
-                                            "edit" => $is_edit,
-                                            "read" => $is_read,
-                                            "delete" => $is_delete,
-
-                                        ];
-                                    }
-                                   
-                                    $userPermission = $permArray;
-
-                                    
-                                }
-                                $user['permissions']  = $userPermission;
+                                $role   = Role::where('name', $user['roles'])->first();
+                                $user['permissions']  = $role->permissions()->select('id','name as action','group_name as subject','se_name')->get();
                              return prepareResult(true,"User Logged in successfully",$user,config('httpcodes.success'));
                             }
                         

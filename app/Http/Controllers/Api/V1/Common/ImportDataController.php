@@ -20,15 +20,7 @@ class ImportDataController extends Controller
         //$this->middleware('permission:patient-import',['only' => ['patientImport', 'downloadPatientImportSampleFile']]);
         
         $this->middleware(function ($request, $next) {
-            if(auth()->user()->user_type_id=='1') {
-                $this->top_most_parent_id = auth()->user()->id;
-            }
-            else if(auth()->user()->user_type_id=='2')
-            {
-                $this->top_most_parent_id = auth()->user()->id;
-            } else {
-                $this->top_most_parent_id = auth()->user()->top_most_parent_id;
-            }
+            $this->top_most_parent_id = auth()->user()->top_most_parent_id;
             return $next($request);
         });
     }
@@ -81,12 +73,14 @@ class ImportDataController extends Controller
                     $company_type_id[] = "3";
                 }
 
+                $roleInfo = getRoleInfo($this->top_most_parent_id, 'Patient');
+
                 $user = new User;
                 $user->unique_id = generateRandomNumber();
                 $user->branch_id = getBranchId();
                 $user->custom_unique_id = $patient['patient_unique_id'];
                 $user->user_type_id = 6;
-                $user->role_id = 6;
+                $user->role_id = $roleInfo->id;
                 $user->company_type_id = !empty($company_type_id) ? json_encode($company_type_id) : null;
                 $user->category_id = $userInfo->category_id;
                 $user->top_most_parent_id = $this->top_most_parent_id;
@@ -110,9 +104,9 @@ class ImportDataController extends Controller
                 $user->step_five = 0 ;
                 $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $user->save();
-                if(!empty(6))
+                if(!empty($roleInfo))
                 {
-                    $role = Role::where('id', 6)->first();
+                    $role = $roleInfo;
                     $user->assignRole($role->name);
                 }
             }

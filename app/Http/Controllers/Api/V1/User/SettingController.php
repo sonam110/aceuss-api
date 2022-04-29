@@ -11,10 +11,15 @@ use Exception;
 use App\Models\CompanySetting;
 class SettingController extends Controller
 {
+    protected $top_most_parent_id;
     public function __construct()
     {
-
         $this->middleware('permission:settings-edit', ['only' => ['settingUpdate']]);
+
+        $this->middleware(function ($request, $next) {
+            $this->top_most_parent_id = auth()->user()->top_most_parent_id;
+            return $next($request);
+        });
         
     }
     public function settingUpdate(Request $request)
@@ -31,11 +36,9 @@ class SettingController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-            $checkSettings = CompanySetting::where('user_id',$userInfo->id)->first();
-            if(empty($checkSettings)){
+            $user = CompanySetting::where('user_id', $this->top_most_parent_id)->first();
+            if($user->count()<1){
             	$user = new CompanySetting;
-            } else {
-            	$user = CompanySetting::find($userInfo->id);
             }
             $user->user_id = $userInfo->id;
             $user->company_name = $request->company_name;

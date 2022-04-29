@@ -17,6 +17,7 @@ use App\Models\Deviation;
 use App\Models\MobileBankIdLoginLog;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
+use Spatie\Permission\Models\Role;
 
 function getUser() {
     return auth('api')->user();
@@ -717,13 +718,13 @@ function branchChilds($branch_id)
     return $tree;
 }
 
-function bankIdVerification($personalNumber, $person_id)
+function bankIdVerification($personalNumber, $person_id, $group_token)
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '945610088ce511434ad87fa50e567c7d').'&authenticateServiceKey='.env('BANKIDAPISECRET', '3e73749b89a9ee32369fa25910c4c4e9'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".$group_token);
 
     $headers = array();
     $headers[] = 'Accept: application/json';
@@ -761,4 +762,10 @@ function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number
         $mobileBankIdLoginLog->save();
     }
     return true;
+}
+
+function getRoleInfo($top_most_parent_id, $role_name)
+{
+    $role = Role::where('name', $top_most_parent_id.'-'.$role_name)->first();
+    return $role;
 }

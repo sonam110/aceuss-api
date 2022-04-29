@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
 use App\Models\FollowupComplete;
+use App\Models\PersonalInfoDuringIp;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 class IpFollowUp extends Model
@@ -90,7 +91,7 @@ class IpFollowUp extends Model
     public function getWitnessListAttribute()
     {
         if(is_null($this->witness)== false && is_array(json_decode($this->witness)) && sizeof(json_decode($this->witness)) >0){
-            $witnessList = User::select('id','name','email')->whereIn('id',json_decode($this->witness))->get();
+            $witnessList = PersonalInfoDuringIp::select('id','name','email')->whereIn('id',json_decode($this->witness))->get();
             return (!empty($witnessList)) ? $witnessList : null;
         }
         

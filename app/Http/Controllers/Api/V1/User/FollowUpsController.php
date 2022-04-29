@@ -190,15 +190,7 @@ class FollowUpsController extends Controller
                                     $personalInfo->save() ;
                                     /*-----Create Account /Entry in user table*/
                                     if($is_user == true) {
-                                        if(auth()->user()->user_type_id=='1'){
-                                            $top_most_parent_id = auth()->user()->id;
-                                        }
-                                        elseif(auth()->user()->user_type_id=='2')
-                                        {
-                                            $top_most_parent_id = auth()->user()->id;
-                                        } else {
-                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
-                                        }
+                                        $top_most_parent_id = auth()->user()->top_most_parent_id;
                                         $checkAlreadyUser = User::where('email',@$value['email'])->first();
                                         if(empty($checkAlreadyUser)) {
                                             if(!empty($getUser)){
@@ -536,7 +528,7 @@ class FollowUpsController extends Controller
             $validator = Validator::make($request->all(),[
                 'follow_up_id' => 'required|exists:ip_follow_ups,id',   
                 'witness' => 'required',   
-                'witness.*' => 'required|distinct|exists:users,id',   
+                //'witness.*' => 'required|distinct|exists:users,id',   
             ],
             [
             'id' =>  getLangByLabelGroups('FollowUp','id'),
@@ -550,8 +542,8 @@ class FollowUpsController extends Controller
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
             $ipFollowups = IpFollowUp::find($id);
-            $ipFollowups->is_completed = '1';
-            $ipFollowups->status = '2';
+            $ipFollowups->is_completed = 1;
+            $ipFollowups->status = 2;
             $ipFollowups->action_by = $user->id;
             $ipFollowups->action_date = date('Y-m-d');
             $ipFollowups->comment = $request->comment;
@@ -577,9 +569,6 @@ class FollowUpsController extends Controller
                             $question->save();
                         }
                     }
-                    
-                    
-                    
                 }
             }
             return prepareResult(true,'Followup completed' ,$ipFollowups, config('httpcodes.success'));

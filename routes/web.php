@@ -22,5 +22,5 @@ Route::get('/optimize', function () {
     return 'done';
 });
 
-Route::get('/verified/{person_id}', [App\Http\Controllers\CallbackController::class, 'verified']);
+Route::get('/verified/{person_id}/{group_token}', [App\Http\Controllers\CallbackController::class, 'verified']);
 

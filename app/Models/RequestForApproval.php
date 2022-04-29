@@ -15,13 +15,14 @@ class RequestForApproval extends Model
 {
     use HasFactory,LogsActivity,TopMostParentId;
     protected static $logAttributes = ['*'];
-     protected $appends = ['type_id_Data'];
+    protected $appends = ['type_id_Data'];
     protected static $logOnlyDirty = true;
     protected $fillable = [
         'top_most_parent_id',
 		'requested_by',
 		'requested_to',
 		'request_type',
+        'group_token',
 		'request_type_id',
 		'reason_for_requesting',
 		'reason_for_rejection',

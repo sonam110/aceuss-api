@@ -27,7 +27,7 @@ class ActivityController extends Controller
         $this->middleware('permission:activity-add', ['only' => ['store']]);
         $this->middleware('permission:activity-edit', ['only' => ['update']]);
         $this->middleware('permission:activity-read', ['only' => ['show']]);
-        $this->middleware('permission:activity-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:activity-delete', ['only' => ['destroy','activityMultiDelete']]);
         
     }
     
@@ -608,8 +608,9 @@ class ActivityController extends Controller
             
         }
     }
-    public function destroy($id){
-        
+
+    public function destroy($id)
+    {
         DB::beginTransaction();
         try {
             $user = getUser();
@@ -625,6 +626,7 @@ class ActivityController extends Controller
             
         }
     }
+
     public function approvedActivity(Request $request){
         DB::beginTransaction();
         try {
@@ -655,6 +657,7 @@ class ActivityController extends Controller
             
         }
     }
+
     public function show($id){
         try {
             $user = getUser();
@@ -670,7 +673,8 @@ class ActivityController extends Controller
             
         }
     }
-     public function activityAssignments(Request $request){
+
+    public function activityAssignments(Request $request){
         DB::beginTransaction();
         try {
             $user = getUser();
@@ -758,7 +762,6 @@ class ActivityController extends Controller
             
         }
     }
-
 
     public function activityAction(Request $request)
     {
@@ -864,8 +867,25 @@ class ActivityController extends Controller
         }
         
     }
+
+    public function activityMultiDelete(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = getUser();
+            Activity::whereIn('id', $request->activity_ids)->update([
+                'action_comment' => $request->comment
+            ]);
+
+            Activity::whereIn('id', $request->activity_ids)->delete();
+            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
    
-    
     private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {

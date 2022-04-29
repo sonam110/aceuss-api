@@ -26,15 +26,20 @@ class CommentController extends Controller
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
-            $parent = Comment::where('id',$request->parent_id)->first();
+            $parent = Comment::where('id', $request->parent_id)->first();
 	        $addComment = new Comment;
-		    $addComment->parent_id = $request->parent_id ;
-		    $addComment->source_id = $request->source_id ;
+		    $addComment->parent_id = $request->parent_id;
+		    $addComment->source_id = $request->source_id;
 		    $addComment->source_name = $request->source_name;
 		    $addComment->comment = $request->comment;
 		    $addComment->replied_to = ($parent) ? $parent->created_by : null;
 		    $addComment->created_by = $user->id;
 		    $addComment->save();
+
+            $getCommentInfo = Comment::where('source_id', $request->source_id)
+                ->where('source_name', $request->source_name)
+                ->count();
+            $addComment['total_comment'] = $getCommentInfo;
 		
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$addComment, config('httpcodes.success'));
         }

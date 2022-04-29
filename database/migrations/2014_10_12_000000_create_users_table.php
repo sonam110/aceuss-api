@@ -47,7 +47,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_regular')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_seasonal')->default('0')->comment('1:Yes,0:No');
             $table->date('joining_date')->nullable();
-            $table->date('establishment_year')->nullable();
+            $table->integer('establishment_year')->nullable();
             $table->string('user_color')->nullable();
             $table->text('disease_description')->nullable();
             $table->foreignId('created_by')->nullable();

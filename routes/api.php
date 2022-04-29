@@ -156,7 +156,6 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		 /*-------------User Managment ------------------------*/
 	   	Route::post('users', [App\Http\Controllers\Api\V1\User\UserController::class, 'users']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
-		Route::post('import-patient', [App\Http\Controllers\Api\V1\User\UserController::class, 'importPatient']);
 
 		/*-------------Branch -------------------*/
 		Route::apiResource('branch', User\BranchController::class)->only(['store','update']);
@@ -197,6 +196,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('activities', [App\Http\Controllers\Api\V1\User\ActivityController::class, 'activities']);
 		Route::apiResource('activity', User\ActivityController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-activity','User\ActivityController@approvedActivity');
+
+		Route::post('activity-multi-delete', [App\Http\Controllers\Api\V1\User\ActivityController::class, 'activityMultiDelete']);
 
 		Route::post('activity_assignments','User\ActivityController@activityAssignments');
 		Route::post('activity-edit-history','User\ActivityController@activityEditHistory');

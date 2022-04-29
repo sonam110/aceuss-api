@@ -61,14 +61,14 @@
     }
 </style>
 <body>
+    @foreach($ips as $key => $ip)
     <h2>
-        <center><span class="main-title">Implementation Plan</span></center>
+        <center><span class="main-title">Implementation Plan - {{$key+1}}</span></center>
     </h2>
     <div>
     <center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     </center></div>
     
-
     <table class="header table table-striped">
         <tr>
             <td class="title"><strong>Category</strong></td>
@@ -153,7 +153,9 @@
         </tr>
        
     </table>
-      <table class="header table table-striped">
+    @endforeach
+    
+    <table class="header table table-striped">
         <tr>
             <td colspan="4" class="sub-title"><strong>Patient Info</strong></td>
         </tr>

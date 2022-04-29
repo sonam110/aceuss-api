@@ -20,15 +20,7 @@ class CommonController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if(auth()->user()->user_type_id=='1') {
-                $this->top_most_parent_id = auth()->user()->id;
-            }
-            else if(auth()->user()->user_type_id=='2')
-            {
-                $this->top_most_parent_id = auth()->user()->id;
-            } else {
-                $this->top_most_parent_id = auth()->user()->top_most_parent_id;
-            }
+            $this->top_most_parent_id = auth()->user()->top_most_parent_id;
             return $next($request);
         });
     }

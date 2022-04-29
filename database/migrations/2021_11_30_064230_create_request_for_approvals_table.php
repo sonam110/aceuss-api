@@ -19,6 +19,7 @@ class CreateRequestForApprovalsTable extends Migration
             $table->foreignId('requested_by');
             $table->foreignId('requested_to');
             $table->string('request_type');
+            $table->string('group_token')->comment('if request_type_id is multiple then action performed according to this');
             $table->foreignId('request_type_id');
             $table->string('reason_for_requesting');
             $table->text('reason_for_rejection')->nullable();
