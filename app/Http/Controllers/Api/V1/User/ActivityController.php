@@ -42,7 +42,7 @@ class ActivityController extends Controller
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email');
             if($user->user_type_id =='2'){
-                $query = $query->orderBy('id','DESC');
+
             } else{
                 $query =  $query->whereIn('id',$allChilds);
             }
@@ -57,12 +57,12 @@ class ActivityController extends Controller
 
             }
             if($whereRaw != '') { 
-                $query = $query->whereRaw($whereRaw)
-                
-                ->orderBy('id', 'DESC');
+                $query = $query->whereRaw($whereRaw);
             } else {
-                $query = $query->orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
+                $query = $query->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
+
+            $query = $query->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC');
            
             if(!empty($request->perPage))
             {
@@ -620,6 +620,7 @@ class ActivityController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->delete();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -651,6 +652,7 @@ class ActivityController extends Controller
             $activity->approved_date = date('Y-m-d');
             $activity->status = '1';
             $activity->save();
+            DB::commit();
             return prepareResult(true,getLangByLabelGroups('Activity','approve') ,$activity, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -707,7 +709,7 @@ class ActivityController extends Controller
             $activityAssigne->assigned_by = $user->id;
             $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityAssigne->save();
-             DB::commit();
+            DB::commit();
 
             $activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
             return prepareResult(true,getLangByLabelGroups('Activity','assigne') ,$activityAssigne, config('httpcodes.success'));
@@ -904,6 +906,42 @@ class ActivityController extends Controller
             ]);
             DB::commit();
             return prepareResult(true, 'Activity tag added.' ,[], config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
+    public function activityNotApplicable(Request $request)
+    {
+        $validator = Validator::make($request->all(),[     
+            "activity_id"   => "required",
+            "from_date"     => "required|date|after_or_equal:today",        
+            "end_date"      => "required|date|after_or_equal:from_date",        
+            "action_comment"=> "required",        
+        ]);
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+        try {
+            $user = getUser();
+            $getActivity = Activity::find($request->activity_id);
+            if(!$getActivity)
+            {
+                return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
+            }
+            return $getActivity->group_id;
+            Activity::where('group_id', $getActivity->group_id)
+                ->whereDate('start_date', '>=', $request->from_date)
+                ->whereDate('start_date', '<=', $request->end_date)
+                ->update([
+                'status' => 3, //Not Applicable
+                'action_comment' => $request->action_comment,
+                'action_by' => auth()->id(),
+                'action_date' => date('Y-m-d')
+            ]);
+            return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
