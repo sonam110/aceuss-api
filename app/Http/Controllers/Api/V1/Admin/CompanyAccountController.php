@@ -197,6 +197,7 @@ class CompanyAccountController extends Controller
                     $addRole->name = $user->id.'-'.Str::slug(substr($role->se_name, 0, 20));
                     $addRole->se_name  = $role->se_name;
                     $addRole->guard_name  = 'api';
+                    $addRole->user_type_id  = $role->user_type_id;
                     $addRole->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                     $addRole->save();
 

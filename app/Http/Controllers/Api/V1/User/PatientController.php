@@ -11,6 +11,7 @@ use App\Models\IpTemplate;
 use App\Models\IpFollowUpCreation;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\Activity;
+use App\Models\UserType;
 use App\Models\Task;
 use Validator;
 use Auth;
@@ -252,17 +253,12 @@ class PatientController extends Controller
                                     $personalInfo->save() ;
                                     /*-----Create Account /Entry in user table*/
                                     if($is_user == true) {
-                                        if(auth()->user()->user_type_id=='1'){
-                                            $top_most_parent_id = auth()->user()->id;
-                                        }
-                                        elseif(auth()->user()->user_type_id=='2')
-                                        {
-                                            $top_most_parent_id = auth()->user()->id;
-                                        } else {
-                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
-                                        }
+                                        $top_most_parent_id = auth()->user()->top_most_parent_id;
                                         $checkAlreadyUser = User::where('email',@$value['email'])->first();
                                         if(empty($checkAlreadyUser)) {
+                                            $getUserType = UserType::find($user_type_id);
+                                            $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
+
                                             if(!empty($getUser)){
                                                 $userSave = User::find($getUser->id);
                                             } else {
@@ -272,7 +268,7 @@ class PatientController extends Controller
                                            
                                             $userSave->user_type_id = $user_type_id;
                                             $userSave->branch_id = getBranchId();
-                                            $userSave->role_id =  $user_type_id;
+                                            $userSave->role_id =  $roleInfo->id;
                                             $userSave->parent_id = $user->id;
                                             $userSave->top_most_parent_id = $top_most_parent_id;
                                             $userSave->name = @$value['name'] ;
@@ -287,7 +283,7 @@ class PatientController extends Controller
                                             $userSave->save(); 
                                             if(!empty($user_type_id))
                                             {
-                                               $role = Role::where('id',$user_type_id)->first();
+                                               $role = $roleInfo;
                                                $userSave->assignRole($role->name);
                                             }     
                                             if(env('IS_MAIL_ENABLE',false) == true){ 
@@ -483,17 +479,11 @@ class PatientController extends Controller
                                     $personalInfo->save();
                                     /*-----Create Account /Entry in user table*/
                                     if($is_user == true) {
-                                        if(auth()->user()->user_type_id=='1'){
-                                            $top_most_parent_id = auth()->user()->id;
-                                        }
-                                        elseif(auth()->user()->user_type_id=='2')
-                                        {
-                                            $top_most_parent_id = auth()->user()->id;
-                                        } else {
-                                            $top_most_parent_id = auth()->user()->top_most_parent_id;
-                                        }
+                                        $top_most_parent_id = auth()->user()->top_most_parent_id;
                                         $checkAlreadyUser = User::where('email',@$value['email'])->first();
                                         if(empty($checkAlreadyUser)) {
+                                            $getUserType = UserType::find($user_type_id);
+                                            $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
                                             if(!empty($getUser)){
                                                 $userSave = User::find($getUser->id);
                                             } else {
@@ -503,7 +493,7 @@ class PatientController extends Controller
                                             $userSave->unique_id = generateRandomNumber();
                                             $userSave->branch_id = getBranchId();
                                             $userSave->user_type_id = $user_type_id;
-                                            $userSave->role_id =  $user_type_id;
+                                            $userSave->role_id =  $roleInfo->id;
                                             $userSave->parent_id = $user->id;
                                             $userSave->top_most_parent_id = $top_most_parent_id;
                                             $userSave->name = @$value['name'] ;
@@ -518,7 +508,7 @@ class PatientController extends Controller
                                             $userSave->save(); 
                                             if(!empty($user_type_id))
                                             {
-                                               $role = Role::where('id',$user_type_id)->first();
+                                               $role = $roleInfo;
                                                $userSave->assignRole($role->name);
                                             }     
                                             if(env('IS_MAIL_ENABLE',false) == true){ 

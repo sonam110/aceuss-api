@@ -14,6 +14,7 @@ use App\Mail\WelcomeMail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\EmailTemplate;
+use App\Models\UserType;
 use App\Models\RequestForApproval;
 use App\Models\PatientImplementationPlan;
 use App\Models\PersonalInfoDuringIp;
@@ -119,11 +120,14 @@ class RequestApprovalController extends Controller
                                     $getUser = User::where('email',$person->email)->withTrashed()->first();
                                     if(empty($getUser))
                                     {
+                                        $getUserType = UserType::find($user_type_id);
+                                        $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
+                                        
                                         $userSave = new User;
                                         $userSave->unique_id = generateRandomNumber();
                                         $userSave->user_type_id = $user_type_id;
                                         $userSave->branch_id = getBranchId();
-                                        $userSave->role_id =  $user_type_id;
+                                        $userSave->role_id =  $roleInfo->id;
                                         $userSave->parent_id = $user->id;
                                         $userSave->top_most_parent_id = $top_most_parent_id;
                                         $userSave->name = $person->name ;
@@ -138,11 +142,12 @@ class RequestApprovalController extends Controller
                                         $userSave->save(); 
                                         if(!empty($user_type_id))
                                         {
-                                           $role = Role::where('id',$user_type_id)->first();
+                                           $role = $roleInfo;
                                            $userSave->assignRole($role->name);
                                         }     
-                                        if(env('IS_MAIL_ENABLE',false) == true){ 
-                                               $content = ([
+                                        if(env('IS_MAIL_ENABLE',false) == true)
+                                        { 
+                                            $content = ([
                                                 'company_id' => $userSave->top_most_parent_id,
                                                 'name' => $userSave->name,
                                                 'email' => $userSave->email,
