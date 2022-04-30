@@ -23,6 +23,7 @@ class AdminFileController extends Controller
                 $q->whereNull('top_most_parent_id')
                     ->orWhere('top_most_parent_id', 1);
             })
+            ->with('UserType')
             ->withoutGlobalScope('top_most_parent_id');
 
             if(!empty($request->title))
@@ -62,7 +63,7 @@ class AdminFileController extends Controller
     public function companyFiles(Request $request)
     {
         try {
-            $query = AdminFile::select('*')->orderBy('created_at', 'DESC');
+            $query = AdminFile::select('*')->orderBy('created_at', 'DESC')->with('UserType');
 
             if(!empty($request->title))
             {
