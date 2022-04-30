@@ -931,7 +931,6 @@ class ActivityController extends Controller
             {
                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
-            return $getActivity->group_id;
             Activity::where('group_id', $getActivity->group_id)
                 ->whereDate('start_date', '>=', $request->from_date)
                 ->whereDate('start_date', '<=', $request->end_date)
