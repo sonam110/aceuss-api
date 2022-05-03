@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PatientImplementationPlan;
+use App\Events\BankIdVerified;
 
 class CallbackController extends Controller
 {
@@ -93,5 +94,13 @@ class CallbackController extends Controller
             return view('not-verified');
         }
         
+    }
+
+    public function checkEvent()
+    {
+        $data = 'Ashok Sahu: '. time();
+        \broadcast(new BankIdVerified($data));
+        //event(new BankIdVerified('Hello World'));
+        return 'Success';
     }
 }

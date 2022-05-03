@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Models\User;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    //auth()->login(User::first());
     return view('welcome');
 });
 
@@ -23,4 +24,6 @@ Route::get('/optimize', function () {
 });
 
 Route::get('/verified/{person_id}/{group_token}', [App\Http\Controllers\CallbackController::class, 'verified']);
+
+Route::get('/check-event', [App\Http\Controllers\CallbackController::class, 'checkEvent']);
 
