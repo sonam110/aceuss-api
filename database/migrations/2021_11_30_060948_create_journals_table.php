@@ -24,7 +24,9 @@ class CreateJournalsTable extends Migration
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('category_id');
             $table->foreignId('subcategory_id');
-            $table->string('title');
+            // $table->string('title');
+            $table->date('date')->default(date('Y/m/d'));
+            $table->time('time')->nullable();
             $table->text('description');
             $table->enum('status', ['0','1','2'])->default('0')->comment('0:Pending  , 1:Approved ,2:Rejected');
             $table->text('reason_for_editing')->nullable();

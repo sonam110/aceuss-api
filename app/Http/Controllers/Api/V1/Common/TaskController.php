@@ -33,7 +33,7 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','created_by','start_date','end_date');
+            $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date');
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');
@@ -60,7 +60,7 @@ class TaskController extends Controller
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 
                 $pagination =  [
                     'data' => $result,
@@ -73,7 +73,7 @@ class TaskController extends Controller
             }
             else
             {
-                $query = $query->get();
+                $query = $query->with('assignEmployee.employee:id,name,email,contact_number')->get();
             }
             return prepareResult(true,"Task list",$query,config('httpcodes.success')); 
 	    }
