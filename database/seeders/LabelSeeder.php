@@ -245,8 +245,10 @@ class LabelSeeder extends Seeder
             "Deviation" => [
             "id" => "Id is required",  
             'category_id' => 'Category id field is required',   
-            'title' => 'Title field is required',   
+            'sub_category_id' => 'Subcategory field is required',   
             'description' => 'Description field is required', 
+            'date_time' => 'date and time field is required', 
+            'immediate_action' => 'Immediate action field is required', 
             "create" => "Added Successfully",
             "update" => "Updated Successfully",
             "delete" => "Deleted Successfully",

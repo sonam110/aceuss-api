@@ -20,9 +20,7 @@ class Deviation extends Model
     protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
-		'parent_id',
 		'activity_id',
-		'top_most_parent_id',
 		'branch_id',
         'patient_id',
 		'emp_id',
@@ -36,13 +34,13 @@ class Deviation extends Model
 		'critical_range',
 		'follow_up',
         'further_investigation',
+        'related_factor',
         'copy_sent_to',
-        'created_by',
         'is_secret',
         'is_signed',
         'is_completed',
-        'completed_by',
         'completed_date',
+        'completed_by',
         'reason_for_editing',
         'edited_by',
         'edited_date',
@@ -53,15 +51,6 @@ class Deviation extends Model
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
-    }
-
-    public function Parent()
-    {
-          return $this->belongsTo(self::class,'parent_id','id');
-    }
-    public function children()
-    {
-         return $this->hasMany(self::class, 'parent_id');
     }
 
     public function Activity()
@@ -85,12 +74,13 @@ class Deviation extends Model
     {
         return $this->belongsTo(CategoryMaster::class,'subcategory_id','id');
     }
-    public function CreatedBy()
-    {
-        return $this->belongsTo(User::class,'created_by','id');
-    }
     public function EditedBy()
     {
         return $this->belongsTo(User::class,'edited_by','id');
+    }
+
+    public function completedBy()
+    {
+        return $this->belongsTo(User::class,'completed_by','id');
     }
 }

@@ -17,8 +17,6 @@ class CreateDeviationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('activity_id')->nullable();
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
 
@@ -43,12 +41,12 @@ class CreateDeviationsTable extends Migration
             $table->text('probable_cause_of_the_incident')->nullable();
             $table->text('suggestion_to_prevent_event_again')->nullable();
             $table->integer('critical_range')->comment('1 to 5');
+            $table->text('related_factor')->nullable();
             
             $table->text('follow_up')->nullable();
             $table->text('further_investigation')->nullable();
             $table->text('copy_sent_to')->nullable();
 
-            $table->bigInteger('created_by')->nullable();
             $table->boolean('is_secret')->default(0)->nullable();
             $table->boolean('is_signed')->default(0)->nullable();
             $table->boolean('is_completed')->default(0)->nullable();
