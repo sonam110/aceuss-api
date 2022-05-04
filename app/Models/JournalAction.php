@@ -13,7 +13,7 @@ use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Journal;
 
-class JournalLog extends Model
+class JournalAction extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
     protected $dates = ['deleted_at'];
@@ -21,26 +21,12 @@ class JournalLog extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-    	'journal_id',
-        'parent_id',
-		'deviation_id',
-		'activity_id',
-		'top_most_parent_id',
-		'branch_id',
-        'patient_id',
-		'emp_id',
-		'category_id',
-		'subcategory_id',
-		'type',
-		'description',
+        'description',
+		'result',
 		'reason_for_editing',
 		'edited_by',
-        'date',
-        'time'
+        'is_signed',
+        'journal_id'
     ];
-    
-   	public function journal()
-    {
-          return $this->belongsTo(Journal::class,'journal_id','id');
-    }
+   	
 }

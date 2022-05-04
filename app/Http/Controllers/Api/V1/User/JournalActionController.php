@@ -4,25 +4,25 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Journal;
+use App\Models\JournalAction;
 use Validator;
 use Auth;
 use DB;
-use App\Models\JournalLog;
+use App\Models\JournalActionLog;
 use Exception;
-class JournalController extends Controller
+class JournalActionController extends Controller
 {
     public function __construct()
     {
 
-        $this->middleware('permission:journal-browse',['except' => ['show']]);
-        $this->middleware('permission:journal-add', ['only' => ['store']]);
-        $this->middleware('permission:journal-edit', ['only' => ['update']]);
-        $this->middleware('permission:journal-read', ['only' => ['show']]);
-        $this->middleware('permission:journal-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:journal-action-browse',['except' => ['show']]);
+        $this->middleware('permission:journal-action-add', ['only' => ['store']]);
+        $this->middleware('permission:journal-action-edit', ['only' => ['update']]);
+        $this->middleware('permission:journal-action-read', ['only' => ['show']]);
+        $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
         
     }
-	public function journals(Request $request)
+	public function journalActions(Request $request)
     {
       
         try {
@@ -92,42 +92,27 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-        		// 'activity_id' => 'required|exists:activities,id',   
-        		'category_id' => 'required|exists:category_masters,id', 
-                'subcategory_id' => 'required|exists:category_masters,id',   
-        		// 'title' => 'required',   
+        		'journal_id' => 'required|exists:journals,id',    
+        		'result' => 'required',   
         		'description' => 'required',       
 	        ],
             [
-                // 'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
-                'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
-                'subcategory_id' =>  getLangByLabelGroups('Journal','subcategory_id'),   
-                // 'title' =>  getLangByLabelGroups('Journal','title'),   
+                'journal_id' =>  getLangByLabelGroups('Journal','journal_id'),   
+                'result' =>  getLangByLabelGroups('Journal','result'),   
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
-	        $journal = new Journal;
-		 	$journal->activity_id = $request->activity_id;
-		 	$journal->branch_id = getBranchId();
-            $journal->deviation_id = $request->deviation_id;
-		 	// $journal->ip_id = $request->ip_id;
-		 	$journal->patient_id = $request->patient_id;
-		 	$journal->emp_id = $request->emp_id;
-		 	$journal->category_id = $request->category_id;
-		 	$journal->subcategory_id = $request->subcategory_id;
-		 	$journal->description = $request->description;
-		 	$journal->is_deviation = ($request->is_deviation)? $request->is_deviation :0;
-            $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
-            $journal->date = ($request->date)? $request->date :date('Y/m/d');
-            $journal->time = ($request->time)? $request->time :date('h:i:sa');
-            $journal->type = $request->type;
-		 	$journal->save();
+	        $journalAction = new JournalAction;
+		 	$journalAction->journal_id = $request->journal_id;
+		 	$journalAction->description = $request->description;
+            $journalAction->result = $request->result;
+            $journalAction->is_signed = ($request->is_signed)? $request->is_signed :0;
+		 	$journalAction->save();
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$journal, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -142,74 +127,61 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 
-	    	$validator = Validator::make($request->all(),[   
-                // 'activity_id' => 'required|exists:activities,id',   
-        		'category_id' => 'required|exists:category_masters,id',   
-        		// 'title' => 'required',   
-        		'description' => 'required',    
-	        ],
-            [   
-                // 'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
-                'category_id' =>  getLangByLabelGroups('Journal','category_id'),   
-                // 'title' =>  getLangByLabelGroups('Journal','title'),   
+	    	$validator = Validator::make($request->all(),[
+                'journal_id' => 'required|exists:journals,id',    
+                'result' => 'required',   
+                'description' => 'required',       
+            ],
+            [
+                'journal_id' =>  getLangByLabelGroups('Journal','journal_id'),   
+                'result' =>  getLangByLabelGroups('Journal','result'),   
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
-        	$checkId = Journal::where('id',$id)
+        	$checkId = JournalAction::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
 
 
             if($checkId->is_signed == 1){
-                $journalLog                     = new JournalLog;
-                $journalLog->journal_id         = $checkId->journal_id;
-                $journalLog->parent_id          = $checkId->parent_id;
-                $journalLog->activity_id        = $checkId->activity_id;
-                $journalLog->branch_id          = $checkId->branch_id;
-                $journalLog->deviation_id       = $checkId->deviation_id;
-                $journalLog->patient_id         = $checkId->patient_id;
-                $journalLog->emp_id             = $checkId->emp_id;
-                $journalLog->category_id        = $checkId->category_id;
-                $journalLog->subcategory_id     = $checkId->subcategory_id;
-                $journalLog->description        = $checkId->description;
-                $journalLog->edited_by          = $request->edited_by;
-                $journalLog->reason_for_editing = $request->reason_for_editing;
-                $journalLog->date                  = $checkId->date;
-                $journalLog->time                  = $checkId->time;
-                $journalLog->type                  = $checkId->type;
-                $journalLog->save();
+                $journalActionLog                     = new JournalActionLog;
+                $journalActionLog->journal_id         = $checkId->journal_id;
+                $journalActionLog->parent_id          = $checkId->parent_id;
+                $journalActionLog->activity_id        = $checkId->activity_id;
+                $journalActionLog->branch_id          = $checkId->branch_id;
+                $journalActionLog->deviation_id       = $checkId->deviation_id;
+                $journalActionLog->patient_id         = $checkId->patient_id;
+                $journalActionLog->emp_id             = $checkId->emp_id;
+                $journalActionLog->category_id        = $checkId->category_id;
+                $journalActionLog->subcategory_id     = $checkId->subcategory_id;
+                $journalActionLog->description        = $checkId->description;
+                $journalActionLog->edited_by          = $request->edited_by;
+                $journalActionLog->reason_for_editing = $request->reason_for_editing;
+                $journalActionLog->date                  = $checkId->date;
+                $journalActionLog->time                  = $checkId->time;
+                $journalActionLog->type                  = $checkId->type;
+                $journalActionLog->save();
             }
 
 
 
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	$journal = Journal::where('id',$id)->first();
-	       	$journal->parent_id = $parent_id;
-		 	$journal->activity_id = $request->activity_id;
-            $journal->branch_id = getBranchId();
-		 	$journal->deviation_id = $request->deviation_id;
-		 	$journal->patient_id = $request->patient_id;
-		 	$journal->emp_id = $request->emp_id;
-		 	$journal->category_id = $request->category_id;
-		 	$journal->subcategory_id = $request->subcategory_id;
-		 	$journal->description = $request->description;
-		 	$journal->is_deviation = ($request->is_deviation)? $request->is_deviation :0;
-		 	$journal->edited_by = $user->id;
-		 	$journal->reason_for_editing = $request->reason_for_editing;
-            $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
-            $journal->date = ($request->date)? $request->date :date('Y/m/d');
-            $journal->time = ($request->time)? $request->time :date('h:i:sa');
-            $journal->type = $request->type;
-		 	$journal->save();
+        	$journalAction = Journal::where('id',$id)->first();
+	       	$journalAction->activity_id = $request->activity_id;
+            $journalAction->description = $request->description;
+            $journalAction->is_signed = ($request->is_signed)? $request->is_signed :0;
+            $journalAction->result = $request->result;
+		 	$journalAction->edited_by = $user->id;
+		 	$journalAction->reason_for_editing = $request->reason_for_editing;
+		 	$journalAction->save();
 		       DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$journal, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$journalAction, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -257,11 +229,11 @@ class JournalController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
             $journal = Journal::find($id);
-		 	$journal->approved_by = $user->id;
-		 	$journal->approved_date = date('Y-m-d');
-		 	$journal->status = '1';
-		 	$journal->save();
-	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$journal, config('httpcodes.success'));
+		 	$journalAction->approved_by = $user->id;
+		 	$journalAction->approved_date = date('Y-m-d');
+		 	$journalAction->status = '1';
+		 	$journalAction->save();
+	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -278,7 +250,7 @@ class JournalController extends Controller
             }
 
         	$journal = Journal::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
-	        return prepareResult(true,'View Patient plan' ,$journal, config('httpcodes.success'));
+	        return prepareResult(true,'View Patient plan' ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
