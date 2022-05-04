@@ -19,8 +19,8 @@ class Deviation extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-        'parent_id',
-		'journal_id',
+        'top_most_parent_id',
+		'parent_id',
 		'activity_id',
 		'top_most_parent_id',
 		'branch_id',
@@ -28,18 +28,33 @@ class Deviation extends Model
 		'emp_id',
 		'category_id',
 		'subcategory_id',
-		'title',
+		'date_time',
 		'description',
-		'status',
-		'not_a_deviation',
-		'reason_of_not_being_deviation',
-		'reason_for_editing',
-		'edited_by',
-		'approved_by',
-		'approved_date',
+		'immediate_action',
+		'probable_cause_of_the_incident',
+		'suggestion_to_prevent_event_again',
+		'critical_range',
+		'follow_up',
+        'further_investigation',
+        'copy_sent_to',
+        'created_by',
+        'is_secret',
+        'is_signed',
+        'is_completed',
+        'completed_by',
+        'completed_date',
+        'reason_for_editing',
+        'edited_by',
+        'edited_date',
         'entry_mode',
 
     ];
+
+    public function TopMostParent()
+    {
+        return $this->belongsTo(User::class,'top_most_parent_id','id');
+    }
+
     public function Parent()
     {
           return $this->belongsTo(self::class,'parent_id','id');
@@ -49,19 +64,12 @@ class Deviation extends Model
          return $this->hasMany(self::class, 'parent_id');
     }
 
-    public function Journal()
-    {
-        return $this->belongsTo(Journal::class,'journal_id','id');
-    }
     public function Activity()
     {
         return $this->belongsTo(Activity::class,'activity_id','id');
     }
-    public function TopMostParent()
-    {
-        return $this->belongsTo(User::class,'top_most_parent_id','id');
-    }
-     public function Patient()
+    
+    public function Patient()
     {
         return $this->belongsTo(User::class,'patient_id','id');
     }
@@ -77,12 +85,12 @@ class Deviation extends Model
     {
         return $this->belongsTo(CategoryMaster::class,'subcategory_id','id');
     }
-     public function EditedBy()
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by','id');
+    }
+    public function EditedBy()
     {
         return $this->belongsTo(User::class,'edited_by','id');
-    }
-    public function ApprovedBy()
-    {
-        return $this->belongsTo(User::class,'approved_by','id');
     }
 }

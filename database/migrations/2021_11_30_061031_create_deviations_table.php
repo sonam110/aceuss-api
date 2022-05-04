@@ -15,24 +15,49 @@ class CreateDeviationsTable extends Migration
     {
         Schema::create('deviations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('journal_id')->nullable();
-            $table->foreignId('activity_id')->nullable();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('branch_id')->nullable();
-            $table->foreignId('patient_id')->nullable();
-            $table->foreignId('emp_id')->nullable();
-            $table->foreignId('category_id');
-            $table->foreignId('subcategory_id');
-            $table->string('title');
+            $table->unsignedBigInteger('top_most_parent_id');
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('activity_id')->nullable();
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
+
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('patient_id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('emp_id')->nullable();
+            $table->foreign('emp_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('category_masters')->onDelete('cascade');
+
+            $table->unsignedBigInteger('subcategory_id')->nullable();
+            $table->foreign('subcategory_id')->references('id')->on('category_masters')->onDelete('cascade');
+
+            $table->timestamp('date_time');
             $table->text('description');
-            $table->enum('status', ['0','1','2'])->default('0')->comment('0:Pending  , 1:Approved ,2:Rejected');
-            $table->boolean('not_a_deviation')->default(0);
-            $table->text('reason_of_not_being_deviation')->nullable();
+            $table->text('immediate_action');
+            $table->text('probable_cause_of_the_incident')->nullable();
+            $table->text('suggestion_to_prevent_event_again')->nullable();
+            $table->integer('critical_range')->comment('1 to 5');
+            
+            $table->text('follow_up')->nullable();
+            $table->text('further_investigation')->nullable();
+            $table->text('copy_sent_to')->nullable();
+
+            $table->bigInteger('created_by')->nullable();
+            $table->boolean('is_secret')->default(0)->nullable();
+            $table->boolean('is_signed')->default(0)->nullable();
+            $table->boolean('is_completed')->default(0)->nullable();
+            $table->bigInteger('completed_by')->nullable();
+            $table->date('completed_date')->nullable();
+
             $table->text('reason_for_editing')->nullable();
-            $table->foreignId('edited_by')->nullable();
-            $table->foreignId('approved_by')->nullable();
-            $table->date('approved_date')->nullable();
+            $table->bigInteger('edited_by')->nullable();
+            $table->date('edited_date')->nullable();
             $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
