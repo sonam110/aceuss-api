@@ -29,7 +29,7 @@ class JournalController extends Controller
 	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')';'
+            $query = Journal::with('Parent:id','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name');
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');
@@ -82,15 +82,17 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
-        		'activity_id' => 'required|exists:activities,id',   
-        		'category_id' => 'required|exists:category_masters,id',   
-        		'title' => 'required',   
+        		// 'activity_id' => 'required|exists:activities,id',   
+        		'category_id' => 'required|exists:category_masters,id', 
+                'subcategory_id' => 'required|exists:category_masters,id',   
+        		// 'title' => 'required',   
         		'description' => 'required',       
 	        ],
             [
-                'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
-                'category_id' =>  getLangByLabelGroups('Journal','category_id'),   
-                'title' =>  getLangByLabelGroups('Journal','title'),   
+                // 'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
+                'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
+                'subcategory_id' =>  getLangByLabelGroups('Journal','subcategory_id'),   
+                // 'title' =>  getLangByLabelGroups('Journal','title'),   
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
@@ -101,15 +103,18 @@ class JournalController extends Controller
 		 	$Journal->activity_id = $request->activity_id;
 		 	$Journal->branch_id = getBranchId();
             $Journal->deviation_id = $request->deviation_id;
-		 	$Journal->ip_id = $request->ip_id;
+		 	// $Journal->ip_id = $request->ip_id;
 		 	$Journal->patient_id = $request->patient_id;
 		 	$Journal->emp_id = $request->emp_id;
 		 	$Journal->category_id = $request->category_id;
 		 	$Journal->subcategory_id = $request->subcategory_id;
-		 	$Journal->title = $request->title;
 		 	$Journal->description = $request->description;
 		 	$Journal->is_deviation = ($request->is_deviation)? $request->is_deviation :0;
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $Journal->is_signed = ($request->is_signed)? $request->is_signed :0;
+            $Journal->date = ($request->date)? $request->date :date('y/m/d');
+            $Journal->time = ($request->time)? $request->time :date('h:i:sa');
+            $Journal->type = $request->type;
 		 	$Journal->save();
              DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, config('httpcodes.success'));
@@ -127,15 +132,15 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
-                'activity_id' => 'required|exists:activities,id',   
+                // 'activity_id' => 'required|exists:activities,id',   
         		'category_id' => 'required|exists:category_masters,id',   
-        		'title' => 'required',   
+        		// 'title' => 'required',   
         		'description' => 'required',    
 	        ],
             [   
-                'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
+                // 'activity_id' =>  getLangByLabelGroups('Journal','activity_id'),   
                 'category_id' =>  getLangByLabelGroups('Journal','category_id'),   
-                'title' =>  getLangByLabelGroups('Journal','title'),   
+                // 'title' =>  getLangByLabelGroups('Journal','title'),   
                 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
@@ -147,8 +152,32 @@ class JournalController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
+
+            if($checkId->is_signed == 1){
+                $JournalLog = new JournalLog;
+                $JournalLog->journal_id = $checkId->journal_id;
+                $JournalLog->parent_id = $checkId->parent_id;
+                $JournalLog->activity_id = $checkId->activity_id;
+                $JournalLog->branch_id = $checkId->branch_id;
+                $JournalLog->deviation_id = $checkId->deviation_id;
+                $JournalLog->ip_id = $checkId->ip_id;
+                $JournalLog->patient_id = $checkId->patient_id;
+                $JournalLog->emp_id = $checkId->emp_id;
+                $JournalLog->category_id = $checkId->category_id;
+                $JournalLog->subcategory_id = $checkId->subcategory_id;
+                $JournalLog->description = $checkId->description;
+                $JournalLog->edited_by = $request->edited_by;
+                $JournalLog->reason_for_editing = $request->reason_for_editing;
+                $JournalLog->date = ($request->date)? $request->date :date('y/m/d');
+                $JournalLog->time = ($request->time)? $request->time :date('h:i:sa');
+                $JournalLog->type = $request->type;
+                $JournalLog->save();
+            }
+
+
+
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	$Journal = new  Journal;
+        	$Journal = Journal::where('id',$id)->first();
 	       	$Journal->parent_id = $parent_id;
 		 	$Journal->activity_id = $request->activity_id;
             $Journal->branch_id = getBranchId();
@@ -158,12 +187,15 @@ class JournalController extends Controller
 		 	$Journal->emp_id = $request->emp_id;
 		 	$Journal->category_id = $request->category_id;
 		 	$Journal->subcategory_id = $request->subcategory_id;
-		 	$Journal->title = $request->title;
 		 	$Journal->description = $request->description;
 		 	$Journal->is_deviation = ($request->is_deviation)? $request->is_deviation :0;
 		 	$Journal->edited_by = $user->id;
 		 	$Journal->reason_for_editing = $request->reason_for_editing;
             $Journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $Journal->is_signed = ($request->is_signed)? $request->is_signed :0;
+            $Journal->date = $checkId->date;
+            $Journal->time = $checkId->time;
+            $Journal->type = $checkId->type;
 		 	$Journal->save();
 		       DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$Journal, config('httpcodes.success'));

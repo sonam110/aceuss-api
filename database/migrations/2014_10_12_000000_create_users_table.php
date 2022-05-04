@@ -65,6 +65,7 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('step_five')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
+            $table->string('contact_person_name')->nullable();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

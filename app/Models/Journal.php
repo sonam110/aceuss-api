@@ -28,7 +28,7 @@ class Journal extends Model
 		'emp_id',
 		'category_id',
 		'subcategory_id',
-		'title',
+		// 'title',
 		'description',
 		'status',
 		'reason_for_editing',
@@ -38,6 +38,10 @@ class Journal extends Model
 		'is_deviation',
         'is_social',
         'entry_mode',
+        'date',
+        'time',
+        'is_signed',
+        'type'
 
     ];
    	public function Parent()

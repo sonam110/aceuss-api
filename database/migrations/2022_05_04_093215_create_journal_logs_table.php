@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateJournalsTable extends Migration
+class CreateJournalLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class CreateJournalsTable extends Migration
      */
     public function up()
     {
-        Schema::create('journals', function (Blueprint $table) {
+        Schema::create('journal_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('journal_id')->nullable();
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('deviation_id')->nullable();
             $table->foreignId('activity_id')->nullable();
@@ -24,21 +25,12 @@ class CreateJournalsTable extends Migration
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('category_id');
             $table->foreignId('subcategory_id');
-            // $table->string('title');
-            $table->string('type');
-            $table->string('date')->default(date('Y/m/d'));
-            $table->string('time')->default(date("h:i:sa"));
+            $table->string('type')->nullable();
+            $table->string('date')->nullable();
+            $table->string('time')->nullable();
             $table->text('description');
-            $table->enum('status', ['0','1','2'])->default('0')->comment('0:Pending  , 1:Approved ,2:Rejected');
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
-            $table->foreignId('approved_by')->nullable();
-            $table->date('approved_date')->nullable();
-            $table->boolean('is_deviation')->default(0);
-            $table->boolean('is_social')->default(0);
-            $table->string('entry_mode')->nullable();
-            $table->boolean('is_signed')->default(0);
-            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -50,6 +42,6 @@ class CreateJournalsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('journals');
+        Schema::dropIfExists('journal_logs');
     }
 }

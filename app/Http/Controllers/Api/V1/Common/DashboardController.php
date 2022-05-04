@@ -55,7 +55,7 @@ class DashboardController extends Controller
             	$date['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();	
             }
 
-            if($user->user_type_id == '2')
+            if($user->user_type_id == '3')
             {
                 $date['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
                 $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
@@ -76,6 +76,39 @@ class DashboardController extends Controller
                 $date['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->count();
                 $date['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
                 $date['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
+            }
+            return prepareResult(true,'Dashboard' ,$date, config('httpcodes.success'));    
+        } catch(Exception $exception) {
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
+        }  
+    }
+
+
+    public function activityFilter()
+    {
+        try {
+            $user = getUser();
+
+            if($user->user_type_id == '2')
+            {
+                $data = Activity::where('top_most_parent_id',$user->id)->count();
+                $date['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->count();
+                $date['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->count();
+            }
+
+            if($user->user_type_id == '3')
+            {
+                $data = ActivityAssigne::where('user_id',$user->id)->count();
+                $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
+                $date['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                
+            }
+
+            if($user->user_type_id == '6')
+            {
+                $data = Activity::where('patient_id',$user->id)->count();
+                $date['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
+                $date['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
             }
             return prepareResult(true,'Dashboard' ,$date, config('httpcodes.success'));    
         } catch(Exception $exception) {

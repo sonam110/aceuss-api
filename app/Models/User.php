@@ -31,6 +31,11 @@ use App\Models\CompanySetting;
 use App\Models\PatientInformation;
 use App\Models\PatientImplementationPlan;
 use App\Models\Activity;
+use App\Models\Task;
+use App\Models\IpFollowUp;
+use App\Models\Followup;
+use App\Models\Employee;
+use App\Models\Patient;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -96,6 +101,7 @@ class User extends Authenticatable
         'step_four',
         'step_five',
         'entry_mode',
+        'contact_person_name',
     ];
 
     /**
@@ -190,7 +196,7 @@ class User extends Authenticatable
         return $this;
     }
 
-     public function modules()
+    public function modules()
     {
          return $this->hasMany(AssigneModule::class,'user_id','id');
     }
@@ -272,6 +278,39 @@ class User extends Authenticatable
         }
         
 
+    }
+
+
+    //--------------------------created by khushboo--------------------------//
+
+    public function tasks()
+    {
+         return $this->hasMany(Task::class,'top_most_parent_id','id');
+    }
+
+    public function activities()
+    {
+         return $this->hasMany(Activity::class,'top_most_parent_id','id');
+    }
+
+    public function ips()
+    {
+         return $this->hasMany(PatientImplementationPlan::class,'top_most_parent_id','id');
+    }
+
+    public function followUps()
+    {
+         return $this->hasMany(IpFollowUp::class,'top_most_parent_id','id');
+    }
+
+    public function patients()
+    {
+         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id','Patient');
+    }
+
+    public function employees()
+    {
+         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id','Employee');
     }
 
 

@@ -52,7 +52,7 @@ class CompanyAccountController extends Controller
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                $result = $query->withcount('tasks','activities','ips','followUps','patients','employees')->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
                     'data' => $result,
@@ -65,7 +65,7 @@ class CompanyAccountController extends Controller
             }
             else
             {
-                $query = $query->get();
+                $query = $query->withcount('tasks','activities','ips','followUps','patients','employees')->get();
             }
             return prepareResult(true,"User list",$query,config('httpcodes.success'));
         }
@@ -227,7 +227,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->first();
+            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->withcount('tasks','activities','ips','followUps','patients','employees')->first();
             $getAssigneModule = AssigneModule::where('user_id',$user->id)->pluck('module_id')->implode(',');
             $userShow['module_list'] = Module::select('id','name')->whereIn('id',explode(',',$getAssigneModule))->get();
 

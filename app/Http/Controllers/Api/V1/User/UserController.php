@@ -217,6 +217,7 @@ class UserController extends Controller
             $user->is_password_change =  $is_password_change;
             $user->documents = json_encode($request->documents);
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->contact_person_name = $request->contact_person_name;
             $user->save();
             if($roleInfo)
             {
@@ -500,6 +501,7 @@ class UserController extends Controller
             $user->step_five = (!empty($request->step_five)) ? $request->step_five:0 ;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->documents = json_encode($request->documents);
+            $user->contact_person_name = $request->contact_person_name;
             $user->save();
             
             if($roleInfo)
