@@ -57,8 +57,8 @@ class CreateDeviationsTable extends Migration
             $table->bigInteger('edited_by')->nullable();
             $table->date('edited_date')->nullable();
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

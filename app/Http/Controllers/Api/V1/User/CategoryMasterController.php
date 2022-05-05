@@ -75,7 +75,13 @@ class CategoryMasterController extends Controller
             $user = getUser();
             
             $query = CategoryMaster::select('id','name','category_type_id')
-                ->whereNull('parent_id');
+                ->whereNull('parent_id')
+                ->where(function ($q) use ($request) {
+                    $q->whereNull('top_most_parent_id')
+                        ->orWhere('top_most_parent_id', 1)
+                        ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
+                })
+            ->withoutGlobalScope('top_most_parent_id');
 
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
@@ -128,7 +134,14 @@ class CategoryMasterController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = CategoryMaster::select('id','name')->where('parent_id',$request->parent_id);
+            $query = CategoryMaster::select('id','name')
+                ->where('parent_id',$request->parent_id)
+                ->where(function ($q) use ($request) {
+                    $q->whereNull('top_most_parent_id')
+                        ->orWhere('top_most_parent_id', 1)
+                        ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
+                })
+            ->withoutGlobalScope('top_most_parent_id');
             if($whereRaw != '') { 
                 $query->whereRaw($whereRaw)
                     ->orderBy('id', 'DESC');
