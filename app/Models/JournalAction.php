@@ -30,5 +30,10 @@ class JournalAction extends Model
         'edit_date',
         'is_signed'
     ];
+
+    public function journal()
+    {
+        return $this->belongsTo(Journal::class,'journal_id','id');
+    }
    	
 }

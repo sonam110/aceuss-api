@@ -30,7 +30,7 @@ class JournalActionController extends Controller
 	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = JournalAction::with('Parent:id','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name');
+            $query = JournalAction::with('journal');
             
 
             if($user->user_type_id =='2'){
@@ -203,13 +203,13 @@ class JournalActionController extends Controller
     public function show(Request $request){
         try {
 	    	$user = getUser();
-        	$checkId= JournalAction::where('id',$id)
+        	$checkId= JournalAction::where('id',$id)->with('journal')
                 ->first();
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journal = JournalAction::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
+        	$journal = JournalAction::where('id',$id)->first();
 	        return prepareResult(true,'View Patient plan' ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
