@@ -20,7 +20,7 @@ class Activity extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
-    protected $appends = ['comments'];
+    // protected $appends = ['comments'];
     protected $fillable =[
         'top_most_parent_id',
         'group_id',
@@ -159,12 +159,17 @@ class Activity extends Model
       $this->attributes['end_time'] =  (!empty($value)) ? date("H:i:s", strtotime($value)):null;
     }
 
-    public function getCommentsAttribute()
-    {
-        $comments = Comment::where('source_name','Activity')->where('source_id',$this->id)->with('commentBy:id,name')->get();
-        return $comments;
+    // public function getCommentsAttribute()
+    // {
+    //     $comments = Comment::where('source_name','Activity')->where('source_id',$this->id)->with('commentBy:id,name')->get();
+    //     return $comments;
         
 
+    // }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class,'source_id','id')->where('source_name','Activity');
     }
 
 }

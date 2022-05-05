@@ -221,7 +221,7 @@ class DeviationController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-            $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','completedBy:id,name')->first();
+            $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,personal_number,email,contact_number,patient_type_id','Employee:id,name','completedBy:id,name','branch')->first();
             return prepareResult(true,'View Deviation' ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {

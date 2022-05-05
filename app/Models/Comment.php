@@ -49,4 +49,14 @@ class Comment extends Model
         
 
     }
+
+    public function replyOnReply()
+    {
+        return $this->hasMany(self::class,'parent_id','id')->with('commentBy');
+    }
+
+    public function replyThread()
+    {
+        return $this->hasMany(self::class,'parent_id','id')->with('replyOnReply','commentBy');
+    }
 }

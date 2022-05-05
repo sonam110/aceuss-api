@@ -19,8 +19,6 @@ class Journal extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-        'parent_id',
-		'deviation_id',
 		'activity_id',
 		'top_most_parent_id',
 		'branch_id',
@@ -28,35 +26,20 @@ class Journal extends Model
 		'emp_id',
 		'category_id',
 		'subcategory_id',
-		// 'title',
 		'description',
-		'status',
 		'reason_for_editing',
 		'edited_by',
+        'edit_date',
 		'approved_by',
 		'approved_date',
-		'is_deviation',
-        'is_social',
         'entry_mode',
         'date',
         'time',
         'is_signed',
-        'type'
-
+        'is_secret'
     ];
-   	public function Parent()
-    {
-          return $this->belongsTo(self::class,'parent_id','id');
-    }
-    public function children()
-    {
-         return $this->hasMany(self::class, 'parent_id');
-    }
+   	
 
-    public function Deviation()
-    {
-        return $this->belongsTo(Deviation::class,'deviation_id','id');
-    }
     public function Activity()
     {
         return $this->belongsTo(Activity::class,'activity_id','id');

@@ -22,11 +22,12 @@ class JournalActionLog extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-		'description',
-		'result',
+        'journal_action_id',
+        'top_most_parent_id',
+		'comment_action',
+		'comment_result',
 		'reason_for_editing',
-		'edited_by',
-        'journal_action_id'
+		'edited_by'
 
     ];
    	

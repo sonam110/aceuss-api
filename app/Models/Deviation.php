@@ -83,4 +83,9 @@ class Deviation extends Model
     {
         return $this->belongsTo(User::class,'completed_by','id');
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(User::class,'branch_id','id');
+    }
 }

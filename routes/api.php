@@ -227,6 +227,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('deviation', User\DeviationController::class)->only(['store','destroy','show', 'update']);
 		Route::post('action-deviation','User\DeviationController@actionDeviation');
 
+		/*------------- Patient Cashier -------------------*/
+		Route::post('patient-cashiers', [App\Http\Controllers\Api\V1\User\PatientCashierController::class, 'patientCashiers']);
+		Route::apiResource('patient-cashier', User\PatientCashierController::class)->only(['store']);
+
 		/*-------------Folder------------------------*/
 		Route::post('folders', [App\Http\Controllers\Api\V1\User\FolderController::class, 'folders']);
 		Route::apiResource('folder', User\FolderController::class)->only(['store','destroy','show', 'update']);
