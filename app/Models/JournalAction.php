@@ -21,12 +21,14 @@ class JournalAction extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-        'description',
-		'result',
+        'journal_id',
+        'top_most_parent_id',
+        'comment_action',
+		'comment_result',
 		'reason_for_editing',
 		'edited_by',
-        'is_signed',
-        'journal_id'
+        'edit_date',
+        'is_signed'
     ];
    	
 }

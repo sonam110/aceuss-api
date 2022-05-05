@@ -22,21 +22,10 @@ class JournalLog extends Model
     protected static $logOnlyDirty = true;
     protected $fillable =[
     	'journal_id',
-        'parent_id',
-		'deviation_id',
-		'activity_id',
-		'top_most_parent_id',
-		'branch_id',
-        'patient_id',
-		'emp_id',
-		'category_id',
-		'subcategory_id',
-		'type',
+        'top_most_parent_id',
 		'description',
 		'reason_for_editing',
-		'edited_by',
-        'date',
-        'time'
+		'edited_by'
     ];
     
    	public function journal()

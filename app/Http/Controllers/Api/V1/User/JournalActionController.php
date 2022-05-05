@@ -93,23 +93,23 @@ class JournalActionController extends Controller
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[
         		'journal_id' => 'required|exists:journals,id',    
-        		'result' => 'required',   
-        		'description' => 'required',       
+        		'comment_result' => 'required',   
+        		'comment_action' => 'required',       
 	        ],
             [
                 'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
-                'result' =>  getLangByLabelGroups('JournalAction','result'),   
-                'description' =>  getLangByLabelGroups('JournalAction','description'), 
+                'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
+                'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	
 	        $journalAction = new JournalAction;
-		 	$journalAction->journal_id = $request->journal_id;
-		 	$journalAction->description = $request->description;
-            $journalAction->result = $request->result;
-            $journalAction->is_signed = ($request->is_signed)? $request->is_signed :0;
+		 	$journalAction->journal_id          = $request->journal_id;
+		 	$journalAction->comment_action = $request->comment_action;
+            $journalAction->comment_result      = $request->comment_result;
+            $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
 		 	$journalAction->save();
              DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$journalAction, config('httpcodes.success'));
@@ -129,13 +129,13 @@ class JournalActionController extends Controller
 
 	    	$validator = Validator::make($request->all(),[
                 'journal_id' => 'required|exists:journals,id',    
-                'result' => 'required',   
-                'description' => 'required',       
+                'comment_result' => 'required',   
+                'comment_action' => 'required',       
             ],
             [
                 'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
-                'result' =>  getLangByLabelGroups('JournalAction','result'),   
-                'description' =>  getLangByLabelGroups('JournalAction','description'), 
+                'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
+                'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -152,8 +152,8 @@ class JournalActionController extends Controller
             if($checkId->is_signed == 1){
                 $journalActionLog                     = new JournalActionLog;
                 $journalActionLog->journal_action_id  = $checkId->journal_id;
-                $journalActionLog->description        = $checkId->description;
-                $journalActionLog->result             = $checkId->result;
+                $journalActionLog->comment_action= $checkId->comment_action;
+                $journalActionLog->comment_result     = $checkId->comment_result;
                 $journalActionLog->edited_by          = $user->id;
                 $journalActionLog->reason_for_editing = $request->reason_for_editing;
                 $journalActionLog->save();
@@ -163,10 +163,11 @@ class JournalActionController extends Controller
 
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$journalAction                		= JournalAction::where('id',$id)->first();
-	       	$journalAction->result         		= $request->result;
-            $journalAction->description     	= $request->description;
+	       	$journalAction->comment_result      = $request->comment_result;
+            $journalAction->comment_action = $request->comment_action;
             $journalAction->is_signed       	= ($request->is_signed)? $request->is_signed :0;
 		 	$journalAction->edited_by 			= $user->id;
+            $journalAction->edit_date           = date('Y/m/d');
 		 	$journalAction->reason_for_editing 	= $request->reason_for_editing;
 		 	$journalAction->save();
 		       DB::commit();

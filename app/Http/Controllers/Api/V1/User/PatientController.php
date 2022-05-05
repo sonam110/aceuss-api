@@ -47,6 +47,7 @@ class PatientController extends Controller
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
 
+            //----------------//
             $parent_id = PatientImplementationPlan::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
             $child_id  = [];
             $ip_without_parent = PatientImplementationPlan::whereNull('parent_id')->whereNotIn('id',explode(',',$parent_id))->pluck('id')->all();
@@ -55,6 +56,8 @@ class PatientController extends Controller
               $child_id[] = (!empty($value)) ? $lastChild->id : null;
             }
             $ip_ids = array_merge($ip_without_parent,$child_id);
+
+            //---------------//
             $query = PatientImplementationPlan::whereIn('id',$ip_ids)
             ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
             ->withCount(['ipFollowUps'])
