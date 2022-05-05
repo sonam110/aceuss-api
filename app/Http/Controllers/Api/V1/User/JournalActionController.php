@@ -12,16 +12,16 @@ use App\Models\JournalActionLog;
 use Exception;
 class JournalActionController extends Controller
 {
-    public function __construct()
-    {
+    // public function __construct()
+    // {
 
-        $this->middleware('permission:journal-action-browse',['except' => ['show']]);
-        $this->middleware('permission:journal-action-add', ['only' => ['store']]);
-        $this->middleware('permission:journal-action-edit', ['only' => ['update']]);
-        $this->middleware('permission:journal-action-read', ['only' => ['show']]);
-        $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
+    //     $this->middleware('permission:journal-action-browse',['except' => ['show']]);
+    //     $this->middleware('permission:journal-action-add', ['only' => ['store']]);
+    //     $this->middleware('permission:journal-action-edit', ['only' => ['update']]);
+    //     $this->middleware('permission:journal-action-read', ['only' => ['show']]);
+    //     $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
         
-    }
+    // }
 	public function journalActions(Request $request)
     {
       
@@ -30,7 +30,7 @@ class JournalActionController extends Controller
 	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::with('Parent:id','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name');
+            $query = JournalAction::with('Parent:id','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name');
             
 
             if($user->user_type_id =='2'){
@@ -97,9 +97,9 @@ class JournalActionController extends Controller
         		'description' => 'required',       
 	        ],
             [
-                'journal_id' =>  getLangByLabelGroups('Journal','journal_id'),   
-                'result' =>  getLangByLabelGroups('Journal','result'),   
-                'description' =>  getLangByLabelGroups('Journal','description'), 
+                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
+                'result' =>  getLangByLabelGroups('JournalAction','result'),   
+                'description' =>  getLangByLabelGroups('JournalAction','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -133,9 +133,9 @@ class JournalActionController extends Controller
                 'description' => 'required',       
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('Journal','journal_id'),   
-                'result' =>  getLangByLabelGroups('Journal','result'),   
-                'description' =>  getLangByLabelGroups('Journal','description'), 
+                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
+                'result' =>  getLangByLabelGroups('JournalAction','result'),   
+                'description' =>  getLangByLabelGroups('JournalAction','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -151,37 +151,26 @@ class JournalActionController extends Controller
 
             if($checkId->is_signed == 1){
                 $journalActionLog                     = new JournalActionLog;
-                $journalActionLog->journal_id         = $checkId->journal_id;
-                $journalActionLog->parent_id          = $checkId->parent_id;
-                $journalActionLog->activity_id        = $checkId->activity_id;
-                $journalActionLog->branch_id          = $checkId->branch_id;
-                $journalActionLog->deviation_id       = $checkId->deviation_id;
-                $journalActionLog->patient_id         = $checkId->patient_id;
-                $journalActionLog->emp_id             = $checkId->emp_id;
-                $journalActionLog->category_id        = $checkId->category_id;
-                $journalActionLog->subcategory_id     = $checkId->subcategory_id;
+                $journalActionLog->journal_action_id  = $checkId->journal_id;
                 $journalActionLog->description        = $checkId->description;
-                $journalActionLog->edited_by          = $request->edited_by;
+                $journalActionLog->result             = $checkId->result;
+                $journalActionLog->edited_by          = $user->id;
                 $journalActionLog->reason_for_editing = $request->reason_for_editing;
-                $journalActionLog->date                  = $checkId->date;
-                $journalActionLog->time                  = $checkId->time;
-                $journalActionLog->type                  = $checkId->type;
                 $journalActionLog->save();
             }
 
 
 
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	$journalAction = Journal::where('id',$id)->first();
-	       	$journalAction->activity_id = $request->activity_id;
-            $journalAction->description = $request->description;
-            $journalAction->is_signed = ($request->is_signed)? $request->is_signed :0;
-            $journalAction->result = $request->result;
-		 	$journalAction->edited_by = $user->id;
-		 	$journalAction->reason_for_editing = $request->reason_for_editing;
+        	$journalAction                		= JournalAction::where('id',$id)->first();
+	       	$journalAction->result         		= $request->result;
+            $journalAction->description     	= $request->description;
+            $journalAction->is_signed       	= ($request->is_signed)? $request->is_signed :0;
+		 	$journalAction->edited_by 			= $user->id;
+		 	$journalAction->reason_for_editing 	= $request->reason_for_editing;
 		 	$journalAction->save();
 		       DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$journalAction, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$journalAction, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -195,12 +184,12 @@ class JournalActionController extends Controller
   
         try {
 	    	$user = getUser();
-        	$checkId= Journal::where('id',$id)->first();
+        	$checkId= JournalAction::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	$journal = Journal::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Journal','delete') ,[], config('httpcodes.success'));
+        	$journal = JournalAction::where('id',$id)->delete();
+         	return prepareResult(true,getLangByLabelGroups('JournalAction','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
@@ -209,47 +198,17 @@ class JournalActionController extends Controller
             
         }
     }
-    public function approvedJournal(Request $request){
     
-        try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[
-        		'id' => 'required',   
-	        ],
-            [
-                'id' =>  getLangByLabelGroups('Journal','id'),   
-            ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
-        	$id = $request->id;
-        	$checkId= Journal::where('id',$id)
-                ->first();
-			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
-            }
-            $journal = Journal::find($id);
-		 	$journalAction->approved_by = $user->id;
-		 	$journalAction->approved_date = date('Y-m-d');
-		 	$journalAction->status = '1';
-		 	$journalAction->save();
-	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$journalAction, config('httpcodes.success'));
-        }
-        catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-            
-        }
-    }
     public function show(Request $request){
         try {
 	    	$user = getUser();
-        	$checkId= Journal::where('id',$id)
+        	$checkId= JournalAction::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journal = Journal::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
+        	$journal = JournalAction::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
 	        return prepareResult(true,'View Patient plan' ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {

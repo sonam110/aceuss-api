@@ -219,10 +219,12 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('journals', [App\Http\Controllers\Api\V1\User\JournalController::class, 'journals']);
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-journal','User\JournalController@approvedJournal');
+		/*-------------Journal Action------------------------*/
+		Route::post('journal-actions', [App\Http\Controllers\Api\V1\User\JournalActionController::class, 'journalActions']);
+		Route::apiResource('journal-action', User\JournalActionController::class)->only(['store','destroy','show', 'update']);
 		/*-------------Deviations ------------------------*/
-		Route::post('deviations', [App\Http\Controllers\Api\V1\User\JournalController::class, 'deviations']);
+		Route::post('deviations', [App\Http\Controllers\Api\V1\User\DeviationController::class, 'deviations']);
 		Route::apiResource('deviation', User\DeviationController::class)->only(['store','destroy','show', 'update']);
-		// Route::post('approved-deviation','User\deviationController@approveDeviation');
 		Route::post('action-deviation','User\DeviationController@actionDeviation');
 
 		/*-------------Folder------------------------*/
