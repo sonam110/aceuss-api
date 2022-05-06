@@ -67,6 +67,7 @@ class Task extends Model
         'action_date',
         'comment',
 		'status',
+        'is_latest_entry'
     ];
 
      public function assignEmployee()

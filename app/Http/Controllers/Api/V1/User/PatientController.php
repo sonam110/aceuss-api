@@ -177,6 +177,7 @@ class PatientController extends Controller
                         $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
                         $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                         $patientPlan->created_by = $user->id;
+                        $patientPlan->is_latest_entry = 1;
                         $patientPlan->save();
 
                         $impPlan_ids[] = $patientPlan->id;
@@ -393,7 +394,10 @@ class PatientController extends Controller
                         $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
                         $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                         $patientPlan->edited_by = $user->id;
+                        $patientPlan->is_latest_entry = 1;
                         $patientPlan->save();
+
+                        PatientImplementationPlan::where('id',$id)->update(['is_latest_entry'=>0]);
 
                         $impPlan_ids[] = $patientPlan->id;
                         $ids = implode(', ',$impPlan_ids);

@@ -222,6 +222,7 @@ class TaskController extends Controller
     				            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
     				            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
     						    $task->created_by =$user->id;
+                                $task->is_latest_entry = 1;
     						    $task->save();
     						    $task_ids[] = $task->id;
     						    if(is_array($request->employees) && sizeof($request->employees) > 0 ){
@@ -407,7 +408,11 @@ class TaskController extends Controller
     				            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
     				            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
     						    $task->created_by =$user->id;
+                                $task->is_latest_entry = 1;
     						    $task->save();
+
+                                Task::where('id',$id)->update(['is_latest_entry'=>0]);
+
     						    $task_ids[] = $task->id;
     						    if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
     						    	$validator = Validator::make($request->all(),[   
