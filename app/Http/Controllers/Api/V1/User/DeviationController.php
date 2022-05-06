@@ -8,6 +8,8 @@ use Validator;
 use Auth;
 use DB;
 use Exception;
+use PDF;
+use Str;
 
 class DeviationController extends Controller
 {
@@ -18,6 +20,7 @@ class DeviationController extends Controller
         $this->middleware('permission:deviation-edit', ['only' => ['update']]);
         $this->middleware('permission:deviation-read', ['only' => ['show']]);
         $this->middleware('permission:deviation-delete', ['only' => ['destroy']]);
+        //$this->middleware('permission:deviation-print', ['only' => ['printDeviation']]);
         
     }
 
@@ -345,4 +348,28 @@ class DeviationController extends Controller
         }
     }
     
+    public function printDeviation(Request $request, $id)
+    {
+        try {
+            $user = getUser();
+            $checkId = Deviation::where('id',$id)
+                ->first();
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
+            }
+
+            $deviation = Deviation::where('id', $id)->first();
+            $filename = $id."-".time().".pdf";
+            $data['deviation'] = $deviation;
+            $pdf = PDF::loadView('print-deviation', $data);
+            $pdf->save('reports/deviations/'.$filename);
+            $url = env('CDN_DOC_URL').'reports/deviations/'.$filename;
+            return prepareResult(true,'Print Deviation' ,$url, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
 }

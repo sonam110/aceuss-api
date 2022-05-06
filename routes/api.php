@@ -233,6 +233,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('deviations', [App\Http\Controllers\Api\V1\User\DeviationController::class, 'deviations']);
 		Route::apiResource('deviation', User\DeviationController::class)->only(['store','destroy','show', 'update']);
 		Route::post('action-deviation','User\DeviationController@actionDeviation');
+		Route::get('print-deviation/{deviation_id}','User\DeviationController@printDeviation');
+
 		Route::post('statistics-deviation','User\StatisticsDeviationController@statisticsDeviation');
 		Route::post('get-twm-wise-deviation','User\StatisticsDeviationController@getTWMwiseReport');
 
