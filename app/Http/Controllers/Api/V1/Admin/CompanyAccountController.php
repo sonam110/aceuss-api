@@ -22,6 +22,8 @@ use Exception;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\LicenceHistory;
+use App\Models\LicenceKeyManagement;
 
 class CompanyAccountController extends Controller
 {
@@ -147,13 +149,36 @@ class CompanyAccountController extends Controller
             $addSettings->contact_person_phone = $request->contact_person_phone;
             $addSettings->company_website = $request->company_website;
             $addSettings->save();
+            if($addSettings)
+            {
+                // Create Licence History
+                $createLicHistory = new LicenceHistory;
+                $createLicHistory->top_most_parent_id = $user->id;
+                $createLicHistory->created_by = auth()->id();
+                $createLicHistory->license_key = $request->license_key;
+                $createLicHistory->active_from = date('Y-m-d');
+                $createLicHistory->expire_at = $request->license_end_date;
+                $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : null;
+                $createLicHistory->save();
+
+                // Create Licence Key
+                $keyMgmt = new LicenceKeyManagement;
+                $keyMgmt->top_most_parent_id = $user->id;
+                $keyMgmt->created_by = auth()->id();
+                $keyMgmt->license_key = $request->license_key;
+                $keyMgmt->active_from = date('Y-m-d');
+                $keyMgmt->expire_at = $request->license_end_date;
+                $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : null;
+                $keyMgmt->is_used = true;
+                $keyMgmt->save();
+            }
             
-            if(env('IS_MAIL_ENABLE',false) == true){ 
+            if(env('IS_MAIL_ENABLE', false) == true){ 
                 $content = ([
-                'company_id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'id' => $user->id,
+                    'company_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'id' => $user->id,
                 ]);  
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
@@ -182,9 +207,7 @@ class CompanyAccountController extends Controller
                         $assigneModule->user_id = $user->id;
                         $assigneModule->module_id = $request->modules[$i] ;
                         $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save() ;
-          
-
+                        $assigneModule->save();
                     }
                 }
             }

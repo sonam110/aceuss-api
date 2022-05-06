@@ -12,20 +12,26 @@ class LicenceHistory extends Model
     use HasFactory, LogsActivity, SoftDeletes;
 
     protected $dates = ['deleted_at'];
-
+    
     protected static $logAttributes = ['*'];
     protected static $logOnlyDirty = true;
 
     protected $fillable =[
-        'sender_id',
-        'receiver_id',
-        'message',
-        'is_read',
-        'entry_mode',
+        'top_most_parent_id',
+        'created_by',
+        'license_key',
+        'module_attached',
+        'active_from',
+        'expire_at'
     ];
 
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class,'created_by','id');
     }
 }

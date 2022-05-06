@@ -20,6 +20,6 @@ class AssigneModule extends Model
 
 	public function Module()
     {
-          return $this->belongsTo(Module::class,'parent_id','module_id');
+          return $this->belongsTo(Module::class, 'module_id','id');
     }
 }

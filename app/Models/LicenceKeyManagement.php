@@ -21,6 +21,7 @@ class LicenceKeyManagement extends Model
         'top_most_parent_id',
         'created_by',
         'license_key',
+        'module_attached',
         'active_from',
         'expire_at',
         'is_used',

@@ -84,6 +84,16 @@ class UserLoginController extends Controller
                                         ]);
                                     }
                                 }
+
+                                if(auth()->user()->top_most_parent_id!=1)
+                                {
+                                    $checkLicence = User::find(auth()->user()->top_most_parent_id);
+                                    if($checkLicence->license_end_date<date('Y-m-d'))
+                                    {
+                                        $checkLicence->license_status = 0;
+                                        $checkLicence->save();
+                                    }
+                                }
                         
                                 $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email')->first();    
                                 $user['access_token'] = $token;
@@ -91,8 +101,14 @@ class UserLoginController extends Controller
                                 $user['roles']    = @Auth::user()->roles[0]->name;
                                 $role   = Role::where('name', $user['roles'])->first();
                                 $user['permissions']  = $role->permissions()->select('id','name as action','group_name as subject','se_name')->get();
+                                $user['licence_status'] = 1;
+
                                 if(auth()->user()->top_most_parent_id!=1)
                                 {
+                                    $user['licence_status'] = User::find(auth()->user()->top_most_parent_id)->license_status;
+                                    $assigned_module = User::find(auth()->user()->top_most_parent_id);
+                                    $user['assigned_module'] = $assigned_module->modules()->select('id','user_id','module_id')->with('Module:id,name')->get();
+
                                     $checkFileAccess = AdminFile::where('user_type_id', auth()->user()->user_type_id)
                                         ->first();
                                     if($checkFileAccess)
