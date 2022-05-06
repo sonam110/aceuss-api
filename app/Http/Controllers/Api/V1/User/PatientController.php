@@ -67,8 +67,8 @@ class PatientController extends Controller
             // );
 
             $query = PatientImplementationPlan::where('is_latest_entry',1)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patientActivity','ipFollowUps')
-            ->withCount(['ipFollowUps'])
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps')
+            ->withCount('ipFollowUps','activities')
             ->with(
                 ['patient' => function ($query) {
                     $query->withCount(['persons','patientPlan','patientActivity']);

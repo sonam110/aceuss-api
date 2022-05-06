@@ -43,7 +43,7 @@ class CompanyAccountController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->where('role_id','2') ;
+            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->where('role_id','2') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -55,7 +55,7 @@ class CompanyAccountController extends Controller
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
-                $result = $query->withcount('tasks','activities','ips','followUps','patients','employees')->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                $result = $query->withCount('tasks','activities','ips','followUps','patients','employees')->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
                     'data' => $result,
@@ -68,7 +68,7 @@ class CompanyAccountController extends Controller
             }
             else
             {
-                $query = $query->withcount('tasks','activities','ips','followUps','patients','employees')->get();
+                $query = $query->withCount('tasks','activities','ips','followUps','patients','employees')->get();
             }
             return prepareResult(true,"User list",$query,config('httpcodes.success'));
         }
@@ -251,7 +251,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->first();
+            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->first();
 
             return prepareResult(true,'User View' ,$userShow, config('httpcodes.success'));
                 

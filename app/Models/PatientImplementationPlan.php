@@ -136,6 +136,11 @@ class PatientImplementationPlan extends Model
         return $this->hasMany(IpFollowUp::class,'ip_id','id');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class,'ip_id','id');
+    }
+
     public function setStartDateAndTimeAttribute($value) {
       $this->attributes['start_date'] = (!empty($value)) ? date("Y-m-d", strtotime($value)) :null;
     }
