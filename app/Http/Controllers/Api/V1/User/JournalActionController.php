@@ -51,6 +51,11 @@ class JournalActionController extends Controller
                 
             }
 
+            if(!empty($request->journal_id))
+            {
+                $query = $query->where('journal_id', $request->journal_id);
+            }
+
 
             if(!empty($request->perPage))
             {
