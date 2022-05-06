@@ -221,6 +221,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-journal','User\JournalController@approvedJournal');
 		Route::post('action-journal','User\JournalController@actionJournal');
+		Route::post('statistics-journal','User\StatisticsJournalController@statisticsJournal');
+		Route::post('get-twm-wise-journal-report','User\StatisticsJournalController@getTWMwiseJournalReport');
 
 		/*-------------Journal Action------------------------*/
 		Route::post('journal-actions', [App\Http\Controllers\Api\V1\User\JournalActionController::class, 'journalActions']);
@@ -231,6 +233,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('deviations', [App\Http\Controllers\Api\V1\User\DeviationController::class, 'deviations']);
 		Route::apiResource('deviation', User\DeviationController::class)->only(['store','destroy','show', 'update']);
 		Route::post('action-deviation','User\DeviationController@actionDeviation');
+		Route::post('statistics-deviation','User\StatisticsDeviationController@statisticsDeviation');
+		Route::post('get-twm-wise-deviation','User\StatisticsDeviationController@getTWMwiseReport');
 
 		/*------------- Patient Cashier -------------------*/
 		Route::post('patient-cashiers', [App\Http\Controllers\Api\V1\User\PatientCashierController::class, 'patientCashiers']);

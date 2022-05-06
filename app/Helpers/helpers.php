@@ -14,6 +14,7 @@ use App\Models\CompanySetting;
 use App\Models\AssigneModule;
 use App\Models\Journal;
 use App\Models\Deviation;
+use App\Models\Activity;
 use App\Models\MobileBankIdLoginLog;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
@@ -594,46 +595,58 @@ function checkAssignModule($module_id){
 
 }
 
-function journal($parent_id,$deviation_id,$activity_id,$patient_id,$category_id,$subcategory_id,$title,$description,$is_deviation,$is_social){
-    $Journal = new Journal;
-    $Journal->parent_id = $parent_id;
-    $Journal->deviation_id = $deviation_id;
-    $Journal->activity_id = $activity_id;
-    $Journal->branch_id = getBranchId();
-    $Journal->patient_id = $patient_id;
-    $Journal->category_id = $category_id;
-    $Journal->subcategory_id = $subcategory_id;
-    $Journal->title = $title;
-    $Journal->description = $description;
-    $Journal->is_deviation = $is_deviation;
-    $Journal->is_social = $is_social;
-    $Journal->save();
-    if($Journal){
-        return $Journal->id;
+function journal($activity_id)
+{
+    $activity = Activity::find($activity_id);
+    $journal = new Journal;
+    $journal->activity_id = $activity_id;
+    $journal->branch_id = getBranchId();
+    $journal->patient_id = $activity->patient_id;
+    $journal->emp_id = auth()->id();
+    $journal->category_id = $activity->category_id;
+    $journal->subcategory_id = $activity->subcategory_id;
+    $journal->date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
+    $journal->time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
+    $journal->description = $activity->description;
+    $journal->entry_mode =  (!empty($activity->entry_mode)) ? $activity->entry_mode :'Web';
+    $journal->is_signed = 0;
+    $journal->is_secret = 0;
+    $journal->save();
+
+    if($journal){
+        return $journal->id;
     }else {
         return null;
     }
-
-
 }
-function deviation($parent_id,$journal_id,$activity_id,$patient_id,$category_id,$subcategory_id,$title,$description){
-    $Deviation = new Deviation;
-    $Deviation->parent_id = $parent_id;
-    $Deviation->journal_id = $journal_id;
-    $Deviation->activity_id = $activity_id;
-    $Deviation->patient_id = $patient_id;
-    $Deviation->branch_id = $patient_id;
-    $Deviation->category_id = $category_id;
-    $Deviation->subcategory_id = $subcategory_id;
-    $Deviation->title = $title;
-    $Deviation->description = $description;
-    $Deviation->save();
-    if($Deviation){
-        return $Deviation->id;
+
+function deviation($activity_id)
+{
+    $activity = Activity::find($activity_id);
+    $date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
+    $time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
+    
+    $deviation = new Deviation;
+    $deviation->activity_id = $activity->id;
+    $deviation->branch_id = $activity->branch_id;
+    $deviation->patient_id = $activity->patient_id;
+    $deviation->emp_id = auth()->id();
+    $deviation->category_id = $activity->category_id;
+    $deviation->subcategory_id = $activity->subcategory_id;
+    $deviation->date_time = $date.' '.$time;
+    $deviation->description = $activity->description;
+    $deviation->immediate_action = 'N/A';
+    $deviation->critical_range = 1;
+    $deviation->is_secret = 0;
+    $deviation->is_signed = 0;
+    $deviation->is_completed = 0;          
+    $deviation->entry_mode = (!empty($activity->entry_mode)) ? $activity->entry_mode :'Web';
+    $deviation->save();
+    if($deviation){
+        return $deviation->id;
     }else {
         return null;
     }
-
 }
 
 function dates($value) {

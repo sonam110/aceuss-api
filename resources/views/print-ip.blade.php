@@ -154,12 +154,12 @@
        
     </table>
     @endforeach
-    
+    @if($ip->patient)
     <table class="header table table-striped">
         <tr>
             <td colspan="4" class="sub-title"><strong>Patient Info</strong></td>
         </tr>
-        @if($ip->patient)
+        
         @if($ip->patient->is_secret==0)
         <tr>
             <td class="title"><strong>Name</strong></td>
@@ -197,12 +197,201 @@
             <td class="value" colspan="3">{{($ip->patient) ? $ip->patient->custom_unique_id : null}}</td>
         </tr>
         @endif
-        @else
+    </table>
+
+    <table class="header table table-striped">
         <tr>
-            <td class="title" colspan="4"><strong>Information not found</strong></td>
+            <td colspan="4" class="sub-title"><strong>Relatives & Caretakers</strong></td>
+        </tr>
+        @foreach($ip->patient->persons as $pKey => $person)
+        <tr>
+            <td colspan="4" class="sub-title"><strong>Person # {{$pKey + 1}}</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Full Name</strong></td>
+            <td class="value">{{$person->name}}</td>
+            <td class="title"><strong>Personal Number</strong></td>
+            <td class="value">{{$person->personal_number}}</td>
+        </tr>
+
+        <tr>
+            <td class="title"><strong>Email</strong></td>
+            <td class="value">{{$person->email}}</td>
+            <td class="title"><strong>Phone </strong></td>
+            <td class="value">{{$person->contact_number}}</td>
+        </tr>
+
+        <tr>
+            <td class="title"><strong>Address </strong></td>
+            <td class="value">{{$person->full_address}}</td>
+            <td class="title"><strong>Person Type </strong></td>
+            <td class="value">
+                @if($person->is_family_member==1)
+                    Family Member<br>
+                @endif
+                @if($person->is_caretaker==1)
+                    Caretaker<br>
+                @endif
+                @if($person->is_contact_person==1)
+                    Contact Person<br>
+                @endif
+                @if($person->is_guardian==1)
+                    Guardian<br>
+                @endif
+                @if($person->is_family_member==1)
+                    Family Member<br>
+                @endif
+                @if($person->is_other==1)
+                    {{$person->is_other_name}}
+                @endif
+            </td>
+        </tr>
+        @endforeach
+    </table>
+
+    <table class="header table table-striped">
+        <tr>
+            <td colspan="2" class="sub-title"><strong>Disability Details</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Description</strong></td>
+            <td class="value">{{$ip->patient->disease_description}}</td>
+        </tr>
+        @if($ip->patient->PatientInformation)
+        <tr>
+            <td class="title"><strong>Additional Information</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->aids}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Special Information</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->special_information}}</td>
         </tr>
         @endif
     </table>
+
+    <table class="header table table-striped">
+        <tr>
+            <td colspan="4" class="sub-title"><strong>Patient Types</strong></td>
+        </tr>
+        @if(!empty($ip->patient->patient_type_id) && is_array($ip->patient->patient_type_id))
+         @foreach($ip->patient->patient_type_id as $pkey => $ptype)
+             <tr>
+                <td colspan="4" class="title"><strong>
+                    @php
+                    $getPType = App\Models\EmployeeType::find($ptype);
+                    @endphp
+                    {{$getPType->designation}}
+                </strong></td>
+            </tr>
+            @if($ptype==2 && $ip->patient->PatientInformation)
+            <tr>
+                <td class="title"><strong>Institute Name</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->institute_name}}</td>
+                <td class="title"><strong>Contact Person</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->  institute_contact_person}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Institute's Phone No.</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->institute_contact_number}}</td>
+                <td class="title"><strong>Weekdays</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->  institute_week_days}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Time From</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->classes_from}}</td>
+                <td class="title"><strong>Time To</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->  classes_to}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Institute's Address</strong></td>
+                <td class="value" colspan="3">{{$ip->patient->PatientInformation->institute_full_address}}</td>
+            </tr>
+            @endif
+
+            @if($ptype==3 && $ip->patient->PatientInformation)
+            <tr>
+                <td class="title"><strong>Company Name</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->company_name}}</td>
+                <td class="title"><strong>Contact Person</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->  company_contact_person}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Company's Phone No.</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->company_contact_number}}</td>
+                <td class="title"><strong>weekdays</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->company_week_days}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Working From</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->from_timing}}</td>
+                <td class="title"><strong>Work To</strong></td>
+                <td class="value">{{$ip->patient->PatientInformation->  to_timing}}</td>
+            </tr>
+            <tr>
+                <td class="title"><strong>Company's Address</strong></td>
+                <td class="value" colspan="3">{{$ip->patient->PatientInformation->company_full_address}}</td>
+            </tr>
+            @endif
+         @endforeach
+        @endif
+    </table>
+
+    @if($ip->patient->PatientInformation)
+    <table class="header table table-striped">
+        <tr>
+            <td colspan="4" class="sub-title"><strong>Other Activities</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Activity Type</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->another_activity}}</td>
+            <td class="title"><strong>Full Name</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->another_activity_name}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Contact Person</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->another_activity_contact_person}}</td>
+            <td class="title"><strong>Phone</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->activitys_contact_number}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Address</strong></td>
+            <td class="value" colspan="3">{{$ip->patient->PatientInformation->activitys_full_address}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Days</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->week_days}}</td>
+            <td class="title"><strong>Start Time</strong></td>
+            <td class="value">{{$ip->patient->PatientInformation->another_activity_start_time}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>End Time</strong></td>
+            <td class="value" colspan="3">{{$ip->patient->PatientInformation->another_activity_end_time}}</td>
+        </tr>
+    </table>
+    @endif
+
+    @if($ip->patient->weeklyHours)
+    <table class="header table table-striped">
+        <tr>
+            <td colspan="4" class="sub-title"><strong>Assigned Hours By Agency</strong></td>
+        </tr>
+        @foreach($ip->patient->weeklyHours as $hkey => $hour)
+        <tr>
+            <td class="title"><strong>#{{$hkey+1}}: Issuer</strong></td>
+            <td class="value">{{$hour->name}}</td>
+            <td class="title"><strong>Hours</strong></td>
+            <td class="value">{{$hour->weekly_hours_allocated}}</td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Start Date</strong></td>
+            <td class="value">{{$hour->start_date}}</td>
+            <td class="title"><strong>End Date </strong></td>
+            <td class="value">{{$hour->end_date}}</td>
+        </tr>
+        @endforeach
+    </table>
+    @endif
+    @endif
 
     <div class="page-break"></div>
     <br>
@@ -219,6 +408,12 @@
             </tr>
             @endif
             @endforeach
+            @if($ip->patient)
+            <tr>
+                <td><strong>{{$ip->requestForApprovals->count()+1}}: {{$ip->patient->name}}</strong></td>
+                <td><br><center><strong>__________________________</strong></center></td>
+            </tr>
+            @endif
         </tbody>
     </table>
 </body>

@@ -234,6 +234,7 @@ class RequestApprovalController extends Controller
         
         }
         catch(Exception $exception) {
+            \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

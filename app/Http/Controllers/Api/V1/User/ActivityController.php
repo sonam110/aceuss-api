@@ -858,11 +858,11 @@ class ActivityController extends Controller
                 $journal_id = null;
                 $deviation_id = null;
                 if($is_journal_assign_module == true && $is_journal == '1'){
-                   $journal =  journal(null,null,$activity->id,$activity->patient_id,$activity->category_id,$activity->subcategory_id,$activity->title,$activity->description,$is_deviation,$is_social);
+                   $journal =  journal($activity->id);
                    $journal_id = (!empty($journal)) ? $journal : null;
                 }
                 if($is_deviation_assign_module == true && $is_deviation == '1'){
-                    $deviation = deviation(null,$journal_id,$activity->id,$activity->patient_id,$activity->category_id,$activity->subcategory_id,$activity->title,$activity->description);
+                    $deviation = deviation($activity->id);
                     $deviation_id = (!empty($deviation)) ? $deviation : null;
                 }
                  DB::commit();
