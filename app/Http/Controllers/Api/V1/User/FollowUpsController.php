@@ -137,6 +137,7 @@ class FollowUpsController extends Controller
                         $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             		 	$ipFollowups->created_by = $user->id;
                         $ipFollowups->documents = json_encode($request->documents);
+                        $ipFollowups->is_latest_entry = 1;
             		 	$ipFollowups->save();
             		 	 /*-----------------Persons Informationn ----------------*/
                         if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
@@ -321,7 +322,10 @@ class FollowUpsController extends Controller
             		 	$ipFollowups->edited_by = $user->id;
                         $ipFollowups->documents = json_encode($request->documents);
                         $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            		 	$ipFollowups->save();
+            		 	$ipFollowups->is_latest_entry = 1;
+                        $ipFollowups->save();
+
+                        IpFollowUp::where('id',$id)->update(['is_latest_entry'=>0]);
                          /*-----------------Persons Informationn ----------------*/
                         if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
                             foreach ($request->persons as $key => $value) {

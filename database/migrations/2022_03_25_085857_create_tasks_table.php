@@ -60,6 +60,7 @@ class CreateTasksTable extends Migration
             $table->date('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Not Done,1:Done');
+            $table->boolean('is_latest_entry')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });

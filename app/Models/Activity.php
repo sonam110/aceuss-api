@@ -81,7 +81,8 @@ class Activity extends Model
         'action_date',
         'entry_mode',
         'activity_tag',
-        'action_comment'
+        'action_comment',
+        'is_latest_entry'
 	];
     public function ImplementationPlan()
     {

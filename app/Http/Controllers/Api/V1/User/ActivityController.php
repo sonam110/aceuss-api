@@ -261,6 +261,7 @@ class ActivityController extends Controller
                                 $activity->external_comment = $request->external_comment;
                                 $activity->message = $request->message;
                                 $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                $activity->is_latest_entry = 1;
                                 $activity->save();
                                 $activity_ids[] = $activity->id;
                                 if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
@@ -516,7 +517,11 @@ class ActivityController extends Controller
                                 $activity->external_comment = $request->external_comment;
                                 $activity->message = $request->message;
                                 $activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                $activity->is_latest_entry = 1;
                                 $activity->save();
+
+                                Activity::where('id',$id)->update(['is_latest_entry'=>0]);
+
                                 $activity_ids[] = $activity->id;
                                 if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
                                     $validator = Validator::make($request->all(),[   

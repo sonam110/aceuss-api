@@ -69,6 +69,7 @@ class PatientImplementationPlan extends Model
         'step_six',
         'step_seven',
         'entry_mode',
+        'is_latest_entry'
 		
     ];
 
