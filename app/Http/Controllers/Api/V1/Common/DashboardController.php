@@ -84,33 +84,74 @@ class DashboardController extends Controller
     }
 
 
-    public function activityFilter()
+    public function activityCount(Request $request)
     {
         try {
             $user = getUser();
+            $data = [];
+            if(!empty($request->start_date)){
+                if($user->user_type_id == '2')
+                {
+                    $data['activityCount'] = Activity::where('top_most_parent_id',$user->id)->where('start_date','>=',$request->start_date)->count();
+                    $data['doneActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','1')->count();
+                    $data['pendingActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','3')->count();
+                }
 
-            if($user->user_type_id == '2')
-            {
-                $data = Activity::where('top_most_parent_id',$user->id)->count();
-                $date['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->count();
-                $date['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->count();
-            }
-
-            if($user->user_type_id == '3')
-            {
-                $data = ActivityAssigne::where('user_id',$user->id)->count();
-                $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
-                $date['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                if($user->user_type_id == '3')
+                {
+                    $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->where('assignment_date','>=',$request->start_date)->count();
+                    $data['doneActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('assignment_date','>=',$request->start_date)->where('status','1')->count();
+                    $data['pendingActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('assignment_date','>=',$request->start_date)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','3')->count();
                 
-            }
+                }
 
-            if($user->user_type_id == '6')
-            {
-                $data = Activity::where('patient_id',$user->id)->count();
-                $date['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
-                $date['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
+                if($user->user_type_id == '6')
+                {
+                    $data['activityCount'] = Activity::where('patient_id',$user->id)->where('start_date','>=',$request->start_date)->count();
+                    $data['doneActivityCount'] = Activity::where('patient_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','1')->count();
+                    $data['pendingActivityCount'] = Activity::where('patient_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = Activity::where('patient_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = Activity::where('patient_id',$user->id)->where('start_date','>=',$request->start_date)->where('status','3')->count();
+                
+                }
             }
-            return prepareResult(true,'Dashboard' ,$date, config('httpcodes.success'));    
+            else{
+                if($user->user_type_id == '2')
+                {
+                    $data['activityCount'] = Activity::where('top_most_parent_id',$user->id)->count();
+                    $data['doneActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->count();
+                    $data['pendingActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','3')->count();
+                
+                }
+
+                if($user->user_type_id == '3')
+                {
+                    $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
+                    $data['doneActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
+                    $data['pendingActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','3')->count();
+                
+                }
+
+                if($user->user_type_id == '6')
+                {
+                    $data['activityCount'] = Activity::where('patient_id',$user->id)->count();
+                    $data['doneActivityCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
+                    $data['pendingActivityCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
+                    $data['notDoneActivityCount'] = Activity::where('patient_id',$user->id)->where('status','2')->count();
+                    $data['notApplicableActivityCount'] = Activity::where('patient_id',$user->id)->where('status','3')->count();
+                
+                }
+            }
+            
+            return prepareResult(true,'ActivityCount' ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  

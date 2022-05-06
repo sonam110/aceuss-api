@@ -12,16 +12,16 @@ use App\Models\JournalActionLog;
 use Exception;
 class JournalActionController extends Controller
 {
-    // public function __construct()
-    // {
+    public function __construct()
+    {
 
-    //     $this->middleware('permission:journal-action-browse',['except' => ['show']]);
-    //     $this->middleware('permission:journal-action-add', ['only' => ['store']]);
-    //     $this->middleware('permission:journal-action-edit', ['only' => ['update']]);
-    //     $this->middleware('permission:journal-action-read', ['only' => ['show']]);
-    //     $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:journal-action-browse',['except' => ['show']]);
+        $this->middleware('permission:journal-action-add', ['only' => ['store']]);
+        $this->middleware('permission:journal-action-edit', ['only' => ['update']]);
+        $this->middleware('permission:journal-action-read', ['only' => ['show']]);
+        $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
         
-    // }
+    }
 	public function journalActions(Request $request)
     {
       
