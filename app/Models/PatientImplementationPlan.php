@@ -123,7 +123,7 @@ class PatientImplementationPlan extends Model
     }
     public function patientActivity()
     {
-        return $this->hasMany(Activity::class,'user_id','patient_id');
+        return $this->hasMany(Activity::class,'patient_id','user_id');
     }
     public function assignEmployee()
     {

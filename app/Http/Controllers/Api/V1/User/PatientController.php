@@ -59,7 +59,7 @@ class PatientController extends Controller
 
             //---------------//
             $query = PatientImplementationPlan::whereIn('id',$ip_ids)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name')
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patientActivity','ipFollowUps')
             ->withCount(['ipFollowUps'])
             ->with(
                 ['patient' => function ($query) {

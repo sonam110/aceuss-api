@@ -220,9 +220,13 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('journals', [App\Http\Controllers\Api\V1\User\JournalController::class, 'journals']);
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-journal','User\JournalController@approvedJournal');
+		Route::post('action-journal','User\JournalController@actionJournal');
+
 		/*-------------Journal Action------------------------*/
 		Route::post('journal-actions', [App\Http\Controllers\Api\V1\User\JournalActionController::class, 'journalActions']);
 		Route::apiResource('journal-action', User\JournalActionController::class)->only(['store','destroy','show', 'update']);
+		Route::post('action-journal-action','User\JournalActionController@actionJournalAction');
+
 		/*-------------Deviations ------------------------*/
 		Route::post('deviations', [App\Http\Controllers\Api\V1\User\DeviationController::class, 'deviations']);
 		Route::apiResource('deviation', User\DeviationController::class)->only(['store','destroy','show', 'update']);

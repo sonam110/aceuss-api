@@ -22,8 +22,8 @@ class CreateJournalsTable extends Migration
             $table->foreignId('emp_id')->nullable();
             $table->foreignId('category_id');
             $table->foreignId('subcategory_id');
-            $table->string('date')->default(date('Y/m/d'));
-            $table->string('time')->default(date("h:i:sa"));
+            $table->string('date')->default(date('Y-m-d'));
+            $table->string('time')->default(date("h:i"));
             $table->text('description');
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();

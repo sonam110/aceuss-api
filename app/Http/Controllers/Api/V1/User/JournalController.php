@@ -31,7 +31,7 @@ class JournalController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name');
+            $query = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','journalActions','JournalLogs');
 
             if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
             {
@@ -56,7 +56,6 @@ class JournalController extends Controller
                 {
                     $query->whereNull('activity_id');
                 }
-                
             }
 
             if(!empty($request->activity_id))
@@ -157,6 +156,8 @@ class JournalController extends Controller
 		 	$journal->emp_id = $user->id;
 		 	$journal->category_id = $request->category_id;
 		 	$journal->subcategory_id = $request->subcategory_id;
+            $journal->date = ($request->date)? $request->date :date('Y-m-d');
+            $journal->time = ($request->time)? $request->time :date('h:i');
 		 	$journal->description = $request->description;
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
@@ -218,11 +219,11 @@ class JournalController extends Controller
 		 	$journal->category_id = $request->category_id;
 		 	$journal->subcategory_id = $request->subcategory_id;
 		 	$journal->description = $request->description;
-            $journal->date = ($request->date)? $request->date :date('Y/m/d');
-            $journal->time = ($request->time)? $request->time :date('h:i:sa');
+            $journal->date = ($request->date)? $request->date :date('Y-m-d');
+            $journal->time = ($request->time)? $request->time :date('h:i');
 		 	$journal->edited_by = $user->id;
 		 	$journal->reason_for_editing = $request->reason_for_editing;
-            $journal->edit_date = date('Y/m/d');
+            $journal->edit_date = date('Y-m-d');
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
@@ -286,7 +287,7 @@ class JournalController extends Controller
             
         }
     }
-    public function show(Request $request){
+    public function show($id){
         try {
 	    	$user = getUser();
         	$checkId= Journal::where('id',$id)
@@ -295,8 +296,8 @@ class JournalController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journal = Journal::where('id',$id)->with('Parent:id,title','Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','children')->first();
-	        return prepareResult(true,'View Patient plan' ,$journal, config('httpcodes.success'));
+        	$journal = Journal::where('id',$id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')->first();
+	        return prepareResult(true,'View Journal' ,$journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -315,6 +316,35 @@ class JournalController extends Controller
         }
         return($w);
 
+    }
+
+    public function actionJournal(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'journal_ids' => 'required|array|min:1',   
+            ],
+            [
+                'journal_ids' =>  getLangByLabelGroups('Journal','id'),   
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+
+            $journal = Journal::whereIn('id', $request->journal_ids)->update([
+                'is_signed' => $request->is_signed,
+                // 'is_approved' => $request->is_approved,
+                'approved_by' => auth()->id(),
+                'approved_date' => date('Y-m-d')
+            ]);
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('Journal','approve') ,$journal, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
     }
     
 }
