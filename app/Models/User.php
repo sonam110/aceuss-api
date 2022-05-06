@@ -305,12 +305,12 @@ class User extends Authenticatable
 
     public function patients()
     {
-         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id','Patient');
+         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id',6);
     }
 
     public function employees()
     {
-         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id','Employee');
+         return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id',3);
     }
 
 

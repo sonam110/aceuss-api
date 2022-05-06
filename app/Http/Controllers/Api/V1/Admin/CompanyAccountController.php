@@ -38,11 +38,12 @@ class CompanyAccountController extends Controller
         
        
     }
+
     public function companies(Request $request)
     {
         try {
             $user = getUser();
-            $query = User::select(array('users.*', DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='2') employeeCount"), DB::raw("(SELECT count(*) from users WHERE users.top_most_parent_id = users.id and users.user_type_id ='6') patrientCount")))->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('role_id','2') ;
+            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','modules:id,user_id,module_id','modules.Module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','modules')->where('role_id','2') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -250,9 +251,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->withcount('tasks','activities','ips','followUps','patients','employees')->first();
-            $getAssigneModule = AssigneModule::where('user_id',$user->id)->pluck('module_id')->implode(',');
-            $userShow['module_list'] = Module::select('id','name')->whereIn('id',explode(',',$getAssigneModule))->get();
+            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','modules:id,user_id,module_id','modules.Module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','modules')->first();
 
             return prepareResult(true,'User View' ,$userShow, config('httpcodes.success'));
                 
