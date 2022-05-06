@@ -18,8 +18,8 @@ class AssigneModule extends Model
 		'entry_mode',
 	];
 
-	public function Module()
-    {
-          return $this->belongsTo(Module::class, 'module_id','id');
-    }
+	public function module()
+  {
+      return $this->belongsTo(Module::class, 'module_id','id');
+  }
 }

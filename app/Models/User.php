@@ -177,6 +177,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(self::class,'branch_id','id');
     }
+
+    public function branchs()
+    {
+        return $this->hasMany(self::class,'branch_id','id');
+    }
+
     public function parentUnit() 
     {
         return $this->belongsTo(User::class,'parent_id', 'id');
@@ -196,7 +202,7 @@ class User extends Authenticatable
         return $this;
     }
 
-    public function modules()
+    public function assignedModule()
     {
          return $this->hasMany(AssigneModule::class,'user_id','id');
     }

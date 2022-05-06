@@ -43,7 +43,7 @@ class CompanyAccountController extends Controller
     {
         try {
             $user = getUser();
-            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','modules:id,user_id,module_id','modules.Module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','modules')->where('role_id','2') ;
+            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->where('role_id','2') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -251,7 +251,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','modules:id,user_id,module_id','modules.Module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','modules')->first();
+            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withcount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->first();
 
             return prepareResult(true,'User View' ,$userShow, config('httpcodes.success'));
                 

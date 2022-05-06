@@ -107,7 +107,7 @@ class UserLoginController extends Controller
                                 {
                                     $user['licence_status'] = User::find(auth()->user()->top_most_parent_id)->license_status;
                                     $assigned_module = User::find(auth()->user()->top_most_parent_id);
-                                    $user['assigned_module'] = $assigned_module->modules()->select('id','user_id','module_id')->with('Module:id,name')->get();
+                                    $user['assigned_module'] = $assigned_module->assignedModule()->select('id','user_id','module_id')->with('Module:id,name')->get();
 
                                     $checkFileAccess = AdminFile::where('user_type_id', auth()->user()->user_type_id)
                                         ->first();
