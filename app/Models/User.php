@@ -202,7 +202,7 @@ class User extends Authenticatable
         return $this;
     }
 
-    public function modules()
+    public function assignedModule()
     {
          return $this->hasMany(AssigneModule::class,'user_id','id');
     }

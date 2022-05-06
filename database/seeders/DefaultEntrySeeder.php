@@ -75,14 +75,11 @@ class DefaultEntrySeeder extends Seeder
         $ActivityOption4 = ActivityOption::create(['id' => '5','option'=>'Staff could not','is_journal' => '1','is_deviation'=>'1']);
 
 
-         Module::truncate();
-        $Module1 = Module::create(['id' => '1','name'=>'Branch']);
-        $Module1 = Module::create(['id' => '2','name'=>'Employee']);
-        $Module2 = Module::create(['id' => '3','name'=>'Patient']);
-        $Module3 = Module::create(['id' => '4','name'=>'IP']);
-        $Module5 = Module::create(['id' => '5','name'=>'Activity']);
-        $Module6 = Module::create(['id' => '6','name'=>'Task']);
-        $Module7 = Module::create(['id' => '7','name'=>'FollowUps']);
+        Module::truncate();
+        Module::create(['id' => '1','name'=>'Activity']);
+        Module::create(['id' => '2','name'=>'Journal']);
+        Module::create(['id' => '3','name'=>'Deviation']);
+        Module::create(['id' => '4','name'=>'Schedule']);
 
     }
 }
