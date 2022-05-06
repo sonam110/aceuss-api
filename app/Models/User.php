@@ -180,7 +180,7 @@ class User extends Authenticatable
 
     public function branchs()
     {
-        return $this->hasMany(self::class,'branch_id','id');
+        return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id', 11);
     }
 
     public function parentUnit() 
