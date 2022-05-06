@@ -11,6 +11,8 @@ use App\Models\Deviation;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\JournalLog;
+use App\Models\JournalAction;
 class Journal extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -71,5 +73,15 @@ class Journal extends Model
     public function ApprovedBy()
     {
         return $this->belongsTo(User::class,'approved_by','id');
+    }
+
+    public function journalLogs()
+    {
+        return $this->hasMany(JournalLog::class,'journal_id','id');
+    }
+
+    public function journalActions()
+    {
+        return $this->hasMany(JournalAction::class,'journal_id','id');
     }
 }
