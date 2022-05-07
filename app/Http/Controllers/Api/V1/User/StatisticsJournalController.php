@@ -68,9 +68,15 @@ class StatisticsJournalController extends Controller
     public function getTWMwiseJournalReport(Request $request)
     {
         $request_for = !empty($request->request_for) ? $request->request_for : 7;
+        $datalabels = [];
+        $dataset_total_journal = [];
+        $dataset_total_signed = [];
+        $dataset_without_activity = [];
+        $dataset_with_activity = [];
         for($i = $request_for; $i>=1; $i--)
         {
             $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+            $datalabels[] = $date;
             $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
@@ -100,8 +106,20 @@ class StatisticsJournalController extends Controller
                 $query->where('patient_id', $request->patient_id);
             }
             $query->whereDate('date', $date);         
-            $result[$date] = $query->first();
+            $result = $query->first();
+            
+            $dataset_total_journal[] = $result->total_journal;
+            $dataset_total_signed[] = $result->total_signed;
+            $dataset_without_activity[] = $result->total_without_activity;
+            $dataset_with_activity[] = $result->total_with_activity;
         }
-        return prepareResult(true,"Journal",$result,config('httpcodes.success'));
+        $returnObj = [
+            'labels' => $datalabels,
+            'dataset_total_journal' => $dataset_total_journal,
+            'dataset_total_signed' => $dataset_total_signed,
+            'dataset_without_activity' => $dataset_without_activity,
+            'dataset_with_activity' => $dataset_with_activity
+        ];
+        return prepareResult(true,"Journal",$returnObj,config('httpcodes.success'));
     }
 }

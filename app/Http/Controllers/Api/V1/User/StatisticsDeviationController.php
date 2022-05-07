@@ -71,7 +71,16 @@ class StatisticsDeviationController extends Controller
         $request_for = !empty($request->request_for) ? $request->request_for : 7;
         for($i = $request_for; $i>=1; $i--)
         {
+            $datalabels = [];
+            $dataset_total_deviation = [];
+            $dataset_total_signed = [];
+            $dataset_without_activity = [];
+            $dataset_with_activity = [];
+            $dataset_total_completed = [];
+
             $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+            $datalabels[] = $date;
+
             $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
@@ -102,8 +111,21 @@ class StatisticsDeviationController extends Controller
                 $query->where('patient_id', $request->patient_id);
             }
             $query->whereDate('date_time', $date);         
-            $result[$date] = $query->first();
+            $result = $query->first();
+            $dataset_total_deviation[] = $result->total_deviation;
+            $dataset_total_signed[] = $result->total_signed;
+            $dataset_without_activity[] = $result->total_without_activity;
+            $dataset_with_activity[] = $result->total_with_activity;
+            $dataset_total_completed[] = $result->total_completed;
         }
-        return prepareResult(true,"Deviations",$result,config('httpcodes.success'));
+        $returnObj = [
+            'labels' => $datalabels,
+            'dataset_total_deviation' => $dataset_total_deviation,
+            'dataset_total_signed' => $dataset_total_signed,
+            'dataset_without_activity' => $dataset_without_activity,
+            'dataset_with_activity' => $dataset_with_activity,
+            'dataset_total_completed' => $dataset_total_completed
+        ];
+        return prepareResult(true,"Deviations",$returnObj,config('httpcodes.success'));
     }
 }
