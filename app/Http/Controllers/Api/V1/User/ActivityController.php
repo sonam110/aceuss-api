@@ -112,11 +112,7 @@ class ActivityController extends Controller
                 $jour_and_devi = $jour_and_devi->where('patient_id',$user->id);
 
             }
-            if($whereRaw != '') { 
-                $jour_and_devi = $jour_and_devi->whereRaw($whereRaw);
-            }
             $jour_and_devi = $jour_and_devi->get();
-
             $today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
             $today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
            
