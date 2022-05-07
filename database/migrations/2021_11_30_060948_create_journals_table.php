@@ -33,6 +33,7 @@ class CreateJournalsTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->boolean('is_signed')->default(0);
             $table->boolean('is_secret')->default(0);
+            $table->boolean('is_active')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

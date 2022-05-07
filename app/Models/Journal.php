@@ -38,7 +38,9 @@ class Journal extends Model
         'date',
         'time',
         'is_signed',
-        'is_secret'
+        'is_secret',
+        'is_active'
+
     ];
    	
 

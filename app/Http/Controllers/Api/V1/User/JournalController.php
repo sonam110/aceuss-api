@@ -31,7 +31,7 @@ class JournalController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','journalActions','JournalLogs');
+            $query = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','journalActions','JournalLogs')->withCount('journalActions');
 
             if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
             {
@@ -162,6 +162,7 @@ class JournalController extends Controller
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
+            $journal->is_active = ($request->is_active)? $request->is_active :0;
 		 	$journal->save();
              DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$journal, config('httpcodes.success'));
@@ -227,6 +228,7 @@ class JournalController extends Controller
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
+            $journal->is_active = ($request->is_active)? $request->is_active :0;
 		 	$journal->save();
 		       DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$journal, config('httpcodes.success'));
@@ -296,7 +298,7 @@ class JournalController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journal = Journal::where('id',$id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name')->first();
+        	$journal = Journal::where('id',$id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','journalLogs')->first();
 	        return prepareResult(true,'View Journal' ,$journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
