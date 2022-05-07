@@ -40,7 +40,7 @@ class JournalAction extends Model
 
     public function journalActionLogs()
     {
-        return $this->hasMany(JournalActionLog::class,'journal_action_id','id');
+        return $this->hasMany(JournalActionLog::class,'journal_action_id','id')->orderBy('id','desc');
     }
    	
 }

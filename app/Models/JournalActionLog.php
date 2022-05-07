@@ -27,7 +27,8 @@ class JournalActionLog extends Model
 		'comment_action',
 		'comment_result',
 		'reason_for_editing',
-		'edited_by'
+		'edited_by',
+        'comment_created_at'
 
     ];
    	

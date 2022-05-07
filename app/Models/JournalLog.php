@@ -25,7 +25,8 @@ class JournalLog extends Model
         'top_most_parent_id',
 		'description',
 		'reason_for_editing',
-		'edited_by'
+		'edited_by',
+        'description_created_at'
     ];
     
    	public function journal()
