@@ -144,11 +144,11 @@ class JournalController extends Controller
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
         		'category_id' => 'required|exists:category_masters,id',  
-        		'description' => 'required',       
+        		// 'description' => 'required',       
 	        ],
             [   
                 'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
-                'description' =>  getLangByLabelGroups('Journal','description'), 
+                // 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -170,8 +170,10 @@ class JournalController extends Controller
             $journal->is_active = ($request->is_active)? $request->is_active :0;
             $journal->edit_date = date('Y-m-d H:i:s');
 		 	$journal->save();
+
+            $data = getJournal($journal->id);
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$journal, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -188,11 +190,11 @@ class JournalController extends Controller
 
 	    	$validator = Validator::make($request->all(),[    
         		'category_id' => 'required|exists:category_masters,id',  
-        		'description' => 'required',    
+        		// 'description' => 'required',    
 	        ],
             [  
                 'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
-                'description' =>  getLangByLabelGroups('Journal','description'), 
+                // 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -237,8 +239,10 @@ class JournalController extends Controller
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
             $journal->is_active = ($request->is_active)? $request->is_active :0;
 		 	$journal->save();
+
+            $data = getJournal($journal->id);
 		       DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$journal, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$data, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -266,36 +270,7 @@ class JournalController extends Controller
             
         }
     }
-    public function approvedJournal(Request $request){
     
-        try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[
-        		'id' => 'required',   
-	        ],
-            [
-                'id' =>  getLangByLabelGroups('Journal','id'),   
-            ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
-        	$id = $request->id;
-        	$checkId= Journal::where('id',$id)
-                ->first();
-			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
-            }
-            $journal = Journal::find($id);
-		 	$journal->approved_by = $user->id;
-		 	$journal->approved_date = date('Y-m-d');
-		 	$journal->save();
-	        return prepareResult(true,getLangByLabelGroups('Journal','delete'),$journal, config('httpcodes.success'));
-        }
-        catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-            
-        }
-    }
     public function show($id){
         try {
 	    	$user = getUser();
@@ -305,8 +280,8 @@ class JournalController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journal = Journal::where('id',$id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','ApprovedBy:id,name','Patient:id,name','Employee:id,name','journalLogs','journalActions.journalActionLogs')->first();
-            return prepareResult(true,'View Journal' ,$journal, config('httpcodes.success'));
+        	$data = getJournal($id);
+            return prepareResult(true,'View Journal' ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -344,12 +319,11 @@ class JournalController extends Controller
 
             $journal = Journal::whereIn('id', $request->journal_ids)->update([
                 'is_signed' => $request->is_signed,
-                // 'is_approved' => $request->is_approved,
-                'approved_by' => auth()->id(),
-                'approved_date' => date('Y-m-d')
+                'signed_by' => auth()->id(),
+                'signed_date' => date('Y-m-d')
             ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Journal','approve') ,$journal, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','sign') ,$journal, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

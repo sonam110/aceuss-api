@@ -782,3 +782,11 @@ function getRoleInfo($top_most_parent_id, $role_name)
     $role = Role::where('name', $top_most_parent_id.'-'.$role_name)->first();
     return $role;
 }
+
+function getJournal($id)
+{
+    $journal = Journal::where('id',$id)
+                ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions')
+                ->first();
+    return $journal;
+}

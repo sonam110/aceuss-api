@@ -250,7 +250,9 @@ class JournalActionController extends Controller
             }
 
             $journalAction = JournalAction::whereIn('id', $request->journal_action_ids)->update([
-                'is_signed' => $request->is_signed
+                'is_signed' => $request->is_signed,
+                'signed_by' => auth()->id(),
+                'signed_date' => date('Y-m-d')
             ]);
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('JournalAction','approve') ,$journalAction, config('httpcodes.success'));

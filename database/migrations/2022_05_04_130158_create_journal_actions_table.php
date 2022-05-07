@@ -19,10 +19,12 @@ class CreateJournalActionsTable extends Migration
             $table->foreignId('top_most_parent_id')->nullable();
             $table->text('comment_action');
             $table->text('comment_result');
-            $table->boolean('is_signed')->default(0);
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
             $table->datetime('edit_date')->nullable();
+            $table->boolean('is_signed')->default(0);
+            $table->foreignId('signed_by')->nullable();
+            $table->date('signed_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

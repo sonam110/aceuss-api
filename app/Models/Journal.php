@@ -22,6 +22,7 @@ class Journal extends Model
     protected static $logOnlyDirty = true;
     protected $fillable =[
 		'activity_id',
+        'activity_note',
 		'top_most_parent_id',
 		'branch_id',
         'patient_id',
@@ -32,12 +33,12 @@ class Journal extends Model
 		'reason_for_editing',
 		'edited_by',
         'edit_date',
-		'approved_by',
-		'approved_date',
         'entry_mode',
         'date',
         'time',
         'is_signed',
+        'signed_by',
+        'signed_date',
         'is_secret',
         'is_active'
 
