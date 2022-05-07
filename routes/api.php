@@ -223,6 +223,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('action-journal','User\JournalController@actionJournal');
 		Route::post('statistics-journal','User\StatisticsJournalController@statisticsJournal');
 		Route::post('get-twm-wise-journal-report','User\StatisticsJournalController@getTWMwiseJournalReport');
+		Route::post('print-journal','User\JournalController@printJournal');
 
 		/*-------------Journal Action------------------------*/
 		Route::post('journal-actions', [App\Http\Controllers\Api\V1\User\JournalActionController::class, 'journalActions']);

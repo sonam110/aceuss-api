@@ -288,19 +288,25 @@
                 <td class="title"><strong>Institute Name</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->institute_name}}</td>
                 <td class="title"><strong>Contact Person</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->  institute_contact_person}}</td>
+                <td class="value">{{$ip->patient->PatientInformation->institute_contact_person}}</td>
             </tr>
             <tr>
                 <td class="title"><strong>Institute's Phone No.</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->institute_contact_number}}</td>
                 <td class="title"><strong>Weekdays</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->  institute_week_days}}</td>
+                <td class="value">
+                    @if(is_array(json_decode($ip->patient->PatientInformation->institute_week_days, true)))
+                    @foreach(json_decode($ip->patient->PatientInformation->institute_week_days, true) as $wkey =>  $dayNum)
+                        {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                    @endforeach
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="title"><strong>Time From</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->classes_from}}</td>
                 <td class="title"><strong>Time To</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->  classes_to}}</td>
+                <td class="value">{{$ip->patient->PatientInformation->classes_to}}</td>
             </tr>
             <tr>
                 <td class="title"><strong>Institute's Address</strong></td>
@@ -313,19 +319,25 @@
                 <td class="title"><strong>Company Name</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->company_name}}</td>
                 <td class="title"><strong>Contact Person</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->  company_contact_person}}</td>
+                <td class="value">{{$ip->patient->PatientInformation->company_contact_person}}</td>
             </tr>
             <tr>
                 <td class="title"><strong>Company's Phone No.</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->company_contact_number}}</td>
                 <td class="title"><strong>weekdays</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->company_week_days}}</td>
+                <td class="value">
+                    @if(is_array(json_decode($ip->patient->PatientInformation->company_week_days, true)))
+                    @foreach(json_decode($ip->patient->PatientInformation->company_week_days, true) as $wkey =>  $dayNum)
+                        {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                    @endforeach
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="title"><strong>Working From</strong></td>
                 <td class="value">{{$ip->patient->PatientInformation->from_timing}}</td>
                 <td class="title"><strong>Work To</strong></td>
-                <td class="value">{{$ip->patient->PatientInformation->  to_timing}}</td>
+                <td class="value">{{$ip->patient->PatientInformation->to_timing}}</td>
             </tr>
             <tr>
                 <td class="title"><strong>Company's Address</strong></td>
@@ -359,7 +371,13 @@
         </tr>
         <tr>
             <td class="title"><strong>Days</strong></td>
-            <td class="value">{{$ip->patient->PatientInformation->week_days}}</td>
+            <td class="value">
+                @if(is_array(json_decode($ip->patient->PatientInformation->week_days, true)))
+                @foreach(json_decode($ip->patient->PatientInformation->week_days, true) as $wkey =>  $dayNum)
+                    {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                @endforeach
+                @endif
+            </td>
             <td class="title"><strong>Start Time</strong></td>
             <td class="value">{{$ip->patient->PatientInformation->another_activity_start_time}}</td>
         </tr>

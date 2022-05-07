@@ -9,7 +9,11 @@ use Validator;
 use Auth;
 use DB;
 use App\Models\JournalLog;
+use App\Models\User;
 use Exception;
+use PDF;
+use Str;
+
 class JournalController extends Controller
 {
     public function __construct()
@@ -20,6 +24,7 @@ class JournalController extends Controller
         $this->middleware('permission:journal-edit', ['only' => ['update']]);
         $this->middleware('permission:journal-read', ['only' => ['show']]);
         $this->middleware('permission:journal-delete', ['only' => ['destroy']]);
+        //$this->middleware('permission:journal-print', ['only' => ['printJournal']]);
         
     }
 	
@@ -346,6 +351,40 @@ class JournalController extends Controller
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function printJournal(Request $request)
+    {
+        try {
+            $user = getUser();
+            $checkUser = User::where('id',$request->patient_id)
+                ->first();
+            if (!is_object($checkUser)) {
+                return prepareResult(false,getLangByLabelGroups('Patient','id_not_found'), [],config('httpcodes.not_found'));
+            }
+
+            $journals = Journal::where('patient_id', $request->patient_id);
+            if($request->print_with_secret=='yes')
+            {
+                $journals->where('is_secret', 1);
+            }
+            else
+            {
+                $journals->where('is_secret', 0);
+            }
+            $journals = $journals->get();
+            $filename = $request->patient_id."-".time().".pdf";
+            $data['journals'] = $journals;
+            $pdf = PDF::loadView('print-journal', $data);
+            $pdf->save('reports/journals/'.$filename);
+            $url = env('CDN_DOC_URL').'reports/journals/'.$filename;
+            return prepareResult(true,'Print journal' ,$url, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
         }
     }
     
