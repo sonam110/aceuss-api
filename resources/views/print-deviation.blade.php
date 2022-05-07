@@ -370,10 +370,6 @@
             <td class="value">{{$deviation->related_factor }}</td>
         </tr>
         <tr>
-            <td class="title"><strong>follow up</strong></td>
-            <td class="value">{{$deviation->follow_up }}</td>
-        </tr>
-        <tr>
             <td class="title"><strong>further investigation</strong></td>
             <td class="value">{{$deviation->further_investigation }}</td>
         </tr>

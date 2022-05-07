@@ -43,9 +43,7 @@ class CreateDeviationsTable extends Migration
             $table->integer('critical_range')->comment('1 to 5');
             $table->text('related_factor')->nullable();
             
-            $table->text('follow_up')->nullable();
             $table->text('further_investigation')->nullable();
-            $table->text('copy_sent_to')->nullable();
 
             $table->boolean('is_secret')->default(0)->nullable();
             $table->boolean('is_signed')->default(0)->nullable();

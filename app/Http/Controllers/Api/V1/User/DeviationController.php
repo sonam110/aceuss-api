@@ -190,9 +190,7 @@ class DeviationController extends Controller
             $deviation->suggestion_to_prevent_event_again = $request->suggestion_to_prevent_event_again;
             $deviation->related_factor = $request->related_factor;
             $deviation->critical_range = $request->critical_range;
-            $deviation->follow_up = $request->follow_up;
-            $deviation->further_investigation = $request->further_investigation;
-            $deviation->copy_sent_to = !empty($request->copy_sent_to) ? json_encode($request->copy_sent_to, JSON_UNESCAPED_UNICODE) : null;
+            $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
             $deviation->is_secret = $request->is_secret;
             $deviation->is_signed = $request->is_signed;
             $deviation->is_completed = $request->is_completed;
@@ -274,9 +272,7 @@ class DeviationController extends Controller
             $deviation->suggestion_to_prevent_event_again = $request->suggestion_to_prevent_event_again;
             $deviation->related_factor = $request->related_factor;
             $deviation->critical_range = $request->critical_range;
-            $deviation->follow_up = $request->follow_up;
-            $deviation->further_investigation = $request->further_investigation;
-            $deviation->copy_sent_to = !empty($request->copy_sent_to) ? json_encode($request->copy_sent_to, JSON_UNESCAPED_UNICODE) : null;
+            $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
             $deviation->is_secret = $request->is_secret;
             $deviation->is_signed = $request->is_signed;
             $deviation->is_completed = $request->is_completed;
