@@ -219,7 +219,7 @@ class JournalController extends Controller
 
 
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	$journal = Journal::where('id',$id)->first();
+        	$journal = Journal::where('id',$id)->with('Category:id,name','Subcategory:id,name')->first();
 		 	$journal->activity_id = $request->activity_id;
             $journal->branch_id = getBranchId();
 		 	$journal->patient_id = $request->patient_id;
