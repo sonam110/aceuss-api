@@ -13,6 +13,8 @@ use App\Models\AssignTask;
 use App\Models\User;
 use App\Models\ActivityOption;
 use App\Models\ActivityTimeLog;
+use App\Models\Journal;
+use App\Models\Deviation;
 use Validator;
 use Auth;
 use Exception;
@@ -63,6 +65,60 @@ class ActivityController extends Controller
             }
 
             $query = $query->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC');
+
+            ////////Counts
+            $activityCounts = Activity::select([
+                \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_pending'),
+                \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_done'),
+                \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_not_done'),
+                \DB::raw('COUNT(IF(status = 3, 0, NULL)) as total_not_applicable'),
+            ]);
+            if($user->user_type_id =='2'){
+
+            } else{
+                $activityCounts =  $activityCounts->whereIn('id',$allChilds);
+            }
+
+            if($user->user_type_id =='3'){
+                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
+                $activityCounts = $activityCounts->whereIn('id',explode(',',$agnActivity));
+
+            }
+            if($user->user_type_id =='6'){
+                $activityCounts = $activityCounts->where('patient_id',$user->id);
+
+            }
+            if($whereRaw != '') { 
+                $activityCounts = $activityCounts->whereRaw($whereRaw);
+            }
+
+            $activityCounts = $activityCounts->first();
+
+
+            ////////Journal & Deviation
+            $jour_and_devi = Activity::select('id')->whereDate('start_date', date('Y-m-d'));
+            if($user->user_type_id =='2'){
+
+            } else{
+                $jour_and_devi =  $jour_and_devi->whereIn('id',$allChilds);
+            }
+
+            if($user->user_type_id =='3'){
+                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
+                $jour_and_devi = $jour_and_devi->whereIn('id',explode(',',$agnActivity));
+
+            }
+            if($user->user_type_id =='6'){
+                $jour_and_devi = $jour_and_devi->where('patient_id',$user->id);
+
+            }
+            if($whereRaw != '') { 
+                $jour_and_devi = $jour_and_devi->whereRaw($whereRaw);
+            }
+            $jour_and_devi = $jour_and_devi->get();
+
+            $today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
+            $today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
            
             if(!empty($request->perPage))
             {
@@ -79,7 +135,14 @@ class ActivityController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+
+                    'total_pending' => $activityCounts->total_pending,
+                    'total_done' => $activityCounts->total_done,
+                    'total_not_done' => $activityCounts->total_not_done,
+                    'total_not_applicable' => $activityCounts->total_not_applicable,
+                    'today_created_journal' => $today_created_journal,
+                    'today_created_deviation' => $today_created_deviation,
                 ];
                 return prepareResult(true,"Activity list",$pagination,config('httpcodes.success'));
             }
