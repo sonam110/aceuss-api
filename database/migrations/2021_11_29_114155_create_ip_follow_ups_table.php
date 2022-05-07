@@ -37,6 +37,7 @@ class CreateIpFollowUpsTable extends Migration
             $table->date('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->text('witness')->nullable();
+            $table->text('more_witness')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0:Pending,1:Approved,2:Completed,3:Reject,4:Hold');
             $table->softDeletes();
             $table->string('entry_mode')->nullable();

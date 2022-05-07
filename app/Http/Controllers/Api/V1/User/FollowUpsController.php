@@ -551,6 +551,7 @@ class FollowUpsController extends Controller
             $ipFollowups->action_date = date('Y-m-d');
             $ipFollowups->comment = $request->comment;
             $ipFollowups->witness = json_encode($request->witness);
+            $ipFollowups->more_witness = json_encode($request->more_witness);
             $ipFollowups->save();
             if(is_array($request->question_answer) ){
                 foreach ($request->question_answer as $key => $ans) {
