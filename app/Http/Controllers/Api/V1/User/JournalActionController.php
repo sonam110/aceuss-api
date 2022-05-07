@@ -108,8 +108,9 @@ class JournalActionController extends Controller
         	
 	        $journalAction = new JournalAction;
 		 	$journalAction->journal_id          = $request->journal_id;
-		 	$journalAction->comment_action = $request->comment_action;
+		 	$journalAction->comment_action      = $request->comment_action;
             $journalAction->comment_result      = $request->comment_result;
+            $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
 		 	$journalAction->save();
              DB::commit();
@@ -153,9 +154,10 @@ class JournalActionController extends Controller
             if($checkId->is_signed == 1){
                 $journalActionLog                     = new JournalActionLog;
                 $journalActionLog->journal_action_id  = $checkId->journal_id;
-                $journalActionLog->comment_action= $checkId->comment_action;
+                $journalActionLog->comment_action     = $checkId->comment_action;
                 $journalActionLog->comment_result     = $checkId->comment_result;
                 $journalActionLog->edited_by          = $user->id;
+                $journalActionLogs->comment_created_at=$checkId->edit_date;
                 $journalActionLog->reason_for_editing = $request->reason_for_editing;
                 $journalActionLog->save();
             }
@@ -165,10 +167,10 @@ class JournalActionController extends Controller
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$journalAction                		= JournalAction::where('id',$id)->first();
 	       	$journalAction->comment_result      = $request->comment_result;
-            $journalAction->comment_action = $request->comment_action;
+            $journalAction->comment_action 		= $request->comment_action;
             $journalAction->is_signed       	= ($request->is_signed)? $request->is_signed :0;
 		 	$journalAction->edited_by 			= $user->id;
-            $journalAction->edit_date           = date('Y-m-d');
+            $journalAction->edit_date           = date('Y-m-d H:i:s');
 		 	$journalAction->reason_for_editing 	= $request->reason_for_editing;
 		 	$journalAction->save();
 		       DB::commit();

@@ -20,6 +20,7 @@ class CreateJournalLogsTable extends Migration
             $table->text('description');
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
+            $table->datetime('description_created_at');
             $table->softDeletes();
             $table->timestamps();
         });

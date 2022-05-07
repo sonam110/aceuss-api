@@ -27,7 +27,7 @@ class CreateJournalsTable extends Migration
             $table->text('description');
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
-            $table->date('edit_date')->nullable();
+            $table->datetime('edit_date')->nullable();
             $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->string('entry_mode')->nullable();

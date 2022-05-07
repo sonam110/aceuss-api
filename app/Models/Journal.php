@@ -79,7 +79,7 @@ class Journal extends Model
 
     public function journalLogs()
     {
-        return $this->hasMany(JournalLog::class,'journal_id','id');
+        return $this->hasMany(JournalLog::class,'journal_id','id')->orderBy('id','desc');
     }
 
     public function journalActions()

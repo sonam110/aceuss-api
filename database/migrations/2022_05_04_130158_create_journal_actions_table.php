@@ -22,7 +22,7 @@ class CreateJournalActionsTable extends Migration
             $table->boolean('is_signed')->default(0);
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
-            $table->date('edit_date')->nullable();
+            $table->datetime('edit_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
