@@ -578,6 +578,10 @@ function getBranchId(){
         else {
             $branch_id = auth()->user()->branch_id;
         } 
+        if(empty($branch_id))
+        {
+            $branch_id = auth()->user()->top_most_parent_id;
+        }
         return $branch_id;
     }
     return null;

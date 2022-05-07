@@ -43,7 +43,7 @@ class DeviationController extends Controller
             }
             
             if($user->user_type_id !='2') {
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
 
             if(!empty($request->with_or_without_activity))

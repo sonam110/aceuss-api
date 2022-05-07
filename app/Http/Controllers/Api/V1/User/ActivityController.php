@@ -46,7 +46,7 @@ class ActivityController extends Controller
             if($user->user_type_id =='2'){
 
             } else{
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){

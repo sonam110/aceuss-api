@@ -28,7 +28,7 @@ class PatientCashierController extends Controller
             $query = PatientCashier::with('Patient:id,name','CreatedBy:id,name','Branch:id,name');
 
             if($user->user_type_id !='2') {
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
 
             if(!empty($request->branch_id))

@@ -55,7 +55,7 @@ class FollowUpsController extends Controller
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
             if($whereRaw != '') { 
                 $query =  $query->whereRaw($whereRaw)

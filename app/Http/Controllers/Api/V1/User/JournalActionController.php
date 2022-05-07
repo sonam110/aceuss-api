@@ -37,7 +37,7 @@ class JournalActionController extends Controller
                 
                 $query = $query->orderBy('id','DESC');
             } else{
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
             $whereRaw = $this->getWhereRawFromRequest($request);
 

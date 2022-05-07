@@ -45,6 +45,7 @@ class PatientController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
+
             $whereRaw = $this->getWhereRawFromRequest($request);
 
 
@@ -77,7 +78,7 @@ class PatientController extends Controller
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
-                $query =  $query->whereIn('id',$allChilds);
+                $query =  $query->whereIn('branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
