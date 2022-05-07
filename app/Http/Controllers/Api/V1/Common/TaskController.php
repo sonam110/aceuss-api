@@ -246,6 +246,20 @@ class TaskController extends Controller
     						           }
                                     }
     						    }
+
+                                if(auth()->user()->user_type_id==3)
+                                {
+                                    $checkEntry = AssignTask::where('task_id', $task->id)
+                                        ->where('user_id', auth()->id())->first();
+                                    if(!$checkEntry)
+                                    {
+                                        $taskAssign->task_id = $task->id;
+                                        $taskAssign->user_id = auth()->id();
+                                        $taskAssign->assignment_date = date('Y-m-d');
+                                        $taskAssign->assigned_by = $user->id;
+                                        $taskAssign->save();
+                                    }
+                                }
                             }
 						}
 					}

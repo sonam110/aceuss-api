@@ -366,8 +366,8 @@
             <td class="value">{{$deviation->critical_range }}</td>
         </tr>
         <tr>
-            <td class="title"><strong>related factor </strong></td>
-            <td class="value">{{$deviation->related_factor }}</td>
+            <td class="title"><strong>Follow up </strong></td>
+            <td class="value">{{$deviation->follow_up }}</td>
         </tr>
         <tr>
             <td class="title"><strong>further investigation</strong></td>

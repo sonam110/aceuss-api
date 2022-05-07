@@ -28,12 +28,13 @@ class Deviation extends Model
 		'subcategory_id',
 		'date_time',
 		'description',
+        'activity_note',
 		'immediate_action',
 		'probable_cause_of_the_incident',
 		'suggestion_to_prevent_event_again',
 		'critical_range',
         'further_investigation',
-        'related_factor',
+        'follow_up',
         'is_secret',
         'is_signed',
         'is_completed',
@@ -66,11 +67,11 @@ class Deviation extends Model
     }
     public function Category()
     {
-        return $this->belongsTo(CategoryMaster::class,'category_id','id');
+        return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id');
     }
     public function Subcategory()
     {
-        return $this->belongsTo(CategoryMaster::class,'subcategory_id','id');
+        return $this->belongsTo(CategoryMaster::class,'subcategory_id','id')->withoutGlobalScope('top_most_parent_id');
     }
     public function EditedBy()
     {

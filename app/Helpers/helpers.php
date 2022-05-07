@@ -612,6 +612,7 @@ function journal($activity_id)
     $journal->date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
     $journal->time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
     $journal->description = $activity->description;
+    $journal->activity_note = $activity->comment;
     $journal->entry_mode =  (!empty($activity->entry_mode)) ? $activity->entry_mode :'Web';
     $journal->is_signed = 0;
     $journal->is_secret = 0;
@@ -639,6 +640,7 @@ function deviation($activity_id)
     $deviation->subcategory_id = $activity->subcategory_id;
     $deviation->date_time = $date.' '.$time;
     $deviation->description = $activity->description;
+    $deviation->activity_note = $activity->comment;
     $deviation->immediate_action = 'N/A';
     $deviation->critical_range = 1;
     $deviation->is_secret = 0;
@@ -790,7 +792,15 @@ function getRoleInfo($top_most_parent_id, $role_name)
 function getJournal($id)
 {
     $journal = Journal::where('id',$id)
-                ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions')
-                ->first();
+        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions')
+        ->first();
     return $journal;
+}
+
+function getJournals($ids)
+{
+    $journals = Journal::whereIn('id',$ids)
+        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions')
+        ->get();
+    return $journals;
 }

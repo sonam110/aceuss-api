@@ -221,6 +221,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('journal', User\JournalController::class)->only(['store','destroy','show', 'update']);
 		Route::post('approved-journal','User\JournalController@approvedJournal');
 		Route::post('action-journal','User\JournalController@actionJournal');
+		Route::post('is-active-journal','User\JournalController@isActiveJournal');
 		Route::post('statistics-journal','User\StatisticsJournalController@statisticsJournal');
 		Route::post('get-twm-wise-journal-report','User\StatisticsJournalController@getTWMwiseJournalReport');
 		Route::post('print-journal','User\JournalController@printJournal');

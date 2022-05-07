@@ -323,7 +323,8 @@ class JournalController extends Controller
                 'signed_date' => date('Y-m-d')
             ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Journal','sign') ,$journal, config('httpcodes.success'));
+            $data = getJournals($request->journal_ids);
+            return prepareResult(true,getLangByLabelGroups('Journal','sign') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -341,6 +342,18 @@ class JournalController extends Controller
             }
 
             $journals = Journal::where('patient_id', $request->patient_id);
+            if(!empty($request->from_date) && !empty($request->end_date))
+            {
+                $journals->whereDate('created_at', '>=', $request->from_date)->whereDate('created_at', '<=', $request->end_date);
+            }
+            elseif(!empty($request->from_date) && empty($request->end_date))
+            {
+                $journals->whereDate('created_at', '>=', $request->from_date);
+            }
+            elseif(empty($request->from_date) && !empty($request->end_date))
+            {
+                $journals->whereDate('created_at', '<=', $request->end_date);
+            }
             if($request->print_with_secret=='yes')
             {
                 $journals->where('is_secret', 1);
@@ -361,6 +374,31 @@ class JournalController extends Controller
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
+        }
+    }
+
+    public function isActiveJournal(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'journal_id' => 'required',   
+            'is_active' => 'required',   
+        ]);
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+        DB::beginTransaction();
+        try {
+            $user = getUser();
+
+            $journal = Journal::where('id', $request->journal_id)->where('is_signed', 1)->update([
+                'is_active' => $request->is_active
+            ]);
+            DB::commit();
+            $data = getJournal($request->journal_id);
+            return prepareResult(true,getLangByLabelGroups('Journal','sign') ,$data, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
     

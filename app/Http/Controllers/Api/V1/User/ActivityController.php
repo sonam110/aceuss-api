@@ -389,6 +389,22 @@ class ActivityController extends Controller
                                         
                                     }
                                 }
+                                if(auth()->user()->user_type_id==3)
+                                {
+                                    $checkEntry = ActivityAssigne::where('activity_id', $activity->id)
+                                        ->where('user_id', auth()->id())->first();
+                                    if(!$checkEntry)
+                                    {
+                                        $activityAssigne = new ActivityAssigne;
+                                        $activityAssigne->activity_id = $activity->id;
+                                        $activityAssigne->user_id = auth()->id();
+                                        $activityAssigne->assignment_date = date('Y-m-d');
+                                        $activityAssigne->assignment_day ='1';
+                                        $activityAssigne->assigned_by = $user->id;
+                                        $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                                        $activityAssigne->save();
+                                    }
+                                }
                                 if(!empty($request->task) ){
                                     addTask($request->task,$activity->id);
                                 }

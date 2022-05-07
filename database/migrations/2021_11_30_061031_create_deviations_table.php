@@ -44,6 +44,7 @@ class CreateDeviationsTable extends Migration
             $table->text('related_factor')->nullable();
             
             $table->text('further_investigation')->nullable();
+            $table->text('follow_up')->nullable();
 
             $table->boolean('is_secret')->default(0)->nullable();
             $table->boolean('is_signed')->default(0)->nullable();

@@ -96,11 +96,11 @@ class PatientImplementationPlan extends Model
     }
     public function Category()
     {
-        return $this->belongsTo(CategoryMaster::class,'category_id','id');
+        return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id');
     }
     public function Subcategory()
     {
-        return $this->belongsTo(CategoryMaster::class,'subcategory_id','id');
+        return $this->belongsTo(CategoryMaster::class,'subcategory_id','id')->withoutGlobalScope('top_most_parent_id');
     }
     public function CreatedBy()
     {

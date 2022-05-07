@@ -209,8 +209,14 @@ class PatientController extends Controller
                             $ipAssigne->ip_id = $patientPlan->id;
                             $ipAssigne->status = '1';
                             $ipAssigne->save();
-
-
+                        }
+                        if(auth()->user()->user_type_id==3)
+                        {
+                            $ipAssigne = new IpAssigneToEmployee;
+                            $ipAssigne->user_id = auth()->id();
+                            $ipAssigne->ip_id = $patientPlan->id;
+                            $ipAssigne->status = '1';
+                            $ipAssigne->save();
                         }
                         /*-----------------Persons Informationn ----------------*/
                         if(is_array(@$patient['persons']) && sizeof(@$patient['persons']) >0 ){
