@@ -38,6 +38,11 @@ class JournalAction extends Model
         return $this->belongsTo(Journal::class,'journal_id','id');
     }
 
+    public function editedBy()
+    {
+        return $this->belongsTo(User::class,'edited_by','id');
+    }
+
     public function journalActionLogs()
     {
         return $this->hasMany(JournalActionLog::class,'journal_action_id','id')->orderBy('id','desc');
