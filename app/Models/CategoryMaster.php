@@ -26,6 +26,7 @@ class CategoryMaster extends Model
         'category_color',
         'is_global',
         'status',
+        'follow_up_image',
         'entry_mode',
     ];
 

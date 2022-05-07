@@ -209,7 +209,8 @@ class CategoryMasterController extends Controller
 		 	$categoryMaster->parent_id = ($request->parent_id) ? $request->parent_id :null;
 		 	$categoryMaster->category_type_id = $request->category_type_id;
             $categoryMaster->name = $request->name;
-		 	$categoryMaster->category_color = $request->category_color;
+            $categoryMaster->category_color = $request->category_color;
+		 	$categoryMaster->follow_up_image = $request->follow_up_image;
 		 	$categoryMaster->is_global = ($request->is_global) ? '1' :'0';
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
@@ -261,6 +262,7 @@ class CategoryMasterController extends Controller
 		 	$categoryMaster->category_color = $request->category_color;
 		 	$categoryMaster->is_global = ($request->is_global) ? '1' :'0';
             $categoryMaster->status = ($request->status) ? $request->status :'1';
+            $categoryMaster->follow_up_image = $request->follow_up_image;
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
             DB::commit();
