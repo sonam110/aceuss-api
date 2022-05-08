@@ -9,6 +9,7 @@ use Validator;
 use Auth;
 use DB;
 use App\Models\JournalActionLog;
+use App\Models\Journal;
 use Exception;
 class JournalActionController extends Controller
 {
@@ -249,7 +250,7 @@ class JournalActionController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
-            $journalAction = JournalAction::whereIn('id', $request->journal_action_ids)->update([
+            $journalAction = Journal::whereIn('id', $request->journal_action_ids)->update([
                 'is_signed' => $request->is_signed,
                 'signed_by' => auth()->id(),
                 'signed_date' => date('Y-m-d')

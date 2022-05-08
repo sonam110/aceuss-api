@@ -265,7 +265,8 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::whereIn('id',$task_ids)->get();
+				$taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 				return prepareResult(true,'Task Added successfully' ,$taskList, config('httpcodes.success'));
 
 			}else{
@@ -454,7 +455,8 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::whereIn('id',$task_ids)->get();
+				$taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 				return prepareResult(true,'Task Update successfully' ,$taskList, config('httpcodes.success'));
 
 			}else{
@@ -648,8 +650,9 @@ class TaskController extends Controller
             $updateStatus = AssignTask::where('task_id',$request->task_id)->update(['status'=> $request->status]);
             
             DB::commit();
-               
-            return prepareResult(true,'Action Done successfully' ,$task, config('httpcodes.success'));
+            $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+                    ->where('id',$request->task_id)->with('assignEmployee.employee:id,name,email,contact_number')->first();
+            return prepareResult(true,'Action Done successfully' ,$taskList, config('httpcodes.success'));
            
         
         }
