@@ -51,18 +51,6 @@ class JournalController extends Controller
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
-            if(!empty($request->with_or_without_activity))
-            {
-                if($request->with_or_without_activity=='yes')
-                {
-                    $query->whereNotNull('activity_id');
-                }
-                else
-                {
-                    $query->whereNull('activity_id');
-                }
-            }
-
             if(!empty($request->activity_id))
             {
                 $query->where('activity_id', $request->activity_id);

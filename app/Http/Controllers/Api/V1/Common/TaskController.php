@@ -54,6 +54,11 @@ class TaskController extends Controller
             } else {
                 $query = $query->orderBy('id', 'DESC');
             }
+
+            if(!empty($request->activity_id))
+            {
+                $query->where('activity_id', $request->activity_id);
+            }
             
             if(!empty($request->perPage))
             {

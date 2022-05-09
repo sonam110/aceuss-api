@@ -14,13 +14,18 @@ use App\Models\Comment;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Journal;
+use App\Models\Deviation;
+
 class Activity extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
-    // protected $appends = ['comments'];
+    protected $appends = ['withJournal','withDeviation'];
+    // protected $withJournal = ['journal'];
+    // protected $withDeviation = ['deviation'];
     protected $fillable =[
         'top_most_parent_id',
         'group_id',
@@ -167,6 +172,38 @@ class Activity extends Model
         
 
     // }
+
+    public function getWithJournalAttribute()
+    {
+        $activity_journal = Journal::where('activity_id',$this->id)->count();
+        if($activity_journal >= 1)
+        {
+            $withJournal = 1;
+        }
+        else
+        {
+            $withJournal = 0;
+        }
+        return $withJournal;
+        
+
+    }
+
+    public function getWithDeviationAttribute()
+    {
+        $activity_deviation = Deviation::where('activity_id',$this->id)->count();
+        if($activity_deviation >= 1)
+        {
+            $withDeviation = 1;
+        }
+        else
+        {
+            $withDeviation = 0;
+        }
+        return $withDeviation;
+        
+
+    }
 
     public function comments()
     {
