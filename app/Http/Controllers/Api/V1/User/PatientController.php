@@ -90,6 +90,41 @@ class PatientController extends Controller
 
             }
 
+            if(!empty($request->branch_id))
+            {
+                $query->where('branch_id', $request->branch_id);
+            }
+
+            if(!empty($request->category_id))
+            {
+                $query->where('category_id', $request->category_id);
+            }
+
+            if(!empty($request->subcategory_id))
+            {
+                $query->where('subcategory_id', $request->subcategory_id);
+            }
+
+            if(!empty($request->patient_id))
+            {
+                $query->where('patient_id', $request->patient_id);
+            }
+
+            if(!empty($request->status))
+            {
+                $query->where('status', $request->status);
+            }
+
+            if(!empty($request->title))
+            {
+                $query->where('title', $request->title);
+            }
+
+            if(!empty($request->entry_mode))
+            {
+                $query->where('entry_mode', $request->entry_mode);
+            }
+
             if(!empty($request->start_date) && !empty($request->end_date))
             {
                 $query->whereDate('start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
