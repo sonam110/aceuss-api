@@ -73,46 +73,95 @@ class StatisticsJournalController extends Controller
         $dataset_total_signed = [];
         $dataset_without_activity = [];
         $dataset_with_activity = [];
-        for($i = $request_for; $i>=1; $i--)
+        if(!empty($request->start_date) && !empty($request->end_date)) 
         {
-            $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
-            $datalabels[] = $date;
-            $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::select([
-                \DB::raw('COUNT(id) as total_journal'),
-                \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
-                \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
-                \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
-            ]);
-
-            if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+            $diffrece = dateDifference($request->start_date, $request->end_date) + 1;
+            for($i = $diffrece; $i>=1; $i--)
             {
+                $date = date("Y-m-d", strtotime('-'.($i-1).' days', strtotime($request->end_date)));
+                $datalabels[] = $date;
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                $query = Journal::select([
+                    \DB::raw('COUNT(id) as total_journal'),
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
+                ]);
 
-            }
-            else
-            {
-                $query = $query->where('is_secret', '!=', 1);
-            }
-            
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
-            }
+                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                {
 
-            if(!empty($request->patient_id))
-            {
-                $query->where('patient_id', $request->patient_id);
+                }
+                else
+                {
+                    $query = $query->where('is_secret', '!=', 1);
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+                $query->whereDate('date', $date);         
+                $result = $query->first();
+                
+                $dataset_total_journal[] = $result->total_journal;
+                $dataset_total_signed[] = $result->total_signed;
+                $dataset_without_activity[] = $result->total_without_activity;
+                $dataset_with_activity[] = $result->total_with_activity;
             }
-            $query->whereDate('date', $date);         
-            $result = $query->first();
-            
-            $dataset_total_journal[] = $result->total_journal;
-            $dataset_total_signed[] = $result->total_signed;
-            $dataset_without_activity[] = $result->total_without_activity;
-            $dataset_with_activity[] = $result->total_with_activity;
         }
+        else
+        {
+            for($i = $request_for; $i>=1; $i--)
+            {
+                $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+                $datalabels[] = $date;
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                $query = Journal::select([
+                    \DB::raw('COUNT(id) as total_journal'),
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
+                ]);
+
+                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                {
+
+                }
+                else
+                {
+                    $query = $query->where('is_secret', '!=', 1);
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+                $query->whereDate('date', $date);         
+                $result = $query->first();
+                
+                $dataset_total_journal[] = $result->total_journal;
+                $dataset_total_signed[] = $result->total_signed;
+                $dataset_without_activity[] = $result->total_without_activity;
+                $dataset_with_activity[] = $result->total_with_activity;
+            }
+        }
+
+
         $returnObj = [
             'labels' => $datalabels,
             'dataset_total_journal' => $dataset_total_journal,

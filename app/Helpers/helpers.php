@@ -804,3 +804,14 @@ function getJournals($ids)
         ->get();
     return $journals;
 }
+
+function dateDifference($start_date, $end_date, $differenceFormat = '%d' )
+{
+    $datetime1 = date_create($end_date);
+    $datetime2 = date_create($start_date);
+
+    $interval = date_diff($datetime1, $datetime2);
+
+    return $interval->format($differenceFormat);
+
+}

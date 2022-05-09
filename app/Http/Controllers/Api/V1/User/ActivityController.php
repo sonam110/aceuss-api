@@ -88,8 +88,10 @@ class ActivityController extends Controller
                 $activityCounts = $activityCounts->where('patient_id',$user->id);
 
             }
-            if($whereRaw != '') { 
-                $activityCounts = $activityCounts->whereRaw($whereRaw);
+            $whereRaw2 = $this->getWhereRawFromRequestOther($request);
+
+            if($whereRaw2 != '') { 
+                $activityCounts = $activityCounts->whereRaw($whereRaw2);
             }
 
             $activityCounts = $activityCounts->first();
@@ -1028,12 +1030,69 @@ class ActivityController extends Controller
         }
     }
    
-    private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request)
+    {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+        }
+        if (is_null($request->input('branch_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }
+
+        if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->start_date != '')
+            {
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+            }
+            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->end_date != '')
+            {
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+            }
+            
+          
+           
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " OR ";}
+             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             
+        }
+        return($w);
+
+    }
+
+    private function getWhereRawFromRequestOther(Request $request)
+    {
+        $w = '';
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
