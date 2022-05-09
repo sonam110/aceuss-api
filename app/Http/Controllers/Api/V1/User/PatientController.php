@@ -89,6 +89,20 @@ class PatientController extends Controller
                 $query = $query->where('user_id',$user->id);
 
             }
+
+            if(!empty($request->start_date) && !empty($request->end_date))
+            {
+                $query->whereDate('start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
+            }
+            elseif(!empty($request->start_date) && empty($request->end_date))
+            {
+                $query->whereDate('start_date', ">=" ,$request->start_date);
+            }
+            elseif(empty($request->start_date) && !empty($request->end_date))
+            {
+                $query->whereDate('end_date', '<=', $request->end_date);
+            }
+
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw)
                 
