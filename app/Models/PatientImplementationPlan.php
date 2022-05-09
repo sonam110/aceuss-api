@@ -18,6 +18,7 @@ class PatientImplementationPlan extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
+    protected $appends = ['withActivity','withFollowup'];
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
@@ -146,6 +147,38 @@ class PatientImplementationPlan extends Model
     }
     public function setEndDateAndTimeAttribute($value) {
       $this->attributes['end_date'] =  (!empty($value)) ? date("Y-m-d", strtotime($value)) : null;
+    }
+
+    public function getWithActivityAttribute()
+    {
+        $activity = Activity::where('ip_id',$this->id)->count();
+        if($activity >= 1)
+        {
+            $withActivity = 1;
+        }
+        else
+        {
+            $withActivity = 0;
+        }
+        return $withActivity;
+        
+
+    }
+
+    public function getWithFollowUpAttribute()
+    {
+        $followUp = IpFollowUp::where('ip_id',$this->id)->count();
+        if($followUp >= 1)
+        {
+            $withFollowUp = 1;
+        }
+        else
+        {
+            $withFollowUp = 0;
+        }
+        return $withFollowUp;
+        
+
     }
 
     

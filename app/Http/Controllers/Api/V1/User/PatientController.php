@@ -120,10 +120,10 @@ class PatientController extends Controller
                 $query->where('title', $request->title);
             }
 
-            if(!empty($request->entry_mode))
-            {
-                $query->where('entry_mode', $request->entry_mode);
-            }
+            // if(!empty($request->entry_mode))
+            // {
+            //     $query->where('entry_mode', $request->entry_mode);
+            // }
 
             if(!empty($request->start_date) && !empty($request->end_date))
             {

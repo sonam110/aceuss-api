@@ -57,7 +57,7 @@ class TaskController extends Controller
 
             if(!empty($request->activity_id))
             {
-                $query->where('activity_id', $request->activity_id);
+                $query->where('type_id',1)->where('resource_id', $request->activity_id);
             }
             
             if(!empty($request->perPage))
