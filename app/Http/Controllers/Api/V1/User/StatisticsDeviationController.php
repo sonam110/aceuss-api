@@ -69,55 +69,105 @@ class StatisticsDeviationController extends Controller
     public function getTWMwiseReport(Request $request)
     {
         $request_for = !empty($request->request_for) ? $request->request_for : 7;
-        for($i = $request_for; $i>=1; $i--)
+        $datalabels = [];
+        $dataset_total_deviation = [];
+        $dataset_total_signed = [];
+        $dataset_without_activity = [];
+        $dataset_with_activity = [];
+        $dataset_total_completed = [];
+        if(!empty($request->start_date) && !empty($request->end_date)) 
         {
-            $datalabels = [];
-            $dataset_total_deviation = [];
-            $dataset_total_signed = [];
-            $dataset_without_activity = [];
-            $dataset_with_activity = [];
-            $dataset_total_completed = [];
-
-            $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
-            $datalabels[] = $date;
-
-            $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Deviation::select([
-                \DB::raw('COUNT(id) as total_deviation'),
-                \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
-                \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
-                \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
-                \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
-            ]);
-
-            if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+            $diffrece = dateDifference($request->start_date, $request->end_date) + 1;
+            for($i = $diffrece; $i>=1; $i--)
             {
+                $date = date("Y-m-d", strtotime('-'.($i-1).' days', strtotime($request->end_date)));
+                $datalabels[] = $date;
 
-            }
-            else
-            {
-                $query = $query->where('is_secret', '!=', 1);
-            }
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                $query = Deviation::select([
+                    \DB::raw('COUNT(id) as total_deviation'),
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
+                    \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
+                ]);
+
+                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                {
+
+                }
+                else
+                {
+                    $query = $query->where('is_secret', '!=', 1);
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+                $query->whereDate('date_time', $date);         
+                $result = $query->first();
+                $dataset_total_deviation[] = $result->total_deviation;
+                $dataset_total_signed[] = $result->total_signed;
+                $dataset_without_activity[] = $result->total_without_activity;
+                $dataset_with_activity[] = $result->total_with_activity;
+                $dataset_total_completed[] = $result->total_completed;
             
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
             }
-
-            if(!empty($request->patient_id))
-            {
-                $query->where('patient_id', $request->patient_id);
-            }
-            $query->whereDate('date_time', $date);         
-            $result = $query->first();
-            $dataset_total_deviation[] = $result->total_deviation;
-            $dataset_total_signed[] = $result->total_signed;
-            $dataset_without_activity[] = $result->total_without_activity;
-            $dataset_with_activity[] = $result->total_with_activity;
-            $dataset_total_completed[] = $result->total_completed;
         }
+        else
+        {
+            for($i = $request_for; $i>=1; $i--)
+            {
+                $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+                $datalabels[] = $date;
+
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                $query = Deviation::select([
+                    \DB::raw('COUNT(id) as total_deviation'),
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
+                    \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
+                ]);
+
+                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                {
+
+                }
+                else
+                {
+                    $query = $query->where('is_secret', '!=', 1);
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+                $query->whereDate('date_time', $date);         
+                $result = $query->first();
+                $dataset_total_deviation[] = $result->total_deviation;
+                $dataset_total_signed[] = $result->total_signed;
+                $dataset_without_activity[] = $result->total_without_activity;
+                $dataset_with_activity[] = $result->total_with_activity;
+                $dataset_total_completed[] = $result->total_completed;
+            }
+        }
+
         $returnObj = [
             'labels' => $datalabels,
             'dataset_total_deviation' => $dataset_total_deviation,

@@ -124,6 +124,65 @@ class DeviationController extends Controller
 	        
             if(!empty($request->perPage))
             {
+                ////////Counts
+                $deviationCounts = Deviation::select([
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
+                    \DB::raw('COUNT(IF(is_completed = 0 OR is_completed IS NULL, 0, NULL)) as total_not_completed'),
+                    \DB::raw('COUNT(IF(is_secret = 1, 0, NULL)) as total_secret'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_with_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_without_activity'),
+                ]);
+                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                {
+
+                }
+                else
+                {
+                    $deviationCounts->where('is_secret', '!=', 1);
+                }
+                
+                if($user->user_type_id !='2') {
+                    $deviationCounts->whereIn('branch_id',$allChilds);
+                }
+                if(!empty($request->branch_id))
+                {
+                    $deviationCounts->where('branch_id', $request->branch_id);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $deviationCounts->where('patient_id', $request->patient_id);
+                }
+
+                if(!empty($request->emp_id))
+                {
+                    $deviationCounts->where('emp_id', $request->emp_id);
+                }
+
+                if(!empty($request->category_id))
+                {
+                    $deviationCounts->where('category_id', $request->category_id);
+                }
+
+                if(!empty($request->subcategory_id))
+                {
+                    $deviationCounts->where('subcategory_id', $request->subcategory_id);
+                }
+                if(!empty($request->from_date) && !empty($request->end_date))
+                {
+                    $deviationCounts->whereDate('date_time', '>=', $request->from_date)->whereDate('date_time', '<=', $request->end_date);
+                }
+                elseif(!empty($request->from_date) && empty($request->end_date))
+                {
+                    $deviationCounts->whereDate('date_time', $request->from_date);
+                }
+                elseif(empty($request->from_date) && !empty($request->end_date))
+                {
+                    $deviationCounts->whereDate('date_time', '<=', $request->end_date);
+                }
+                $deviationCounts = $deviationCounts->first();
+
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
@@ -134,7 +193,13 @@ class DeviationController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+                    'total_signed' => $deviationCounts->total_signed,
+                    'total_completed' => $deviationCounts->total_completed,
+                    'total_not_completed' => $deviationCounts->total_not_completed,
+                    'total_secret' => $deviationCounts->total_secret,
+                    'total_with_activity' => $deviationCounts->total_with_activity,
+                    'total_without_activity' => $deviationCounts->total_without_activity,
                 ];
                 return prepareResult(true,"Deviation list",$pagination,config('httpcodes.success'));
             }
