@@ -101,16 +101,16 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
 	    	$data = $request->repeat_datetime;
             $validator = Validator::make($request->all(),[
-                'ip_id' => 'required|exists:patient_implementation_plans,id',   
+                // 'ip_id' => 'required|exists:patient_implementation_plans,id',   
                 'title' => 'required',   
-                'description' => 'required',         
+                // 'description' => 'required',         
                 "repeat_datetime.*.start_date"  => "required", 
                 "repeat_datetime.*.start_time"  => "required",     
             ],
             [
                 //'ip_id.required' =>  getLangByLabelGroups('FollowUp','ip_id'),   
                 'title.required' =>  getLangByLabelGroups('FollowUp','title'),   
-                'description.required' =>  getLangByLabelGroups('FollowUp','description'),           
+                // 'description.required' =>  getLangByLabelGroups('FollowUp','description'),           
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -137,6 +137,7 @@ class FollowUpsController extends Controller
                         $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             		 	$ipFollowups->created_by = $user->id;
                         $ipFollowups->documents = json_encode($request->documents);
+                        $ipFollowups->emp_id = json_encode($request->emp_id);
                         $ipFollowups->is_latest_entry = 1;
             		 	$ipFollowups->save();
             		 	 /*-----------------Persons Informationn ----------------*/

@@ -15,12 +15,13 @@ class CreateIpFollowUpsTable extends Migration
     {
         Schema::create('ip_follow_ups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ip_id');
+            $table->foreignId('ip_id')->nullable();
             $table->foreignId('parent_id')->nullable();
             $table->foreignId('branch_id')->nullable();
+            $table->text('emp_id')->nullable();
             $table->foreignId('top_most_parent_id')->nullable();
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->date('start_date')->nullable();
             $table->time('start_time')->nullable();
             $table->boolean('is_completed')->default(0);
