@@ -362,7 +362,7 @@ class JournalController extends Controller
             {
                 $journals->where('is_secret', 0);
             }
-            $journals = $journals->get();
+            $journals = $journals->where('is_signed', 1)->get();
             $filename = $request->patient_id."-".time().".pdf";
             $data['journals'] = $journals;
             $pdf = PDF::loadView('print-journal', $data);
