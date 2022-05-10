@@ -194,19 +194,16 @@ class JournalController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-
-
-            if($checkId->is_signed == 1){
+            if($checkId->is_signed == 1)
+            {
                 $journalLog                     = new JournalLog;
-                $journalLog->journal_id         = $checkId->journal_id;
+                $journalLog->journal_id         = $checkId->id;
                 $journalLog->description        = $checkId->description;
                 $journalLog->edited_by          = $user->id;
                 $journalLog->reason_for_editing = $request->reason_for_editing;
                 $journalLog->description_created_at =$checkId->edit_date;
                 $journalLog->save();
             }
-
-
 
         	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
         	$journal = Journal::where('id',$id)->with('Category:id,name','Subcategory:id,name')->first();
@@ -229,10 +226,9 @@ class JournalController extends Controller
 		 	$journal->save();
 
             $data = getJournal($journal->id);
-		       DB::commit();
+		      DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$data, config('httpcodes.success'));
-			  
-        }
+		}
         catch(Exception $exception) {
              \Log::error($exception);
             DB::rollback();

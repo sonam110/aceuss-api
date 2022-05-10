@@ -42,20 +42,20 @@ class ActivityController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email')->withCount('comments');
+            $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email')->withCount('comments');
             if($user->user_type_id =='2'){
 
             } else{
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query =  $query->whereIn('activities.branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
-                $query = $query->whereIn('id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('activities.user_id',$user->id)->pluck('activity_id')->implode(',');
+                $query = $query->whereIn('activity_assignes.id',explode(',',$agnActivity));
 
             }
             if($user->user_type_id =='6'){
-                $query = $query->where('patient_id',$user->id);
+                $query = $query->where('activities.patient_id',$user->id);
 
             }
             if($whereRaw != '') { 
@@ -64,7 +64,28 @@ class ActivityController extends Controller
                 $query = $query->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
 
-            $query = $query->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC');
+            if(!empty($request->with_journal))
+            {
+                $query->join('journals', function ($join) {
+                    $join->on('activities.id', '=', 'journals.activity_id');
+                })
+                ->withoutGlobalScope('top_most_parent_id')
+                ->where('journals.top_most_parent_id', $user->top_most_parent_id);
+
+                $query->where('activities.top_most_parent_id', $user->top_most_parent_id);
+            }
+            if(!empty($request->with_deviation))
+            {
+                $query->join('deviations', function ($join) {
+                    $join->on('activities.id', '=', 'deviations.activity_id');
+                })
+                ->withoutGlobalScope('top_most_parent_id')
+                ->where('deviations.top_most_parent_id', $user->top_most_parent_id);
+
+                $query->where('activities.top_most_parent_id', $user->top_most_parent_id);
+            }
+
+            $query = $query->orderBy('activities.start_date', 'ASC')->orderBy('activities.start_time', 'ASC');
 
             ////////Counts
             $activityCounts = Activity::select([
@@ -1035,23 +1056,23 @@ class ActivityController extends Controller
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+            $w = $w . "(" . "activities.status = "."'" .$request->input('status')."'".")";
         }
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+            $w = $w . "(" . "activities.ip_id = "."'" .$request->input('ip_id')."'".")";
         }
         if (is_null($request->input('patient_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+            $w = $w . "(" . "activities.patient_id = "."'" .$request->input('patient_id')."'".")";
         }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+            $w = $w . "(" . "activities.branch_id = "."'" .$request->input('branch_id')."'".")";
         }
         if (is_null($request->input('category_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+            $w = $w . "(" . "activities.category_id = "."'" .$request->input('category_id')."'".")";
         }
 
         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
@@ -1060,7 +1081,7 @@ class ActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."activities.start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -1069,19 +1090,19 @@ class ActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."activities.start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
             }
             
           
            
         }
-        if (is_null($request->input('title')) == false) {
+        if (is_null($request->input('activities.title')) == false) {
             if ($w != '') {$w = $w . " AND ";}
              $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
 
              
         }
-        if (is_null($request->input('title')) == false) {
+        if (is_null($request->input('activities.title')) == false) {
             if ($w != '') {$w = $w . " OR ";}
              $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
              

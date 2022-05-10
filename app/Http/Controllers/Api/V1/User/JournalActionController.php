@@ -23,12 +23,12 @@ class JournalActionController extends Controller
     //     $this->middleware('permission:journal-action-delete', ['only' => ['destroy']]);
         
     // }
-	public function journalActions(Request $request)
+    public function journalActions(Request $request)
     {
       
         try {
-	        $user = getUser();
-	        $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+            $user = getUser();
+            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $query = JournalAction::with('journal','journalActionLogs');
@@ -80,42 +80,42 @@ class JournalActionController extends Controller
             }
             
             return prepareResult(true,"Journal list",$query,config('httpcodes.success'));
-	    
-	    }
+        
+        }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
-    	
+        
     }
 
     public function store(Request $request){
         DB::beginTransaction();
         try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[
-        		'journal_id' => 'required|exists:journals,id',    
-        		'comment_result' => 'required',   
-        		'comment_action' => 'required',       
-	        ],
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'journal_id' => 'required|exists:journals,id',    
+                'comment_result' => 'required',   
+                'comment_action' => 'required',       
+            ],
             [
                 'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
                 'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
                 'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
             ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
-        	
-	        $journalAction = new JournalAction;
-		 	$journalAction->journal_id          = $request->journal_id;
-		 	$journalAction->comment_action      = $request->comment_action;
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+            
+            $journalAction = new JournalAction;
+            $journalAction->journal_id          = $request->journal_id;
+            $journalAction->comment_action      = $request->comment_action;
             $journalAction->comment_result      = $request->comment_result;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
-		 	$journalAction->save();
+            $journalAction->save();
              DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$journalAction, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -128,9 +128,9 @@ class JournalActionController extends Controller
     public function update(Request $request,$id){
         DB::beginTransaction();
         try {
-	    	$user = getUser();
+            $user = getUser();
 
-	    	$validator = Validator::make($request->all(),[
+            $validator = Validator::make($request->all(),[
                 'journal_id' => 'required|exists:journals,id',    
                 'comment_result' => 'required',   
                 'comment_action' => 'required',       
@@ -140,43 +140,42 @@ class JournalActionController extends Controller
                 'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
                 'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
             ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
-        	
-        	$checkId = JournalAction::where('id',$id)
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+            
+            $checkId = JournalAction::where('id',$id)
                 ->first();
-			if (!is_object($checkId)) {
+            if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
-
-
-
-            if($checkId->is_signed == 1){
-                $journalActionLog                     = new JournalActionLog;
-                $journalActionLog->journal_action_id  = $checkId->journal_id;
-                $journalActionLog->comment_action     = $checkId->comment_action;
-                $journalActionLog->comment_result     = $checkId->comment_result;
-                $journalActionLog->edited_by          = $user->id;
-                $journalActionLogs->comment_created_at=$checkId->edit_date;
+            
+            if($checkId->is_signed==1)
+            {
+                $journalActionLog = new JournalActionLog;
+                $journalActionLog->journal_action_id = $checkId->id;
+                $journalActionLog->comment_action = $checkId->comment_action;
+                $journalActionLog->comment_result = $checkId->comment_result;
                 $journalActionLog->reason_for_editing = $request->reason_for_editing;
+                $journalActionLog->edited_by = $checkId->edited_by;
+                $journalActionLog->comment_created_at = $checkId->edit_date;
                 $journalActionLog->save();
             }
 
 
 
-        	$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-        	$journalAction                		= JournalAction::where('id',$id)->first();
-	       	$journalAction->comment_result      = $request->comment_result;
-            $journalAction->comment_action 		= $request->comment_action;
-            $journalAction->is_signed       	= ($request->is_signed)? $request->is_signed :0;
-		 	$journalAction->edited_by 			= $user->id;
+            $parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
+            $journalAction                      = JournalAction::where('id',$id)->first();
+            $journalAction->comment_result      = $request->comment_result;
+            $journalAction->comment_action      = $request->comment_action;
+            $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
+            $journalAction->edited_by           = $user->id;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
-		 	$journalAction->reason_for_editing 	= $request->reason_for_editing;
-		 	$journalAction->save();
-		       DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$journalAction, config('httpcodes.success'));
-			  
+            $journalAction->reason_for_editing  = $request->reason_for_editing;
+            $journalAction->save();
+               DB::commit();
+            return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$journalAction, config('httpcodes.success'));
+              
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -188,15 +187,15 @@ class JournalActionController extends Controller
     public function destroy($id){
   
         try {
-	    	$user = getUser();
-        	$checkId= JournalAction::where('id',$id)->first();
-			if (!is_object($checkId)) {
+            $user = getUser();
+            $checkId= JournalAction::where('id',$id)->first();
+            if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	$journalAction = JournalAction::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('JournalAction','delete') ,[], config('httpcodes.success'));
-		     	
-			    
+            $journalAction = JournalAction::where('id',$id)->delete();
+            return prepareResult(true,getLangByLabelGroups('JournalAction','delete') ,[], config('httpcodes.success'));
+                
+                
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -206,15 +205,15 @@ class JournalActionController extends Controller
     
     public function show($id){
         try {
-	    	$user = getUser();
-        	$checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs')
+            $user = getUser();
+            $checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs')
                 ->first();
-			if (!is_object($checkId)) {
+            if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-        	$journalAction = JournalAction::where('id',$id)->first();
-	        return prepareResult(true,'View Journal Action' ,$journalAction, config('httpcodes.success'));
+            $journalAction = JournalAction::where('id',$id)->first();
+            return prepareResult(true,'View Journal Action' ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

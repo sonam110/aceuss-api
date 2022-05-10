@@ -31,5 +31,15 @@ class JournalActionLog extends Model
         'comment_created_at'
 
     ];
+
+    public function journalAction()
+    {
+        return $this->belongsTo(JournalAction::class,'journal_action_id','id');
+    }
+
+    public function editedBy()
+    {
+        return $this->belongsTo(User::class,'edited_by','id');
+    }
    	
 }

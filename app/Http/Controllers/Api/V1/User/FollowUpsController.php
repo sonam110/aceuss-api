@@ -670,7 +670,6 @@ class FollowUpsController extends Controller
         if (is_null($request->input('title')) == false) {
             if ($w != '') {$w = $w . " OR ";}
              $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-             
         }
 
         return($w);

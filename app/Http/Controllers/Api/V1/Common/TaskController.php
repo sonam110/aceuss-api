@@ -33,7 +33,7 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')->where('is_latest_entry',1);
+            $query = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')->where('is_latest_entry',1);
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');

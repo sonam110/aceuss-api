@@ -23,7 +23,7 @@ class Activity extends Model
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
-    protected $appends = ['withJournal','withDeviation'];
+    protected $appends = ['with_journal','with_deviation'];
     // protected $withJournal = ['journal'];
     // protected $withDeviation = ['deviation'];
     protected $fillable =[

@@ -67,7 +67,8 @@ class PatientController extends Controller
             //     }]
             // );
 
-            $query = PatientImplementationPlan::where('is_latest_entry',1)
+            $query = PatientImplementationPlan::select('patient_implementation_plans.*')
+            ->where('patient_implementation_plans.is_latest_entry',1)
             ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps')
             ->withCount('ipFollowUps','activities')
             ->with(
@@ -76,74 +77,90 @@ class PatientController extends Controller
                 }]
             );
             if($user->user_type_id =='2'){
-                $query = $query->orderBy('id','DESC');
+                $query = $query->orderBy('patient_implementation_plans.id','DESC');
             } else{
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query =  $query->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
                 $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
-                $query = $query->whereIn('id',explode(',',$ipAssigne));
+                $query = $query->whereIn('patient_implementation_plans.id',explode(',',$ipAssigne));
             }
             if($user->user_type_id =='6'){
-                $query = $query->where('user_id',$user->id);
+                $query = $query->where('patient_implementation_plans.user_id',$user->id);
+            }
 
+            if(!empty($request->with_activity))
+            {
+                $query->join('activities', function ($join) {
+                    $join->on('patient_implementation_plans.id', '=', 'activities.ip_id');
+                })
+                ->withoutGlobalScope('top_most_parent_id')
+                ->where('activities.top_most_parent_id', $user->top_most_parent_id);
+
+                $query->where('patient_implementation_plans.top_most_parent_id', $user->top_most_parent_id);
+            }
+
+            if(!empty($request->with_followup))
+            {
+                $query->join('ip_follow_ups', function ($join) {
+                    $join->on('patient_implementation_plans.id', '=', 'ip_follow_ups.ip_id');
+                })
+                ->withoutGlobalScope('top_most_parent_id')
+                ->where('ip_follow_ups.top_most_parent_id', $user->top_most_parent_id);
+
+                $query->where('patient_implementation_plans.top_most_parent_id', $user->top_most_parent_id);
             }
 
             if(!empty($request->branch_id))
             {
-                $query->where('branch_id', $request->branch_id);
+                $query->where('patient_implementation_plans.branch_id', $request->branch_id);
             }
 
             if(!empty($request->category_id))
             {
-                $query->where('category_id', $request->category_id);
+                $query->where('patient_implementation_plans.category_id', $request->category_id);
             }
 
             if(!empty($request->subcategory_id))
             {
-                $query->where('subcategory_id', $request->subcategory_id);
+                $query->where('patient_implementation_plans.subcategory_id', $request->subcategory_id);
             }
 
             if(!empty($request->patient_id))
             {
-                $query->where('patient_id', $request->patient_id);
+                $query->where('patient_implementation_plans.patient_id', $request->patient_id);
             }
 
             if(!empty($request->status))
             {
-                $query->where('status', $request->status);
+                $query->where('patient_implementation_plans.status', $request->status);
             }
 
             if(!empty($request->title))
             {
-                $query->where('title', $request->title);
+                $query->where('patient_implementation_plans.title', $request->title);
             }
-
-            // if(!empty($request->entry_mode))
-            // {
-            //     $query->where('entry_mode', $request->entry_mode);
-            // }
 
             if(!empty($request->start_date) && !empty($request->end_date))
             {
-                $query->whereDate('start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
+                $query->whereDate('patient_implementation_plans.start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
             }
             elseif(!empty($request->start_date) && empty($request->end_date))
             {
-                $query->whereDate('start_date', ">=" ,$request->start_date);
+                $query->whereDate('patient_implementation_plans.start_date', ">=" ,$request->start_date);
             }
             elseif(empty($request->start_date) && !empty($request->end_date))
             {
-                $query->whereDate('end_date', '<=', $request->end_date);
+                $query->whereDate('patient_implementation_plans.end_date', '<=', $request->end_date);
             }
 
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw)
                 
-                ->orderBy('id', 'DESC');
+                ->orderBy('patient_implementation_plans.id', 'DESC');
             } else {
-                $query = $query->orderBy('id', 'DESC');
+                $query = $query->orderBy('patient_implementation_plans.id', 'DESC');
             }
             if(!empty($request->perPage))
             {

@@ -18,7 +18,7 @@ class PatientImplementationPlan extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
-    protected $appends = ['withActivity','withFollowup'];
+    protected $appends = ['with_activity','with_followup'];
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
