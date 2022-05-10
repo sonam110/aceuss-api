@@ -90,7 +90,7 @@ class PatientController extends Controller
                 $query = $query->where('patient_implementation_plans.user_id',$user->id);
             }
 
-            if(!empty($request->with_activity))
+            if(!empty($request->with_activity) && $request->with_activity==1)
             {
                 $query->join('activities', function ($join) {
                     $join->on('patient_implementation_plans.id', '=', 'activities.ip_id');
@@ -101,7 +101,7 @@ class PatientController extends Controller
                 $query->where('patient_implementation_plans.top_most_parent_id', $user->top_most_parent_id);
             }
 
-            if(!empty($request->with_followup))
+            if(!empty($request->with_followup) && $request->with_followup==1)
             {
                 $query->join('ip_follow_ups', function ($join) {
                     $join->on('patient_implementation_plans.id', '=', 'ip_follow_ups.ip_id');

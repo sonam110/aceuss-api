@@ -64,7 +64,7 @@ class ActivityController extends Controller
                 $query = $query->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
 
-            if(!empty($request->with_journal))
+            if(!empty($request->with_journal) && $request->with_journal==1)
             {
                 $query->join('journals', function ($join) {
                     $join->on('activities.id', '=', 'journals.activity_id');
@@ -74,7 +74,7 @@ class ActivityController extends Controller
 
                 $query->where('activities.top_most_parent_id', $user->top_most_parent_id);
             }
-            if(!empty($request->with_deviation))
+            if(!empty($request->with_deviation) && $request->with_deviation==1)
             {
                 $query->join('deviations', function ($join) {
                     $join->on('activities.id', '=', 'deviations.activity_id');
