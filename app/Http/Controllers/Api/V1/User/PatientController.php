@@ -76,6 +76,7 @@ class PatientController extends Controller
                     $query->withCount(['persons','patientPlan','patientActivity']);
                 }]
             );
+
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('patient_implementation_plans.id','DESC');
             } else{
@@ -86,8 +87,13 @@ class PatientController extends Controller
                 $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
                 $query = $query->whereIn('patient_implementation_plans.id',explode(',',$ipAssigne));
             }
-            if($user->user_type_id =='6'){
-                $query = $query->where('patient_implementation_plans.user_id',$user->id);
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('patient_implementation_plans.user_id', $user->id)
+                        ->orWhere('patient_implementation_plans.user_id', $user->parent_id);
+                });
             }
 
             if(!empty($request->with_activity) && $request->with_activity==1)

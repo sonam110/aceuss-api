@@ -36,68 +36,161 @@ class JournalController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions');
+            $query = Journal::select('journals.*')
+                ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')
+                ->withCount('journalActions')
+                ->orderBy('journals.date', 'DESC')->orderBy('journals.time', 'DESC');
 
-            if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+            if(in_array($user->user_type_id, [2,3,4,5,11]))
             {
 
             }
             else
             {
-                $query = $query->where('is_secret', '!=', 1);
+                $query->where('journals.is_secret', '!=', 1);
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('journals.patient_id', $user->id)
+                        ->orWhere('journals.patient_id', $user->parent_id);
+                });
             }
             
             if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query->whereIn('journals.branch_id',$allChilds);
             }
 
             if(!empty($request->activity_id))
             {
-                $query->where('activity_id', $request->activity_id);
+                $query->where('journals.activity_id', $request->activity_id);
             }
 
             if(!empty($request->branch_id))
             {
-                $query->where('branch_id', $request->branch_id);
+                $query->where('journals.branch_id', $request->branch_id);
             }
 
             if(!empty($request->patient_id))
             {
-                $query->where('patient_id', $request->patient_id);
+                $query->where('journals.patient_id', $request->patient_id);
             }
 
             if(!empty($request->emp_id))
             {
-                $query->where('emp_id', $request->emp_id);
+                $query->where('journals.emp_id', $request->emp_id);
             }
 
             if(!empty($request->category_id))
             {
-                $query->where('category_id', $request->category_id);
+                $query->where('journals.category_id', $request->category_id);
             }
 
             if(!empty($request->subcategory_id))
             {
-                $query->where('subcategory_id', $request->subcategory_id);
+                $query->where('journals.subcategory_id', $request->subcategory_id);
             }
 
-            if(!empty($request->is_secret))
+            if($request->is_secret=='yes')
             {
-                $query->where('is_secret', $request->is_secret);
+                $query->where('journals.is_secret', 1);
+            }
+            elseif($request->is_secret=='no')
+            {
+                $query->where('journals.is_secret', 0);
             }
 
-            if(!empty($request->is_signed))
+            if($request->is_signed=='yes')
             {
-                $query->where('is_signed', $request->is_signed);
+                $query->where('journals.is_signed', 1);
+            }
+            elseif($request->is_signed=='no')
+            {
+                $query->where('journals.is_signed', 0);
+            }
+
+            if($request->is_active=='yes')
+            {
+                $query->where('journals.is_active', 1);
+            }
+            elseif($request->is_active=='no')
+            {
+                $query->where('journals.is_active', 0);
             }
 
             if(!empty($request->data_of))
             {
                 $date = date('Y-m-d',strtotime('-1'.$request->data_of.''));
-                $query->where('created_at','>=', $date);
+                $query->where('journals.created_at','>=', $date);
             }
             if(!empty($request->perPage))
             {
+                ////////Counts
+                $journalCounts = Journal::select([
+                    \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
+                    \DB::raw('COUNT(IF(is_active = 1, 0, NULL)) as total_active'),
+                    \DB::raw('COUNT(IF(is_secret = 1, 0, NULL)) as total_secret'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
+                ]);
+                if(in_array($user->user_type_id, [2,3,4,5,11]))
+                {
+
+                }
+                else
+                {
+                    $journalCounts->where('is_secret', '!=', 1);
+                }
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $journalCounts->where(function ($q) use ($user) {
+                        $q->where('journals.patient_id', $user->id)
+                            ->orWhere('journals.patient_id', $user->parent_id);
+                    });
+                }
+                
+                if($user->user_type_id !='2') {
+                    $journalCounts->whereIn('journals.branch_id',$allChilds);
+                }
+
+                if(!empty($request->activity_id))
+                {
+                    $journalCounts->where('journals.activity_id', $request->activity_id);
+                }
+
+                if(!empty($request->branch_id))
+                {
+                    $journalCounts->where('journals.branch_id', $request->branch_id);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $journalCounts->where('journals.patient_id', $request->patient_id);
+                }
+
+                if(!empty($request->emp_id))
+                {
+                    $journalCounts->where('journals.emp_id', $request->emp_id);
+                }
+
+                if(!empty($request->category_id))
+                {
+                    $journalCounts->where('journals.category_id', $request->category_id);
+                }
+
+                if(!empty($request->subcategory_id))
+                {
+                    $journalCounts->where('journals.subcategory_id', $request->subcategory_id);
+                }
+
+                if(!empty($request->data_of))
+                {
+                    $date = date('Y-m-d',strtotime('-1'.$request->data_of.''));
+                    $journalCounts->where('journals.created_at','>=', $date);
+                }
+                $journalCounts = $journalCounts->first();
+
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
@@ -108,7 +201,12 @@ class JournalController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+                    'total_signed' => $journalCounts->total_signed,
+                    'total_active' => $journalCounts->total_active,
+                    'total_secret' => $journalCounts->total_secret,
+                    'total_with_activity' => $journalCounts->total_with_activity,
+                    'total_without_activity' => $journalCounts->total_without_activity,
                 ];
                 return prepareResult(true,"Journal list",$pagination,config('httpcodes.success'));
             }

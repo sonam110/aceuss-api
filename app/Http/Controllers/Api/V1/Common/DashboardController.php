@@ -28,56 +28,56 @@ class DashboardController extends Controller
             $data = [];
             if($user->user_type_id == '1')
             {
-            	$date['companyCount'] = User::where('user_type_id','2')->count();
-            	$date['packageCount'] = Package::count();
-            	$date['moduelCount'] = Module::count();
-            	$date['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
-            	$date['licenseCount'] = User::whereNotNull('license_key')->count();
+            	$data['companyCount'] = User::where('user_type_id','2')->count();
+            	$data['packageCount'] = Package::count();
+            	$data['moduelCount'] = Module::count();
+            	$data['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
+            	$data['licenseCount'] = User::whereNotNull('license_key')->count();
             }
 
             if($user->user_type_id == '2')
             {
-            	$date['employeeCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','3')->count();
-            	$date['patientCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','6')->count();
-            	$date['branchCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','11')->count();
-            	$date['departmentCount'] = Department::where('top_most_parent_id',$user->id)->count();
-            	$date['activityCount'] = Activity::where('top_most_parent_id',$user->id)->count();
-            	$date['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->count();
-            	$date['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->count();
-            	$date['ipCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->count();
-            	$date['ipCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','1')->count();
-            	$date['ipPendingCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','0')->count();
-            	$date['followupCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->count();
-            	$date['followupCompleteCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','2')->count();
-            	$date['followupPendingCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','0')->count();
-            	$date['taskCount'] = Task::where('top_most_parent_id',$user->id)->count();
-            	$date['taskCompleteCount'] = Task::where('top_most_parent_id',$user->id)->where('status','1')->count();
-            	$date['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();	
+            	$data['employeeCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','3')->count();
+            	$data['patientCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','6')->count();
+            	$data['branchCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','11')->count();
+            	$data['departmentCount'] = Department::where('top_most_parent_id',$user->id)->count();
+            	$data['activityCount'] = Activity::where('top_most_parent_id',$user->id)->count();
+            	$data['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->count();
+            	$data['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->count();
+            	$data['ipCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->count();
+            	$data['ipCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','1')->count();
+            	$data['ipPendingCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','0')->count();
+            	$data['followupCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->count();
+            	$data['followupCompleteCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','2')->count();
+            	$data['followupPendingCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','0')->count();
+            	$data['taskCount'] = Task::where('top_most_parent_id',$user->id)->count();
+            	$data['taskCompleteCount'] = Task::where('top_most_parent_id',$user->id)->where('status','1')->count();
+            	$data['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->count();	
             }
 
             if($user->user_type_id == '3')
             {
-                $date['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
-                $date['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
-                $date['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
-                $date['taskCount'] = AssignTask::where('user_id',$user->id)->count();
-                $date['AssignTaskCompleteCount'] = AssignTask::where('user_id',$user->id)->where('status','1')->count();
-                $date['AssignTaskPendingCount'] = AssignTask::where('user_id',$user->id)->where('status','0')->count();
-                $date['ipCount'] = IpAssigneToEmployee::where('user_id',$user->id)->count();
-                $date['ipCompleteCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','1')->count();
-                $date['ipPendingCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','0')->count();
+                $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
+                $data['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
+                $data['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                $data['taskCount'] = AssignTask::where('user_id',$user->id)->count();
+                $data['AssignTaskCompleteCount'] = AssignTask::where('user_id',$user->id)->where('status','1')->count();
+                $data['AssignTaskPendingCount'] = AssignTask::where('user_id',$user->id)->where('status','0')->count();
+                $data['ipCount'] = IpAssigneToEmployee::where('user_id',$user->id)->count();
+                $data['ipCompleteCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','1')->count();
+                $data['ipPendingCount'] = IpAssigneToEmployee::where('user_id',$user->id)->where('status','0')->count();
             }
 
             if($user->user_type_id == '6')
             {
-                $date['activityCount'] = Activity::where('patient_id',$user->id)->count();
-                $date['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
-                $date['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
-                $date['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->count();
-                $date['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
-                $date['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
+                $data['activityCount'] = Activity::where('patient_id',$user->id)->count();
+                $data['activityCompleteCount'] = Activity::where('patient_id',$user->id)->where('status','1')->count();
+                $data['activityPendingCount'] = Activity::where('patient_id',$user->id)->where('status','0')->count();
+                $data['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->count();
+                $data['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->count();
+                $data['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->count();
             }
-            return prepareResult(true,'Dashboard' ,$date, config('httpcodes.success'));    
+            return prepareResult(true,'Dashboard' ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  

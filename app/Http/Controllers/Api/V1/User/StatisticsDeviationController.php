@@ -27,13 +27,21 @@ class StatisticsDeviationController extends Controller
                 \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
             ]);
 
-            if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+            if(in_array($user->user_type_id, [2,3,4,5,11]))
             {
 
             }
             else
             {
                 $query = $query->where('is_secret', '!=', 1);
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
             }
             
             if($user->user_type_id !='2') {
@@ -95,13 +103,21 @@ class StatisticsDeviationController extends Controller
                     \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
                 ]);
 
-                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                if(in_array($user->user_type_id, [2,3,4,5,11]))
                 {
 
                 }
                 else
                 {
                     $query = $query->where('is_secret', '!=', 1);
+                }
+
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('patient_id', $user->id)
+                            ->orWhere('patient_id', $user->parent_id);
+                    });
                 }
                 
                 if($user->user_type_id !='2') {
@@ -141,13 +157,21 @@ class StatisticsDeviationController extends Controller
                     \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
                 ]);
 
-                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                if(in_array($user->user_type_id, [2,3,4,5,11]))
                 {
 
                 }
                 else
                 {
                     $query = $query->where('is_secret', '!=', 1);
+                }
+
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('patient_id', $user->id)
+                            ->orWhere('patient_id', $user->parent_id);
+                    });
                 }
                 
                 if($user->user_type_id !='2') {

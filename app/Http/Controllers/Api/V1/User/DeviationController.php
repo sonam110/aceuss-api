@@ -31,15 +31,24 @@ class DeviationController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','completedBy:id,name','branch');
+            $query = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','completedBy:id,name','branch')
+            ->orderBy('deviations.date_time', 'DESC');
 
-            if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+            if(in_array($user->user_type_id, [2,3,4,5,11]))
             {
 
             }
             else
             {
                 $query = $query->where('is_secret', '!=', 1);
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('deviations.patient_id', $user->id)
+                        ->orWhere('deviations.patient_id', $user->parent_id);
+                });
             }
             
             if($user->user_type_id !='2') {
@@ -107,19 +116,30 @@ class DeviationController extends Controller
                 $query->where('critical_range', $request->critical_range);
             }
 
-            if(!empty($request->is_secret))
+            if($request->is_secret=='yes')
             {
-                $query->where('is_secret', $request->is_secret);
+                $query->where('is_secret', 1);
+            }
+            elseif($request->is_secret=='no')
+            {
+                $query->where('is_secret', 0);
+            }
+            if($request->is_signed=='yes')
+            {
+                $query->where('is_signed', 1);
+            }
+            elseif($request->is_signed=='no')
+            {
+                $query->where('is_signed', 0);
             }
 
-            if(!empty($request->is_signed))
+            if($request->is_completed=='yes')
             {
-                $query->where('is_signed', $request->is_signed);
+                $query->where('is_completed', 1);
             }
-
-            if(!empty($request->is_completed))
+            elseif($request->is_completed=='no')
             {
-                $query->where('is_completed', $request->is_completed);
+                $query->where('is_completed', 0);
             }
 	        
             if(!empty($request->perPage))
@@ -130,16 +150,24 @@ class DeviationController extends Controller
                     \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
                     \DB::raw('COUNT(IF(is_completed = 0 OR is_completed IS NULL, 0, NULL)) as total_not_completed'),
                     \DB::raw('COUNT(IF(is_secret = 1, 0, NULL)) as total_secret'),
-                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_with_activity'),
-                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
+                    \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
                 ]);
-                if($user->user_type_id=='2' || $user->user_type_id=='3' || $user->user_type_id=='4' || $user->user_type_id=='5' || $user->user_type_id=='11')
+                if(in_array($user->user_type_id, [2,3,4,5,11]))
                 {
 
                 }
                 else
                 {
                     $deviationCounts->where('is_secret', '!=', 1);
+                }
+
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $deviationCounts->where(function ($q) use ($user) {
+                        $q->where('deviations.patient_id', $user->id)
+                            ->orWhere('deviations.patient_id', $user->parent_id);
+                    });
                 }
                 
                 if($user->user_type_id !='2') {
@@ -257,9 +285,9 @@ class DeviationController extends Controller
             $deviation->critical_range = $request->critical_range;
             $deviation->follow_up = $request->follow_up;
             $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
-            $deviation->is_secret = $request->is_secret;
-            $deviation->is_signed = $request->is_signed;
-            $deviation->is_completed = $request->is_completed;
+            $deviation->is_secret = ($request->is_secret==1) ? 1 : 0;
+            $deviation->is_signed = ($request->is_signed==1) ? 1 : 0;
+            $deviation->is_completed = ($request->is_completed==1) ? 1 : 0;
             if($request->is_completed==1)
             {
                 $deviation->completed_date = date('Y-m-d');
@@ -288,7 +316,7 @@ class DeviationController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-            $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,personal_number,email,contact_number,patient_type_id','Employee:id,name','completedBy:id,name','branch')->first();
+            $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch')->first();
             return prepareResult(true,'View Deviation' ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -340,13 +368,13 @@ class DeviationController extends Controller
             $deviation->critical_range = $request->critical_range;
             $deviation->follow_up = $request->follow_up;
             $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
-            $deviation->is_secret = $request->is_secret;
-            $deviation->is_signed = $request->is_signed;
-            $deviation->is_completed = $request->is_completed;
+            $deviation->is_secret = ($request->is_secret==1) ? 1 : 0;
+            $deviation->is_signed = ($request->is_signed==1) ? 1 : 0;
+            $deviation->is_completed = ($request->is_completed==1) ? 1 : 0;
             if($request->is_completed==1)
             {
                 $deviation->completed_date = date('Y-m-d');
-            }           
+            }             
             $deviation->edited_by = auth()->id();
             $deviation->edited_date = date('Y-m-d');
             $deviation->reason_for_editing = $request->reason_for_editing;
@@ -399,7 +427,7 @@ class DeviationController extends Controller
 
             $deviation = Deviation::whereIn('id', $request->deviation_ids)->update([
                 'is_signed' => $request->is_signed,
-                'is_completed' => $request->is_completed,
+                'is_completed' => $request->is_signed,
                 'completed_by' => auth()->id(),
                 'completed_date' => date('Y-m-d')
             ]);

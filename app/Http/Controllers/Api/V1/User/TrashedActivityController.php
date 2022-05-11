@@ -29,10 +29,14 @@ class TrashedActivityController extends Controller
                 $query = $query->whereIn('id',explode(',',$agnActivity));
 
             }
-            if($user->user_type_id =='6'){
-                $query = $query->where('patient_id',$user->id);
-
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
             }
+            
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw)
                 

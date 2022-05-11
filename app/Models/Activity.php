@@ -20,6 +20,7 @@ use App\Models\Deviation;
 class Activity extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
+    protected $dates = ['deleted_at'];
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
@@ -175,7 +176,7 @@ class Activity extends Model
 
     public function getWithJournalAttribute()
     {
-        $activity_journal = Journal::where('activity_id',$this->id)->count();
+        $activity_journal = Journal::where('activity_id',$this->id)->whereNull('deleted_at')->count();
         if($activity_journal >= 1)
         {
             $withJournal = 1;
@@ -191,7 +192,7 @@ class Activity extends Model
 
     public function getWithDeviationAttribute()
     {
-        $activity_deviation = Deviation::where('activity_id',$this->id)->count();
+        $activity_deviation = Deviation::where('activity_id',$this->id)->whereNull('deleted_at')->count();
         if($activity_deviation >= 1)
         {
             $withDeviation = 1;

@@ -99,6 +99,7 @@ class UserLoginController extends Controller
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;
+                                $user['role_name']    = @Auth::user()->roles[0]->se_name;
                                 $role   = Role::where('name', $user['roles'])->first();
                                 $user['permissions']  = $role->permissions()->select('id','name as action','group_name as subject','se_name')->get();
                                 $user['licence_status'] = 1;

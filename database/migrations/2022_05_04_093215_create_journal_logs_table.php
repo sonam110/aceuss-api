@@ -17,7 +17,7 @@ class CreateJournalLogsTable extends Migration
             $table->id();
             $table->foreignId('journal_id')->nullable();
             $table->foreignId('top_most_parent_id')->nullable();
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
             $table->datetime('description_created_at');

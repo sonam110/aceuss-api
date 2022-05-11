@@ -43,6 +43,7 @@ class ActivityController extends Controller
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email')->withCount('comments');
+
             if($user->user_type_id =='2'){
 
             } else{
@@ -54,10 +55,15 @@ class ActivityController extends Controller
                 $query = $query->whereIn('activity_assignes.id',explode(',',$agnActivity));
 
             }
-            if($user->user_type_id =='6'){
-                $query = $query->where('activities.patient_id',$user->id);
 
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('activities.patient_id', $user->id)
+                        ->orWhere('activities.patient_id', $user->parent_id);
+                });
             }
+
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw);
             } else {
@@ -72,7 +78,8 @@ class ActivityController extends Controller
                 ->withoutGlobalScope('top_most_parent_id')
                 ->where('journals.top_most_parent_id', $user->top_most_parent_id);
 
-                $query->where('activities.top_most_parent_id', $user->top_most_parent_id);
+                $query->where('activities.top_most_parent_id', $user->top_most_parent_id)
+                ->whereNull('activities.deleted_at');
             }
             if(!empty($request->with_deviation) && $request->with_deviation==1)
             {
@@ -82,7 +89,8 @@ class ActivityController extends Controller
                 ->withoutGlobalScope('top_most_parent_id')
                 ->where('deviations.top_most_parent_id', $user->top_most_parent_id);
 
-                $query->where('activities.top_most_parent_id', $user->top_most_parent_id);
+                $query->where('activities.top_most_parent_id', $user->top_most_parent_id)
+                ->whereNull('deviations.deleted_at');
             }
 
             $query = $query->orderBy('activities.start_date', 'ASC')->orderBy('activities.start_time', 'ASC');
@@ -97,18 +105,24 @@ class ActivityController extends Controller
             if($user->user_type_id =='2'){
 
             } else{
-                $activityCounts =  $activityCounts->whereIn('id',$allChilds);
+                $activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
-                $activityCounts = $activityCounts->whereIn('id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('activities.user_id',$user->id)->pluck('activity_id')->implode(',');
+                $activityCounts = $activityCounts->whereIn('activity_assignes.id',explode(',',$agnActivity));
 
             }
-            if($user->user_type_id =='6'){
-                $activityCounts = $activityCounts->where('patient_id',$user->id);
 
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $activityCounts->where(function ($q) use ($user) {
+                    $q->where('activities.patient_id', $user->id)
+                        ->orWhere('activities.patient_id', $user->parent_id);
+                });
             }
+            
+
             $whereRaw2 = $this->getWhereRawFromRequestOther($request);
 
             if($whereRaw2 != '') { 
@@ -131,12 +145,27 @@ class ActivityController extends Controller
                 $jour_and_devi = $jour_and_devi->whereIn('id',explode(',',$agnActivity));
 
             }
-            if($user->user_type_id =='6'){
-                $jour_and_devi = $jour_and_devi->where('patient_id',$user->id);
 
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $jour_and_devi->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
             }
+
             $jour_and_devi = $jour_and_devi->get();
-            $today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
+            
+            $today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'));
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $today_created_journal->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
+            }
+            $today_created_journal = $today_created_journal->count();
             $today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
            
             if(!empty($request->perPage))

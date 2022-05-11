@@ -210,6 +210,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('activity-tag','User\ActivityController@activityTag');
 		Route::post('activity-not-applicable','User\ActivityController@activityNotApplicable');
+		Route::post('get-tmw-wise-activity-report','User\StatisticsActivityController@getTWMwiseActivityReport');
 
 		Route::post('trashed-activites', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'trashedActivites']);
 		Route::delete('trashed-activites-permanent-delete/{id}', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'destroy']);
