@@ -792,7 +792,7 @@ function getRoleInfo($top_most_parent_id, $role_name)
 function getJournal($id)
 {
     $journal = Journal::where('id',$id)
-        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')
+        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
         ->withCount('journalActions')
         ->first();
     return $journal;

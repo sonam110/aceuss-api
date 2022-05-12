@@ -87,4 +87,9 @@ class Journal extends Model
     {
         return $this->hasMany(JournalAction::class,'journal_id','id')->orderBy('id','desc');
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(User::class,'branch_id','id');
+    }
 }
