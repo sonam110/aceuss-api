@@ -128,6 +128,12 @@ class UserController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
+
+            //check Permission for create employee
+
+
+            ////////////////////////////////////////
+
             if($request->user_type_id  != '6'){
                  $validator = Validator::make($request->all(),[
                 'password'  => 'required|same:confirm-password|min:8|max:30', 

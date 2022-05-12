@@ -69,7 +69,7 @@ class PatientController extends Controller
 
             $query = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps')
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','branch:id,name')
             ->withCount('ipFollowUps','activities')
             ->with(
                 ['patient' => function ($query) {
@@ -396,7 +396,17 @@ class PatientController extends Controller
                     }
                 }
                  DB::commit();
-                $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
+                $patientImpPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
+                ->where('patient_implementation_plans.is_latest_entry',1)
+                ->whereIn('id',$impPlan_ids)
+                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons.Country','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+                ->withCount('ipFollowUps','activities')
+                ->with(
+                    ['patient' => function ($query) {
+                        $query->withCount(['persons','patientPlan','patientActivity']);
+                    }]
+                )
+                ->get();
                 return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, config('httpcodes.success'));
             } else {
                 return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -623,8 +633,18 @@ class PatientController extends Controller
                         }
                     }
                 }
-                 DB::commit();
-                $patientImpPlan = PatientImplementationPlan::whereIn('id',$impPlan_ids)->get();
+                DB::commit();
+                $patientImpPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
+                ->where('patient_implementation_plans.is_latest_entry',1)
+                ->whereIn('id',$impPlan_ids)
+                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons.Country','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+                ->withCount('ipFollowUps','activities')
+                ->with(
+                    ['patient' => function ($query) {
+                        $query->withCount(['persons','patientPlan','patientActivity']);
+                    }]
+                )
+                ->get();
                 return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, config('httpcodes.success'));
             } else {
                 return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -663,8 +683,17 @@ class PatientController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
             }
-
-            $patientPlan = PatientImplementationPlan::where('id',$id)->with('Parent','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patient','persons.Country','children','assignEmployee:id,ip_id,user_id')->first();
+            $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
+            ->where('patient_implementation_plans.is_latest_entry',1)
+            ->where('id',$id)
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons.Country','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+            ->withCount('ipFollowUps','activities')
+            ->with(
+                ['patient' => function ($query) {
+                    $query->withCount(['persons','patientPlan','patientActivity']);
+                }]
+            )
+            ->first();
             return prepareResult(true,'View Patient plan' ,$patientPlan, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -702,7 +731,7 @@ class PatientController extends Controller
         }
     }
 
-     public function ipAssigneToEmployee(Request $request){
+    public function ipAssigneToEmployee(Request $request){
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -734,7 +763,8 @@ class PatientController extends Controller
             
         }
     }
-     public function viewIpAssigne(Request $request){
+    
+    public function viewIpAssigne(Request $request){
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -759,8 +789,6 @@ class PatientController extends Controller
             
         }
     }
-
-  
 
     public function ipEditHistory(Request $request){
         try {
@@ -806,7 +834,7 @@ class PatientController extends Controller
         }
     }
 
-     public function ipTemplateList(Request $request){
+    public function ipTemplateList(Request $request){
         try {
 
             $whereRaw = $this->getWhereRawFromRequest1($request);

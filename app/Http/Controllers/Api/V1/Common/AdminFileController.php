@@ -31,9 +31,9 @@ class AdminFileController extends Controller
                 $query->where('title', 'LIKE', '%'.$request->title.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
@@ -63,16 +63,40 @@ class AdminFileController extends Controller
     public function companyFiles(Request $request)
     {
         try {
-            $query = AdminFile::select('*')->orderBy('created_at', 'DESC')->with('UserType');
+            $query = AdminFile::select('*');
+            if(auth()->user()->user_type_id==2)
+            {
+                $query->where(function ($q) use ($request) {
+                    $q->where('top_most_parent_id', 1)
+                        ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
+                });
+            }
+            else
+            {
+                $query->where(function ($q) use ($request) {
+                    $q->where('top_most_parent_id', 1)
+                        ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
+                });
+                $query->where(function ($q) use ($request) {
+                    $q->where('top_most_parent_id', 1)
+                        ->orWhere('user_type_id', auth()->user()->user_type_id);
+                });
+            }
+            
+
+            $query = $query->withoutGlobalScope('top_most_parent_id')
+            //->whereNull('company_ids')
+            ->orderBy('created_at', 'DESC')
+            ->with('UserType');
 
             if(!empty($request->title))
             {
                 $query->where('title', 'LIKE', '%'.$request->title.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();

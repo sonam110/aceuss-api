@@ -18,7 +18,7 @@ class PatientImplementationPlan extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
-    protected $appends = ['with_activity','with_followup'];
+    protected $appends = ['with_activity','with_followup','can_approve_this'];
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
@@ -77,6 +77,11 @@ class PatientImplementationPlan extends Model
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(User::class,'branch_id','id');
     }
     
     public function patient()
@@ -151,34 +156,41 @@ class PatientImplementationPlan extends Model
 
     public function getWithActivityAttribute()
     {
+        $withActivity = 0;
         $activity = Activity::where('ip_id',$this->id)->count();
-        if($activity >= 1)
+        if($activity > 0)
         {
             $withActivity = 1;
-        }
-        else
-        {
-            $withActivity = 0;
-        }
-        return $withActivity;
-        
-
+        } 
+        return $withActivity;       
     }
 
     public function getWithFollowUpAttribute()
     {
+        $withFollowUp = 0;
         $followUp = IpFollowUp::where('ip_id',$this->id)->count();
-        if($followUp >= 1)
+        if($followUp > 0)
         {
             $withFollowUp = 1;
         }
-        else
-        {
-            $withFollowUp = 0;
-        }
         return $withFollowUp;
-        
+    }
 
+    public function getCanApproveThisAttribute()
+    {
+        $data = $this;
+        $can_approve_this = 0;
+        $isApprovedRequest = RequestForApproval::where('requested_to', auth()->id())
+        ->where(function ($q) use ($data) {
+            $q->where('request_type_id', $data->parent_id)
+                ->orWhere('request_type_id', $data->id);
+        })
+        ->count();
+        if($isApprovedRequest > 0)
+        {
+            $can_approve_this = 1;
+        }
+        return $can_approve_this;
     }
 
     

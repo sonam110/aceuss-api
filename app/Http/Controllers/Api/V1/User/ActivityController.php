@@ -42,7 +42,7 @@ class ActivityController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email')->withCount('comments');
+            $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments');
 
             if($user->user_type_id =='2'){
 
@@ -466,8 +466,10 @@ class ActivityController extends Controller
                         }
                     }
                 }
-                 DB::commit();
-                $activityList = Activity::whereIn('id',$activity_ids)->get();
+                DB::commit();
+                $activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
+                ->whereIn('id',$activity_ids)
+                ->get();
                 return prepareResult(true,'Activity Added successfully' ,$activityList, config('httpcodes.success'));
             } else{
                  return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
@@ -727,8 +729,10 @@ class ActivityController extends Controller
                         }
                     }
                 }
-                 DB::commit();
-                $activityList = Activity::whereIn('id',$activity_ids)->get();
+                DB::commit();
+                $activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
+                ->whereIn('id',$activity_ids)
+                ->get();
                 return prepareResult(true,'Activity Update successfully' ,$activityList, config('httpcodes.success'));
             } else{
                  return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));

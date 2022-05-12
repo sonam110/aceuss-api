@@ -25,9 +25,9 @@ class PermissionController extends Controller
                 $query->where('se_name', 'LIKE', '%'.$request->se_name.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();

@@ -44,6 +44,11 @@ class RoleController extends Controller
                 $query->where('top_most_parent_id', $request->top_most_parent_id);
             }
 
+            if(!empty($request->user_type_id))
+            {
+                $query->where('user_type_id', $request->user_type_id);
+            }
+
             if(!empty($request->name))
             {
                 $query->where('name', 'LIKE', '%'.$request->name.'%');

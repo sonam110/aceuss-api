@@ -232,7 +232,9 @@ class CompanyAccountController extends Controller
                 }
             }
             DB::commit();
-            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first();
+            $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+                ->where('id',$user->id)
+                ->first();
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -251,7 +253,9 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','id_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->first();
+            $userShow = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+                ->where('id',$user->id)
+                ->first();;
 
             return prepareResult(true,'User View' ,$userShow, config('httpcodes.success'));
                 
@@ -346,7 +350,9 @@ class CompanyAccountController extends Controller
                 }
             }
             DB::commit();
-            $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
+            $userdetail = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+                ->where('id',$user->id)
+                ->first();;
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$userdetail, config('httpcodes.success'));
                 
         }

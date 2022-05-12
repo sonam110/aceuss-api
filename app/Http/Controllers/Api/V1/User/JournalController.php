@@ -256,9 +256,9 @@ class JournalController extends Controller
             $journal->is_active = ($request->is_active)? $request->is_active :0;
             $journal->edit_date = date('Y-m-d H:i:s');
 		 	$journal->save();
+            DB::commit();
 
             $data = getJournal($journal->id);
-             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -323,8 +323,9 @@ class JournalController extends Controller
             $journal->is_active = ($request->is_active)? $request->is_active :0;
 		 	$journal->save();
 
+		    DB::commit();
+            
             $data = getJournal($journal->id);
-		      DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Journal','update') ,$data, config('httpcodes.success'));
 		}
         catch(Exception $exception) {

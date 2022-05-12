@@ -165,9 +165,9 @@ class NoMiddlewareController extends Controller
             {
                 $query->where('user_type_has_permissions.user_type_id',$request->user_type_id);
             }
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();

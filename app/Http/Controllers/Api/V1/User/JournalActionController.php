@@ -114,8 +114,13 @@ class JournalActionController extends Controller
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
             $journalAction->save();
-             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$journalAction, config('httpcodes.success'));
+            
+            DB::commit();
+
+            $data = JournalAction::with('journal','journalActionLogs')
+                ->where('id', $journalAction->id)
+                ->first();
+            return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -173,8 +178,12 @@ class JournalActionController extends Controller
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->reason_for_editing  = $request->reason_for_editing;
             $journalAction->save();
-               DB::commit();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$journalAction, config('httpcodes.success'));
+            DB::commit();
+
+            $data = JournalAction::with('journal','journalActionLogs')
+                ->where('id', $journalAction->id)
+                ->first();
+            return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$data, config('httpcodes.success'));
               
         }
         catch(Exception $exception) {
@@ -212,8 +221,10 @@ class JournalActionController extends Controller
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
-            $journalAction = JournalAction::where('id',$id)->first();
-            return prepareResult(true,'View Journal Action' ,$journalAction, config('httpcodes.success'));
+            $data = JournalAction::with('journal','journalActionLogs')
+                ->where('id', $id)
+                ->first();
+            return prepareResult(true,'View Journal Action' ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

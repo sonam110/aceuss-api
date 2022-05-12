@@ -33,9 +33,9 @@ class LogController extends Controller
                 $query->where('status', $request->status);
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
@@ -80,9 +80,9 @@ class LogController extends Controller
                 $query->where('name', 'LIKE', '%'.$request->name.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
@@ -117,9 +117,9 @@ class LogController extends Controller
                 $query->where('properties', 'LIKE', '%'.$request->properties.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();

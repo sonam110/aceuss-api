@@ -263,7 +263,9 @@ class FollowUpsController extends Controller
                     }
                 }
             }
-		 	 DB::commit();
+		 	DB::commit();
+            
+
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {

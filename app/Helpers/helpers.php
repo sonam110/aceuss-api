@@ -792,7 +792,8 @@ function getRoleInfo($top_most_parent_id, $role_name)
 function getJournal($id)
 {
     $journal = Journal::where('id',$id)
-        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')->withCount('journalActions')
+        ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy')
+        ->withCount('journalActions')
         ->first();
     return $journal;
 }
@@ -814,4 +815,10 @@ function dateDifference($start_date, $end_date, $differenceFormat = '%d' )
 
     return $interval->format($differenceFormat);
 
+}
+
+function getTopMostParent()
+{
+    $top_most_parent = User::find(auth()->user()->top_most_parent_id());
+    return $top_most_parent;
 }

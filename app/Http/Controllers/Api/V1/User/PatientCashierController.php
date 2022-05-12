@@ -41,6 +41,15 @@ class PatientCashierController extends Controller
                 $query->where('receipt_no', 'LIKE' ,'%'.$request->receipt_no.'%');
             }
 
+            if(!empty($request->amount_from))
+            {
+                $query->where('amount', '>=',$request->amount_from);
+            }
+            if(!empty($request->amount_to))
+            {
+                $query->where('amount', '<=',$request->amount_to);
+            }
+
             if(!empty($request->patient_id))
             {
                 $query->where('patient_id', $request->patient_id);
@@ -120,7 +129,10 @@ class PatientCashierController extends Controller
             $patient_cashier->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $patient_cashier->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Patient Cashier','create') ,$patient_cashier, config('httpcodes.success'));
+            $data = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')
+                ->where('id', $patient_cashier->id)
+                ->first();
+            return prepareResult(true,getLangByLabelGroups('Patient Cashier','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);

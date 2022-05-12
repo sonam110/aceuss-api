@@ -48,7 +48,7 @@ class FileUploadController extends Controller
 
                     if($request->store_in_db==1)
                     {
-                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id);
+                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id,$request->company_ids);
                     }
                     
                     
@@ -75,7 +75,7 @@ class FileUploadController extends Controller
                 $file->move($destinationPath, $fileName);
                 if($request->store_in_db==1)
                 {
-                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id);
+                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id, $request->company_ids);
                 }
                 
                 $fileInfo = [
@@ -93,7 +93,7 @@ class FileUploadController extends Controller
         }
     }
 
-    private function storeFileInDB($title, $file_path, $is_public, $user_type_id=null)
+    private function storeFileInDB($title, $file_path, $is_public, $user_type_id=null,$company_ids=null)
     {
         if(!empty($user_type_id))
         {
@@ -106,6 +106,22 @@ class FileUploadController extends Controller
                 $filesave->user_type_id = $usertype;
                 $filesave->save();
             }
+        }
+        elseif(!empty($company_ids))
+        {
+            $comIds = [];
+            foreach(explode(',', $company_ids) as $companyId)
+            {
+                $comIds[] = $companyId;
+            }
+            $filesave = new AdminFile;
+            $filesave->title = $title;
+            $filesave->file_path = $file_path;
+            $filesave->is_public = $is_public;
+            $filesave->created_by = auth()->id();
+            $filesave->company_ids = json_encode($comIds);
+            $filesave->top_most_parent_id = auth()->user()->top_most_parent_id;
+            $filesave->save();
         }
         else
         {

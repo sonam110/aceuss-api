@@ -94,6 +94,12 @@ class Activity extends Model
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(User::class,'branch_id','id');
+    }
+    
 	public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

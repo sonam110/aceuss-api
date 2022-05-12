@@ -11,7 +11,7 @@ use Exception;
 use DB;
 class CategoryMasterController extends Controller
 {
-     public function __construct()
+    public function __construct()
     {
 
         $this->middleware('permission:categories-browse',['except' => ['show']]);
@@ -68,6 +68,7 @@ class CategoryMasterController extends Controller
         }
     	
     }
+
     public function categoryParentList(Request $request)
     {
         DB::beginTransaction();
@@ -215,7 +216,11 @@ class CategoryMasterController extends Controller
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$categoryMaster, config('httpcodes.success'));
+            $data = CategoryMaster::where('id', $categoryMaster->id)
+                    ->orderBy('id', 'DESC')
+                    ->with('Parent:id,name','CategoryType:id,name')
+                    ->first();
+	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -266,7 +271,11 @@ class CategoryMasterController extends Controller
             $categoryMaster->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$categoryMaster, config('httpcodes.success'));
+
+            $data = CategoryMaster::where('id', $categoryMaster->id)
+                    ->with('Parent:id,name','CategoryType:id,name')
+                    ->first();
+	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$data, config('httpcodes.success'));
 			    
 		       
         }
