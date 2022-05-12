@@ -35,7 +35,7 @@ class CreateIpFollowUpsTable extends Migration
             $table->date('approved_date')->nullable();
             $table->longText('documents')->nullable();
             $table->foreignId('action_by')->nullable();
-            $table->date('action_date')->nullable();
+            $table->timestamp('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->text('witness')->nullable();
             $table->text('more_witness')->nullable();

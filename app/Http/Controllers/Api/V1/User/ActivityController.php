@@ -42,7 +42,8 @@ class ActivityController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments');
+            $query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
+                ->where('is_latest_entry', 1);
 
             if($user->user_type_id =='2'){
 
@@ -101,7 +102,7 @@ class ActivityController extends Controller
                 \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_done'),
                 \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_not_done'),
                 \DB::raw('COUNT(IF(status = 3, 0, NULL)) as total_not_applicable'),
-            ]);
+            ])->where('is_latest_entry', 1);
             if($user->user_type_id =='2'){
 
             } else{
@@ -133,7 +134,7 @@ class ActivityController extends Controller
 
 
             ////////Journal & Deviation
-            $jour_and_devi = Activity::select('id')->whereDate('start_date', date('Y-m-d'));
+            $jour_and_devi = Activity::select('id')->whereDate('start_date', date('Y-m-d'))->where('is_latest_entry', 1);
             if($user->user_type_id =='2'){
 
             } else{
@@ -599,11 +600,13 @@ class ActivityController extends Controller
                         foreach ($request->how_many_time_array as $key => $time) {
                             if(!empty($time['start']))
                             {
+                                Activity::where('id',$id)->update(['is_latest_entry'=>0]);
+
                                 $activity = new Activity;
                                 $activity->ip_id = $request->ip_id;
                                 $activity->parent_id = $parent_id;
                                 $activity->group_id = $checkId->group_id;
-                                $activity->branch_id = $branch_id;
+                                $activity->branch_id = !empty($request->branch_id) ? $request->branch_id : $branch_id;
                                 $activity->patient_id = $request->patient_id;
                                 $activity->category_id = $request->category_id;
                                 $activity->subcategory_id = $request->subcategory_id;
@@ -649,7 +652,7 @@ class ActivityController extends Controller
                                 $activity->is_latest_entry = 1;
                                 $activity->save();
 
-                                Activity::where('id',$id)->update(['is_latest_entry'=>0]);
+                                
 
                                 $activity_ids[] = $activity->id;
                                 if(is_array($request->employees)  && sizeof($request->employees) > 0 ){

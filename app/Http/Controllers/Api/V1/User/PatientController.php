@@ -24,6 +24,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\EmailTemplate;
 use PDF;
+use Carbon\Carbon;
 
 class PatientController extends Controller
 {
@@ -446,7 +447,7 @@ class PatientController extends Controller
             }
             $ids = null;
             $impPlan_ids = [];
-            $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
+            $parent_id  = $id;
 
             if(!$user->hasPermissionTo('isCategoryEditPermission-edit')){
                return prepareResult(false,'You are not authorized to edit IP', [],config('httpcodes.not_found'));     
@@ -455,46 +456,99 @@ class PatientController extends Controller
                 foreach ($data['data'] as $key => $patient) {
                     if(!empty(@$patient['category_id']))
                     {
-                        $patientPlan = new PatientImplementationPlan;
-                        $patientPlan->user_id = @$patient['user_id'];
-                        $patientPlan->parent_id = $parent_id;
-                        $patientPlan->branch_id = getBranchId();
-                        $patientPlan->category_id = @$patient['category_id'];
-                        $patientPlan->subcategory_id = @$patient['subcategory_id'];
-                        $patientPlan->title = @$patient['title'];
-                        $patientPlan->goal = @$patient['goal'];
-                        $patientPlan->limitations = @$patient['limitations'];
-                        $patientPlan->limitation_details = @$patient['limitation_details'];
-                        $patientPlan->how_support_should_be_given = @$patient['how_support_should_be_given'];
-                        $patientPlan->who_give_support =  json_encode(@$patient['who_give_support']);
-                        $patientPlan->sub_goal = @$patient['sub_goal'];
-                        $patientPlan->sub_goal_details = @$patient['sub_goal_details'];
-                        $patientPlan->sub_goal_selected = @$patient['sub_goal_selected'];
-                        $patientPlan->overall_goal = @$patient['overall_goal'];
-                        $patientPlan->overall_goal_details = @$patient['overall_goal_details'];
-                        $patientPlan->body_functions = @$patient['body_functions'];
-                        $patientPlan->personal_factors = @$patient['personal_factors'];
-                        $patientPlan->health_conditions = @$patient['health_conditions'];
-                        $patientPlan->other_factors = @$patient['other_factors'];
-                        $patientPlan->treatment = @$patient['treatment'];
-                        $patientPlan->working_method = @$patient['working_method'];
-                        $patientPlan->reason_for_editing = @$patient['reason_for_editing'];
-                        $patientPlan->start_date = @$patient['start_date'];
-                        $patientPlan->end_date = @$patient['end_date'];
-                        $patientPlan->save_as_template = (@$patient['save_as_template'] == true) ? 1:0;
-                        $patientPlan->documents = json_encode(@$patient['documents']);
-                        $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
-                        $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
-                        $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
-                        $patientPlan->step_four = (!empty(@$patient['step_four'])) ? @$patient['step_four']:0;
-                        $patientPlan->step_five = (!empty(@$patient['step_five'])) ? @$patient['step_five']:0;
-                        $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
-                        $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
-                        $patientPlan->edited_by = $user->id;
-                        $patientPlan->is_latest_entry = 1;
-                        $patientPlan->save();
+                        $getIpInfo = PatientImplementationPlan::find($parent_id);
+                        if($getIpInfo)
+                        {
+                            //new entry create for log
+                            $patientPlan = $getIpInfo->replicate();
+                            $patientPlan->parent_id = $getIpInfo->id;
+                            $patientPlan->is_latest_entry = 0;
+                            $patientPlan->created_at = $getIpInfo->created_at;
+                            $patientPlan->save();
 
-                        PatientImplementationPlan::where('id',$id)->update(['is_latest_entry'=>0]);
+                            //update Existing or current record
+                            $getIpInfo->user_id = @$patient['user_id'];
+                            $getIpInfo->parent_id = null;
+                            $getIpInfo->branch_id = getBranchId();
+                            $getIpInfo->category_id = @$patient['category_id'];
+                            $getIpInfo->subcategory_id = @$patient['subcategory_id'];
+                            $getIpInfo->title = @$patient['title'];
+                            $getIpInfo->goal = @$patient['goal'];
+                            $getIpInfo->limitations = @$patient['limitations'];
+                            $getIpInfo->limitation_details = @$patient['limitation_details'];
+                            $getIpInfo->how_support_should_be_given = @$patient['how_support_should_be_given'];
+                            $getIpInfo->who_give_support =  json_encode(@$patient['who_give_support']);
+                            $getIpInfo->sub_goal = @$patient['sub_goal'];
+                            $getIpInfo->sub_goal_details = @$patient['sub_goal_details'];
+                            $getIpInfo->sub_goal_selected = @$patient['sub_goal_selected'];
+                            $getIpInfo->overall_goal = @$patient['overall_goal'];
+                            $getIpInfo->overall_goal_details = @$patient['overall_goal_details'];
+                            $getIpInfo->body_functions = @$patient['body_functions'];
+                            $getIpInfo->personal_factors = @$patient['personal_factors'];
+                            $getIpInfo->health_conditions = @$patient['health_conditions'];
+                            $getIpInfo->other_factors = @$patient['other_factors'];
+                            $getIpInfo->treatment = @$patient['treatment'];
+                            $getIpInfo->working_method = @$patient['working_method'];
+                            $getIpInfo->reason_for_editing = @$patient['reason_for_editing'];
+                            $getIpInfo->start_date = @$patient['start_date'];
+                            $getIpInfo->end_date = @$patient['end_date'];
+                            $getIpInfo->save_as_template = (@$patient['save_as_template'] == true) ? 1:0;
+                            $getIpInfo->documents = json_encode(@$patient['documents']);
+                            $getIpInfo->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
+                            $getIpInfo->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
+                            $getIpInfo->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
+                            $getIpInfo->step_four = (!empty(@$patient['step_four'])) ? @$patient['step_four']:0;
+                            $getIpInfo->step_five = (!empty(@$patient['step_five'])) ? @$patient['step_five']:0;
+                            $getIpInfo->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
+                            $getIpInfo->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
+                            $getIpInfo->edited_by = $user->id;
+                            $getIpInfo->is_latest_entry = 1;
+                            $patientPlan->created_at = Carbon::now();
+                            $getIpInfo->save();
+                            
+                        }
+                        else
+                        {
+                            $patientPlan = new PatientImplementationPlan;
+                            $patientPlan->user_id = @$patient['user_id'];
+                            $patientPlan->parent_id = $parent_id;
+                            $patientPlan->branch_id = getBranchId();
+                            $patientPlan->category_id = @$patient['category_id'];
+                            $patientPlan->subcategory_id = @$patient['subcategory_id'];
+                            $patientPlan->title = @$patient['title'];
+                            $patientPlan->goal = @$patient['goal'];
+                            $patientPlan->limitations = @$patient['limitations'];
+                            $patientPlan->limitation_details = @$patient['limitation_details'];
+                            $patientPlan->how_support_should_be_given = @$patient['how_support_should_be_given'];
+                            $patientPlan->who_give_support =  json_encode(@$patient['who_give_support']);
+                            $patientPlan->sub_goal = @$patient['sub_goal'];
+                            $patientPlan->sub_goal_details = @$patient['sub_goal_details'];
+                            $patientPlan->sub_goal_selected = @$patient['sub_goal_selected'];
+                            $patientPlan->overall_goal = @$patient['overall_goal'];
+                            $patientPlan->overall_goal_details = @$patient['overall_goal_details'];
+                            $patientPlan->body_functions = @$patient['body_functions'];
+                            $patientPlan->personal_factors = @$patient['personal_factors'];
+                            $patientPlan->health_conditions = @$patient['health_conditions'];
+                            $patientPlan->other_factors = @$patient['other_factors'];
+                            $patientPlan->treatment = @$patient['treatment'];
+                            $patientPlan->working_method = @$patient['working_method'];
+                            $patientPlan->reason_for_editing = @$patient['reason_for_editing'];
+                            $patientPlan->start_date = @$patient['start_date'];
+                            $patientPlan->end_date = @$patient['end_date'];
+                            $patientPlan->save_as_template = (@$patient['save_as_template'] == true) ? 1:0;
+                            $patientPlan->documents = json_encode(@$patient['documents']);
+                            $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
+                            $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
+                            $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
+                            $patientPlan->step_four = (!empty(@$patient['step_four'])) ? @$patient['step_four']:0;
+                            $patientPlan->step_five = (!empty(@$patient['step_five'])) ? @$patient['step_five']:0;
+                            $patientPlan->step_six = (!empty(@$patient['step_six'])) ? @$patient['step_six']:0;
+                            $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
+                            $patientPlan->edited_by = $user->id;
+                            $patientPlan->is_latest_entry = 1;
+                            $patientPlan->save();
+                        }
+                
 
                         $impPlan_ids[] = $patientPlan->id;
                         $ids = implode(', ',$impPlan_ids);
@@ -515,8 +569,6 @@ class PatientController extends Controller
                             $ipAssigne->ip_id = $patientPlan->id;
                             $ipAssigne->status = '1';
                             $ipAssigne->save();
-
-
                         }
 
                         /*------Check ip behalf actvity-----*/

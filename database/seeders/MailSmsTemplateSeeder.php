@@ -54,5 +54,33 @@ class MailSmsTemplateSeeder extends Seeder
 		{{start_time}}.";
         $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
         $smsTemplate->save();
+
+
+
+
+        //Template for notification
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'activity';
+        $smsTemplate->mail_subject = 'Activity Notification';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Activity Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
+        $smsTemplate->custom_attributes = "";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'Request approval';
+        $smsTemplate->mail_subject = 'Request for approval Notification';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
+        $smsTemplate->custom_attributes = "";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'Request approval';
+        $smsTemplate->mail_subject = 'Request for approval Notification';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
+        $smsTemplate->custom_attributes = "";
+        $smsTemplate->save();
     }
 }

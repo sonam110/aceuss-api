@@ -23,6 +23,8 @@ use Mail;
 use App\Mail\WelcomeMail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Carbon\Carbon;
+
 class FollowUpsController extends Controller
 {
      public function __construct()
@@ -43,15 +45,8 @@ class FollowUpsController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
 	        $whereRaw = $this->getWhereRawFromRequest($request);
-            $parent_id = IpFollowUp::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
-            $child_id  = [];
-            $followup_without_parent = IpFollowUp::whereNull('parent_id')->whereNotIn('id',explode(',',$parent_id))->pluck('id')->all();
-            foreach (explode(',',$parent_id) as $key => $value) {
-              $lastChild = IpFollowUp::where('parent_id',$value)->orderBy('id','DESC')->first();
-              $child_id[] = (!empty($value)) ? $lastChild->id : null;
-            }
-            $folloups_ids = array_merge($followup_without_parent,$child_id);
-            $query = IpFollowUp::whereIn('id',$folloups_ids)->with('ActionByUser:id,name,email','PatientImplementationPlan.patient');
+            $query = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
+                ->where('is_latest_entry', 1);
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
@@ -120,6 +115,7 @@ class FollowUpsController extends Controller
               	return prepareResult(false,getLangByLabelGroups('FollowUp','ip_id'),[], config('httpcodes.not_found')); 
         	}
             if(is_array($request->repeat_datetime)   && sizeof($request->repeat_datetime) > 0){
+                $ipfollowupsId = [];
                 foreach ($request->repeat_datetime as $key => $followup) {
                     if(!empty($followup['start_date']))
                     {
@@ -136,11 +132,13 @@ class FollowUpsController extends Controller
             		 	$ipFollowups->remarks = $request->remarks;
                         $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             		 	$ipFollowups->created_by = $user->id;
-                        $ipFollowups->documents = json_encode($request->documents);
-                        $ipFollowups->emp_id = json_encode($request->emp_id);
+                        $ipFollowups->documents = !empty($request->documents) ? json_encode($request->documents) : null;
+                        $ipFollowups->emp_id = !empty($request->emp_id) ? json_encode($request->emp_id) : null;
                         $ipFollowups->is_latest_entry = 1;
             		 	$ipFollowups->save();
-            		 	 /*-----------------Persons Informationn ----------------*/
+                        $ipfollowupsId[] = $ipFollowups->id;
+            		 	
+                        /*-----------------Persons Informationn ----------------*/
                         if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
                             foreach ($request->persons as $key => $value) {
                                 if(!empty($value['name']))
@@ -265,8 +263,9 @@ class FollowUpsController extends Controller
             }
 		 	DB::commit();
             
-
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$ipFollowups, config('httpcodes.success'));
+            $data = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
+                ->where('is_latest_entry', 1)->whereIn('id', $ipfollowupsId)->get();
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -305,31 +304,64 @@ class FollowUpsController extends Controller
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
             if(is_array($request->repeat_datetime)  && sizeof($request->repeat_datetime) > 0 ){
+                $ipfollowupsId = [];
                 foreach ($request->repeat_datetime as $key => $followup) {
                     if(!empty($followup['start_date']))
                     {
                         $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
-            	        $ipFollowups =  new  IpFollowUp;
-            		 	$ipFollowups->ip_id = $request->ip_id ;
-                        $ipFollowups->branch_id = getBranchId() ;
-            		 	$ipFollowups->parent_id = $parent_id;
-            		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
-            		 	$ipFollowups->title = $request->title;
-                        $ipFollowups->description = $request->description;
-                        $ipFollowups->start_date = $followup['start_date'];
-                        $ipFollowups->start_time = $followup['start_time'];
-                        $ipFollowups->end_date = $followup['end_date'];
-                        $ipFollowups->end_time = $followup['end_time'];
-                        $ipFollowups->remarks = $request->remarks;
-            		 	$ipFollowups->reason_for_editing = $request->reason_for_editing;
-            		 	$ipFollowups->edited_by = $user->id;
-                        $ipFollowups->documents = json_encode($request->documents);
-                        $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            		 	$ipFollowups->is_latest_entry = 1;
-                        $ipFollowups->save();
+                        $getFollowInfo = IpFollowUp::find($parent_id);
+                        if($getFollowInfo)
+                        {
+                            //new entry create for log
+                            $ipFollowups = $getFollowInfo->replicate();
+                            $ipFollowups->parent_id = $getFollowInfo->id;
+                            $ipFollowups->is_latest_entry = 0;
+                            $ipFollowups->created_at = $getFollowInfo->created_at;
+                            $ipFollowups->save();
 
-                        IpFollowUp::where('id',$id)->update(['is_latest_entry'=>0]);
-                         /*-----------------Persons Informationn ----------------*/
+                            //update Existing or current record
+                            $getFollowInfo->ip_id = $request->ip_id ;
+                            $getFollowInfo->branch_id = getBranchId() ;
+                            $getFollowInfo->parent_id = null;
+                            $getFollowInfo->title = $request->title;
+                            $getFollowInfo->description = $request->description;
+                            $getFollowInfo->start_date = $followup['start_date'];
+                            $getFollowInfo->start_time = $followup['start_time'];
+                            $getFollowInfo->end_date = $followup['end_date'];
+                            $getFollowInfo->end_time = $followup['end_time'];
+                            $getFollowInfo->remarks = $request->remarks;
+                            $getFollowInfo->reason_for_editing = $request->reason_for_editing;
+                            $getFollowInfo->edited_by = $user->id;
+                            $getFollowInfo->documents = !empty($request->documents) ? json_encode($request->documents) : null;
+                            $getFollowInfo->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $getFollowInfo->is_latest_entry = 1;
+                            $getFollowInfo->created_at = Carbon::now();
+                            $getFollowInfo->save();
+                        }
+                        else
+                        {
+                            $ipFollowups =  new  IpFollowUp;
+                            $ipFollowups->ip_id = $request->ip_id ;
+                            $ipFollowups->branch_id = getBranchId() ;
+                            $ipFollowups->parent_id = $parent_id;
+                            $ipFollowups->top_most_parent_id = $user->top_most_parent_id;
+                            $ipFollowups->title = $request->title;
+                            $ipFollowups->description = $request->description;
+                            $ipFollowups->start_date = $followup['start_date'];
+                            $ipFollowups->start_time = $followup['start_time'];
+                            $ipFollowups->end_date = $followup['end_date'];
+                            $ipFollowups->end_time = $followup['end_time'];
+                            $ipFollowups->remarks = $request->remarks;
+                            $ipFollowups->reason_for_editing = $request->reason_for_editing;
+                            $ipFollowups->edited_by = $user->id;
+                            $ipFollowups->documents = !empty($request->documents) ? json_encode($request->documents) : null;
+                            $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $ipFollowups->is_latest_entry = 1;
+                            $ipFollowups->save();
+                        }
+                        $ipfollowupsId[] = $ipFollowups->id;
+                        
+                        /*-----------------Persons Informationn ----------------*/
                         if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
                             foreach ($request->persons as $key => $value) {
                                 if(!empty($value['name']))
@@ -454,8 +486,11 @@ class FollowUpsController extends Controller
                     }
                 }
             }
-             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$ipFollowups, config('httpcodes.success'));
+            DB::commit();
+
+            $data = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
+                ->where('is_latest_entry', 1)->whereIn('id', $ipfollowupsId)->get();
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','update') ,$data, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -551,7 +586,7 @@ class FollowUpsController extends Controller
             $ipFollowups->is_completed = 1;
             $ipFollowups->status = 2;
             $ipFollowups->action_by = $user->id;
-            $ipFollowups->action_date = date('Y-m-d');
+            $ipFollowups->action_date = date('Y-m-d H:i:s');
             $ipFollowups->comment = $request->comment;
             $ipFollowups->witness = json_encode($request->witness);
             $ipFollowups->more_witness = json_encode($request->more_witness);

@@ -119,6 +119,15 @@ class JournalController extends Controller
                 $query->where('journals.is_active', 0);
             }
 
+            if($request->with_activity=='yes')
+            {
+                $query->whereNotNull('journals.activity_id');
+            }
+            elseif($request->with_activity=='no')
+            {
+                $query->whereNull('journals.activity_id');
+            }
+
             if(!empty($request->data_of))
             {
                 $date = date('Y-m-d',strtotime('-1'.$request->data_of.''));

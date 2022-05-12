@@ -11,6 +11,7 @@ use App\Models\FollowupComplete;
 use App\Models\PersonalInfoDuringIp;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+
 class IpFollowUp extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
@@ -96,8 +97,6 @@ class IpFollowUp extends Model
             $witnessList = PersonalInfoDuringIp::select('id','name','email')->whereIn('id',json_decode($this->witness))->get();
             return (!empty($witnessList)) ? $witnessList : null;
         }
-        
-
     }
 
 }

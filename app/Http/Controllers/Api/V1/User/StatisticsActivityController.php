@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\PatientImplementationPlan;
 use Illuminate\Http\Request;
 
 class StatisticsActivityController extends Controller
@@ -171,5 +172,108 @@ class StatisticsActivityController extends Controller
             'dataset_total_not_done_by_employee' => $dataset_total_not_done_by_employee,
         ];
         return prepareResult(true,"Activities",$returnObj,config('httpcodes.success'));
+    }
+
+    public function getIPGoalSubgoalReport(Request $request)
+    {
+        $request_for = !empty($request->request_for) ? $request->request_for : 7;
+        $datalabels = [];
+        $dataset_total_goal = [];
+        $dataset_total_sub_goal = [];
+        if(!empty($request->start_date) && !empty($request->end_date)) 
+        {
+            $diffrece = dateDifference($request->start_date, $request->end_date) + 1;
+            for($i = $diffrece; $i>=1; $i--)
+            {
+                $date = date("Y-m-d", strtotime('-'.($i-1).' days', strtotime($request->end_date)));
+                $datalabels[] = $date;
+
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                $query = PatientImplementationPlan::select([
+                    \DB::raw('COUNT(IF(goal IS NOT NULL, 0, NULL)) as total_goal'),
+                    \DB::raw('COUNT(IF(sub_goal IS NOT NULL, 0, NULL)) as total_sub_goal'),
+                ]);
+
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('patient_id', $user->id)
+                            ->orWhere('patient_id', $user->parent_id);
+                    });
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+
+                $query->whereDate('start_date', $date);         
+                $result = $query->first();
+                $dataset_total_goal[] = $result->total_goal;
+                $dataset_total_sub_goal[] = $result->total_sub_goal;
+            }
+        }
+        else
+        {
+            for($i = $request_for; $i>=1; $i--)
+            {
+                $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+                $datalabels[] = $date;
+
+                $user = getUser();
+                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
+                $branchids = branchChilds($branch_id);
+                $allChilds = array_merge($branchids,[$branch_id]);
+                
+                $query = PatientImplementationPlan::select([
+                    \DB::raw('COUNT(IF(goal IS NOT NULL, 0, NULL)) as total_goal'),
+                    \DB::raw('COUNT(IF(sub_goal IS NOT NULL, 0, NULL)) as total_sub_goal'),
+                ]);
+
+                if(in_array($user->user_type_id, [2,3,4,5,11]))
+                {
+
+                }
+                else
+                {
+                    $query = $query->where('is_secret', '!=', 1);
+                }
+
+                if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('patient_id', $user->id)
+                            ->orWhere('patient_id', $user->parent_id);
+                    });
+                }
+                
+                if($user->user_type_id !='2') {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
+
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
+                $query->whereDate('start_date', $date);         
+                $result = $query->first();
+                $dataset_total_goal[] = $result->total_goal;
+                $dataset_total_sub_goal[] = $result->total_sub_goal;
+            }
+        }
+
+        $returnObj = [
+            'labels' => $datalabels,
+            'dataset_total_goal' => $dataset_total_goal,
+            'dataset_total_sub_goal' => $dataset_total_sub_goal,
+        ];
+        return prepareResult(true,"Goal & Subgoal",$returnObj,config('httpcodes.success'));
     }
 }

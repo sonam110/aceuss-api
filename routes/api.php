@@ -110,6 +110,11 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		   
 		});
 
+		//Notification
+		Route::apiResource('/notification', 'Common\NotificationController')->only('store','index','destroy','show');
+		Route::get('/notification/{id}/read', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'read']);
+		Route::get('/user-notification-delete', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationDelete']);
+
 		Route::post('file-access-log', 'Common\AdminFileController@fileAccessLog');
 		Route::post('company-files', 'Common\AdminFileController@companyFiles');
 		Route::apiResource('company-file-delete',Common\AdminFileController::class)->only(['destroy']);
@@ -211,6 +216,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('activity-tag','User\ActivityController@activityTag');
 		Route::post('activity-not-applicable','User\ActivityController@activityNotApplicable');
 		Route::post('get-tmw-wise-activity-report','User\StatisticsActivityController@getTWMwiseActivityReport');
+		Route::post('get-ip-goal-subgoal-report','User\StatisticsActivityController@getIPGoalSubgoalReport');
 
 		Route::post('trashed-activites', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'trashedActivites']);
 		Route::delete('trashed-activites-permanent-delete/{id}', [App\Http\Controllers\Api\V1\User\TrashedActivityController::class, 'destroy']);

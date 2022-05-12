@@ -41,7 +41,17 @@ class RoleController extends Controller
 
             if(!empty($request->top_most_parent_id))
             {
-                $query->where('top_most_parent_id', $request->top_most_parent_id);
+                if($request->top_most_parent_id==1)
+                {
+                    $query->where(function ($q) {
+                        $q->whereNull('top_most_parent_id')
+                            ->orWhere('top_most_parent_id', 1);
+                    });
+                }
+                else
+                {
+                    $query->where('top_most_parent_id', $request->top_most_parent_id);
+                }
             }
 
             if(!empty($request->user_type_id))
