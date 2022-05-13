@@ -140,6 +140,7 @@ class RequestApprovalController extends Controller
                                         $userSave->zipcode = $person->zipcode;
                                         $userSave->full_address = $person->full_address ;
                                         $userSave->save(); 
+
                                         if(!empty($user_type_id))
                                         {
                                            $role = $roleInfo;
@@ -198,6 +199,9 @@ class RequestApprovalController extends Controller
                             }
                         }
                     }
+
+                    //update userId 
+                    getPersonUserId($value);
                 }
                 if($request->approval_type == '1') {
                     $patientImpPlan = PatientImplementationPlan::whereIn('id', $request->request_type_id)->get();

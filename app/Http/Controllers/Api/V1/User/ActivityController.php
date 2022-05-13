@@ -142,8 +142,8 @@ class ActivityController extends Controller
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
-                $jour_and_devi = $jour_and_devi->whereIn('id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
+                $jour_and_devi = $jour_and_devi->whereIn('id', $agnActivity);
 
             }
 
@@ -155,8 +155,7 @@ class ActivityController extends Controller
                 });
             }
 
-            $jour_and_devi = $jour_and_devi->get();
-            
+            $jour_and_devi = $jour_and_devi->pluck('id');
             $today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'));
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
@@ -167,7 +166,17 @@ class ActivityController extends Controller
                 });
             }
             $today_created_journal = $today_created_journal->count();
-            $today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'))->count();
+
+            $today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'));
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $today_created_deviation->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
+            }
+            $today_created_deviation = $today_created_deviation->count();
            
             if(!empty($request->perPage))
             {

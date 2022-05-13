@@ -16,6 +16,7 @@ use App\Models\Journal;
 use App\Models\Deviation;
 use App\Models\Activity;
 use App\Models\MobileBankIdLoginLog;
+use App\Models\PersonalInfoDuringIp;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
@@ -776,4 +777,26 @@ function getTopMostParent()
 {
     $top_most_parent = User::find(auth()->user()->top_most_parent_id());
     return $top_most_parent;
+}
+
+function getPersonUserId($personal_info_during_ips_id)
+{
+    $user_id = null;
+    $person = PersonalInfoDuringIp::select('id', 'user_id', 'email')->find($personal_info_during_ips_id);
+    if($person)
+    {
+        $user = User::select('id', 'email')
+            ->where('email', $person->email)
+            ->withoutGlobalScope('top_most_parent_id')
+            ->first();
+        if($user)
+        {
+            //Update person user id
+            $person->user_id = $user->id;
+            $person->save();
+            
+            $user_id = $user->id;
+        }
+    }
+    return $user_id;
 }

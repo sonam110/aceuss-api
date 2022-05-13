@@ -180,15 +180,21 @@ class PatientImplementationPlan extends Model
     {
         $data = $this;
         $can_approve_this = 0;
-        $isApprovedRequest = RequestForApproval::where('requested_to', auth()->id())
-        ->where(function ($q) use ($data) {
-            $q->where('request_type_id', $data->parent_id)
-                ->orWhere('request_type_id', $data->id);
-        })
-        ->count();
-        if($isApprovedRequest > 0)
+        $getUserId = PersonalInfoDuringIp::select('id','user_id')
+            ->where('user_id', auth()->id())
+            ->first();
+        if($getUserId)
         {
-            $can_approve_this = 1;
+            $isApprovedRequest = RequestForApproval::where('requested_to', $getUserId->id)
+            ->where(function ($q) use ($data) {
+                $q->where('request_type_id', $data->parent_id)
+                    ->orWhere('request_type_id', $data->id);
+            })
+            ->count();
+            if($isApprovedRequest > 0)
+            {
+                $can_approve_this = 1;
+            }
         }
         return $can_approve_this;
     }
