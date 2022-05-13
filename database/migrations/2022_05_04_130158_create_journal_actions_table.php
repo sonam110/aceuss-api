@@ -17,8 +17,8 @@ class CreateJournalActionsTable extends Migration
             $table->id();
             $table->foreignId('journal_id')->nullable();
             $table->foreignId('top_most_parent_id')->nullable();
-            $table->text('comment_action');
-            $table->text('comment_result');
+            $table->text('comment_action')->nullable();
+            $table->text('comment_result')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->foreignId('edited_by')->nullable();
             $table->datetime('edit_date')->nullable();

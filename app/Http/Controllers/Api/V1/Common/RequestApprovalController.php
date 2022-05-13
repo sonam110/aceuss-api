@@ -193,7 +193,7 @@ class RequestApprovalController extends Controller
 
                                 ];
                                 if(env('IS_NOTIFICATION_ENABLE')== true){
-                                    pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'');
+                                    pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'','info');
                                 }
                             }
                         }

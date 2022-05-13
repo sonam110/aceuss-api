@@ -36,6 +36,8 @@ use App\Models\IpFollowUp;
 use App\Models\Followup;
 use App\Models\Employee;
 use App\Models\Patient;
+use App\Models\Journal;
+use App\Models\Deviation;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
@@ -319,6 +321,14 @@ class User extends Authenticatable
          return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id',3);
     }
 
+    public function journals()
+    {
+        return $this->hasMany(Journal::class,'patient_id','id');
+    }
 
+    public function deviations()
+    {
+        return $this->hasMany(User::class,'patient_id','id');
+    }
     
 }

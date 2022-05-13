@@ -221,11 +221,15 @@ function addTask($task,$resource_id){
 
 
 
-function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen)
+function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen, $status_code)
 {
     if(!empty($obj['user_id']))
     {
-        $userDeviceInfo = DeviceLoginHistory::where('user_id',$obj['user_id'])->whereIn('login_via',['1','2'])->orderBy('created_at', 'DESC')->first();
+        $userDeviceInfo = DeviceLoginHistory::where('user_id',$obj['user_id'])
+            ->whereNotNull('device_token')
+            ->whereIn('login_via',['1','2'])
+            ->orderBy('created_at', 'DESC')
+            ->first();
 
         $title = false;
         $body = false;
@@ -250,78 +254,29 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
         }
 
 
-        if(!empty($userDeviceInfo))
+        if($userDeviceInfo && $getMsg)
         { 
-            if($getMsg)
-            {
-                if(!empty($userDeviceInfo->device_token))
-                {
-                    $push = new PushNotification('fcm');
-                    $push->setMessage([
-                        "notification"=>[
-                            'title' => $title,
-                            'body'  => $body,
-                            'sound' => 'default',
-                            'android_channel_id' => '1',
-                            //'timestamp' => date('Y-m-d G:i:s')
-                        ],
-                        'data'=>[
-                            'id'  => $id,
-                            'user_type'  => $obj['user_type'],
-                            'module'  => $module,
-                            'screen'  => $screen
-                        ]                        
-                    ])
-                    ->setApiKey(env('FIREBASE_KEY'))
-                    ->setDevicesToken($userDeviceInfo->device_token)
-                    ->send();
-                    /*if($userDeviceInfo->login_via=='1')
-                    {
-                        $push = new PushNotification('fcm');
-                        $push->setMessage([
-                            "notification"=>[
-                                'title' => $title,
-                                'body'  => $body,
-                                'sound' => 'default',
-                                'android_channel_id' => '1',
-                                //'timestamp' => date('Y-m-d G:i:s')
-                            ],
-                            'data'=>[
-                                'id'  => $id,
-                                'user_type'  => $obj['user_type'],
-                                'module'  => $module,
-                                'screen'  => $screen
-                            ]                        
-                        ])
-                        ->setApiKey(env('FIREBASE_KEY'))
-                        ->setDevicesToken($userDeviceInfo->device_token)
-                        ->send();
-                    }
-                    elseif($userDeviceInfo->login_via=='2')
-                    {
-                        $push = new PushNotification('apn');
-
-                        $push->setMessage([
-                            'aps' => [
-                                'alert' => [
-                                    'title' => $title,
-                                    'body' => $body
-                                ],
-                                'sound' => 'default',
-                                'badge' => 1
-
-                            ],
-                            'extraPayLoad' => [
-                                'custom' => 'My custom data',
-                            ]                       
-                        ])
-                        ->setDevicesToken($userDeviceInfo->device_token);
-                        $push = $push->send();
-                        //return $push->getFeedback();
-                    }*/
-                }
-            }
+            $push = new PushNotification('fcm');
+            $push->setMessage([
+                "notification"=>[
+                    'title' => $title,
+                    'body'  => $body,
+                    'sound' => 'default',
+                    'android_channel_id' => '1',
+                    //'timestamp' => date('Y-m-d G:i:s')
+                ],
+                'data'=>[
+                    'id'  => $id,
+                    'user_type'  => $obj['user_type'],
+                    'module'  => $module,
+                    'screen'  => $screen
+                ]                        
+            ])
+            ->setApiKey(env('FIREBASE_KEY'))
+            ->setDevicesToken($userDeviceInfo->device_token)
+            ->send();
         }
+
         if($save_to_database == true)
         {
             $notification = new Notification;
@@ -329,7 +284,8 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $notification->sender_id        = Auth::id();
             $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
             $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-            $notification->type             = $obj['type'];;
+            $notification->type             = $obj['type'];
+            $notification->status_code      = $status_code;
             $notification->user_type        = $obj['user_type'];
             $notification->module           = $module;
             $notification->title            = $title;
@@ -340,8 +296,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $notification->data_id          = $id;
             $notification->read_status      = false;
             $notification->save();
-        }
-        
+        }    
     }
     return true;
 }

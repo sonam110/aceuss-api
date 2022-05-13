@@ -11,6 +11,7 @@ use Str;
 use DB;
 use Auth;
 use Log;
+use Edujugon\PushNotification\PushNotification;
 
 class NotificationController extends Controller
 {
@@ -76,6 +77,7 @@ class NotificationController extends Controller
             $notification->device_id            = $request->device_id;
             $notification->device_platform      = $request->device_platform;
             $notification->type                 = $request->type;
+            $notification->status_code          = $request->status_code;
             $notification->title                = $request->title;
             $notification->sub_title            = $request->sub_title;
             $notification->message              = $request->message;
@@ -120,6 +122,21 @@ class NotificationController extends Controller
         }
     }
 
+    public function userNotificationReadAll()
+    {
+        try
+        {
+            Notification::where('user_id', Auth::id())->update(['read_status' => true]);
+            return prepareResult(true,"User Notifications read all", [],config('httpcodes.success'));
+        }
+        catch (\Throwable $exception)
+        {
+            DB::rollback();
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
     public function userNotificationDelete()
     {
         try
@@ -133,5 +150,30 @@ class NotificationController extends Controller
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
+    }
+
+    public function notificationCheck(Request $request)
+    {
+        $push = new PushNotification('fcm');
+        $push->setMessage([
+            "notification"=>[
+                'title' => 'Testing Title',
+                'body'  => 'Testing Body',
+                'sound' => 'default',
+                'android_channel_id' => '1',
+                //'timestamp' => date('Y-m-d G:i:s')
+            ],
+            'data'=>[
+                'id'  => 1,
+                'user_type'  => 'Company',
+                'module'  => 'Activity',
+                'screen'  => 'home'
+            ]                        
+        ])
+        ->setApiKey(env('FIREBASE_KEY'))
+        ->setDevicesToken($request->device_token)
+        ->send();
+
+        return prepareResult(true,$push->getFeedback(), [],config('httpcodes.success'));
     }
 }

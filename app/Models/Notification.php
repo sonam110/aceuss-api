@@ -11,7 +11,7 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
-        'type','user_id','sender_id','device_id','device_platform','user_type','module','title','sub_title','message','image_url','screen', 'data_id','read_status','read_at'
+        'type','user_id','sender_id', 'status_code','device_id','device_platform','user_type','module','title','sub_title','message','image_url','screen', 'data_id','read_status','read_at'
     ];
     public function user()
     {

@@ -61,28 +61,26 @@ class UserLoginController extends Controller
                                 return prepareResult(false,getLangByLabelGroups('LoginValidation','unable_generate_token'),[], config('httpcodes.bad_request'));
                             }else{
                                  //======= login history==================//
-                                $history =  DeviceLoginHistory::where('user_id',$user->id)->get();
-                                if (count($history) <= 6) {
+                                $history =  DeviceLoginHistory::where('user_id',$user->id)
+                                ->where('login_via', $request->login_via)
+                                ->where('device_token', $request->device_token)
+                                ->where('device_id', $request->device_id)
+                                ->first();
+                                if ($history) {
+                                    $history->user_token = $token;
+                                    $history->ip_address = request()->ip();
+                                    $history->save();
+                                }
+                                else
+                                {
                                     $createHistory = DeviceLoginHistory::create([
                                         'user_id'=> Auth::id(),
                                         'login_via'=> ($request->login_via) ? $request->login_via:'0',
                                         'device_token'=> $request->device_token,
                                         'device_id'=> $request->device_id,
                                         'user_token'=> $token,
+                                        'ip_address'=> request()->ip(),
                                     ]);
-                                }else if(count($history) >= 7){  
-                                    $getLastId = DeviceLoginHistory::orderBy('created_at', 'desc')->skip(6)->take(1)->first();
-                                    if ($getLastId->id) {
-                                        $deleteId = DeviceLoginHistory::find($getLastId->id); 
-                                        $deleteId->delete($getLastId->id);
-                                        $createHistory = DeviceLoginHistory::create(
-                                            ['user_id'=>Auth::id(),
-                                            'login_via'=> ($request->login_via) ? $request->login_via:'0',
-                                            'device_token'=>$request->device_token,
-                                            'device_id'=>$request->device_id,
-                                            'user_token'=> $token,
-                                        ]);
-                                    }
                                 }
 
                                 if(auth()->user()->top_most_parent_id!=1)

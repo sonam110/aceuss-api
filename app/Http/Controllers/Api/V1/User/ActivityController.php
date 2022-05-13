@@ -430,10 +430,10 @@ class ActivityController extends Controller
                                                     "company"=>  $companyObj,
                                                     "company_id"=>  $getUser->top_most_parent_id,
                                                  ];
-                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen);
+                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen, 'success');
                                             }
                                             if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen,'success');
                                             }
                                             if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
                                                 sendMessage('activity',$obj,$companyObj);
@@ -696,7 +696,7 @@ class ActivityController extends Controller
                                                     "company"=>  $companyObj,
                                                     "company_id"=>  $getUser->top_most_parent_id,
                                                  ];
-                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen);
+                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen, 'success');
                                             }
                                             $obj  =[
                                                 "type"=> 'activity',
@@ -713,7 +713,7 @@ class ActivityController extends Controller
 
                                             ];
                                             if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen);
+                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen, 'success');
                                             }
                                             if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
                                                 sendMessage('activity',$obj,$companyObj);

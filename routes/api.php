@@ -113,7 +113,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		//Notification
 		Route::apiResource('/notification', 'Common\NotificationController')->only('store','index','destroy','show');
 		Route::get('/notification/{id}/read', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'read']);
+		Route::get('/user-notification-read-all', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationReadAll']);
 		Route::get('/user-notification-delete', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationDelete']);
+		Route::post('/notification-check', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'notificationCheck']);
 
 		Route::post('file-access-log', 'Common\AdminFileController@fileAccessLog');
 		Route::post('company-files', 'Common\AdminFileController@companyFiles');

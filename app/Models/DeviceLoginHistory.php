@@ -15,7 +15,7 @@ class DeviceLoginHistory extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'device_id', 'device_model','device_token','login_via','status','user_token'
+        'user_id', 'device_id', 'device_model','device_token','login_via','status','user_token','ip_address'
     ];
 
     public function employeeInfo()

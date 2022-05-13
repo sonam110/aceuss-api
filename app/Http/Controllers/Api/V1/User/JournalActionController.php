@@ -95,16 +95,17 @@ class JournalActionController extends Controller
             $user = getUser();
             $validator = Validator::make($request->all(),[
                 'journal_id' => 'required|exists:journals,id',    
-                'comment_result' => 'required',   
-                'comment_action' => 'required',       
             ],
             [
                 'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
-                'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
-                'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+
+            if(empty($request->comment_action) && empty($request->comment_result))
+            {
+                return prepareResult(false,'You need to fill atleast one field',[], config('httpcodes.bad_request')); 
             }
             
             $journalAction = new JournalAction;
@@ -136,17 +137,18 @@ class JournalActionController extends Controller
             $user = getUser();
 
             $validator = Validator::make($request->all(),[
-                'journal_id' => 'required|exists:journals,id',    
-                'comment_result' => 'required',   
-                'comment_action' => 'required',       
+                'journal_id' => 'required|exists:journals,id',          
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
-                'comment_result' =>  getLangByLabelGroups('JournalAction','comment_result'),   
-                'comment_action' =>  getLangByLabelGroups('JournalAction','comment_action'), 
+                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),    
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+
+            if(empty($request->comment_action) && empty($request->comment_result))
+            {
+                return prepareResult(false,'You need to fill atleast one field',[], config('httpcodes.bad_request')); 
             }
             
             $checkId = JournalAction::where('id',$id)

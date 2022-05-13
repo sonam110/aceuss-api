@@ -116,7 +116,7 @@ class taskNotify extends Command
 
                 ];
                 if(env('IS_NOTIFICATION_ENABLE')== true && ($is_push_notify == true) && ($currentDateTime  ==  $dateTime) ){
-                        pushNotification('task',$companyObj,$obj,'1',$module,$id,$screen);
+                        pushNotification('task',$companyObj,$obj,'1',$module,$id,$screen, 'info');
                         $update_is_notify = taskAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
                 }
                 if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
