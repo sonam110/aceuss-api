@@ -49,5 +49,11 @@ class JournalAction extends Model
     {
         return $this->hasMany(JournalActionLog::class,'journal_action_id','id')->orderBy('id','desc');
     }
+
+    public function signedBy()
+    {
+        return $this->belongsTo(User::class,'signed_by','id');
+    }
+
    	
 }

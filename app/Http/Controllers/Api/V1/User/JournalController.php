@@ -344,6 +344,7 @@ class JournalController extends Controller
             
         }
     }
+
     public function destroy($id){
   
         try {
@@ -366,7 +367,9 @@ class JournalController extends Controller
     public function show($id){
         try {
 	    	$user = getUser();
-        	$checkId= Journal::where('id',$id)
+        	$checkId= Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
+                ->withCount('journalActions')
+                ->where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Journal','id_not_found'), [],config('httpcodes.not_found'));

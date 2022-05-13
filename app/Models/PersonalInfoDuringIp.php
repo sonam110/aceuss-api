@@ -17,6 +17,7 @@ class PersonalInfoDuringIp extends Model
     protected $fillable =[
 	    'patient_id',
 	    'ip_id',
+        'user_id',
 		'follow_up_id',
 		'name',
 		'email',
@@ -49,10 +50,17 @@ class PersonalInfoDuringIp extends Model
     {
         return $this->belongsTo(IpFollowUp::class,'follow_up_id','id');
     }
-     public function patient()
+    
+    public function patient()
     {
         return $this->belongsTo(User::class,'patient_id','id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+
     public function Country()
     {
         return $this->belongsTo(Country::class,'country_id','id');

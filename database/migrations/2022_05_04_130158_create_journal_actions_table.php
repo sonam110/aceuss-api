@@ -24,7 +24,7 @@ class CreateJournalActionsTable extends Migration
             $table->datetime('edit_date')->nullable();
             $table->boolean('is_signed')->default(0);
             $table->foreignId('signed_by')->nullable();
-            $table->date('signed_date')->nullable();
+            $table->timestamp('signed_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

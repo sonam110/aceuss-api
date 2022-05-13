@@ -31,7 +31,7 @@ class JournalActionController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = JournalAction::with('journal','journalActionLogs');
+            $query = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name');
             
 
             if($user->user_type_id =='2'){
@@ -114,11 +114,16 @@ class JournalActionController extends Controller
             $journalAction->comment_result      = $request->comment_result;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
+            if($request->is_signed==1)
+            {
+                $journalAction->signed_by   = auth()->id();
+                $journalAction->signed_date = date('Y-m-d H:i:s');
+            }
             $journalAction->save();
             
             DB::commit();
 
-            $data = JournalAction::with('journal','journalActionLogs')
+            $data = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->where('id', $journalAction->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$data, config('httpcodes.success'));
@@ -178,11 +183,17 @@ class JournalActionController extends Controller
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
             $journalAction->edited_by           = $user->id;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
+            if($request->is_signed==1)
+            {
+                $journalAction->signed_by   = auth()->id();
+                $journalAction->signed_date = date('Y-m-d H:i:s');
+            }
+            
             $journalAction->reason_for_editing  = $request->reason_for_editing;
             $journalAction->save();
             DB::commit();
 
-            $data = JournalAction::with('journal','journalActionLogs')
+            $data = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->where('id', $journalAction->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$data, config('httpcodes.success'));
@@ -195,8 +206,9 @@ class JournalActionController extends Controller
             
         }
     }
-    public function destroy($id){
-  
+
+    public function destroy($id)
+    {
         try {
             $user = getUser();
             $checkId= JournalAction::where('id',$id)->first();
@@ -214,10 +226,11 @@ class JournalActionController extends Controller
         }
     }
     
-    public function show($id){
+    public function show($id)
+    {
         try {
             $user = getUser();
-            $checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs')
+            $checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->first();
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
@@ -233,6 +246,7 @@ class JournalActionController extends Controller
             
         }
     }
+    
     private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {
@@ -262,7 +276,7 @@ class JournalActionController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
-            $journalAction = Journal::whereIn('id', $request->journal_action_ids)->update([
+            $journalAction = JournalAction::whereIn('id', $request->journal_action_ids)->update([
                 'is_signed' => $request->is_signed,
                 'signed_by' => auth()->id(),
                 'signed_date' => date('Y-m-d')

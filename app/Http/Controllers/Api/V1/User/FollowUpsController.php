@@ -218,6 +218,11 @@ class FollowUpsController extends Controller
                                             $userSave->zipcode = @$value['zipcode'];
                                             $userSave->full_address = @$value['full_address'] ;
                                             $userSave->save(); 
+
+                                            //update personal_info_during_ips
+                                            $personalInfo->user_id =$userSave->id;
+                                            $personalInfo->save();
+
                                             if(!empty($user_type_id))
                                             {
                                                $role = $roleInfo;
@@ -441,6 +446,10 @@ class FollowUpsController extends Controller
                                             $userSave->zipcode = @$value['zipcode'];
                                             $userSave->full_address = @$value['full_address'] ;
                                             $userSave->save();
+                                            
+                                            //update personal_info_during_ips
+                                            $personalInfo->user_id =$userSave->id;
+                                            $personalInfo->save();
                                             
                                             if(env('IS_MAIL_ENABLE',false) == true){ 
                                                     $variables = ([

@@ -17,6 +17,7 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->id();
             $table->foreignId('patient_id');
             $table->foreignId('ip_id')->nullable();
+            $table->foreignId('user_id')->nullable();
             $table->foreignId('follow_up_id')->nullable();
             $table->string('name');
             $table->string('email')->nullable();

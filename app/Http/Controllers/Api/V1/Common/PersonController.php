@@ -28,9 +28,9 @@ class PersonController extends Controller
             $user = getUser();
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query= PersonalInfoDuringIp::whereRaw($whereRaw)->with('Country');
+                $query= PersonalInfoDuringIp::whereRaw($whereRaw)->with('Country','user:id,name');
             } else {
-                $query= PersonalInfoDuringIp::with('Country');
+                $query= PersonalInfoDuringIp::with('Country','user:id,name');
             }
             if(!empty($request->perPage))
             {
@@ -77,6 +77,13 @@ class PersonController extends Controller
 	        $personalInfo = new PersonalInfoDuringIp;
 		 	$personalInfo->patient_id = $request->patient_id;
             $personalInfo->ip_id = $request->ip_id;
+
+            $checkUser = User::where('email', $request->email)->first();
+            if($checkUser)
+            {
+                $personalInfo->user_id = $checkUser->id;
+            }
+            
             $personalInfo->follow_up_id = $request->follow_up_id;
             $personalInfo->name = $request->name ;
             $personalInfo->email = $request->email ;
@@ -111,7 +118,7 @@ class PersonController extends Controller
     {
         try {
             $user = getUser();
-            $personInfo= PersonalInfoDuringIp::where('id',$id)->with('patient:id,name,email','PatientImplementationPlan')->first();
+            $personInfo= PersonalInfoDuringIp::where('id',$id)->with('patient:id,name,email','PatientImplementationPlan','user:id,name')->first();
             if (!is_object($personInfo)) {
                 return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
@@ -147,6 +154,13 @@ class PersonController extends Controller
 	        $personalInfo = PersonalInfoDuringIp::find($id);
 		 	$personalInfo->patient_id = $request->patient_id;
             $personalInfo->ip_id = $request->ip_id;
+
+            $checkUser = User::where('email', $request->email)->first();
+            if($checkUser)
+            {
+                $personalInfo->user_id = $checkUser->id;
+            }
+            
             $personalInfo->follow_up_id = $request->follow_up_id;
             $personalInfo->name = $request->name ;
             $personalInfo->email = $request->email ;
