@@ -57,7 +57,7 @@ class UserSeeder extends Seeder
             }
 
            
-            $roles = Role::whereNotIn('id',['1','2','11'])->get();
+            $roles = Role::whereNotIn('id',['1','2','11','16'])->get();
             foreach ($roles as $key => $role) {
                 $defaultPermission = Permission::select('id','name')->where('id','11')->first(); 
                 $role->givePermissionTo($defaultPermission->name);

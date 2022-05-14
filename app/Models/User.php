@@ -39,10 +39,11 @@ use App\Models\Patient;
 use App\Models\Journal;
 use App\Models\Deviation;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\TopMostParentId;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes,LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes,LogsActivity,TopMostParentId;
 
     /**
      * The attributes that are mass assignable.
@@ -156,7 +157,7 @@ class User extends Authenticatable
     }
     public function CategoryMaster()
     {
-        return $this->belongsTo(CategoryMaster::class,'category_id','id');
+        return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id');
     }
     public function TopMostParent()
     {
@@ -221,7 +222,7 @@ class User extends Authenticatable
 
     public function messages()
     {
-    return $this->hasMany(Message::class);
+        return $this->hasMany(Message::class);
     }
     
     public function Department()

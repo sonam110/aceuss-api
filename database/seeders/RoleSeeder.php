@@ -39,6 +39,7 @@ class RoleSeeder extends Seeder
         $role13 = Role::create(['id' => '13','name' => 'Presented','se_name' => 'Presented', 'guard_name' => 'api','is_default'=>'1']);
         $role14 = Role::create(['id' => '14','name' => 'Participated','se_name' => 'Participated', 'guard_name' => 'api','is_default'=>'1']);
         $role15 = Role::create(['id' => '15','name' => 'Other','se_name' => 'Other', 'guard_name' => 'api','is_default'=>'1']);
+        $role16 = Role::create(['id' => '16','name' => 'Admin Employee','se_name' => 'Admin Employee', 'guard_name' => 'api','is_default'=>'0']);
 
         \DB::table('user_types')->truncate();
         $UserType1 = UserType::create(['id' => '1','name' => 'Super Admin']);
@@ -56,6 +57,7 @@ class RoleSeeder extends Seeder
         $UserType13 = UserType::create(['id' => '13','name' => 'Presented']);
         $UserType14 = UserType::create(['id' => '14','name' => 'Participated']);
         $UserType15 = UserType::create(['id' => '15','name' => 'Other']);
+        $UserType15 = UserType::create(['id' => '16','name' => 'Admin Employee']);
    
 
         \DB::table('employee_types')->truncate();

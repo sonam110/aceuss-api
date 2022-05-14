@@ -238,11 +238,13 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[   
-        		'category_id' => 'required|exists:category_masters,id',  
+                'category_id' => 'required|exists:category_masters,id',  
+        		'subcategory_id' => 'required|exists:category_masters,id',  
         		// 'description' => 'required',       
 	        ],
             [   
                 'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
+                'subcategory_id' =>  getLangByLabelGroups('Journal','subcategory_id'), 
                 // 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {
@@ -283,12 +285,14 @@ class JournalController extends Controller
         try {
 	    	$user = getUser();
 
-	    	$validator = Validator::make($request->all(),[    
-        		'category_id' => 'required|exists:category_masters,id',  
-        		// 'description' => 'required',    
-	        ],
-            [  
+	    	$validator = Validator::make($request->all(),[   
+                'category_id' => 'required|exists:category_masters,id',  
+                'subcategory_id' => 'required|exists:category_masters,id',  
+                // 'description' => 'required',       
+            ],
+            [   
                 'category_id' =>  getLangByLabelGroups('Journal','category_id'), 
+                'subcategory_id' =>  getLangByLabelGroups('Journal','subcategory_id'), 
                 // 'description' =>  getLangByLabelGroups('Journal','description'), 
             ]);
 	        if ($validator->fails()) {

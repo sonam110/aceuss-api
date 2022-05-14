@@ -99,7 +99,7 @@ class FileUploadController extends Controller
         {
             foreach (explode(',', $user_type_id) as $key => $usertype) {
                 $filesave = new AdminFile;
-                $filesave->title = $title;
+                $filesave->title = !empty($title) ? $title : 'File uploaded';
                 $filesave->file_path = $file_path;
                 $filesave->is_public = $is_public;
                 $filesave->created_by = auth()->id();
@@ -111,7 +111,7 @@ class FileUploadController extends Controller
         {
             $comIds = ['all'];
             $filesave = new AdminFile;
-            $filesave->title = $title;
+            $filesave->title = !empty($title) ? $title : 'File uploaded';
             $filesave->file_path = $file_path;
             $filesave->is_public = $is_public;
             $filesave->created_by = auth()->id();
@@ -127,7 +127,7 @@ class FileUploadController extends Controller
                 $comIds[] = $companyId;
             }
             $filesave = new AdminFile;
-            $filesave->title = $title;
+            $filesave->title = !empty($title) ? $title : 'File uploaded';
             $filesave->file_path = $file_path;
             $filesave->is_public = $is_public;
             $filesave->created_by = auth()->id();
@@ -139,7 +139,7 @@ class FileUploadController extends Controller
         {
             $filesave = new AdminFile;
             $filesave->top_most_parent_id = auth()->user()->top_most_parent_id;
-            $filesave->title = $title;
+            $filesave->title = !empty($title) ? $title : 'File uploaded';
             $filesave->file_path = $file_path;
             $filesave->is_public = $is_public;
             $filesave->created_by = auth()->id();

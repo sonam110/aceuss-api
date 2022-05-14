@@ -84,10 +84,10 @@ class PatientController extends Controller
                 $query =  $query->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }
 
-            if($user->user_type_id =='3'){
+            /*if($user->user_type_id =='3'){
                 $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
                 $query = $query->whereIn('patient_implementation_plans.id',explode(',',$ipAssigne));
-            }
+            }*/
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
@@ -276,7 +276,7 @@ class PatientController extends Controller
                             $ipTemplate->save();
                         }
                         /*-----------IP assigne to employee*/
-                        if(!empty(@$patient['emp_id']) ){
+                        /*if(!empty(@$patient['emp_id']) ){
                             $ipAssigne = new IpAssigneToEmployee;
                             $ipAssigne->user_id = @$patient['emp_id'];
                             $ipAssigne->ip_id = $patientPlan->id;
@@ -290,7 +290,7 @@ class PatientController extends Controller
                             $ipAssigne->ip_id = $patientPlan->id;
                             $ipAssigne->status = '1';
                             $ipAssigne->save();
-                        }
+                        }*/
                         /*-----------------Persons Informationn ----------------*/
                         if(is_array(@$patient['persons']) && sizeof(@$patient['persons']) >0 ){
                             foreach (@$patient['persons'] as $key => $value) {
@@ -568,13 +568,13 @@ class PatientController extends Controller
                             $ipTemplate->save();
                         }
                         /*-----------IP assigne to employee*/
-                        if(!empty(@$patient['emp_id']) ){
+                        /*if(!empty(@$patient['emp_id']) ){
                             $ipAssigne = new IpAssigneToEmployee;
                             $ipAssigne->user_id = @$patient['emp_id'];
                             $ipAssigne->ip_id = $patientPlan->id;
                             $ipAssigne->status = '1';
                             $ipAssigne->save();
-                        }
+                        }*/
 
                         /*------Check ip behalf actvity-----*/
 
@@ -946,12 +946,13 @@ class PatientController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-            $is_action_perform = false;
+            $is_action_perform = true;
            
-            $isAssignEmp = IpAssigneToEmployee::where('user_id',$user->id)->where('ip_id', $request->ip_id)->first();
+            /*$isAssignEmp = IpAssigneToEmployee::where('user_id',$user->id)->where('ip_id', $request->ip_id)->first();
             if(is_object($isAssignEmp)){
                 $is_action_perform = true; 
-            }
+            }*/
+            
             $isBranch = PatientImplementationPlan::where('id', $request->ip_id)
                 ->where(function ($q) use ($user) {
                     $q->where('branch_id', $user->id)
@@ -978,7 +979,7 @@ class PatientController extends Controller
             $ipAction->comment = $request->comment;
             $ipAction->save();
 
-            $updateStatus = IpAssigneToEmployee::where('ip_id',$request->ip_id)->update(['status'=> $request->status]);
+            /*$updateStatus = IpAssigneToEmployee::where('ip_id',$request->ip_id)->update(['status'=> $request->status]);*/
             
             DB::commit();
                

@@ -52,8 +52,8 @@ class ActivityController extends Controller
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('activities.user_id',$user->id)->pluck('activity_id')->implode(',');
-                $query = $query->whereIn('activity_assignes.id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+                $query = $query->whereIn('activities.id',$agnActivity);
 
             }
 
@@ -110,8 +110,8 @@ class ActivityController extends Controller
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('activities.user_id',$user->id)->pluck('activity_id')->implode(',');
-                $activityCounts = $activityCounts->whereIn('activity_assignes.id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id')->implode(',');
+                $activityCounts = $activityCounts->whereIn('activities.id',explode(',',$agnActivity));
 
             }
 
@@ -438,11 +438,11 @@ class ActivityController extends Controller
                                                     "start_time"=> $activity->start_time,
                                                     "company"=>  $companyObj,
                                                     "company_id"=>  $getUser->top_most_parent_id,
-                                                 ];
-                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen, 'success');
+                                                ];
+                                                pushNotification('activity',$companyObj,$objCom,1,$module,$id,$screen, 'success');
                                             }
                                             if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen,'success');
+                                                pushNotification('activity',$companyObj,$obj,1,$module,$id,$screen, 'success');
                                             }
                                             if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
                                                 sendMessage('activity',$obj,$companyObj);
@@ -705,7 +705,7 @@ class ActivityController extends Controller
                                                     "company"=>  $companyObj,
                                                     "company_id"=>  $getUser->top_most_parent_id,
                                                  ];
-                                                pushNotification('activity',$companyObj,$objCom,$module,$id,$screen, 'success');
+                                                 pushNotification('activity',$companyObj,$objCom,1,$module,$id,$screen, 'success');
                                             }
                                             $obj  =[
                                                 "type"=> 'activity',
@@ -722,7 +722,7 @@ class ActivityController extends Controller
 
                                             ];
                                             if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-                                                pushNotification('activity',$companyObj,$obj,$module,$id,$screen, 'success');
+                                                pushNotification('activity',$companyObj,$obj,1,$module,$id,$screen, 'success');
                                             }
                                             if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
                                                 sendMessage('activity',$obj,$companyObj);

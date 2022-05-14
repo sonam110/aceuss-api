@@ -24,8 +24,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 class UserController extends Controller
 {
-
     protected $top_most_parent_id;
+
     public function __construct()
     {
 
@@ -100,13 +100,8 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-     public function store(Request $request) {
+    public function store(Request $request) 
+    {
         DB::beginTransaction();
         try {
 
@@ -414,12 +409,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
     public function show(User $user)
     {
         try {
@@ -438,14 +427,8 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request,User $user){
+    public function update(Request $request,User $user)
+    {
         DB::beginTransaction();
         try {
             $userInfo = getUser();
@@ -453,27 +436,24 @@ class UserController extends Controller
                 'user_type_id' => 'required|exists:user_types,id', 
                 'role_id' => 'required|exists:roles,id', 
                 'name' => 'required', 
-                //'contact_number' => 'required', 
-
             ],
             [
             'user_type_id.required' =>  getLangByLabelGroups('UserValidation','user_type_id'),
             'role_id.required' =>  getLangByLabelGroups('UserValidation','role_id'),
             'name.required' =>  getLangByLabelGroups('UserValidation','name'),
-            //'contact_number' =>  getLangByLabelGroups('UserValidation','contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
             }
             
-            if($request->user_type_id == '6' || $request->user_type_id =='3'){
+            if($request->user_type_id == '6' || $request->user_type_id =='3')
+            {
                 $validator = Validator::make($request->all(),[
                     'personal_number' => 'required|digits:12|unique:users,personal_number,'.$user->id, 
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], '422'); 
                 }
-
             }
             
             $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
@@ -494,6 +474,7 @@ class UserController extends Controller
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $roleInfo->id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
+            $user->branch_id = $request->branch_id;
             $user->govt_id = $request->govt_id;
             $user->dept_id = $request->dept_id;
             $user->country_id = $request->country_id;
@@ -689,7 +670,9 @@ class UserController extends Controller
 
                 }
             }
-              DB::commit();
+
+            DB::commit();
+            $user['branch'] = $user->branch()->select('id', 'name')->first();
             return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, '200');
                 
         }
@@ -721,7 +704,8 @@ class UserController extends Controller
         }
     }
 
-    private function getWhereRawFromRequest(Request $request) {
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}

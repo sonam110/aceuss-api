@@ -91,6 +91,7 @@ class RequestApprovalController extends Controller
                                 $person->save(); 
                                 if($request->approval_type =='2')
                                 {
+                                    $user_type_id ='8';
                                     if($person->is_family_member == true){
                                         $user_type_id ='8';
                                     }
