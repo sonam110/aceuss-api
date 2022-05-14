@@ -31,6 +31,14 @@ class PatientCashierController extends Controller
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                        ->orWhere('patient_id', $user->parent_id);
+                });
+            }
+
             if(!empty($request->branch_id))
             {
                 $query->where('branch_id', $request->branch_id);

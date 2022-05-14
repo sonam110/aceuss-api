@@ -25,8 +25,8 @@ class TrashedActivityController extends Controller
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id')->implode(',');
-                $query = $query->whereIn('id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
+                $query = $query->whereIn('id', $agnActivity);
 
             }
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))

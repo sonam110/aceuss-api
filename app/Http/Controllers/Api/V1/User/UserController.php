@@ -187,7 +187,7 @@ class UserController extends Controller
 
             $user = new User;
             $user->unique_id = generateRandomNumber();
-            $user->branch_id = getBranchId();
+            $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
             $user->custom_unique_id = $request->custom_unique_id;
             $user->user_type_id = $request->user_type_id;
             $user->role_id = $roleInfo->id;
@@ -398,7 +398,8 @@ class UserController extends Controller
                     }
                 }
             }
-              DB::commit();
+            DB::commit();
+            $user['branch'] = $user->branch()->select('id', 'name')->first();
             return prepareResult(true,getLangByLabelGroups('UserValidation','create') ,$user, '200');
         }
         catch(Exception $exception) {

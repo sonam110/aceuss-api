@@ -577,7 +577,7 @@ class FollowUpsController extends Controller
             $user = getUser();
             $validator = Validator::make($request->all(),[
                 'follow_up_id' => 'required|exists:ip_follow_ups,id',   
-                'witness' => 'required',   
+                //'witness' => 'required',   
                 //'witness.*' => 'required|distinct|exists:users,id',   
             ],
             [
@@ -591,14 +591,27 @@ class FollowUpsController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
+
+            $witness = null;
+            if(is_array($request->witness) && sizeof($request->witness)>0)
+            {
+                $witness = json_encode($request->witness);
+            }
+
+            $more_witness = null;
+            if(is_array($request->more_witness) && sizeof($request->more_witness)>0)
+            {
+                $more_witness = json_encode($request->more_witness);
+            }
+
             $ipFollowups = IpFollowUp::find($id);
             $ipFollowups->is_completed = 1;
             $ipFollowups->status = 2;
             $ipFollowups->action_by = $user->id;
             $ipFollowups->action_date = date('Y-m-d H:i:s');
             $ipFollowups->comment = $request->comment;
-            $ipFollowups->witness = json_encode($request->witness);
-            $ipFollowups->more_witness = json_encode($request->more_witness);
+            $ipFollowups->witness = $witness;
+            $ipFollowups->more_witness = $more_witness;
             $ipFollowups->save();
             if(is_array($request->question_answer) ){
                 foreach ($request->question_answer as $key => $ans) {

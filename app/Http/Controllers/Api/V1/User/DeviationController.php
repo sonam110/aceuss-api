@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Deviation;
+use App\Models\User;
 use Validator;
 use Auth;
 use DB;
@@ -24,10 +25,10 @@ class DeviationController extends Controller
         
     }
 
-	public function deviations(Request $request)
+    public function deviations(Request $request)
     {
         try {
-	        $user = getUser();
+            $user = getUser();
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
@@ -141,7 +142,7 @@ class DeviationController extends Controller
             {
                 $query->where('is_completed', 0);
             }
-	        
+            
             if(!empty($request->perPage))
             {
                 ////////Counts
@@ -237,26 +238,26 @@ class DeviationController extends Controller
             }
             
             return prepareResult(true,"Deviation list",$query,config('httpcodes.success'));
-	    }
+        }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
-    	
+        
     }
 
     public function store(Request $request)
     {
         DB::beginTransaction();
         try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[  
+            $user = getUser();
+            $validator = Validator::make($request->all(),[  
                 'category_id' => 'required|exists:category_masters,id',  
                 'subcategory_id' => 'required|exists:category_masters,id',  
-        		'date_time' => 'required',  
+                'date_time' => 'required',  
                 'description' => 'required',       
-        		'immediate_action' => 'required',       
-	        ],
+                'immediate_action' => 'required',       
+            ],
             [  
                 'category_id' =>  getLangByLabelGroups('Deviation','category_id'),   
                 'sub_category_id' =>  getLangByLabelGroups('Deviation','sub_category_id'),   
@@ -264,18 +265,20 @@ class DeviationController extends Controller
                 'description' =>  getLangByLabelGroups('Deviation','description'),     
                 'immediate_action' =>  getLangByLabelGroups('Deviation','immediate_action'),     
             ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
-        	
-        	
-	        $deviation = new Deviation;
-		 	$deviation->activity_id = $request->activity_id;
-            $deviation->branch_id = $request->branch_id;
-		 	$deviation->patient_id = $request->patient_id;
-		 	$deviation->emp_id = auth()->id();
-		 	$deviation->category_id = $request->category_id;
-		 	$deviation->subcategory_id = $request->subcategory_id;
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+
+            $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
+            
+            
+            $deviation = new Deviation;
+            $deviation->activity_id = $request->activity_id;
+            $deviation->branch_id = $getBranch->branch_id;
+            $deviation->patient_id = $request->patient_id;
+            $deviation->emp_id = auth()->id();
+            $deviation->category_id = $request->category_id;
+            $deviation->subcategory_id = $request->subcategory_id;
             $deviation->date_time = $request->date_time;
             $deviation->description = $request->description;
             $deviation->immediate_action = $request->immediate_action;
@@ -291,16 +294,16 @@ class DeviationController extends Controller
             if($request->is_completed==1)
             {
                 $deviation->completed_date = date('Y-m-d');
-            }		 	
+            }           
 
             $deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-		 	$deviation->save();
+            $deviation->save();
             DB::commit();
 
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
                 ->where('id', $deviation->id)
                 ->first();
-	        return prepareResult(true,getLangByLabelGroups('Deviation','create') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -333,8 +336,8 @@ class DeviationController extends Controller
     {
         DB::beginTransaction();
         try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[  
+            $user = getUser();
+            $validator = Validator::make($request->all(),[  
                 'category_id' => 'required|exists:category_masters,id',  
                 'subcategory_id' => 'required|exists:category_masters,id',  
                 'date_time' => 'required',  
@@ -358,8 +361,10 @@ class DeviationController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
 
+            $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
+
             $deviation->activity_id = $request->activity_id;
-            $deviation->branch_id = $request->branch_id;
+            $deviation->branch_id = $getBranch->branch_id;
             $deviation->patient_id = $request->patient_id;
             $deviation->category_id = $request->category_id;
             $deviation->subcategory_id = $request->subcategory_id;
@@ -386,12 +391,12 @@ class DeviationController extends Controller
             $deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $deviation->save();
 
-		    DB::commit();
+            DB::commit();
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
                 ->where('id', $deviation->id)
                 ->first();
-	        return prepareResult(true,getLangByLabelGroups('Deviation','update') ,$data, config('httpcodes.success'));
-			  
+            return prepareResult(true,getLangByLabelGroups('Deviation','update') ,$data, config('httpcodes.success'));
+              
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -404,13 +409,13 @@ class DeviationController extends Controller
     public function destroy($id)
     {
         try {
-	    	$user = getUser();
-        	$checkId= Deviation::where('id',$id)->first();
-			if (!is_object($checkId)) {
+            $user = getUser();
+            $checkId= Deviation::where('id',$id)->first();
+            if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Deviation','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	Deviation::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Deviation','delete') ,[], config('httpcodes.success'));
+            Deviation::where('id',$id)->delete();
+            return prepareResult(true,getLangByLabelGroups('Deviation','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -421,16 +426,16 @@ class DeviationController extends Controller
     {
         DB::beginTransaction();
         try {
-	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[
-        		'deviation_ids' => 'required|array|min:1',   
-	        ],
+            $user = getUser();
+            $validator = Validator::make($request->all(),[
+                'deviation_ids' => 'required|array|min:1',   
+            ],
             [
                 'deviation_ids' =>  getLangByLabelGroups('Journal','id'),   
             ]);
-	        if ($validator->fails()) {
-            	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-        	}
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
 
             $deviation = Deviation::whereIn('id', $request->deviation_ids)->update([
                 'is_signed' => $request->is_signed,

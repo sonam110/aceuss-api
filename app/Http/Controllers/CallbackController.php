@@ -30,10 +30,9 @@ class CallbackController extends Controller
 
             if($checkTotalPerson->total_request_for_approve == $checkTotalPerson->total_approved)
             {
-                $ip_ids = RequestForApproval::select('request_type_id')
-                    ->where('group_token', $group_token)
+                $ip_ids = RequestForApproval::where('group_token', $group_token)
                     ->groupBy('request_type_id')
-                    ->get();
+                    ->pluck('request_type_id');
 
                 //update IP as Approved
                 PatientImplementationPlan::whereIn('id', $ip_ids)

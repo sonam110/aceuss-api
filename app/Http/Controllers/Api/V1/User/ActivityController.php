@@ -110,8 +110,8 @@ class ActivityController extends Controller
             }
 
             if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id')->implode(',');
-                $activityCounts = $activityCounts->whereIn('activities.id',explode(',',$agnActivity));
+                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+                $activityCounts = $activityCounts->whereIn('activities.id', $agnActivity);
 
             }
 

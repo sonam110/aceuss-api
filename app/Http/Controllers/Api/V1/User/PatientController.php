@@ -49,25 +49,6 @@ class PatientController extends Controller
 
             $whereRaw = $this->getWhereRawFromRequest($request);
 
-
-            // $parent_id = PatientImplementationPlan::whereNotNull('parent_id')->orderBy('id','DESC')->groupBy('parent_id')->pluck('parent_id')->implode(',');
-            // $child_id  = [];
-            // $ip_without_parent = PatientImplementationPlan::whereNull('parent_id')->whereNotIn('id',explode(',',$parent_id))->pluck('id')->all();
-            // foreach (explode(',',$parent_id) as $key => $value) {
-            //   $lastChild = PatientImplementationPlan::where('parent_id',$value)->orderBy('id','DESC')->first();
-            //   $child_id[] = (!empty($value)) ? $lastChild->id : null;
-            // }
-            // $ip_ids = array_merge($ip_without_parent,$child_id);
-
-            // $query = PatientImplementationPlan::whereIn('id',$ip_ids)
-            // ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','patientActivity','ipFollowUps')
-            // ->withCount(['ipFollowUps'])
-            // ->with(
-            //     ['patient' => function ($query) {
-            //         $query->withCount(['persons','patientPlan','patientActivity']);
-            //     }]
-            // );
-
             $query = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
             ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','branch:id,name')
@@ -83,11 +64,6 @@ class PatientController extends Controller
             } else{
                 $query =  $query->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }
-
-            /*if($user->user_type_id =='3'){
-                $ipAssigne  = IpAssigneToEmployee::where('user_id',$user->id)->pluck('ip_id')->implode(',');
-                $query = $query->whereIn('patient_implementation_plans.id',explode(',',$ipAssigne));
-            }*/
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {

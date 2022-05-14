@@ -775,7 +775,7 @@ function dateDifference($start_date, $end_date, $differenceFormat = '%d' )
 
 function getTopMostParent()
 {
-    $top_most_parent = User::find(auth()->user()->top_most_parent_id());
+    $top_most_parent = User::find(auth()->user()->top_most_parent_id);
     return $top_most_parent;
 }
 
