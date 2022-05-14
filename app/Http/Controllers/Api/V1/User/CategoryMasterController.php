@@ -75,7 +75,7 @@ class CategoryMasterController extends Controller
         try {
             $user = getUser();
             
-            $query = CategoryMaster::select('id','name','category_type_id')
+            $query = CategoryMaster::select('id','name','category_type_id','follow_up_image')
                 ->whereNull('parent_id')
                 ->where(function ($q) use ($request) {
                     $q->whereNull('top_most_parent_id')
@@ -135,7 +135,7 @@ class CategoryMasterController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = CategoryMaster::select('id','name')
+            $query = CategoryMaster::select('id','name', 'follow_up_image')
                 ->where('parent_id',$request->parent_id)
                 ->where(function ($q) use ($request) {
                     $q->whereNull('top_most_parent_id')

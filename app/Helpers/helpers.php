@@ -17,6 +17,7 @@ use App\Models\Deviation;
 use App\Models\Activity;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\CategoryMaster;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
@@ -586,14 +587,28 @@ function deviation($activity_id)
     $activity = Activity::find($activity_id);
     $date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
     $time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
+
+    $category_id = $activity->category_id;
+    $subcategory_id = $activity->subcategory_id;
+
+    $getFirstDeviationCatId = CategoryMaster::where('name', 'Ej utförd insatser')->first();
+    if($getFirstDeviationCatId)
+    {
+        $getFirstDeviationSubCatId = CategoryMaster::where('parent_id', $getFirstDeviationCatId->id)->first();
+        $category_id = $getFirstDeviationCatId->id;
+        if($getFirstDeviationSubCatId)
+        {
+            $subcategory_id = $getFirstDeviationSubCatId->id;
+        }
+    }
     
     $deviation = new Deviation;
     $deviation->activity_id = $activity->id;
     $deviation->branch_id = $activity->branch_id;
     $deviation->patient_id = $activity->patient_id;
     $deviation->emp_id = auth()->id();
-    $deviation->category_id = $activity->category_id;
-    $deviation->subcategory_id = $activity->subcategory_id;
+    $deviation->category_id = $category_id;
+    $deviation->subcategory_id = $subcategory_id;
     $deviation->date_time = $date.' '.$time;
     $deviation->description = $activity->description;
     $deviation->activity_note = $activity->comment;

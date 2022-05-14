@@ -39,6 +39,7 @@ class PatientController extends Controller
         $this->middleware('permission:ip-delete', ['only' => ['destroy']]);
         
     }
+
     public function ipsList(Request $request)
     {
         try {
@@ -174,7 +175,9 @@ class PatientController extends Controller
         }
         
     }
-    public function store(Request $request){
+
+    public function store(Request $request)
+    {
         DB::beginTransaction();
         try {
            
@@ -403,7 +406,8 @@ class PatientController extends Controller
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
         DB::beginTransaction();
         try {
             $user = getUser();
@@ -673,19 +677,19 @@ class PatientController extends Controller
                 }
                 DB::commit();
                 $patientImpPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
-                ->where('patient_implementation_plans.is_latest_entry',1)
-                ->whereIn('id',$impPlan_ids)
-                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons.Country','children','assignEmployee:id,ip_id,user_id','branch:id,name')
-                ->withCount('ipFollowUps','activities')
-                ->with(
-                    ['patient' => function ($query) {
-                        $query->withCount(['persons','patientPlan','patientActivity']);
-                    }]
-                )
-                ->get();
+                    ->where('patient_implementation_plans.is_latest_entry',1)
+                    ->where('id',$parent_id)
+                    ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons.Country','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+                    ->withCount('ipFollowUps','activities')
+                    ->with(
+                        ['patient' => function ($query) {
+                            $query->withCount(['persons','patientPlan','patientActivity']);
+                        }]
+                    )
+                    ->first();
                 return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, config('httpcodes.success'));
             } else {
-                return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+                return prepareResult(false, 'something went wrong.',[], config('httpcodes.internal_server_error'));
             }
               
         }
@@ -696,7 +700,9 @@ class PatientController extends Controller
             
         }
     }
-    public function destroy($id){
+
+    public function destroy($id)
+    {
         try {
             $user = getUser();
             $checkId= PatientImplementationPlan::where('id',$id)->first();
@@ -714,7 +720,9 @@ class PatientController extends Controller
             
         }
     }
-    public function show($id){
+
+    public function show($id)
+    {
         try {
             $user = getUser();
             $checkId= PatientImplementationPlan::where('id',$id)->first();
@@ -739,7 +747,9 @@ class PatientController extends Controller
             
         }
     }
-    public function approvedPatientPlan(Request $request){
+
+    public function approvedPatientPlan(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -769,7 +779,8 @@ class PatientController extends Controller
         }
     }
 
-    public function ipAssigneToEmployee(Request $request){
+    public function ipAssigneToEmployee(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -802,7 +813,8 @@ class PatientController extends Controller
         }
     }
     
-    public function viewIpAssigne(Request $request){
+    public function viewIpAssigne(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -828,7 +840,8 @@ class PatientController extends Controller
         }
     }
 
-    public function ipEditHistory(Request $request){
+    public function ipEditHistory(Request $request)
+    {
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
@@ -872,7 +885,8 @@ class PatientController extends Controller
         }
     }
 
-    public function ipTemplateList(Request $request){
+    public function ipTemplateList(Request $request)
+    {
         try {
 
             $whereRaw = $this->getWhereRawFromRequest1($request);
@@ -971,7 +985,9 @@ class PatientController extends Controller
         }
         
     }
-    private function getWhereRawFromRequest(Request $request) {
+
+    private function getWhereRawFromRequest(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
@@ -1010,7 +1026,9 @@ class PatientController extends Controller
         return($w);
 
     }
-     private function getWhereRawFromRequest1(Request $request) {
+    
+    private function getWhereRawFromRequest1(Request $request) 
+    {
         $w = '';
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
@@ -1053,6 +1071,7 @@ class PatientController extends Controller
             
         }
     }
+
     /*public function deletePerson(Request $request, $id)
     {
         DB::beginTransaction();
