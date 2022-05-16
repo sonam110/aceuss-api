@@ -227,7 +227,7 @@ class UserController extends Controller
             $user->step_four = (!empty($request->step_four)) ? $request->step_four:0;
             $user->step_five = (!empty($request->step_five)) ? $request->step_five:0;
             $user->is_password_change =  $is_password_change;
-            $user->documents = is_array($request->documents) && sizeof($request->documents > 0) ? json_encode($request->documents) : null;
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->contact_person_name;
             $user->save();
@@ -504,7 +504,7 @@ class UserController extends Controller
             $user->step_four = (!empty($request->step_four)) ? $request->step_four:0;
             $user->step_five = (!empty($request->step_five)) ? $request->step_five:0;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $user->documents = is_array($request->documents) && sizeof($request->documents > 0) ? json_encode($request->documents) : null;
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->contact_person_name = $request->contact_person_name;
             $user->save();
             
