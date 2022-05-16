@@ -109,7 +109,7 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-		   $end_date = $request->end_date;
+		    $end_date = $request->end_date;
             $every = '1';
 
             $dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
