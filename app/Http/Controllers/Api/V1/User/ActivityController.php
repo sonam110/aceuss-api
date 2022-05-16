@@ -96,6 +96,41 @@ class ActivityController extends Controller
 
             $query = $query->orderBy('activities.start_date', 'ASC')->orderBy('activities.start_time', 'ASC');
 
+            ////////Date and time Passed Counts
+            $datePassedActivityCounts = Activity::select([
+                \DB::raw('COUNT(id) as total_activities_time_passed'),
+            ])
+            ->where('is_latest_entry', 1)
+            ->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
+            if($user->user_type_id =='2'){
+
+            } else{
+                $datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
+            }
+
+            if($user->user_type_id =='3'){
+                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+                $datePassedActivityCounts = $datePassedActivityCounts->whereIn('activities.id', $agnActivity);
+
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $datePassedActivityCounts->where(function ($q) use ($user) {
+                    $q->where('activities.patient_id', $user->id)
+                        ->orWhere('activities.patient_id', $user->parent_id);
+                });
+            }
+            
+
+            $whereRaw3 = $this->getWhereRawFromRequestTimeExeceed($request);
+
+            if($whereRaw3 != '') { 
+                $datePassedActivityCounts = $datePassedActivityCounts->whereRaw($whereRaw3);
+            }
+
+            $datePassedActivityCounts = $datePassedActivityCounts->first();
+
             ////////Counts
             $activityCounts = Activity::select([
                 \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_pending'),
@@ -201,6 +236,7 @@ class ActivityController extends Controller
                     'total_not_applicable' => $activityCounts->total_not_applicable,
                     'today_created_journal' => $today_created_journal,
                     'today_created_deviation' => $today_created_deviation,
+                    'total_activities_time_passed' => $datePassedActivityCounts->total_activities_time_passed
                 ];
                 return prepareResult(true,"Activity list",$pagination,config('httpcodes.success'));
             }
@@ -1126,7 +1162,7 @@ class ActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."activities.start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."activities.start_date >= '".date('Y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -1135,7 +1171,7 @@ class ActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."activities.start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."activities.start_date <= '".date('Y-m-d',strtotime($request->end_date))."')";
             }
             
           
@@ -1182,7 +1218,7 @@ class ActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."start_date >= '".date('Y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -1191,7 +1227,7 @@ class ActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."start_date <= '".date('Y-m-d',strtotime($request->end_date))."')";
             }
             
           
@@ -1208,6 +1244,29 @@ class ActivityController extends Controller
              $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
              
         }
+        return($w);
+
+    }
+
+    private function getWhereRawFromRequestTimeExeceed(Request $request)
+    {
+        $w = '';
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+        }
+        if (is_null($request->input('branch_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }        
         return($w);
 
     }
