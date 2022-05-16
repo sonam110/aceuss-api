@@ -44,6 +44,7 @@ class Deviation extends Model
         'edited_by',
         'edited_date',
         'entry_mode',
+        'related_factor'
 
     ];
 
