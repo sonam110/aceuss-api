@@ -282,5 +282,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('all-permissions', [App\Http\Controllers\Api\V1\Common\NoMiddlewareController::class, 'allPermissions']);
 		Route::post('add-user-type-has-permissions', [App\Http\Controllers\Api\V1\Common\NoMiddlewareController::class, 'addUserTypeHasPermissions']);
 
+		Route::post('bookmarks', [App\Http\Controllers\Api\V1\User\BookmarkController::class, 'Bookmarks']);
+		Route::apiResource('bookmark', User\BookmarkController::class)->only(['store','destroy','show', 'update']);
+		
 	});
 });
