@@ -219,7 +219,7 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 				return prepareResult(true,'Task Added successfully' ,$taskList, config('httpcodes.success'));
 
