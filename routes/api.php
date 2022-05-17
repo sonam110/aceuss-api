@@ -90,6 +90,16 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			Route::post('modules', [App\Http\Controllers\Api\V1\Admin\ModuleController::class, 'modules']);
 			Route::apiResource('module',Admin\ModuleController::class)->only(['store','destroy','show', 'update']);
 
+			/*-------------Group------------------------*/
+			Route::post('groups', [App\Http\Controllers\Api\V1\Admin\GroupController::class, 'groups']);
+			Route::apiResource('group',Admin\GroupController::class)->only(['store','destroy','show', 'update']);
+
+			/*-------------Label------------------------*/
+			Route::post('labels', [App\Http\Controllers\Api\V1\Admin\LabelController::class, 'labels']);
+			Route::apiResource('label',Admin\LabelController::class)->only(['store','destroy','show', 'update']);
+			Route::post('/labels-import', [App\Http\Controllers\API\V1\Admin\LabelController::class, 'labelsImport']);
+
+
 			Route::post('assigne-package', 'Admin\ModuleController@assigenPackage');
 	     	Route::post('assigne-module', 'Admin\ModuleController@assigenModule');
 
