@@ -233,8 +233,8 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             ->orderBy('created_at', 'DESC')
             ->first();
 
-        $title = false;
-        $body = false;
+        $title 	= false;
+        $body 	= false;
         $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
        
         if($getMsg)
@@ -242,14 +242,14 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $body = $getMsg->notify_body;
             $title = $getMsg->mail_subject;
             $arrayVal = [
-                '{{name}}'  => $obj['name'],
-                '{{email}}' => $obj['email'],
-                '{{title}}' => $obj['title'],
-                '{{patient_id}}' => $obj['patient_id'],
-                '{{start_date}}' => $obj['start_date'],
-                '{{start_time}}' => $obj['start_time'],
-                '{{company_name}}' => $companyObj['company_name'],
-                '{{company_address}}' =>  $companyObj['company_address'],
+                '{{name}}'  			=> $obj['name'],
+                '{{email}}' 			=> $obj['email'],
+                '{{title}}' 			=> $obj['title'],
+                '{{patient_id}}' 		=> $obj['patient_id'],
+                '{{start_date}}' 		=> $obj['start_date'],
+                '{{start_time}}' 		=> $obj['start_time'],
+                '{{company_name}}' 		=> $companyObj['company_name'],
+                '{{company_address}}' 	=> $companyObj['company_address'],
             ];
             $body = strReplaceAssoc($arrayVal, $body);
             $title = strReplaceAssoc($arrayVal, $title);
@@ -296,6 +296,64 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $notification->image_url        = '';
             $notification->screen           = $screen;
             $notification->data_id          = $id;
+            $notification->read_status      = false;
+            $notification->save();
+        }    
+    }
+    return true;
+}
+
+
+function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,$save_to_database)
+{
+    if(!empty($user))
+    {
+        $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)
+            ->whereNotNull('device_token')
+            ->whereIn('login_via',['1','2'])
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
+        if($userDeviceInfo)
+        { 
+            $push = new PushNotification('fcm');
+            $push->setMessage([
+                "notification"=>[
+                    'title' => $title,
+                    'body'  => $body,
+                    'sound' => 'default',
+                    'android_channel_id' => '1',
+                    //'timestamp' => date('Y-m-d G:i:s')
+                ],
+                'data'=>[
+                    'id'  		=> $data_id,
+                    'user_type' => $user->user_type_id,
+                    'module'  	=> $module,
+                    'screen'  	=> $screen
+                ]                        
+            ])
+            ->setApiKey(env('FIREBASE_KEY'))
+            ->setDevicesToken($userDeviceInfo->device_token)
+            ->send();
+        }
+
+        if($save_to_database == true)
+        {
+            $notification = new Notification;
+            $notification->user_id          = $user->id;
+            $notification->sender_id        = Auth::id();
+            $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
+            $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
+            $notification->type             = $module;
+            $notification->status_code      = $status_code;
+            $notification->user_type        = $user->user_type_id;
+            $notification->module           = $module;
+            $notification->title            = $title;
+            $notification->sub_title        = $title;
+            $notification->message          = $body;
+            $notification->image_url        = '';
+            $notification->screen           = $screen;
+            $notification->data_id          = $data_id;
             $notification->read_status      = false;
             $notification->save();
         }    

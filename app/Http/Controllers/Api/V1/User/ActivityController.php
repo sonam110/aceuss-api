@@ -20,6 +20,7 @@ use Auth;
 use Exception;
 use DB;
 use Carbon\Carbon;
+use App\Models\EmailTemplate;
 
 class ActivityController extends Controller
 {
@@ -95,41 +96,6 @@ class ActivityController extends Controller
             }
 
             $query = $query->orderBy('activities.start_date', 'ASC')->orderBy('activities.start_time', 'ASC');
-
-            ////////Date and time Passed Counts
-            $datePassedActivityCounts = Activity::select([
-                \DB::raw('COUNT(id) as total_activities_time_passed'),
-            ])
-            ->where('is_latest_entry', 1)
-            ->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
-            if($user->user_type_id =='2'){
-
-            } else{
-                $datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
-            }
-
-            if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-                $datePassedActivityCounts = $datePassedActivityCounts->whereIn('activities.id', $agnActivity);
-
-            }
-
-            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
-            {
-                $datePassedActivityCounts->where(function ($q) use ($user) {
-                    $q->where('activities.patient_id', $user->id)
-                        ->orWhere('activities.patient_id', $user->parent_id);
-                });
-            }
-            
-
-            $whereRaw3 = $this->getWhereRawFromRequestTimeExeceed($request);
-
-            if($whereRaw3 != '') { 
-                $datePassedActivityCounts = $datePassedActivityCounts->whereRaw($whereRaw3);
-            }
-
-            $datePassedActivityCounts = $datePassedActivityCounts->first();
 
             ////////Counts
             $activityCounts = Activity::select([
@@ -236,7 +202,6 @@ class ActivityController extends Controller
                     'total_not_applicable' => $activityCounts->total_not_applicable,
                     'today_created_journal' => $today_created_journal,
                     'today_created_deviation' => $today_created_deviation,
-                    'total_activities_time_passed' => $datePassedActivityCounts->total_activities_time_passed
                 ];
                 return prepareResult(true,"Activity list",$pagination,config('httpcodes.success'));
             }
@@ -354,12 +319,36 @@ class ActivityController extends Controller
         
             $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
             if(!empty($ipCheck)){
-                $ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
+
+            	if(!empty($request->end_date))
+            	{
+            		$validator = Validator::make($request->all(),[  
+                    'start_date' => 'required|date|after_or_equal:'.$ipCheck->start_date,    
+                    'end_date' => 'required|date|after_or_equal:start_date|before_or_equal:'.$ipCheck->end_date,   
+	                ]);
+
+	                if ($validator->fails()) {
+	                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+	                }
+	            }
+	            else
+	            {
+	            	$validator = Validator::make($request->all(),[  
+	                    'start_date' => 'required|date|after_or_equal:'.$ipCheck->start_date,    
+	                ]);
+
+	                if ($validator->fails()) {
+	                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+	                }	
+	            }
+                
+
+                /*$ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
                 $ipUpdate->start_date  = $request->start_date;
                 $ipUpdate->end_date  = $end_date;
                 $ipUpdate->how_many_time  = $request->how_many_time;
                 $ipUpdate->when_during_the_day  = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
-                $ipUpdate->save();
+                $ipUpdate->save();*/
             }
         
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -623,12 +612,33 @@ class ActivityController extends Controller
         
             $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
             if(!empty($ipCheck)){
-                $ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
+            	if(!empty($request->end_date))
+            	{
+            		$validator = Validator::make($request->all(),[  
+                    'start_date' => 'required|date|after_or_equal:'.$ipCheck->start_date,    
+                    'end_date' => 'required|date|after_or_equal:start_date|before_or_equal:'.$ipCheck->end_date,   
+	                ]);
+
+	                if ($validator->fails()) {
+	                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+	                }
+	            }
+	            else
+	            {
+	            	$validator = Validator::make($request->all(),[  
+	                    'start_date' => 'required|date|after_or_equal:'.$ipCheck->start_date,    
+	                ]);
+
+	                if ($validator->fails()) {
+	                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+	                }	
+	            }
+                /*$ipUpdate  = PatientImplementationPlan::find($ipCheck->id);
                 $ipUpdate->start_date  = $request->start_date;
                 $ipUpdate->end_date  = $end_date;
                 $ipUpdate->how_many_time  = $request->how_many_time;
                 $ipUpdate->when_during_the_day  = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
-                $ipUpdate->save();
+                $ipUpdate->save();*/
             }
             $checkId = Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
@@ -893,6 +903,40 @@ class ActivityController extends Controller
             $activityAssigne->assigned_by = $user->id;
             $activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityAssigne->save();
+
+            /*-----------Send notification---------------------*/
+
+            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
+            $module =  "activity";
+            $data_id =  $activityAssigne->id;
+            $screen =  "";
+
+            $title 	= false;
+            $body 	= false;
+            $getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+            $companyObj = companySetting($user->top_most_parent_id);
+            
+            if($getMsg)
+            {
+                $body = $getMsg->notify_body;
+                $title = $getMsg->mail_subject;
+                $arrayVal = [
+                    '{{name}}'  			=> $user->name,
+                    '{{email}}' 			=> $user->email,
+                    '{{title}}' 			=> $title,
+                    '{{patient_id}}' 		=> $checkId->Patient ? $checkId->Patient->unique_id : null,
+                    '{{start_date}}' 		=> $checkId->start_date,
+                    '{{start_time}}' 		=> $checkId->start_time,
+                    '{{company_name}}' 		=> $companyObj->company_name,
+                    '{{company_address}}' 	=> $companyObj->company_address,
+                ];
+                $body = strReplaceAssoc($arrayVal, $body);
+                $title = strReplaceAssoc($arrayVal, $title);
+            }
+            
+
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+            
             DB::commit();
 
             $activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
@@ -1162,7 +1206,7 @@ class ActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."activities.start_date >= '".date('Y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."activities.start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -1171,7 +1215,7 @@ class ActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."activities.start_date <= '".date('Y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."activities.start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
             }
             
           
@@ -1218,7 +1262,7 @@ class ActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."start_date >= '".date('Y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -1227,7 +1271,7 @@ class ActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."start_date <= '".date('Y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
             }
             
           
@@ -1244,29 +1288,6 @@ class ActivityController extends Controller
              $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
              
         }
-        return($w);
-
-    }
-
-    private function getWhereRawFromRequestTimeExeceed(Request $request)
-    {
-        $w = '';
-        if (is_null($request->input('ip_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
-        }
-        if (is_null($request->input('patient_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
-        }
-        if (is_null($request->input('branch_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
-        }
-        if (is_null($request->input('category_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
-        }        
         return($w);
 
     }
