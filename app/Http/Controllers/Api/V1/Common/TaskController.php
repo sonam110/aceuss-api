@@ -147,36 +147,8 @@ class TaskController extends Controller
                 }
 
             }
-            if($request->remind_after_end ){
-                $validator = Validator::make($request->all(),[     
-                    "after_minutes"    => "required",
-                    "after_is_text_notify"  => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
-            if($request->is_emergency ){
-                $validator = Validator::make($request->all(),[     
-                    "emergency_minutes"    => "required",
-                    "emergency_is_text_notify"  => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
-            if($request->in_time ){
-                $validator = Validator::make($request->all(),[     
-                    "in_time_is_text_notify"    => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
-		   $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            
+		    $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
             $group_id = generateRandomNumber();
             $branch_id = getBranchId();
 		    $task_ids = [];
@@ -191,58 +163,35 @@ class TaskController extends Controller
     						    $task->resource_id = $request->resource_id; 
     						    $task->parent_id = $request->parent_id; 
     						    $task->group_id = $group_id;
-                                $task->branch_id = $branch_id; 
-    						    $task->category_id = $request->category_id;
-    						 	$task->subcategory_id = $request->subcategory_id;
+                                $task->branch_id = $branch_id;
     						    $task->title = $request->title; 
     						    $task->description = $request->description; 
     						    $task->start_date = $date; 
     						    $task->start_time = $time['start']; 
-    						    $task->address_url = $request->address_url;
-    		                    $task->video_url = $request->video_url;
-    		                    $task->information_url = $request->information_url;
-    		                    $task->information_url = $request->information_url;
-    		                    $task->file = $request->file;
+    						    $task->file = $request->file;
     						    $task->how_many_time = $request->how_many_time;
-                                $task->is_repeat = ($request->is_repeat) ? 1:0; 
+                                $task->is_repeat = ($request->is_repeat) ? 1 : 0; 
                                 $task->every = $request->every; 
                                 $task->repetition_type = $request->repetition_type; 
                                 $task->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
                                 $task->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
                                 $task->end_date = $date;
                                 $task->end_time = $time['end'];
-    						    $task->remind_before_start = ($request->remind_before_start) ? 1 :0;
+    						    $task->remind_before_start = ($request->remind_before_start) ? 1  : 0;
     				            $task->before_minutes = $request->before_minutes;
-    				            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
-    				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
-    				            $task->remind_after_end  =($request->remind_after_end) ? 1 :0;
-    				            $task->after_minutes = $request->after_minutes;
-    				            $task->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
-    				            $task->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
-    				            $task->is_emergency  =($request->is_emergency) ? 1 :0;
-    				            $task->emergency_minutes = $request->emergency_minutes;
-    				            $task->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
-    				            $task->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
-    				            $task->in_time  =($request->in_time) ? 1 :0;
-    				            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
-    				            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+    				            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1  : 0;
+    				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1  : 0;
     						    $task->created_by =$user->id;
                                 $task->is_latest_entry = 1;
     						    $task->save();
     						    $task_ids[] = $task->id;
-    						    if(is_array($request->employees) && sizeof($request->employees) > 0 ){
-                                    	$validator = Validator::make($request->all(),[   
-    		                            "employees"    => "required|array",
-    		                            "employees.*"  => "required|distinct|exists:users,id",   
-    		                        ]);
-    		                        if ($validator->fails()) {
-    		                            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-    		                        }
-    						        foreach ($request->employees as $key => $employee) {
+    						    if(is_array($request->employees) && sizeof($request->employees) > 0 )
+                                {
+    						        foreach ($request->employees as $key => $employee) 
+                                    {
                                         if(!empty($employee))
                                         {
-                                
-        						            $taskAssign = new AssignTask;
+                                            $taskAssign = new AssignTask;
         						            $taskAssign->task_id = $task->id;
         						            $taskAssign->user_id = $employee;
         						            $taskAssign->assignment_date = date('Y-m-d');
@@ -343,42 +292,15 @@ class TaskController extends Controller
                 }
 
             }
-            if($request->remind_after_end ){
-                $validator = Validator::make($request->all(),[     
-                    "after_minutes"    => "required",
-                    "after_is_text_notify"  => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
-            if($request->is_emergency ){
-                $validator = Validator::make($request->all(),[     
-                    "emergency_minutes"    => "required",
-                    "emergency_is_text_notify"  => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
-            if($request->in_time ){
-                $validator = Validator::make($request->all(),[     
-                    "in_time_is_text_notify"    => "required",        
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
+            
             $checkId = Task::where('id',$id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
-		    $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
-            $group_id = generateRandomNumber();
-            $branch_id = getBranchId();
+            $old_end_date = $checkId->end_date;
+            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            $group_id = $checkId->group_id;
+            $branch_id = $checkId->branch_id;
 		    $task_ids = [];
 		    $parent_id  = (empty($checkId->parent_id)) ? null : $checkId->parent_id;
 		    if(!empty($repeatedDates)) {
@@ -392,46 +314,27 @@ class TaskController extends Controller
     						    $task->resource_id = $request->resource_id; 
     						    $task->parent_id = $parent_id; 
     						    $task->group_id = $group_id;
-                                $task->branch_id = $branch_id; 
-    						    $task->category_id = $request->category_id;
-    						 	$task->subcategory_id = $request->subcategory_id;
+                                $task->branch_id = $branch_id;
     						    $task->title = $request->title; 
     						    $task->description = $request->description; 
     						    $task->start_date = $date; 
     						    $task->start_time = $time['start']; 
-    						    $task->address_url = $request->address_url;
-    		                    $task->video_url = $request->video_url;
-    		                    $task->information_url = $request->information_url;
-    		                    $task->information_url = $request->information_url;
     		                    $task->file = $request->file;
     						    $task->how_many_time = $request->how_many_time;
-                                $task->is_repeat = ($request->is_repeat) ? 1:0; 
+                                $task->is_repeat = ($request->is_repeat) ? 1 : 0; 
                                 $task->every = $request->every; 
                                 $task->repetition_type = $request->repetition_type; 
                                 $task->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
                                 $task->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
                                 $task->end_date = $date;
                                 $task->end_time = $time['end'];
-    						    $task->remind_before_start = ($request->remind_before_start) ? 1 :0;
+    						    $task->remind_before_start = ($request->remind_before_start) ? 1  : 0;
     				            $task->before_minutes = $request->before_minutes;
-    				            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
-    				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
-    				            $task->remind_after_end  =($request->remind_after_end) ? 1 :0;
-    				            $task->after_minutes = $request->after_minutes;
-    				            $task->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
-    				            $task->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
-    				            $task->is_emergency  =($request->is_emergency) ? 1 :0;
-    				            $task->emergency_minutes = $request->emergency_minutes;
-    				            $task->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
-    				            $task->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
-    				            $task->in_time  =($request->in_time) ? 1 :0;
-    				            $task->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
-    				            $task->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
-    						    $task->created_by =$user->id;
+    				            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1  : 0;
+    				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1  : 0;
+    				            $task->created_by =$user->id;
                                 $task->is_latest_entry = 1;
     						    $task->save();
-
-                                Task::where('id',$id)->update(['is_latest_entry'=>0]);
 
     						    $task_ids[] = $task->id;
     						    if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
@@ -442,6 +345,27 @@ class TaskController extends Controller
     		                        if ($validator->fails()) {
     		                            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		                        }
+
+                                    //update status
+                                    Task::where('id',$id)->update([
+                                        'is_latest_entry' => 0,
+                                        'edited_by' => auth()->id(),
+                                        'comment'   => $request->reason_for_editing
+                                    ]);
+
+                                    //update old entries
+                                    if($old_end_date != $request->end_date)
+                                    {
+                                        $checkId = Task::where('group_id',$checkId->group_id)
+                                        ->whereDate('start_date', '>=',  $request->start_date)
+                                        ->whereDate('start_date', '<=',  $request->end_date)
+                                        ->update([
+                                            'is_latest_entry' => 0,
+                                            'edited_by' => auth()->id(),
+                                            'comment'   => $request->reason_for_editing
+                                        ]);
+                                    }
+
     						        foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
                                         {
@@ -453,8 +377,7 @@ class TaskController extends Controller
         						            $taskAssign->save();
         						        }
                                     }
-                                        
-    						    }
+                                }
                             }
 						}
 					}

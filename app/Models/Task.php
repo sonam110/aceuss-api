@@ -50,17 +50,6 @@ class Task extends Model
         'before_minutes',
         'before_is_text_notify',
         'before_is_push_notify',
-        'remind_after_end',
-        'after_minutes',
-        'after_is_text_notify',
-        'after_is_push_notify',
-        'is_emergency',
-        'emergency_minutes',
-        'emergency_is_text_notify',
-        'emergency_is_push_notify',
-        'in_time',
-        'in_time_is_text_notify',
-        'in_time_is_push_notify',
 		'created_by',
 		'edited_by',
         'action_by',
@@ -70,7 +59,7 @@ class Task extends Model
         'is_latest_entry'
     ];
 
-     public function assignEmployee()
+    public function assignEmployee()
     {
         return $this->hasMany(AssignTask::class,'task_id','id');
     }
