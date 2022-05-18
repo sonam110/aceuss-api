@@ -359,6 +359,13 @@ class PermissionSeeder extends Seeder
 
          Permission::create(['name' => 'files-delete', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-delete','belongs_to'=>'3']);
 
+         //Licence
+         Permission::create(['name' => 'licences', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licences','belongs_to'=>'1']);
+         Permission::create(['name' => 'licence-add', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-add','belongs_to'=>'1']);
+         Permission::create(['name' => 'licence-edit', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-edit','belongs_to'=>'1']);
+         Permission::create(['name' => 'licence-read', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-read','belongs_to'=>'1']);
+         Permission::create(['name' => 'licence-delete', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-delete','belongs_to'=>'1']);
+
           
 
     }

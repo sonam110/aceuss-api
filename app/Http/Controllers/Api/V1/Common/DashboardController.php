@@ -65,11 +65,11 @@ class DashboardController extends Controller
                 $branchids = branchChilds($branch_id);
                 $allChilds = array_merge($branchids,[$branch_id]);
 
-                $data['activityCount'] = Activity::where('user_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['activityPendingCount'] = Activity::where('user_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['activityCompleteCount'] = Activity::where('user_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['activityNotDoneCount'] = Activity::where('user_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['activityNotApplicableCount'] = Activity::where('user_id',$user->id)->where('status','3')->where('is_latest_entry', 1)->count();
+                $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
+                $data['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
+                $data['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
+                $data['activityNotDoneCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','2')->count();
+                $data['activityNotApplicableCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','3')->count();
                 $data['taskCount'] = AssignTask::where('user_id',$user->id)->count();
                 $data['AssignTaskCompleteCount'] = AssignTask::where('user_id',$user->id)->where('status','1')->count();
                 $data['AssignTaskPendingCount'] = AssignTask::where('user_id',$user->id)->where('status','0')->count();

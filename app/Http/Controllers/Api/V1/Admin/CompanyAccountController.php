@@ -340,16 +340,16 @@ class CompanyAccountController extends Controller
 
             if(is_array($request->modules)  && sizeof($request->modules) >0 ){
                 $deletOld = AssigneModule::where('user_id',$user->id)->delete();
-                for ($i = 0;$i < sizeof($request->modules);$i++) {
-                    if (!empty($request->modules[$i])) {
-                        $assigneModule = new AssigneModule;
-                        $assigneModule->user_id = $user->id;
-                        $assigneModule->module_id = $request->modules[$i] ;
-                        $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save();
-                    }
+                foreach ($request->modules as $key => $module) 
+                {
+                    $assigneModule = new AssigneModule;
+                    $assigneModule->user_id = $user->id;
+                    $assigneModule->module_id = $module;
+                    $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
+                    $assigneModule->save();
                 }
             }
+
             DB::commit();
             $userdetail = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
@@ -382,6 +382,7 @@ class CompanyAccountController extends Controller
             
         }
     }
+    
     private function getWhereRawFromRequest(Request $request) {
         $w = '';
         if (is_null($request->input('status')) == false) {

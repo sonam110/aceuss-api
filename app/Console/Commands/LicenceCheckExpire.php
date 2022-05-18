@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\LicenceKeyManagement;
 
 class LicenceCheckExpire extends Command
 {
@@ -37,6 +38,7 @@ class LicenceCheckExpire extends Command
      */
     public function handle()
     {
+        $getLicences = LicenceKeyManagement::get();
         return 0;
     }
 }
