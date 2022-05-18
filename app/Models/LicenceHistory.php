@@ -11,6 +11,8 @@ class LicenceHistory extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
+    protected $connection = 'mysql2';
+    
     protected $dates = ['deleted_at'];
     
     protected static $logAttributes = ['*'];
@@ -21,6 +23,7 @@ class LicenceHistory extends Model
         'created_by',
         'license_key',
         'module_attached',
+        'package_details',
         'active_from',
         'expire_at'
     ];

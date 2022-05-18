@@ -14,6 +14,8 @@ class LicenceKeyManagement extends Model
 
     protected $dates = ['deleted_at'];
     
+    protected $connection = 'mysql2';
+    
     protected static $logAttributes = ['*'];
     protected static $logOnlyDirty = true;
 
@@ -22,6 +24,7 @@ class LicenceKeyManagement extends Model
         'created_by',
         'license_key',
         'module_attached',
+        'package_details',
         'active_from',
         'expire_at',
         'is_used',

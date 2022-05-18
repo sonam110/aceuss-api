@@ -90,6 +90,7 @@ class CompanyAccountController extends Controller
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30',
                 'contact_number' => 'required', 
+                "package_id"    => "required|exists:packages,id",
 
             ],
             [
@@ -104,6 +105,8 @@ class CompanyAccountController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
+            $package = Package::where('id',$request->package_id)->first();
+            $package_expire_at = date('Y-m-d', strtotime($package->validity_in_days.' days'));
 
             $user = new User;
             $user->unique_id = generateRandomNumber();
@@ -121,7 +124,7 @@ class CompanyAccountController extends Controller
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
             $user->license_key = $request->license_key;
-            $user->license_end_date = $request->license_end_date;
+            $user->license_end_date = $package_expire_at;
             $user->joining_date = $request->joining_date;
             $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
@@ -158,8 +161,9 @@ class CompanyAccountController extends Controller
                 $createLicHistory->created_by = auth()->id();
                 $createLicHistory->license_key = $request->license_key;
                 $createLicHistory->active_from = date('Y-m-d');
-                $createLicHistory->expire_at = $request->license_end_date;
+                $createLicHistory->expire_at = $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : null;
+                $createLicHistory->package_details = $package;
                 $createLicHistory->save();
 
                 // Create Licence Key
@@ -168,48 +172,35 @@ class CompanyAccountController extends Controller
                 $keyMgmt->created_by = auth()->id();
                 $keyMgmt->license_key = $request->license_key;
                 $keyMgmt->active_from = date('Y-m-d');
-                $keyMgmt->expire_at = $request->license_end_date;
+                $keyMgmt->expire_at = $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : null;
+                $keyMgmt->package_details = $package;
                 $keyMgmt->is_used = true;
                 $keyMgmt->save();
-            }
-            
-            if(env('IS_MAIL_ENABLE', false) == true){ 
-                $content = ([
-                    'company_id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'id' => $user->id,
-                ]);  
-                Mail::to($user->email)->send(new WelcomeMail($content));
-            }
-            if(!empty($request->package_id)) {
-                $validator = Validator::make($request->all(),[ 
-                    "package_id"    => "required|exists:packages,id",
-                 ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-                $package = Package::where('id',$request->package_id)->first();
+
+                
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user->id;
                 $packageSubscribe->package_id = $request->package_id;
                 $packageSubscribe->package_details = $package;
+                $packageSubscribe->license_key = $request->license_key;
                 $packageSubscribe->start_date = date('Y-m-d');
-                $packageSubscribe->end_date = date('Y-m-d', strtotime("+".$package->validity_in_days." days"));
-                $packageSubscribe->status = '1';
+                $packageSubscribe->end_date = $package_expire_at;
+                $packageSubscribe->status = 1;
                 $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $packageSubscribe->save();
             }
-            if(is_array($request->modules)  && sizeof($request->modules) >0){
-                for ($i = 0;$i < sizeof($request->modules);$i++) {
-                    if (!empty($request->modules[$i])) {
-                        $assigneModule = new AssigneModule;
-                        $assigneModule->user_id = $user->id;
-                        $assigneModule->module_id = $request->modules[$i] ;
-                        $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save();
-                    }
+
+
+            if(is_array($request->modules)  && sizeof($request->modules) >0)
+            { 
+                foreach ($request->modules as $key => $module) 
+                {
+                    $assigneModule = new AssigneModule;
+                    $assigneModule->user_id = $user->id;
+                    $assigneModule->module_id = $module;
+                    $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
+                    $assigneModule->save();
                 }
             }
 
@@ -232,6 +223,16 @@ class CompanyAccountController extends Controller
                 }
             }
             DB::commit();
+
+            if(env('IS_MAIL_ENABLE', false) == true){ 
+                $content = ([
+                    'company_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'id' => $user->id,
+                ]);  
+                Mail::to($user->email)->send(new WelcomeMail($content));
+            }
             $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();

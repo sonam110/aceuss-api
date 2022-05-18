@@ -13,16 +13,15 @@ class CreateLicenceKeyManagementTable extends Migration
      */
     public function up()
     {
-        Schema::create('licence_key_management', function (Blueprint $table) {
+        Schema::connection('mysql2')->create('licence_key_management', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id');
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger('created_by');
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('license_key', 50);
             $table->text('module_attached');
+            $table->text('package_details');
             $table->date('active_from')->nullable()->comment('license_key activation date');
             $table->date('expire_at')->comment('expiry date');
             $table->boolean('is_used')->default(0);
@@ -38,6 +37,6 @@ class CreateLicenceKeyManagementTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('licence_key_management');
+        Schema::connection('mysql2')->dropIfExists('licence_key_management');
     }
 }
