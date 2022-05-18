@@ -50,32 +50,25 @@ class BranchController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-            if(auth()->user()->user_type_id=='1'){
-                $top_most_parent_id = auth()->user()->id;
-            }
-            elseif(auth()->user()->user_type_id=='2')
-            {
-                $top_most_parent_id = auth()->user()->id;
-            } else {
-                $top_most_parent_id = auth()->user()->top_most_parent_id;
-            }
+            
+            $top_most_parent_id = auth()->user()->top_most_parent_id;
+            $roleInfo = getRoleInfo($top_most_parent_id, 'Branch');
 
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->branch_id) && $level == '5'){
                 return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], config('httpcodes.bad_request'));
-
             }
            
             $user = new User;
             $user->user_type_id = '11';
             $user->unique_id = generateRandomNumber();
-            $user->role_id = $request->role_id;
+            $user->role_id = $roleInfo->id;
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $top_most_parent_id;
             $user->parent_id = $userInfo->id;
-            $user->branch_id = $request->branch_id;
+            $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
@@ -88,12 +81,15 @@ class BranchController extends Controller
             $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
             $user->created_by = $userInfo->id;
-            $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->is_file_required = ($request->is_file_required) ? 1 : 0;
+            $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
             $user->save();
 
-            $role = Role::where('id','11')->first();
-            $user->assignRole($role->name);
+            if($roleInfo)
+            {
+                $role = $roleInfo;
+                $user->assignRole($role->name);
+            }
 
             if(env('IS_MAIL_ENABLE',false) == true){ 
                 $content = ([
@@ -148,15 +144,7 @@ class BranchController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
-            if(auth()->user()->user_type_id=='1'){
-                $top_most_parent_id = auth()->user()->id;
-            }
-            elseif(auth()->user()->user_type_id=='2')
-            {
-                $top_most_parent_id = auth()->user()->id;
-            } else {
-                $top_most_parent_id = auth()->user()->top_most_parent_id;
-            }
+            $top_most_parent_id = auth()->user()->top_most_parent_id;
 
             $checkId = User::where('id',$id)->where('top_most_parent_id',$top_most_parent_id)->first();
             if (!is_object($checkId)) {
@@ -172,7 +160,7 @@ class BranchController extends Controller
             $user = User::find($id);
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
-            $user->branch_id = $request->branch_id;
+            $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
             $user->name = $request->name;
             $user->contact_number = $request->contact_number;
             $user->country_id = $request->country_id;
@@ -182,13 +170,10 @@ class BranchController extends Controller
             $user->full_address = $request->full_address;
             $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
-            $user->is_file_required = ($request->is_file_required) ? 1:0 ;
-            $user->status = ($request->status) ? $request->status: 1 ;
-            $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->is_file_required = ($request->is_file_required) ? 1 : 0;
+            $user->status = ($request->status) ? $request->status : 1;
+            $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
             $user->save();
-
-            $role = Role::where('id','11')->first();
-            $user->assignRole($role->name);
 
             DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;

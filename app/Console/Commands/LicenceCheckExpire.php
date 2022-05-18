@@ -38,7 +38,16 @@ class LicenceCheckExpire extends Command
      */
     public function handle()
     {
-        $getLicences = LicenceKeyManagement::get();
-        return 0;
+        $yesterday_date = date('Y-m-d', strtotime('-1 days'));
+        $getLicences = LicenceKeyManagement::whereDate('expire_at', $yesterday_date)->get();
+        foreach($getLicences as $key => $getLicence)
+        {
+            //update company id
+            $licenceUpdate = User::find($getLicence->top_most_parent_id);
+            $licenceUpdate->license_status = 0;
+            $licenceUpdate->save();
+        }
+
+        return true;
     }
 }

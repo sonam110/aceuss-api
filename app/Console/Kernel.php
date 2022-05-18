@@ -4,25 +4,29 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\CheckAndNotifyLicenceStatus;
+use App\Console\Commands\LicenceCheckExpire;
+use App\Console\Commands\notifySend;
+use App\Console\Commands\taskNotify;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
+    protected $commands = [
+        Commands\CheckAndNotifyLicenceStatus::class,
+        Commands\LicenceCheckExpire::class,
+        Commands\notifySend::class,
+        Commands\taskNotify::class,
+    ];
+
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('licence:status')->dailyAt('09:00');
+        $schedule->command('licence:expire')->dailyAt('00:01');
+        $schedule->command('send:activity-notification')->dailyAt('00:01');
+        $schedule->command('send:task-notification')->dailyAt('00:01');
     }
 
-    /**
-     * Register the commands for the application.
-     *
-     * @return void
-     */
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
