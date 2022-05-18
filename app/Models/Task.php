@@ -104,6 +104,9 @@ class Task extends Model
         if($this->type_id == '8'){
             $result['employee'] = User::select('id','name','email','contact_number')->where('id',$this->resource_id)->first();
         }
+        if($this->type_id == '5'){
+            $result['follow_up'] = IpFollowUp::select('id','title','description','start_date','start_time','end_date','end_time')->where('id',$this->resource_id)->first();
+        }
 
         return $result ;
         
