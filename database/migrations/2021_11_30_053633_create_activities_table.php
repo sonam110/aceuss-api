@@ -15,16 +15,47 @@ class CreateActivitiesTable extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('emp_id')->nullable();
+            $table->foreign('emp_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('activities')->onDelete('cascade');
+
+            $table->unsignedBigInteger('ip_id')->nullable();
+            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+            $table->unsignedBigInteger('patient_id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('shift_id')->nullable();
+            $table->foreign('shift_id')->references('id')->on('shift_assignes')->onDelete('cascade');
+
+
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('subcategory_id')->nullable();
+            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('edited_by')->nullable();
+            $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('action_by')->nullable();
+            $table->foreign('action_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('group_id')->nullable();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('ip_id')->nullable();
-            $table->foreignId('branch_id')->nullable();
-            $table->foreignId('patient_id')->nullable();
-            $table->foreignId('emp_id')->nullable();
-            $table->foreignId('shift_id')->nullable();
-            $table->foreignId('category_id')->nullable();
-            $table->foreignId('subcategory_id')->nullable();
             $table->string('title');
             $table->text('description');
             $table->date('start_date')->nullable();
@@ -42,17 +73,13 @@ class CreateActivitiesTable extends Migration
             $table->string('information_url')->nullable();
             $table->string('file')->nullable();
             $table->text('reason_for_editing')->nullable();
-            $table->foreignId('created_by');
-            $table->foreignId('edited_by')->nullable();
             $table->date('edit_date')->nullable();
-            $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->text('selected_option')->nullable();
             $table->text('internal_comment')->nullable();
             $table->text('external_comment')->nullable();
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Pending ,1:Done,2:Not Done,3:notapplicable');
-            $table->foreignId('action_by')->nullable();
             $table->date('action_date')->nullable();
             $table->tinyInteger('remind_before_start')->default(0);
             $table->integer('before_minutes')->nullable();

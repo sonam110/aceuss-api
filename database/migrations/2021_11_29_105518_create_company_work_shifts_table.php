@@ -15,8 +15,13 @@ class CreateCompanyWorkShiftsTable extends Migration
     {
         Schema::create('company_work_shifts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('user_id');
+            
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('shift_name');
             $table->time('shift_start_time');
             $table->time('shift_end_time');

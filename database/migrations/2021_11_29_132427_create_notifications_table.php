@@ -16,11 +16,18 @@ class CreateNotificationsTable extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->foreignId('top_most_parent_id');
-            $table->foreignId('user_id');
-            $table->foreignId('sender_id')->nullable();
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('sender_id')->nullable();
+            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->string('device_id')->nullable();
             $table->string('status_code', 50)->default('success')->nullable()->comment('success, failed, warning, primary, secondary, error, alert, info');
-            $table->foreignId('device_id')->nullable();
             $table->boolean('device_platform')->comment('1:android,2:ios')->nullable();
             $table->integer('user_type')->nullable();
             $table->string('module')->nullable();

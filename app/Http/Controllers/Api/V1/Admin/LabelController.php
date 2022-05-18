@@ -13,16 +13,16 @@ use App\Imports\LabelsImport;
 
 class LabelController extends Controller
 {
-	public function __construct()
-    {
+	// public function __construct()
+ //    {
 
-        $this->middleware('permission:label-browse',['except' => ['show']]);
-        $this->middleware('permission:label-add', ['only' => ['store']]);
-        $this->middleware('permission:label-edit', ['only' => ['update']]);
-        $this->middleware('permission:label-read', ['only' => ['show']]);
-        $this->middleware('permission:label-delete', ['only' => ['destroy']]);
+ //        $this->middleware('permission:label-browse',['except' => ['show']]);
+ //        $this->middleware('permission:label-add', ['only' => ['store']]);
+ //        $this->middleware('permission:label-edit', ['only' => ['update']]);
+ //        $this->middleware('permission:label-read', ['only' => ['show']]);
+ //        $this->middleware('permission:label-delete', ['only' => ['destroy']]);
         
-    }
+ //    }
 	public function labels(Request $request)
 	{
 

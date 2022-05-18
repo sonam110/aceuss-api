@@ -17,13 +17,24 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('unique_id')->unique()->nullable();
             $table->string('custom_unique_id')->unique()->nullable();
-            $table->foreignId('user_type_id');
+
+            $table->unsignedBigInteger('user_type_id')->nullable();
+            $table->foreign('user_type_id')->references('id')->on('user_types')->onDelete('cascade');
+
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('dept_id')->nullable();
+            $table->foreign('dept_id')->references('id')->on('departments')->onDelete('cascade');
+            
             $table->integer('role_id')->nullable();
             $table->text('company_type_id')->nullable();
-            $table->foreignId('category_id')->nullable();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('dept_id')->nullable();
             $table->integer('branch_id')->nullable();
             $table->string('govt_id')->nullable();
             $table->string('name')->nullable();
@@ -63,7 +74,6 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('step_three')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->tinyInteger('step_four')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->tinyInteger('step_five')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->string('contact_person_name')->nullable();
             $table->rememberToken();

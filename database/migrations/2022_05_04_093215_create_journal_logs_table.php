@@ -15,11 +15,18 @@ class CreateJournalLogsTable extends Migration
     {
         Schema::create('journal_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('journal_id')->nullable();
-            $table->foreignId('top_most_parent_id')->nullable();
+            
+            $table->unsignedBigInteger('journal_id')->nullable();
+            $table->foreign('journal_id')->references('id')->on('journals')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('edited_by')->nullable();
+            $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');
+            
             $table->text('description')->nullable();
             $table->text('reason_for_editing')->nullable();
-            $table->foreignId('edited_by')->nullable();
             $table->datetime('description_created_at');
             $table->softDeletes();
             $table->timestamps();

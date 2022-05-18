@@ -15,8 +15,12 @@ class CreateIpAssigneToEmployeesTable extends Migration
     {
         Schema::create('ip_assigne_to_employees', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ip_id');
-            $table->foreignId('user_id');
+            $table->unsignedBigInteger('ip_id')->nullable();
+            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
             $table->timestamps();

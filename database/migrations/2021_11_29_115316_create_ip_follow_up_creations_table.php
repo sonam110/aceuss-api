@@ -15,8 +15,12 @@ class CreateIpFollowUpCreationsTable extends Migration
     {
         Schema::create('ip_follow_up_creations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ip_id');
-            $table->foreignId('follow_up_id')->nullable();
+            $table->unsignedBigInteger('ip_id')->nullable();
+            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+            $table->unsignedBigInteger('follow_up_id')->nullable();
+            $table->foreign('follow_up_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
+
             $table->string('name');
             $table->string('email');
             $table->string('contact_number');

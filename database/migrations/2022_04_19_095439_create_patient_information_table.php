@@ -15,7 +15,10 @@ class CreatePatientInformationTable extends Migration
     {
         Schema::create('patient_information', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id');
+            
+            $table->unsignedBigInteger('patient_id')->comment('User Table id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string('special_information')->nullable();
             $table->string('institute_name')->nullable();
             $table->string('institute_contact_number')->nullable();

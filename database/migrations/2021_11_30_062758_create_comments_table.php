@@ -15,14 +15,21 @@ class CreateCommentsTable extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('source_id');
-            $table->string('source_name');
-            $table->text('comment');
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('replied_to')->nullable();
-            $table->foreignId('edited_by')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('comments')->onDelete('cascade');
+
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('replied_to')->nullable();
+            $table->foreign('replied_to')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('edited_by')->nullable();
+            $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->string('source_id');
+            $table->string('source_name');
+            $table->text('comment');            
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

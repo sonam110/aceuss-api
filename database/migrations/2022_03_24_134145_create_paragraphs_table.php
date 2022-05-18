@@ -15,7 +15,9 @@ class CreateParagraphsTable extends Migration
     {
         Schema::create('paragraphs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->longText('paragraph');
             $table->timestamps();
         });

@@ -15,9 +15,15 @@ class CreateFileAccessLogsTable extends Migration
     {
         Schema::create('file_access_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->comment('User Table id')->nullable();
-            $table->foreignId('admin_file_id')->comment('Admin File id')->nullable();
-            $table->foreignId('user_id')->comment('User id')->nullable();
+            $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('admin_file_id')->comment('Admin File id')->nullable();
+            $table->foreign('admin_file_id')->references('id')->on('admin_files')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id')->comment('User id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

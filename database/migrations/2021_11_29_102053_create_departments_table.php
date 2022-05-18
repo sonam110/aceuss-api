@@ -15,14 +15,19 @@ class CreateDepartmentsTable extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('parent_id')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                        
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('parent_id');
+            $table->foreign('parent_id')->references('id')->on('departments')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('')->nullable();
             $table->integer('branch_id')->nullable();
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();

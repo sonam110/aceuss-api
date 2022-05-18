@@ -15,6 +15,14 @@ class CreateAssignTasksTable extends Migration
     {
         Schema::create('assign_tasks', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('task_id')->comment('User Table id')->nullable();
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
+            
+
+            $table->unsignedBigInteger('user_id')->comment('User Table id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->foreignId('task_id');
             $table->foreignId('user_id');
             $table->date('assignment_date')->nullable();

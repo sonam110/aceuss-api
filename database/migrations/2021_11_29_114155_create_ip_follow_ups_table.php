@@ -15,11 +15,34 @@ class CreateIpFollowUpsTable extends Migration
     {
         Schema::create('ip_follow_ups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ip_id')->nullable();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('branch_id')->nullable();
+            
+            $table->unsignedBigInteger('ip_id')->nullable();
+            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
+
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('edited_by')->nullable();
+            $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('action_by')->nullable();
+            $table->foreign('action_by')->references('id')->on('users')->onDelete('cascade');
+
+
             $table->text('emp_id')->nullable();
-            $table->foreignId('top_most_parent_id')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
             $table->date('start_date')->nullable();
@@ -29,12 +52,8 @@ class CreateIpFollowUpsTable extends Migration
             $table->time('end_time')->nullable();
             $table->text('remarks')->nullable();
             $table->text('reason_for_editing')->nullable();
-            $table->foreignId('created_by');
-            $table->foreignId('edited_by')->nullable();
-            $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->longText('documents')->nullable();
-            $table->foreignId('action_by')->nullable();
             $table->timestamp('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->text('witness')->nullable();

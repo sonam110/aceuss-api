@@ -15,10 +15,20 @@ class CreatePersonalInfoDuringIpsTable extends Migration
     {
         Schema::create('personal_info_during_ips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id');
-            $table->foreignId('ip_id')->nullable();
-            $table->foreignId('user_id')->nullable();
-            $table->foreignId('follow_up_id')->nullable();
+
+            $table->unsignedBigInteger('patient_id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('ip_id')->nullable();
+            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('follow_up_id')->nullable();
+            $table->foreign('follow_up_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
+
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('contact_number')->nullable();

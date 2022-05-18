@@ -15,7 +15,10 @@ class CreateAdminFilesTable extends Migration
     {
         Schema::create('admin_files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->comment('User Table id')->nullable();
+
+            $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->text('title');
             $table->string('file_path');
             $table->boolean('is_public')->default(1);

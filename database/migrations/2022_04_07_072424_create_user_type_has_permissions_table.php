@@ -15,8 +15,13 @@ class CreateUserTypeHasPermissionsTable extends Migration
     {
         Schema::create('user_type_has_permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_type_id');
-            $table->foreignId('permission_id');
+
+            $table->unsignedBigInteger('user_type_id')->comment('User Table id')->nullable();
+            $table->foreign('user_type_id')->references('id')->on('user_types')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('permission_id')->comment('User Table id')->nullable();
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

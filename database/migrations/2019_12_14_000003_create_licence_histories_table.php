@@ -16,9 +16,11 @@ class CreateLicenceHistoriesTable extends Migration
         Schema::connection('mysql2')->create('licence_histories', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('top_most_parent_id');
-
-            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
+            //$table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();
+            //$table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');            
 
             $table->string('license_key', 50);
             $table->text('module_attached');

@@ -15,9 +15,12 @@ class CreateAssigneModulesTable extends Migration
     {
         Schema::create('assigne_modules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->integer('module_id');
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('module_id')->nullable();
+            $table->foreign('module_id')->references('id')->on('modules')->onDelete('cascade');
+
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

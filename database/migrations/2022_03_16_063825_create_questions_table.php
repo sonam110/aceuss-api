@@ -15,8 +15,12 @@ class CreateQuestionsTable extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('created_by')->nullable();
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('group_name');
             $table->string('question');
             $table->tinyInteger('is_visible')->default('0')->comment('1:true,0:false');

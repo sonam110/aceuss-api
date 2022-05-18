@@ -15,11 +15,12 @@ class CreateBankDetailsTable extends Migration
     {
         Schema::create('bank_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string('bank_name');
             $table->string('account_number');
             $table->string('clearance_number');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->boolean('is_default')->default('0')->comment('1:Yes,0:No');
             $table->string('entry_mode')->nullable();
             $table->softDeletes();

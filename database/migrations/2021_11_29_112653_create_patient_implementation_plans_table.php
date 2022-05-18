@@ -15,12 +15,38 @@ class CreatePatientImplementationPlansTable extends Migration
     {
         Schema::create('patient_implementation_plans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('user_id')->nullable();
-            $table->foreignId('branch_id')->nullable();
-            $table->foreignId('parent_id')->nullable();
-            $table->foreignId('category_id')->nullable();
-            $table->foreignId('subcategory_id')->nullable();
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreign('parent_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
+
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('subcategory_id')->nullable();
+            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('edited_by')->nullable();
+            $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('action_by')->nullable();
+            $table->foreign('action_by')->references('id')->on('users')->onDelete('cascade');
+
+
             $table->string('title');
             $table->boolean('save_as_template')->default(0);
             $table->string('goal')->nullable();
@@ -46,11 +72,7 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->date('end_date')->nullable();
             $table->text('documents')->nullable();
             $table->text('reason_for_editing')->nullable();
-            $table->foreignId('created_by');
-            $table->foreignId('edited_by')->nullable();
-            $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
-            $table->foreignId('action_by')->nullable();
             $table->date('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->boolean('status')->default(0);

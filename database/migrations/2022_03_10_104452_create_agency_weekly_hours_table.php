@@ -15,7 +15,9 @@ class CreateAgencyWeeklyHoursTable extends Migration
     {
         Schema::create('agency_weekly_hours', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('name')->nullable();
             $table->double('weekly_hours_allocated')->default(0);
             $table->date('start_date')->nullable();

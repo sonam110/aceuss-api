@@ -15,8 +15,13 @@ class CreateCompanyTypesTable extends Migration
     {
         Schema::create('company_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('created_by')->nullable();
+            
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
             $table->string('entry_mode')->nullable();

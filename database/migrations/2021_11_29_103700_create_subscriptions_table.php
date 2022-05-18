@@ -15,14 +15,17 @@ class CreateSubscriptionsTable extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('package_id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('package_id');
+            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
+
             $table->text('package_details')->nullable();
             $table->string('license_key')->nullable();
             $table->date('start_date');
             $table->date('end_date');
             $table->boolean('status')->default(1);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

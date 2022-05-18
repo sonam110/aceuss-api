@@ -17,6 +17,7 @@ class CreateDeviationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id');
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->unsignedBigInteger('activity_id')->nullable();
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
 

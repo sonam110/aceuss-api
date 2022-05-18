@@ -15,8 +15,13 @@ class CreateFollowupCompletesTable extends Migration
     {
         Schema::create('followup_completes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('follow_up_id');
-            $table->foreignId('question_id');
+
+            $table->unsignedBigInteger('follow_up_id')->nullable();
+            $table->foreign('follow_up_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
+
+            $table->unsignedBigInteger('question_id')->nullable();
+            $table->foreign('question_id')->references('id')->on('question')->onDelete('cascade');
+
             $table->string('question')->nullable();
             $table->longtext('answer')->nullable();
             $table->string('entry_mode')->nullable();

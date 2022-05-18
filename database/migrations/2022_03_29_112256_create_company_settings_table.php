@@ -15,7 +15,10 @@ class CreateCompanySettingsTable extends Migration
     {
         Schema::create('company_settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            
+            $table->unsignedBigInteger('user_id')->comment('User Table id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string('company_name');
             $table->string('company_logo')->default('img/logo.png');
             $table->string('company_email');

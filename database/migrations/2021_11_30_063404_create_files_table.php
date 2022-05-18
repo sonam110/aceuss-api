@@ -15,17 +15,26 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
-            $table->foreignId('folder_id');
-            $table->foreignId('source_id');
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('folder_id')->nullable();
+            $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
+
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->string('source_id');
             $table->string('source_name');
             $table->string('file_url');
             $table->string('file_type');
             $table->string('file_extension');
             $table->boolean('is_compulsory')->default(0);
             $table->boolean('approval_required')->default(0);
-            $table->foreignId('created_by');
-            $table->foreignId('approved_by')->nullable();
             $table->date('approved_date')->nullable();
             $table->string('visible_to_users')->nullable();
             $table->softDeletes();

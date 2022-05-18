@@ -15,7 +15,9 @@ class CreateActivityTimeLogsTable extends Migration
     {
         Schema::create('activity_time_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('activity_id');
+            $table->unsignedBigInteger('activity_id');
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
+
             $table->date('start_date')->nullable();
             $table->time('start_time')->nullable();
             $table->date('action_date')->nullable();

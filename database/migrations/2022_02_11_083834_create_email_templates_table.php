@@ -13,9 +13,8 @@ class CreateEmailTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_templates', function (Blueprint $table) {
+        Schema::create('email_template_id', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('top_most_parent_id')->nullable();
             $table->string('mail_sms_for');
             $table->longtext('mail_subject')->nullable();
             $table->longtext('mail_body')->nullable();

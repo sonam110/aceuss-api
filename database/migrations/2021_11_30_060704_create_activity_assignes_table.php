@@ -15,11 +15,18 @@ class CreateActivityAssignesTable extends Migration
     {
         Schema::create('activity_assignes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('activity_id');
-            $table->foreignId('user_id');
+            $table->unsignedBigInteger('activity_id');
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
+
+            $table->unsignedBigInteger('assigned_by');
+            $table->foreign('assigned_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+
             $table->date('assignment_date')->nullable();
             $table->string('assignment_day')->nullable();
-            $table->foreignId('assigned_by');
             $table->tinyInteger('status')->default(0)->comment('0:Pending,1:done ,2:notdone,3:notapplicable');
             $table->text('reason')->nullable();
             $table->string('entry_mode')->nullable();
