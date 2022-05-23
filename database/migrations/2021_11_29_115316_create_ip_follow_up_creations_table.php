@@ -28,7 +28,6 @@ class CreateIpFollowUpCreationsTable extends Migration
             $table->boolean('is_family_member')->default(0);
             $table->boolean('is_caretaker')->default(0);
             $table->boolean('is_contact_person')->default(0);
-            $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

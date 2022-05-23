@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->foreign('user_type_id')->references('id')->on('user_types')->onDelete('cascade');
 
             $table->unsignedBigInteger('category_id')->nullable();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            // $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
@@ -31,7 +31,7 @@ class CreateUsersTable extends Migration
             $table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger('dept_id')->nullable();
-            $table->foreign('dept_id')->references('id')->on('departments')->onDelete('cascade');
+            // $table->foreign('dept_id')->references('id')->on('departments')->onDelete('cascade');
             
             $table->integer('role_id')->nullable();
             $table->text('company_type_id')->nullable();

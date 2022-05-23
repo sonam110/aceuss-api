@@ -38,7 +38,6 @@ class CreateFilesTable extends Migration
             $table->date('approved_date')->nullable();
             $table->string('visible_to_users')->nullable();
             $table->softDeletes();
-            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

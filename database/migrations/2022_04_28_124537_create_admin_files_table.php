@@ -19,12 +19,14 @@ class CreateAdminFilesTable extends Migration
             $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('user_types')->onDelete('cascade');
+            
             $table->text('title');
             $table->string('file_path');
             $table->boolean('is_public')->default(1);
             $table->integer('user_type_id')->nullable();
             $table->text('company_ids')->nullable()->comment('if admin wants to share this file to selected company');
-            $table->unsignedBigInteger('created_by');
             $table->timestamps();
         });
     }

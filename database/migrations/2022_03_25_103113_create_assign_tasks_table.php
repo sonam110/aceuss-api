@@ -22,11 +22,11 @@ class CreateAssignTasksTable extends Migration
 
             $table->unsignedBigInteger('user_id')->comment('User Table id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
-            $table->foreignId('task_id');
-            $table->foreignId('user_id');
-            $table->date('assignment_date')->nullable();
+
             $table->foreignId('assigned_by');
+            $table->foreign('assigned_by')->references('id')->on('users')->onDelete('cascade');
+
+            $table->date('assignment_date')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0:Not Done,1:done');
             $table->tinyInteger('is_notify')->default(0)->comment('0:Not send,1:send');
             $table->timestamps();

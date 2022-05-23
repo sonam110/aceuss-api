@@ -21,10 +21,10 @@ class CreateFoldersTable extends Migration
 
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
+            
             $table->string('name');
             $table->string('visible_to_users');
             $table->boolean('status')->default(1);
-            $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
             $table->string('entry_mode')->nullable();
             $table->softDeletes();
             $table->timestamps();
