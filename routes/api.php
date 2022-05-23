@@ -303,6 +303,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	});
 
 	Route::post('get-labels', 'Common\NoAuthController@getLabels');
+	Route::post('labels-import', 'Common\NoAuthController@labelsImport');
 	Route::get('get-label-by-language-id/{id}', 'Common\NoAuthController@getLabelByLanguageId');
 
 	

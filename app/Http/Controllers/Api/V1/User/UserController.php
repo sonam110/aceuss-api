@@ -440,6 +440,7 @@ class UserController extends Controller
 
     public function update(Request $request,User $user)
     {
+        return;
         DB::beginTransaction();
         try {
             $userInfo = getUser();
@@ -783,4 +784,6 @@ class UserController extends Controller
         return($w);
 
     }
+
+    
 }

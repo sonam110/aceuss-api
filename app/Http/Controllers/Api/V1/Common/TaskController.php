@@ -33,17 +33,17 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.start_date','tasks.end_date')->where('is_latest_entry',1);
+            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.start_date','tasks.end_date','tasks.comment')->where('is_latest_entry',1);
             if($user->user_type_id =='2'){
                 
-                $query = $query->orderBy('id','DESC');
+                // $query = $query->orderBy('id','DESC');
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
             if($user->user_type_id =='3'){
-                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id')->implode(',');
-                $query = $query->whereIn('id',explode(',',$assTask));
+                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id');
+                $query = $query->whereIn('id', $assTask);
 
             }
            
@@ -82,7 +82,41 @@ class TaskController extends Controller
                 ->where('user_id',$request->emp_id);
             }
 
+            $taskCounts = Task::select([
+                \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_done'),
+                \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_not_done')
+            ]);
+
+            if($user->user_type_id =='2'){
+
+            } else{
+                $taskCounts =  $taskCounts->whereIn('tasks.branch_id',$allChilds);
+            }
+
+            if($user->user_type_id =='3'){
+                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id');
+                $taskCounts = $taskCounts->whereIn('tasks.id', $assTask);
+
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $taskCounts->where(function ($q) use ($user) {
+                    $q->where('tasks.patient_id', $user->id)
+                        ->orWhere('tasks.patient_id', $user->parent_id);
+                });
+            }
             
+
+            $whereRaw2 = $this->getWhereRawFromRequestOther($request);
+
+            if($whereRaw2 != '') { 
+                $taskCounts = $taskCounts->whereRaw($whereRaw2);
+            }
+
+            $taskCounts = $taskCounts->first();
+
+
             
             
             if(!empty($request->perPage))
@@ -97,13 +131,20 @@ class TaskController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+                    'completed_tasks' => $taskCounts->total_done,
+                    'not_completed_tasks' => $taskCounts->total_not_done
                 ];
                 return prepareResult(true,"Task list",$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->with('assignEmployee.employee:id,name,email,contact_number')->get();
+                // $data = [
+                //     $query = $query,
+                //     'total_completed' => $taskCounts->first()->total_done,
+                //     'total_not_completed' => $taskCounts->first()->total_not_done
+                // ];
             }
             return prepareResult(true,"Task list",$query,config('httpcodes.success')); 
 	    }
@@ -679,6 +720,62 @@ class TaskController extends Controller
         		if ($w != '') {$w = $w . " AND ";}
         		$w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
         	}
+        }
+        return($w);
+
+    }
+
+    private function getWhereRawFromRequestOther(Request $request)
+    {
+        $w = '';
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+        }
+        if (is_null($request->input('branch_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }
+
+        if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->start_date != '')
+            {
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+            }
+            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->end_date != '')
+            {
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+            }
+            
+          
+           
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " OR ";}
+             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             
         }
         return($w);
 

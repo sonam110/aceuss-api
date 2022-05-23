@@ -958,7 +958,7 @@ class PatientController extends Controller
 
             $id = $request->ip_id;
             $ipAction = PatientImplementationPlan::find($id);
-            if($ipAction->status==0 || $request->status==2)
+            if($ipAction->status==0 && $request->status==2)
             {
                 return prepareResult(false,'Cannot complete this IP because the IP is not yet approved. please go back and approve this IP first.',[], config('httpcodes.bad_request')); 
             }
