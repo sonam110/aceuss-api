@@ -32,10 +32,10 @@ class CreateJournalsTable extends Migration
             $table->foreign('emp_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger('category_id')->nullable();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('category_masters')->onDelete('cascade');
 
             $table->unsignedBigInteger('subcategory_id')->nullable();
-            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('subcategory_id')->references('id')->on('category_masters')->onDelete('cascade');
 
             $table->unsignedBigInteger('edited_by')->nullable();
             $table->foreign('edited_by')->references('id')->on('users')->onDelete('cascade');

@@ -24,7 +24,6 @@ class CreateDepartmentsTable extends Migration
             $table->unsignedBigInteger('parent_id');
             $table->foreign('parent_id')->references('id')->on('departments')->onDelete('cascade');
             
-            $table->unsignedBigInteger('')->nullable();
             $table->integer('branch_id')->nullable();
             $table->string('name');
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');

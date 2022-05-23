@@ -152,6 +152,22 @@ class NotificationController extends Controller
         }
     }
 
+    public function unreadNotificationsCount()
+    {
+        try
+        {
+            
+            $count = Notification::where('user_id',Auth::id())->where('read_status',0)->count();
+            return prepareResult(true,"User Unread Notifications Count", $count,config('httpcodes.success'));
+        }
+        catch (\Throwable $exception)
+        {
+            DB::rollback();
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
     public function notificationCheck(Request $request)
     {
         $push = new PushNotification('fcm');

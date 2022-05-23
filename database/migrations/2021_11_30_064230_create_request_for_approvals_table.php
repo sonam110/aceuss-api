@@ -32,11 +32,10 @@ class CreateRequestForApprovalsTable extends Migration
             $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger('request_type_id')->nullable();
-            $table->foreign('request_type_id')->references('id')->on('request_types')->onDelete('cascade');
+            // $table->foreign('request_type_id')->references('id')->on('request_types')->onDelete('cascade');
 
             $table->string('request_type');
             $table->string('group_token')->comment('if request_type_id is multiple then action performed according to this');
-            $table->foreignId('request_type_id');
             $table->string('reason_for_requesting');
             $table->text('reason_for_rejection')->nullable();
             $table->text('other_info')->nullable();

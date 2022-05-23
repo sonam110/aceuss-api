@@ -129,6 +129,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('/user-notification-read-all', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationReadAll']);
 		Route::get('/user-notification-delete', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationDelete']);
 		Route::post('/notification-check', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'notificationCheck']);
+		Route::get('/unread-notification-count', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'unreadNotificationsCount']);
+
 
 		Route::post('file-access-log', 'Common\AdminFileController@fileAccessLog');
 		Route::post('company-files', 'Common\AdminFileController@companyFiles');

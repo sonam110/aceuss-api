@@ -20,7 +20,7 @@ class CreateFollowupCompletesTable extends Migration
             $table->foreign('follow_up_id')->references('id')->on('ip_follow_ups')->onDelete('cascade');
 
             $table->unsignedBigInteger('question_id')->nullable();
-            $table->foreign('question_id')->references('id')->on('question')->onDelete('cascade');
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
 
             $table->string('question')->nullable();
             $table->longtext('answer')->nullable();
