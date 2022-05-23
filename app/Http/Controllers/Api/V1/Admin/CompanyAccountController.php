@@ -50,6 +50,41 @@ class CompanyAccountController extends Controller
             } else {
                 $query = $query->orderBy('id', 'DESC');
             }
+
+            if(!empty($request->company_type_id))
+            {
+                $query->whereIn('company_type_id', $request->company_type_id);
+            }
+
+            if(!empty($request->contact_number))
+            {
+                $query->where('contact_number', $request->contact_number);
+            }
+
+            if(!empty($request->email))
+            {
+                $query->where('email', $request->email);
+            }
+
+            if(!empty($request->name))
+            {
+                $query->where('name',"like", "%".$request->name."%");
+            }
+
+            if(!empty($request->organization_number))
+            {
+                $query->where('organization_number',"like", "%".$request->organization_number."%");
+            }
+            if(!empty($request->status))
+            {
+                $query->where('status', $request->status);
+            }
+
+            if(!empty($request->license_end_date))
+            {
+                $query->where('license_end_date', $request->license_end_date);
+            }
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

@@ -32,6 +32,41 @@ class PackageController extends Controller
             } else {
                 $query->orderBy('id', 'DESC');
             }
+
+            if(!empty($request->is_enable_bankid_charges))
+            {
+                $query->where('bankid_charges', $request->is_enable_bankid_charges);
+            }
+
+            if(!empty($request->is_sms_enable))
+            {
+                $query->where('sms_enable', $request->is_sms_enable);
+            }
+
+            if(!empty($request->name))
+            {
+                $query->where('name', $request->name);
+            }
+            if(!empty($request->number_of_employees))
+            {
+                $query->where('number_of_employees', $request->number_of_employees);
+            }
+            if(!empty($request->number_of_patients))
+            {
+                $query->where('number_of_patients', $request->number_of_patients);
+            }
+            if(!empty($request->price))
+            {
+                $query->where('price', $request->price);
+            }
+            if(!empty($request->status))
+            {
+                $query->where('status', $request->status);
+            }
+
+
+
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

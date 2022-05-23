@@ -117,7 +117,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		    Route::post('sms-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'smsLog']);
 		    Route::post('activities-log', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'activitiesLog']);
 		    Route::get('activities-log-info/{activity_id}', [App\Http\Controllers\Api\V1\Admin\LogController::class, 'activityLogInfo']);
-		   
+		    
+	     	Route::post('licence-keys', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'index']);
+			Route::apiResource('licence-key',Admin\ManageLicenceController::class)->only(['store','destroy','show', 'update']);
+
 		});
 
 		//Notification
@@ -296,4 +299,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('bookmark', User\BookmarkController::class)->only(['store','destroy','show', 'update']);
 		
 	});
+
+	Route::post('get-labels', 'Common\NoAuthController@getLabels');
+	Route::get('get-label-by-language-id/{id}', 'Common\NoAuthController@getLabelByLanguageId');
+
+	
 });

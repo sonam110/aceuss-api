@@ -87,6 +87,12 @@ class LabelController extends Controller
 		DB::beginTransaction();
 		try 
 		{
+			$count = Label::where('label_name',$request->label_name)->where('label_value',$request->label_value)->where('language_id',$request->language_id)->count();
+			if($count>=1)
+			{
+				return prepareResult(false,getLangByLabelGroups('Label','Dublicate Entry'), [],config('httpcodes.not_found'));
+            
+			}
 			$label = new Label;
 			$label->group_id         = $request->group_id;
 			$label->language_id      = $request->language_id;

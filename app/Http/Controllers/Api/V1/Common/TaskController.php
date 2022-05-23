@@ -33,7 +33,7 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')->where('is_latest_entry',1);
+            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.start_date','tasks.end_date')->where('is_latest_entry',1);
             if($user->user_type_id =='2'){
                 
                 $query = $query->orderBy('id','DESC');
@@ -55,10 +55,35 @@ class TaskController extends Controller
                 $query = $query->orderBy('id', 'DESC');
             }
 
+            // $orderItems = OrderItem::select('order_items.*')
+            // ->join('products_services_books', function ($join) {
+            //     $join->on('order_items.products_services_book_id', '=', 'products_services_books.id');
+            // })
+
             if(!empty($request->activity_id))
             {
                 $query->where('type_id',1)->where('resource_id', $request->activity_id);
             }
+            if(!empty($request->type_id))
+            {
+                $query->where('type_id', $request->type_id);
+            }
+
+            if(!empty($request->resource_id))
+            {
+                $query->where('resource_id', $request->resource_id);
+            }
+
+            if(!empty($request->emp_id))
+            {
+                $query->join('assign_tasks', function ($join) {
+                    $join->on('assign_tasks.task_id', '=', 'tasks.id');
+                })
+                ->where('user_id',$request->emp_id);
+            }
+
+            
+            
             
             if(!empty($request->perPage))
             {

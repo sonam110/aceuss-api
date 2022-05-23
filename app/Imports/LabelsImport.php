@@ -27,18 +27,18 @@ class LabelsImport implements ToModel,WithHeadingRow
     */
     public function model(array $row)
     {
-        // if(Language::where('title',$this->data['language_title'])->count() > 0)
-        // {
-        //     $language = Language::where('title',$this->data['language_title'])->first();
-        // }
-        // else
-        // {
-        //     $language = new Language;
-        //     $language->title                = $this->data['language_title'];
-        //     $language->value                = $this->data['language_value'];
-        //     $language->status               = 1;
-        //     $language->save();
-        // }
+        if(Language::where('title',$this->data['language_title'])->count() > 0)
+        {
+            $language = Language::where('title',$this->data['language_title'])->first();
+        }
+        else
+        {
+            $language = new Language;
+            $language->title                = $this->data['language_title'];
+            $language->value                = $this->data['language_value'];
+            $language->status               = 1;
+            $language->save();
+        }
 
         if(Group::where('name',$row['group_name'])->count() > 0)
         {

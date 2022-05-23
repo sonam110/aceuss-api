@@ -1,15 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1\User;
+namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\Bookmark;
-use Validator;
-use Auth;
-use Exception;
-use DB;
-use Carbon\Carbon;
+
 
 class BookMarkController extends Controller
 {
@@ -32,14 +29,12 @@ class BookMarkController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $query = Bookmark::orderBy('id','DESC');
-            // if($user->user_type_id =='2'){
+            if($user->user_type_id =='2'){
                 
-            //     $query = $query->orderBy('id','DESC');
-            // } else{
-            //     $query =  $query->whereIn('branch_id',$allChilds);
-            // }
-
-            $query = $query->orderBy('id','DESC');
+                $query = $query->orderBy('id','DESC');
+            } else{
+                $query =  $query->whereIn('branch_id',$allChilds);
+            }
             
             if(!empty($request->perPage))
             {

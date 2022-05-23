@@ -31,6 +31,12 @@ class AdminFileController extends Controller
                 $query->where('title', 'LIKE', '%'.$request->title.'%');
             }
 
+            if(!empty($request->user_type_id))
+            {
+                $query->where('user_type_id', $request->user_type_id);
+            }
+
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -84,7 +90,7 @@ class AdminFileController extends Controller
             }
             
 
-            $query = $query->withoutGlobalScope('top_most_parent_id')
+            $query = $query->with('UserType')->withoutGlobalScope('top_most_parent_id')
             //->whereNull('company_ids')
             ->orderBy('created_at', 'DESC')
             ->with('UserType');
@@ -92,6 +98,11 @@ class AdminFileController extends Controller
             if(!empty($request->title))
             {
                 $query->where('title', 'LIKE', '%'.$request->title.'%');
+            }
+
+            if(!empty($request->user_type_id))
+            {
+                $query->where('user_type_id', $request->user_type_id);
             }
 
             if(!empty($request->perPage))

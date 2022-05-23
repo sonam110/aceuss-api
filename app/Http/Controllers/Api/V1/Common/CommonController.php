@@ -11,6 +11,7 @@ use Validator;
 use Auth;
 use Exception;
 use App\Models\User;
+use App\Models\Label;
 use App\Models\SmsLog;
 use Illuminate\Support\Facades\Hash;
 
@@ -53,11 +54,11 @@ class CommonController extends Controller
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
-                    'data' => $result,
-                    'total' => $total,
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                'data' => $result,
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
                 ];
                 $query = $pagination;
             }
@@ -92,11 +93,11 @@ class CommonController extends Controller
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
-                    'data' => $result,
-                    'total' => $total,
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                'data' => $result,
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
                 ];
                 return prepareResult(true,"User list",$pagination,'200');
             }
@@ -112,10 +113,12 @@ class CommonController extends Controller
         }
     }
 
+    
+
     public function pateintTypes(Request $request)
     {
         try {
-            
+
             $query =DB::table('employee_types')->select('id','designation')->where('type','patient') ;
             if(!empty($request->perPage))
             {
@@ -125,11 +128,11 @@ class CommonController extends Controller
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
-                    'data' => $result,
-                    'total' => $total,
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                'data' => $result,
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
                 ];
                 return prepareResult(true,"Patient Type list",$pagination,'200');
             }
@@ -163,9 +166,9 @@ class CommonController extends Controller
     public function smsCallback(Request $request)
     {
         $updateSmsStatus = SmsLog::where('mobile', $request['number'])
-            ->where('status', null)
-            ->orderBy('id_inc', 'ASC')
-            ->first();
+        ->where('status', null)
+        ->orderBy('id_inc', 'ASC')
+        ->first();
         if($updateSmsStatus)
         {
             $updateSmsStatus->status = $request['type'];
@@ -181,30 +184,30 @@ class CommonController extends Controller
             $validator = Validator::make($request->all(),[   
                 "user_id"  => "required|exists:users,id",    
                 "password"  => 'required|min:8|max:30',   
-            ]);
+                ]);
             if ($validator->fails()) {
-                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
-            }
-            $checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
-            if(!is_object($checkUser)){
-                 return prepareResult(false,'User not found',[], '422'); 
-            }
-            $updatePass = User::find($checkUser->id);
-            $updatePass->password = Hash::make($request->password);
-            $updatePass->is_password_change = '0';
-            $updatePass->save();
-            return prepareResult(true,"Password Change Successfully",$updatePass,'200');
-        }
-        catch(Exception $exception) {
-            return prepareResult(false, $exception->getMessage(),[], '500');
-            
-        }
-       
+               return prepareResult(false,$validator->errors()->first(),[], '422'); 
+           }
+           $checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
+           if(!is_object($checkUser)){
+               return prepareResult(false,'User not found',[], '422'); 
+           }
+           $updatePass = User::find($checkUser->id);
+           $updatePass->password = Hash::make($request->password);
+           $updatePass->is_password_change = '0';
+           $updatePass->save();
+           return prepareResult(true,"Password Change Successfully",$updatePass,'200');
+       }
+       catch(Exception $exception) {
+        return prepareResult(false, $exception->getMessage(),[], '500');
+
     }
 
-    public function testMessageSend()
-    {
-        $response = sendMessage('2fa-login','','a211aefd-6167-4766-95d5-ade6e6dcf70b','827ec7a7-1370-40fb-883e-ae7b946073ec');
-       return prepareResult(true,"Msg Send Successfully",$response,'200');
-    }
+}
+
+public function testMessageSend()
+{
+    $response = sendMessage('2fa-login','','a211aefd-6167-4766-95d5-ade6e6dcf70b','827ec7a7-1370-40fb-883e-ae7b946073ec');
+    return prepareResult(true,"Msg Send Successfully",$response,'200');
+}
 }
