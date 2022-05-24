@@ -360,7 +360,7 @@ class ActivityController extends Controller
             	{
             		$validator = Validator::make($request->all(),[  
                     'start_date' => 'required|date|after_or_equal:'.$ipCheck->start_date,    
-                    'end_date' => 'required|date|after_or_equal:start_date|before_or_equal:'.$ipCheck->end_date,   
+                    // 'end_date' => 'required|date|after_or_equal:start_date|before_or_equal:'.$ipCheck->end_date,   
 	                ]);
 
 	                if ($validator->fails()) {

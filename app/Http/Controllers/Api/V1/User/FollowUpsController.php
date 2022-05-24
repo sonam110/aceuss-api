@@ -48,7 +48,7 @@ class FollowUpsController extends Controller
             $query = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
                 ->where('is_latest_entry', 1);
             if($user->user_type_id =='2'){
-                $query = $query->orderBy('id','DESC');
+                // $query = $query->orderBy('id','DESC');
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
@@ -58,7 +58,35 @@ class FollowUpsController extends Controller
             } else {
                 $query = $query->orderBy('id', 'DESC');
             }
-            
+
+            if($request->is_completed == "1")
+            {
+                $query = $query->where('is_completed', 1);
+            }
+
+            if($request->is_completed == "0")
+            {
+                $query = $query->where('is_completed', 0);
+            }
+            $followUpCounts = IpFollowUp::select([
+                \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as completed'),
+                \DB::raw('COUNT(IF(is_completed = 0, 0, NULL)) as not_completed')
+            ])->where('is_latest_entry',1);
+
+            if($user->user_type_id =='2'){
+
+            } else{
+                $followUpCounts =  $followUpCounts->whereIn('ip_follow_ups.branch_id',$allChilds);
+            }
+
+            $whereRaw2 = $this->getWhereRawFromRequestOther($request);
+
+            if($whereRaw2 != '') { 
+                $followUpCounts = $followUpCounts->whereRaw($whereRaw2);
+            }
+
+            $followUpCounts = $followUpCounts->first();
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -71,7 +99,9 @@ class FollowUpsController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+                    'completed_follow_ups' => $followUpCounts->completed,
+                    'not_completed_follow_ups' => $followUpCounts->not_completed
                 ];
                 return prepareResult(true,"Follow ups list",$pagination,config('httpcodes.success'));
             }
@@ -731,6 +761,62 @@ class FollowUpsController extends Controller
              $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
         }
 
+        return($w);
+
+    }
+
+    private function getWhereRawFromRequestOther(Request $request)
+    {
+        $w = '';
+        if (is_null($request->input('ip_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+        }
+        if (is_null($request->input('patient_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+        }
+        if (is_null($request->input('branch_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        }
+        if (is_null($request->input('category_id')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        }
+
+        if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
+           
+            if ($w != '') {$w = $w . " AND ";}
+
+            if ($request->start_date != '')
+            {
+              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+            }
+            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
+                {
+
+              $w = $w . " AND ";
+            }
+            if ($request->end_date != '')
+            {
+                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+            }
+            
+          
+           
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " AND ";}
+             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+
+             
+        }
+        if (is_null($request->input('title')) == false) {
+            if ($w != '') {$w = $w . " OR ";}
+             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             
+        }
         return($w);
 
     }

@@ -427,4 +427,64 @@ class CompanyAccountController extends Controller
         }
         return($w);
     }
+
+    public function companySubscriptionExtend(Request $request)
+    {
+        $validation = \Validator::make($request->all(), [
+            'user_id'      => 'required',
+            'licence_key'  => 'required',
+        ]);
+
+        if ($validation->fails()) {
+           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+
+        DB::beginTransaction();
+        try {
+                $licenceKeyData = LicenceKeyManagement::where('top_most_parent_id',$request->user_id)->where('license_key',$request->licence_key)->latest()->first();
+                $package_details =  json_decode($licenceKeyData->package_details);
+                $package = Package::where('id',$package_details->id)->first();
+                $package_expire_at = date('Y-m-d', strtotime($package->validity_in_days.' days'));
+
+                // Create Licence History
+                $createLicHistory = new LicenceHistory;
+                $createLicHistory->top_most_parent_id = $request->user_id;
+                $createLicHistory->created_by = auth()->id();
+                $createLicHistory->license_key = $request->licence_key;
+                $createLicHistory->active_from = date('Y-m-d');
+                $createLicHistory->expire_at = $package_expire_at;
+                $createLicHistory->module_attached = $licenceKeyData->module_attached;
+                $createLicHistory->package_details = $package;
+                $createLicHistory->save();
+
+                // Create Licence Key
+                $keyMgmt = new LicenceKeyManagement;
+                $keyMgmt->top_most_parent_id = $request->user_id;
+                $keyMgmt->created_by = auth()->id();
+                $keyMgmt->license_key = $request->licence_key;
+                $keyMgmt->active_from = date('Y-m-d');
+                $keyMgmt->expire_at = $package_expire_at;
+                $keyMgmt->module_attached = $licenceKeyData->module_attached;
+                $keyMgmt->package_details = $package;
+                $keyMgmt->is_used = false;
+                $keyMgmt->save();
+
+                $packageSubscribe = new Subscription;
+                $packageSubscribe->user_id = $request->user_id;
+                $packageSubscribe->package_id = $package_details->id;
+                $packageSubscribe->package_details = $package;
+                $packageSubscribe->license_key = $request->licencse_key;
+                $packageSubscribe->start_date = date('Y-m-d');
+                $packageSubscribe->end_date = $package_expire_at;
+                $packageSubscribe->status = 1;
+                $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                $packageSubscribe->save();
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('message_LicenceKey','create') ,$keyMgmt, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
 }

@@ -33,7 +33,7 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.start_date','tasks.end_date','tasks.comment')->where('is_latest_entry',1);
+            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.start_date','tasks.end_date','tasks.comment','tasks.action_by')->where('is_latest_entry',1)->with('actionBy:id,name');
             if($user->user_type_id =='2'){
                 
                 // $query = $query->orderBy('id','DESC');
@@ -285,7 +285,7 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 				return prepareResult(true,'Task Added successfully' ,$taskList, config('httpcodes.success'));
 
@@ -449,7 +449,7 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
 				return prepareResult(true,'Task Update successfully' ,$taskList, config('httpcodes.success'));
 
@@ -488,8 +488,8 @@ class TaskController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
             }
-        	$Task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name')->first();
-	        return prepareResult(true,'View Task' ,$Task, config('httpcodes.success'));
+        	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name')->first();
+	        return prepareResult(true,'View Task' ,$task, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
