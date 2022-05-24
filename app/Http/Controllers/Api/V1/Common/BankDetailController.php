@@ -70,16 +70,16 @@ class BankDetailController extends Controller
         		'clearance_number' => 'required',   
 	        ],
 		    [
-            'bank_name.required' => getLangByLabelGroups('Bank','bank_name'),
-            'account_number.required' => getLangByLabelGroups('Bank','account_number'),
-            'clearance_number.required' => getLangByLabelGroups('Bank','clearance_number'),
+            'bank_name.required' => getLangByLabelGroups('message_Bank','bank_name'),
+            'account_number.required' => getLangByLabelGroups('message_Bank','account_number'),
+            'clearance_number.required' => getLangByLabelGroups('message_Bank','clearance_number'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = BankDetail::where('user_id',$user->id)->where('bank_name',$request->bank_name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('Bank','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false, getLangByLabelGroups('message_Bank','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $bankDetail = new BankDetail;
 		 	$bankDetail->user_id = $user->id;
@@ -93,7 +93,7 @@ class BankDetailController extends Controller
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
-	        return prepareResult(true,getLangByLabelGroups('Bank','create') ,$bankDetail, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_Bank','create') ,$bankDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -109,7 +109,7 @@ class BankDetailController extends Controller
             $user = getUser();
             $checkId= BankDetail::where('user_id',$user->id)->where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Bank','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Bank','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $bankDetail = BankDetail::where('id',$id)->with('User:id,name')->first();
@@ -131,20 +131,20 @@ class BankDetailController extends Controller
         		'clearance_number' => 'required',   
 	        ],
             [
-            'bank_name.required' => getLangByLabelGroups('Bank','bank_name'),
-            'account_number.required' => getLangByLabelGroups('Bank','account_number'),
-            'clearance_number.required' => getLangByLabelGroups('Bank','clearance_number'),
+            'bank_name.required' => getLangByLabelGroups('message_Bank','bank_name'),
+            'account_number.required' => getLangByLabelGroups('message_Bank','account_number'),
+            'clearance_number.required' => getLangByLabelGroups('message_Bank','clearance_number'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = BankDetail::where('user_id',$user->id)->where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Bank','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_Bank','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = BankDetail::where('id','!=',$id)->where('user_id',$user->id)->where('bank_name',$request->bank_name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('Bank',' name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false, getLangByLabelGroups('message_Bank',' name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $bankDetail = BankDetail::find($id);
 		 	$bankDetail->user_id = $user->id;
@@ -158,7 +158,7 @@ class BankDetailController extends Controller
 		 	if($request->is_default){
 			 	$update_is_default = BankDetail::where('id','!=',$bankDetail->id)->where('user_id',$user->id)->update(['is_default'=>'0']);
 			}
-	        return prepareResult(true, getLangByLabelGroups('Bank','update') ,$bankDetail, config('httpcodes.success'));
+	        return prepareResult(true, getLangByLabelGroups('message_Bank','update') ,$bankDetail, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -174,11 +174,11 @@ class BankDetailController extends Controller
 	    	$user = getUser();
         	$checkId= BankDetail::where('user_id',$user->id)->where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Bank','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Bank','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$bankDetail = BankDetail::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Bank','delete'),[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('message_Bank','delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));

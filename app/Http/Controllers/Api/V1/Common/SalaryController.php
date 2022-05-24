@@ -24,11 +24,11 @@ class SalaryController extends Controller
         		'salary_package_end_date' => 'required|after:salary_package_start_date',   
 	        ],
             [
-            'user_id.required' => getLangByLabelGroups('Salary','user_id'),
-            'salary_per_month.emrequiredail' => getLangByLabelGroups('Salary','salary_per_month'),
-            'salary_package_start_date.required' =>  getLangByLabelGroups('Salary','salary_package_start_date'),
-            'salary_package_end_date.required' =>  getLangByLabelGroups('Salary','salary_package_end_date'),
-            'salary_package_end_date.after' =>  getLangByLabelGroups('Salary','salary_package_end_date_after'),
+            'user_id.required' => getLangByLabelGroups('message_Salary','user_id'),
+            'salary_per_month.emrequiredail' => getLangByLabelGroups('message_Salary','salary_per_month'),
+            'salary_package_start_date.required' =>  getLangByLabelGroups('message_Salary','salary_package_start_date'),
+            'salary_package_end_date.required' =>  getLangByLabelGroups('message_Salary','salary_package_end_date'),
+            'salary_package_end_date.after' =>  getLangByLabelGroups('message_Salary','salary_package_end_date_after'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -47,7 +47,7 @@ class SalaryController extends Controller
             $salaryDetail->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$salaryDetail->save();
             DB::commit();
-	        return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, config('httpcodes.success'));
+	        return prepareResult(true, getLangByLabelGroups('message_Salary','update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -64,7 +64,7 @@ class SalaryController extends Controller
                 'user_id' => 'required|exists:users,id',        
             ],
             [
-            'user_id.required' => getLangByLabelGroups('Salary','user_id'),
+            'user_id.required' => getLangByLabelGroups('message_Salary','user_id'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -74,7 +74,7 @@ class SalaryController extends Controller
                 return prepareResult(false,'User not found', [],config('httpcodes.not_found'));
             }
             $salaryDetail = SalaryDetail::where('user_id',$request->user_id)->with('User:id,name')->first(); 
-            return prepareResult(true, getLangByLabelGroups('Salary','update') ,$salaryDetail, config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('message_Salary','update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));   

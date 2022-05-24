@@ -187,20 +187,20 @@ class CategoryMasterController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'category_type_id.required' => getLangByLabelGroups('CategoryMaster','category_type_id'),
-            'name.required' => getLangByLabelGroups('CategoryMaster','name'),
+            'category_type_id.required' => getLangByLabelGroups('message_CategoryMaster','category_type_id'),
+            'name.required' => getLangByLabelGroups('message_CategoryMaster','name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CategoryMaster::where('category_type_id',$request->category_type_id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
             
@@ -220,7 +220,7 @@ class CategoryMasterController extends Controller
                     ->orderBy('id', 'DESC')
                     ->with('Parent:id,name','CategoryType:id,name')
                     ->first();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','create') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_CategoryMaster','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -239,25 +239,25 @@ class CategoryMasterController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'category_type_id.required' => getLangByLabelGroups('CategoryMaster','category_type_id'),
-            'name.required' => getLangByLabelGroups('CategoryMaster','name'),
+            'category_type_id.required' => getLangByLabelGroups('message_CategoryMaster','category_type_id'),
+            'name.required' => getLangByLabelGroups('message_CategoryMaster','name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CategoryMaster::where('category_type_id',$request->category_type_id)->where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryMaster::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
             $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','parent_id_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
 	        $categoryMaster = CategoryMaster::find($id);
@@ -275,7 +275,7 @@ class CategoryMasterController extends Controller
             $data = CategoryMaster::where('id', $categoryMaster->id)
                     ->with('Parent:id,name','CategoryType:id,name')
                     ->first();
-	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','update') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_CategoryMaster','update') ,$data, config('httpcodes.success'));
 			    
 		       
         }
@@ -292,11 +292,11 @@ class CategoryMasterController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryMaster::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryMaster = CategoryMaster::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('CategoryMaster','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('message_CategoryMaster','delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
@@ -311,7 +311,7 @@ class CategoryMasterController extends Controller
             $user = getUser();
             $checkId= CategoryMaster::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CategoryMaster','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $categoryMaster = CategoryMaster::where('id',$id)->with('Parent:id,name','CategoryType:id,name','children')->first();

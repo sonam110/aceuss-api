@@ -70,7 +70,7 @@ class ParagraphController extends Controller
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$Paragraph, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -95,14 +95,14 @@ class ParagraphController extends Controller
             }
             $checkId = Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Paragraph = Paragraph::find($id);
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$Paragraph, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update'),$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -116,10 +116,10 @@ class ParagraphController extends Controller
         try {
             $checkId= Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $Paragraph = Paragraph::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

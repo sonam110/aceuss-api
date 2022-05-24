@@ -54,21 +54,21 @@ class ActivityClsController extends Controller
                 'name' => 'required',   
             ],
             [
-            'name.required' => getLangByLabelGroups('Activity','name'),
+            'name.required' => getLangByLabelGroups('message_Activity','name'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkAlready = ActivityClassification::where('name',$request->name)->first(); 
             if($checkAlready) {
-                return prepareResult(false,getLangByLabelGroups('Activity','name_already_exists'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('message_Activity','name_already_exists'),[], config('httpcodes.bad_request')); 
             }
             $activityClassification = new ActivityClassification;
             $activityClassification->name = $request->name;
             $activityClassification->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityClassification->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Activity','create') ,$activityClassification, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','create') ,$activityClassification, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -83,7 +83,7 @@ class ActivityClsController extends Controller
         try {
             $checkId= ActivityClassification::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activityClassification = ActivityClassification::where('id',$id)->first();
             return prepareResult(true,'View Activity Classification',$activityClassification, config('httpcodes.success'));
@@ -105,19 +105,19 @@ class ActivityClsController extends Controller
             
             ],
             [
-            'name.required' => getLangByLabelGroups('Activity','name'),
+            'name.required' => getLangByLabelGroups('message_Activity','name'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = ActivityClassification::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = ActivityClassification::where('id','!=',$id)->where('name',$request->name)->first(); 
             if($checkAlready) {
 
-                return prepareResult(false,getLangByLabelGroups('Activity','name_already_exists'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('message_Activity','name_already_exists'),[], config('httpcodes.bad_request')); 
 
             }
             $activityClassification = ActivityClassification::find($id);
@@ -125,7 +125,7 @@ class ActivityClsController extends Controller
             $activityClassification->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $activityClassification->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Activity','update'),$activityClassification, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','update'),$activityClassification, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -140,11 +140,11 @@ class ActivityClsController extends Controller
         try {
             $checkId= ActivityClassification::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activityClassification = ActivityClassification::findOrFail($id);
             $activityClassification->delete();
-            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

@@ -76,7 +76,7 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmailTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -89,7 +89,7 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,'View Template' ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -110,7 +110,7 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$EmailTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -123,12 +123,12 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 EmailTemplate::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
             }
            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             

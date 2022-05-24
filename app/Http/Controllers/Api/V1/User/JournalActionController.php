@@ -97,7 +97,7 @@ class JournalActionController extends Controller
                 'journal_id' => 'required|exists:journals,id',    
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),   
+                'journal_id' =>  getLangByLabelGroups('message_JournalAction','journal_id'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -126,7 +126,7 @@ class JournalActionController extends Controller
             $data = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->where('id', $journalAction->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','create') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_JournalAction','create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -145,7 +145,7 @@ class JournalActionController extends Controller
                 'journal_id' => 'required|exists:journals,id',          
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('JournalAction','journal_id'),    
+                'journal_id' =>  getLangByLabelGroups('message_JournalAction','journal_id'),    
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -159,7 +159,7 @@ class JournalActionController extends Controller
             $checkId = JournalAction::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             if($checkId->is_signed==1)
@@ -196,7 +196,7 @@ class JournalActionController extends Controller
             $data = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->where('id', $journalAction->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','update') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_JournalAction','update') ,$data, config('httpcodes.success'));
               
         }
         catch(Exception $exception) {
@@ -213,10 +213,10 @@ class JournalActionController extends Controller
             $user = getUser();
             $checkId= JournalAction::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
             $journalAction = JournalAction::where('id',$id)->delete();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_JournalAction','delete') ,[], config('httpcodes.success'));
                 
                 
         }
@@ -233,7 +233,7 @@ class JournalActionController extends Controller
             $checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_JournalAction','id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $data = JournalAction::with('journal','journalActionLogs')
@@ -270,7 +270,7 @@ class JournalActionController extends Controller
                 'journal_action_ids' => 'required|array|min:1',   
             ],
             [
-                'journal_action_ids' =>  getLangByLabelGroups('JournalAction','id'),   
+                'journal_action_ids' =>  getLangByLabelGroups('message_JournalAction','id'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -282,7 +282,7 @@ class JournalActionController extends Controller
                 'signed_date' => date('Y-m-d')
             ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','approve') ,$journalAction, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_JournalAction','approve') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

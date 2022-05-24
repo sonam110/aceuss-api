@@ -71,7 +71,7 @@ class DepartmentController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'name.required' =>  getLangByLabelGroups('Department','name'),
+            'name.required' =>  getLangByLabelGroups('message_Department','name'),
             ]);
 
 	        if ($validator->fails()) {
@@ -79,7 +79,7 @@ class DepartmentController extends Controller
         	}
         	$checkAlready = Department::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false, getLangByLabelGroups('Department','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false, getLangByLabelGroups('message_Department','name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 
             $topParent = findTopParentId($request->parent_id);
@@ -96,7 +96,7 @@ class DepartmentController extends Controller
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
               DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Department','create') ,$department, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_Department','create') ,$department, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -151,7 +151,7 @@ class DepartmentController extends Controller
             $user = getUser();
             $checkId= Department::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $department = Department::where('id',$id)->with('User:id,name')->first();
@@ -173,19 +173,19 @@ class DepartmentController extends Controller
 			
 	        ],
 	    	[
-            'name.required' => getLangByLabelGroups('Department','name'),
+            'name.required' => getLangByLabelGroups('message_Department','name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Department::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('Department','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('message_Department','name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 
@@ -202,7 +202,7 @@ class DepartmentController extends Controller
             $department->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$department->save();
               DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('Department','update'),$department, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_Department','update'),$department, config('httpcodes.success'));
 			    
         }
         catch(Exception $exception) {
@@ -218,11 +218,11 @@ class DepartmentController extends Controller
 	    	$user = getUser();
         	$checkId= Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Department','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$department = Department::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Department','delete'),[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('message_Department','delete'),[], config('httpcodes.success'));
 		     	
 			    
         }

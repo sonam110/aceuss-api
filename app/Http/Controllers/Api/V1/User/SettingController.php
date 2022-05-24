@@ -54,7 +54,7 @@ class SettingController extends Controller
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
              DB::commit();
-            return prepareResult(true,getLangByLabelGroups('UserValidation','update'),$user, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_UserValidation','update'),$user, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

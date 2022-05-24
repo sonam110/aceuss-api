@@ -65,7 +65,7 @@ class NotificationController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_validation')), config('http_response.bad_request'));
+            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('message_messages','message_validation')), config('http_response.bad_request'));
         }
 
         DB::beginTransaction();

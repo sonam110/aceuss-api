@@ -41,7 +41,7 @@ class CommentController extends Controller
                 ->count();
             $addComment['total_comment'] = $getCommentInfo;
 		
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','create') ,$addComment, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_FollowUp','create') ,$addComment, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

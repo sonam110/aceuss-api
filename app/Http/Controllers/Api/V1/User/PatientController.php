@@ -191,8 +191,8 @@ class PatientController extends Controller
  
             ],
             [   
-            '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),             
+            '*.category_id' =>  getLangByLabelGroups('message_IP','category_id'),   
+            '*.subcategory_id' =>  getLangByLabelGroups('message_IP','subcategory_id'),             
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -392,7 +392,7 @@ class PatientController extends Controller
                     }]
                 )
                 ->get();
-                return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('message_IP','create') ,$patientImpPlan, config('httpcodes.success'));
             } else {
                 return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             }
@@ -419,8 +419,8 @@ class PatientController extends Controller
                 'data.*.reason_for_editing' => 'required',      
             ],
             [    
-            '*.category_id' =>  getLangByLabelGroups('IP','category_id'),   
-            '*.subcategory_id' =>  getLangByLabelGroups('IP','subcategory_id'),        
+            '*.category_id' =>  getLangByLabelGroups('message_IP','category_id'),   
+            '*.subcategory_id' =>  getLangByLabelGroups('message_IP','subcategory_id'),        
             ]);
            
             if ($validator->fails()) {
@@ -428,7 +428,7 @@ class PatientController extends Controller
             }
             $checkId = PatientImplementationPlan::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             $ids = null;
             $impPlan_ids = [];
@@ -687,7 +687,7 @@ class PatientController extends Controller
                         }]
                     )
                     ->first();
-                return prepareResult(true,getLangByLabelGroups('IP','create') ,$patientImpPlan, config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('message_IP','create') ,$patientImpPlan, config('httpcodes.success'));
             } else {
                 return prepareResult(false, 'something went wrong.',[], config('httpcodes.internal_server_error'));
             }
@@ -707,11 +707,11 @@ class PatientController extends Controller
             $user = getUser();
             $checkId= PatientImplementationPlan::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $patientPlan = PatientImplementationPlan::where('id',$id)->delete();
-            return prepareResult(true,getLangByLabelGroups('IP','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_IP','delete') ,[], config('httpcodes.success'));
                 
                 
         }
@@ -727,7 +727,7 @@ class PatientController extends Controller
             $user = getUser();
             $checkId= PatientImplementationPlan::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
@@ -756,7 +756,7 @@ class PatientController extends Controller
                 'id' => 'required',   
             ],
             [
-            'id' =>  getLangByLabelGroups('IP','id'),
+            'id' =>  getLangByLabelGroups('message_IP','id'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -764,14 +764,14 @@ class PatientController extends Controller
             $id = $request->id;
             $checkId= PatientImplementationPlan::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             $patientPlan = PatientImplementationPlan::find($id);
             $patientPlan->approved_by = $user->id;
             $patientPlan->approved_date = date('Y-m-d');
             $patientPlan->status = '1';
             $patientPlan->save();
-            return prepareResult(true,getLangByLabelGroups('IP','approve') ,$patientPlan, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_IP','approve') ,$patientPlan, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -788,15 +788,15 @@ class PatientController extends Controller
                 'ip_id' => 'required',     
             ],
             [
-            'user_id.required' => getLangByLabelGroups('IP','user_id'),
-            'ip_id.required' => getLangByLabelGroups('IP','ip_id'),
+            'user_id.required' => getLangByLabelGroups('message_IP','user_id'),
+            'ip_id.required' => getLangByLabelGroups('message_IP','ip_id'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkAlready = IpAssigneToEmployee::where('user_id',$request->user_id)->where('ip_id',$request->ip_id)->first(); 
             if($checkAlready) {
-                return prepareResult(false,getLangByLabelGroups('IP','patient_already_assigne'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('message_IP','patient_already_assigne'),[], config('httpcodes.bad_request')); 
             }
             
             $ipAssigne = new IpAssigneToEmployee;
@@ -805,7 +805,7 @@ class PatientController extends Controller
             $ipAssigne->status = '1';
             $ipAssigne->save();
             $ipAssigneEmp = IpAssigneToEmployee::where('id',$ipAssigne->id)->with('User:id,name','PatientImplementationPlan')->first();
-            return prepareResult(true,getLangByLabelGroups('IP','assigne') ,$ipAssigneEmp, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_IP','assigne') ,$ipAssigneEmp, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -821,7 +821,7 @@ class PatientController extends Controller
                 'id' => 'required',   
             ],
             [
-            'id' =>  getLangByLabelGroups('IP','id'),
+            'id' =>  getLangByLabelGroups('message_IP','id'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -829,7 +829,7 @@ class PatientController extends Controller
             $id = $request->id;
             $checkId= IpAssigneToEmployee::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             $ipAssigne = IpAssigneToEmployee::where('id',$id)->with('User:id,name','PatientImplementationPlan')->first();
             return prepareResult(true,'View assigne ip' ,$ipAssigne, config('httpcodes.success'));
@@ -1049,7 +1049,7 @@ class PatientController extends Controller
             $user = getUser();
             $checkId= PatientImplementationPlan::where('id',$ip_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $patientPlan = PatientImplementationPlan::where('id',$ip_id)->with('Parent','Category','Subcategory','CreatedBy','patient','persons.Country','children')->first();
@@ -1078,7 +1078,7 @@ class PatientController extends Controller
         try {
             $person= PersonalInfoDuringIp::where('id',$id)->first();
             if (!is_object($person)) {
-                return prepareResult(false,getLangByLabelGroups('IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
             }
             $user = User::where('email',$person->email)->first();
             if($user){

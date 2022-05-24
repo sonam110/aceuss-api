@@ -77,7 +77,7 @@ class BookMarkController extends Controller
                 'title' => 'required'
             ],
             [
-            	'title.required' =>  getLangByLabelGroups('Activity','title')
+            	'title.required' =>  getLangByLabelGroups('message_Activity','title')
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -107,7 +107,7 @@ class BookMarkController extends Controller
                 'title' => 'required'
             ],
             [
-            	'title.required' =>  getLangByLabelGroups('Activity','title')
+            	'title.required' =>  getLangByLabelGroups('message_Activity','title')
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -135,10 +135,10 @@ class BookMarkController extends Controller
 	    	$user = getUser();
         	$checkId= Bookmark::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Bookmark','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Bookmark','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$bookmark = Bookmark::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('Bookmark','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('message_Bookmark','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -152,7 +152,7 @@ class BookMarkController extends Controller
 	    	$user = getUser();
         	$checkId= Bookmark::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Bookmark','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Bookmark','id_not_found'), [],config('httpcodes.not_found'));
             }
         	$bookmark = Bookmark::find($id);
 	        return prepareResult(true,'View Task' ,$bookmark, config('httpcodes.success'));

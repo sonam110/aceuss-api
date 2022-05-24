@@ -108,11 +108,11 @@ class PackageController extends Controller
                 'number_of_employees' => 'required|numeric',    
             ],
             [
-            'name.required' =>  getLangByLabelGroups('Package','name'),
-            'price.required' =>  getLangByLabelGroups('Package','price'),
-            'validity_in_days.required' =>  getLangByLabelGroups('Package','validity_in_days'),
-            'number_of_patients.required' =>  getLangByLabelGroups('Package','number_of_patients'),
-            'number_of_employees.required' =>  getLangByLabelGroups('Package','number_of_employees'),
+            'name.required' =>  getLangByLabelGroups('message_Package','name'),
+            'price.required' =>  getLangByLabelGroups('message_Package','price'),
+            'validity_in_days.required' =>  getLangByLabelGroups('message_Package','validity_in_days'),
+            'number_of_patients.required' =>  getLangByLabelGroups('message_Package','number_of_patients'),
+            'number_of_employees.required' =>  getLangByLabelGroups('message_Package','number_of_employees'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -124,8 +124,8 @@ class PackageController extends Controller
                 'discount_value' => 'required|numeric',    
                 ],
                 [
-                'discount_type.required' => getLangByLabelGroups('Package','discount_type'),
-                'discount_value.required' => getLangByLabelGroups('Package','discount_value'),
+                'discount_type.required' => getLangByLabelGroups('message_Package','discount_type'),
+                'discount_value.required' => getLangByLabelGroups('message_Package','discount_value'),
                 ]); 
                 if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -157,7 +157,7 @@ class PackageController extends Controller
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Package','create') ,$package, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Package','create') ,$package, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -171,7 +171,7 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->first();
             return prepareResult(true,'View Package',$package, config('httpcodes.success'));
@@ -196,18 +196,18 @@ class PackageController extends Controller
                 'number_of_employees' => 'required|numeric',    
            ],
             [
-            'name.required' =>  getLangByLabelGroups('Package','name'),
-            'price.required' =>  getLangByLabelGroups('Package','price'),
-            'validity_in_days.required' =>  getLangByLabelGroups('Package','validity_in_days'),
-            'number_of_patients.required' =>  getLangByLabelGroups('Package','number_of_patients'),
-            'number_of_employees.required' =>  getLangByLabelGroups('Package','number_of_employees'),
+            'name.required' =>  getLangByLabelGroups('message_Package','name'),
+            'price.required' =>  getLangByLabelGroups('message_Package','price'),
+            'validity_in_days.required' =>  getLangByLabelGroups('message_Package','validity_in_days'),
+            'number_of_patients.required' =>  getLangByLabelGroups('message_Package','number_of_patients'),
+            'number_of_employees.required' =>  getLangByLabelGroups('message_Package','number_of_employees'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $discounted_price  = 0;
             if($request->is_on_offer){
@@ -216,8 +216,8 @@ class PackageController extends Controller
                 'discount_value' => 'required|numeric',    
                 ],
                 [
-                'discount_type.required' => getLangByLabelGroups('Package','discount_type'),
-                'discount_value.required' => getLangByLabelGroups('Package','discount_value'),
+                'discount_type.required' => getLangByLabelGroups('message_Package','discount_type'),
+                'discount_value.required' => getLangByLabelGroups('message_Package','discount_value'),
                 ]); 
                 if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -249,7 +249,7 @@ class PackageController extends Controller
             $package->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $package->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Package','update') ,$package, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Package','update') ,$package, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -263,10 +263,10 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'2']);
-            return prepareResult(true,getLangByLabelGroups('Package','delete'),[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Package','delete'),[], config('httpcodes.success'));
                 
                 
         }
@@ -291,7 +291,7 @@ class PackageController extends Controller
             $id = $request->id;
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Package','id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'1']);
             return prepareResult(true,'Package Restore Successfully',[], config('httpcodes.success'));

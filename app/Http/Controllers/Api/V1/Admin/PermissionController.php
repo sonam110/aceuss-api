@@ -61,9 +61,9 @@ class PermissionController extends Controller
             'group_name'=> 'required'
         ],
         [
-        'name.required' => getLangByLabelGroups('permission','name'),
-        'se_name.required' => getLangByLabelGroups('permission','se_name'),
-        'group_name.required' => getLangByLabelGroups('permission','group_name'),
+        'name.required' => getLangByLabelGroups('message_permission','name'),
+        'se_name.required' => getLangByLabelGroups('message_permission','se_name'),
+        'group_name.required' => getLangByLabelGroups('message_permission','group_name'),
         ]);
         if ($validator->fails()) {
             return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -80,7 +80,7 @@ class PermissionController extends Controller
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('permission','create') ,$permission, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_permission','create') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -95,7 +95,7 @@ class PermissionController extends Controller
             {
                  return prepareResult(true,'Permissions' ,$permission, config('httpcodes.success'));
             }
-            return prepareResult(false, getLangByLabelGroups('permission','per_not_found'), [],config('httpcodes.not_found'));
+            return prepareResult(false, getLangByLabelGroups('message_permission','per_not_found'), [],config('httpcodes.not_found'));
         } catch (\Throwable $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -109,9 +109,9 @@ class PermissionController extends Controller
             'group_name'=> 'required'
         ],
         [
-        'name.required' => getLangByLabelGroups('permission','name'),
-        'se_name.required' => getLangByLabelGroups('permission','se_name'),
-        'group_name.required' => getLangByLabelGroups('permission','group_name'),
+        'name.required' => getLangByLabelGroups('message_permission','name'),
+        'se_name.required' => getLangByLabelGroups('message_permission','se_name'),
+        'group_name.required' => getLangByLabelGroups('message_permission','group_name'),
         ]);
 
         DB::beginTransaction();
@@ -123,7 +123,7 @@ class PermissionController extends Controller
             $permission->entry_mode  = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $permission->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('permission','update') ,$permission, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_permission','update') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $e) {
             \Log::error($e);
             DB::rollback();
@@ -136,7 +136,7 @@ class PermissionController extends Controller
         //Temporary enabled, after deployment removed this function
         try {
             $permission->delete();
-           return prepareResult(true,getLangByLabelGroups('permission','delete') ,[], config('httpcodes.success'));
+           return prepareResult(true,getLangByLabelGroups('message_permission','delete') ,[], config('httpcodes.success'));
         } catch (\Throwable $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }

@@ -276,10 +276,10 @@ class ActivityController extends Controller
                 //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
-            'category_id.required' => getLangByLabelGroups('Activity','category_id'),
-            'title.required' =>  getLangByLabelGroups('Activity','title'),
-            'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
+            'category_id.required' => getLangByLabelGroups('message_Activity','category_id'),
+            'title.required' =>  getLangByLabelGroups('message_Activity','title'),
+            'description.required' =>  getLangByLabelGroups('message_Activity','description'),
+            'start_date.required' =>  getLangByLabelGroups('message_FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -570,10 +570,10 @@ class ActivityController extends Controller
                 //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
-            'category_id.required' => getLangByLabelGroups('Activity','category_id'),
-            'title.required' =>  getLangByLabelGroups('Activity','title'),
-            'description.required' =>  getLangByLabelGroups('Activity','description'),
-            'start_date.required' =>  getLangByLabelGroups('FollowUp','start_date'),  
+            'category_id.required' => getLangByLabelGroups('message_Activity','category_id'),
+            'title.required' =>  getLangByLabelGroups('message_Activity','title'),
+            'description.required' =>  getLangByLabelGroups('message_Activity','description'),
+            'start_date.required' =>  getLangByLabelGroups('message_FollowUp','start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -678,7 +678,7 @@ class ActivityController extends Controller
             }
             $checkId = Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
         
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -847,11 +847,11 @@ class ActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->delete();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -867,7 +867,7 @@ class ActivityController extends Controller
                 'id' => 'required',   
             ],
             [
-            'id' => getLangByLabelGroups('Activity','id'),   
+            'id' => getLangByLabelGroups('message_Activity','id'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -875,7 +875,7 @@ class ActivityController extends Controller
             $id = $request->id;
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::find($id);
             $activity->approved_by = $user->id;
@@ -883,7 +883,7 @@ class ActivityController extends Controller
             $activity->status = '1';
             $activity->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Activity','approve') ,$activity, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','approve') ,$activity, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -896,7 +896,7 @@ class ActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->first();
             return prepareResult(true,'View Activity' ,$activity, config('httpcodes.success'));
@@ -916,8 +916,8 @@ class ActivityController extends Controller
                 'user_id' => 'required|exists:users,id',    
             ],
             [
-            'activity_id' => getLangByLabelGroups('Activity','activity_id'),   
-            'user_id' => getLangByLabelGroups('Activity','user_id'),    
+            'activity_id' => getLangByLabelGroups('message_Activity','activity_id'),   
+            'user_id' => getLangByLabelGroups('message_Activity','user_id'),    
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -925,7 +925,7 @@ class ActivityController extends Controller
   
             $checkId= Activity::where('id',$request->activity_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
             }
             $check_already = ActivityAssigne::where('user_id',$request->user_id)->where('activity_id',$request->activity_id)->first();
             if (is_object($check_already)) {
@@ -976,7 +976,7 @@ class ActivityController extends Controller
             DB::commit();
 
             $activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
-            return prepareResult(true,getLangByLabelGroups('Activity','assigne') ,$activityAssigne, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','assigne') ,$activityAssigne, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -1152,7 +1152,7 @@ class ActivityController extends Controller
 
             Activity::whereIn('id', $request->activity_ids)->delete();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Activity','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_Activity','delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

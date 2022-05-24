@@ -21,6 +21,11 @@ class NoAuthController extends Controller
 
     public function getLabels(Request $request)
     {
+        // $label = Label::all();
+        // foreach ($label as $key => $value) {
+        //    $label_name = 'message_'.$value->label_name;
+        //    $value->update(['label_name'=>$label_name]);
+        // }
         try{
             $query = Label::select('label_name','label_value')->orderBy('created_at','asc');
             if(!empty($request->language_id))

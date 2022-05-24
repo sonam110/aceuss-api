@@ -69,7 +69,7 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$EmergencyContact, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -94,7 +94,7 @@ class EmergencyContactController extends Controller
             }
             $checkId = EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = EmergencyContact::find($id);
@@ -107,7 +107,7 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$EmergencyContact, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update'),$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -122,10 +122,10 @@ class EmergencyContactController extends Controller
         try {
             $checkId= EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             $EmergencyContact = EmergencyContact::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

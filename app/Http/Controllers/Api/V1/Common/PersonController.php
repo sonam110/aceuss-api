@@ -105,7 +105,7 @@ class PersonController extends Controller
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$personalInfo, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$personalInfo, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -120,7 +120,7 @@ class PersonController extends Controller
             $user = getUser();
             $personInfo= PersonalInfoDuringIp::where('id',$id)->with('patient:id,name,email','PatientImplementationPlan','user:id,name')->first();
             if (!is_object($personInfo)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
             return prepareResult(true,'View Compan Type' ,$personInfo, config('httpcodes.success'));
@@ -148,7 +148,7 @@ class PersonController extends Controller
         	}
         	$checkId = PersonalInfoDuringIp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
 	        $personalInfo = PersonalInfoDuringIp::find($id);
@@ -182,7 +182,7 @@ class PersonController extends Controller
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','update'),$personalInfo, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('message_CompanyType','update'),$personalInfo, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -197,11 +197,11 @@ class PersonController extends Controller
             $user = getUser();
         	$checkId= PersonalInfoDuringIp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$personDelete = PersonalInfoDuringIp::where('id',$id)->delete();
-         	return prepareResult(true, getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true, getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
 		}
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

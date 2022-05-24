@@ -76,7 +76,7 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','create') ,$smsTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -114,7 +114,7 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','update') ,$smsTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -128,7 +128,7 @@ class SMSTemplateController extends Controller
             if(auth()->user()->user_type_id=='1')
             {
                 $smsTemplate->delete();
-                return prepareResult(true,getLangByLabelGroups('CompanyType','delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
             }
            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             
