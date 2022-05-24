@@ -34,9 +34,9 @@ class UserLoginController extends Controller
             'password' => 'required|string',
             ],
             [
-            'email.required' => getLangByLabelGroups('message_LoginValidation','email'),
-            'email.email' => getLangByLabelGroups('message_LoginValidation','email_invalid'),
-            'password.required' =>  getLangByLabelGroups('message_LoginValidation','password'),
+            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
+            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
+            'password.required' =>  getLangByLabelGroups('LoginValidation','message_password'),
             ]);
 
         if ($validator->fails()) {
@@ -49,16 +49,16 @@ class UserLoginController extends Controller
                 
                 if (Hash::check($request->password, $user->password)) {
                     if($user->status == '0' ) { 
-                        return prepareResult(false,getLangByLabelGroups('message_LoginValidation','account_inactive'),[],config('httpcodes.unauthorized'));
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','message_account_inactive'),[],config('httpcodes.unauthorized'));
                     }
                     if($user->status == '2') { 
-                        return prepareResult(false,getLangByLabelGroups('message_LoginValidation','account_deactive'),[],config('httpcodes.unauthorized'));
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','message_account_deactive'),[],config('httpcodes.unauthorized'));
                     }
                     
                     if ($this->attemptLogin($request)) {
                             $token = auth()->user()->createToken('authToken')->accessToken;
                             if (empty($token)) {
-                                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','unable_generate_token'),[], config('httpcodes.bad_request'));
+                                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_unable_generate_token'),[], config('httpcodes.bad_request'));
                             }else{
                                  //======= login history==================//
                                 $history =  DeviceLoginHistory::where('user_id',$user->id)
@@ -140,10 +140,10 @@ class UserLoginController extends Controller
                     }
                    
                 } else {
-                    return prepareResult(false,getLangByLabelGroups('message_LoginValidation','wrong_password'),[],config('httpcodes.bad_request'));
+                    return prepareResult(false,getLangByLabelGroups('LoginValidation','message_wrong_password'),[],config('httpcodes.bad_request'));
                 }   
             } else {
-                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -215,8 +215,8 @@ class UserLoginController extends Controller
                 "device" => 'required|in:web,mobile'
             ],
             [
-            'email.required' => getLangByLabelGroups('message_LoginValidation','email'),
-            'email.email' => getLangByLabelGroups('message_LoginValidation','email_invalid'),
+            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
+            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -224,10 +224,10 @@ class UserLoginController extends Controller
             $user = User::where('email',$request->email)->first();
             if (!empty($user)) {
                     if ($user->status == '0') { 
-                        return prepareResult(false,getLangByLabelGroups('message_LoginValidation','account_inactive'),[],config('httpcodes.bad_request'));
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','message_account_inactive'),[],config('httpcodes.bad_request'));
                     }
                     if ($user->status == '2') { 
-                        return prepareResult(false,getLangByLabelGroups('message_LoginValidation','account_deactive'),[],config('httpcodes.bad_request'));
+                        return prepareResult(false,getLangByLabelGroups('LoginValidation','message_account_deactive'),[],config('httpcodes.bad_request'));
                     }
                    
                     if($request->device == "mobile") {
@@ -253,10 +253,10 @@ class UserLoginController extends Controller
                     if(env('IS_MAIL_ENABLE',false) == true){   
                         Mail::to($user->email)->send(new SendResetPassworkLink($content));
                     }
-                return prepareResult(true,getLangByLabelGroups('message_LoginValidation','password_reset_link'),$content,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('LoginValidation','message_password_reset_link'),$content,config('httpcodes.success'));
 
             }else{
-                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -287,9 +287,9 @@ class UserLoginController extends Controller
                 "email" => 'required|email',
             ],
             [
-            'token.required' => getLangByLabelGroups('message_PasswordReset','token'),
-            'email.required' => getLangByLabelGroups('message_LoginValidation','email'),
-            'email.email' => getLangByLabelGroups('message_LoginValidation','email_invalid'),
+            'token.required' => getLangByLabelGroups('PasswordReset','token'),
+            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
+            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -320,11 +320,11 @@ class UserLoginController extends Controller
 
             ],
             [
-            'token.required' => getLangByLabelGroups('message_PasswordReset','token'),
-            'email.required' => getLangByLabelGroups('message_LoginValidation','email'),
-            'email.email' => getLangByLabelGroups('message_LoginValidation','email_invalid'),
-            'password' =>  getLangByLabelGroups('message_PasswordReset','password'),
-            'password.confirmed' =>  getLangByLabelGroups('message_PasswordReset','confirm_password'),
+            'token.required' => getLangByLabelGroups('PasswordReset','token'),
+            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
+            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
+            'password' =>  getLangByLabelGroups('PasswordReset','password'),
+            'password.confirmed' =>  getLangByLabelGroups('PasswordReset','confirm_password'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -338,9 +338,9 @@ class UserLoginController extends Controller
                     $user->save();
                 });
 
-                return prepareResult(true,getLangByLabelGroups('message_PasswordReset','success'),[],config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));
             }else {
-                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -360,10 +360,10 @@ class UserLoginController extends Controller
 
             ],
             [
-            'email.required' => getLangByLabelGroups('message_LoginValidation','email'),
-            'email.email' => getLangByLabelGroups('message_LoginValidation','email_invalid'),
-            'password' =>  getLangByLabelGroups('message_PasswordReset','password'),
-            'password.confirmed' =>  getLangByLabelGroups('message_PasswordReset','confirm_password'),
+            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
+            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
+            'password' =>  getLangByLabelGroups('PasswordReset','password'),
+            'password.confirmed' =>  getLangByLabelGroups('PasswordReset','confirm_password'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -377,9 +377,9 @@ class UserLoginController extends Controller
                     $user->password_token = '';
                     $user->save();
                 
-                return prepareResult(true,getLangByLabelGroups('message_PasswordReset','success'),[],config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));
             }else {
-                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','user_not_found'),[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_user_not_found'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -431,10 +431,10 @@ class UserLoginController extends Controller
                 'new_password_confirmation' => ['required']
             ],
             [
-            'old_password.required' => getLangByLabelGroups('message_ChangePassword','old_password'),
-            'new_password.required' => getLangByLabelGroups('message_ChangePassword','new_password'),
-            'new_password.confirmed' =>  getLangByLabelGroups('message_ChangePassword','new_password_confirm'),
-            'new_password_confirmation' =>  getLangByLabelGroups('message_ChangePassword','new_password_confirmation'),
+            'old_password.required' => getLangByLabelGroups('ChangePassword','old_password'),
+            'new_password.required' => getLangByLabelGroups('ChangePassword','new_password'),
+            'new_password.confirmed' =>  getLangByLabelGroups('ChangePassword','new_password_confirm'),
+            'new_password_confirmation' =>  getLangByLabelGroups('ChangePassword','new_password_confirmation'),
             ]);
 
             if ($validator->fails()) {
@@ -484,7 +484,7 @@ class UserLoginController extends Controller
                 return prepareResult(true,'Email found' ,[], config('httpcodes.success'));
             }
             else {
-                return prepareResult(false,getLangByLabelGroups('message_LoginValidation','email_not_exists'),[], config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_email_not_exists'),[], config('httpcodes.not_found'));
             }
         }
     }

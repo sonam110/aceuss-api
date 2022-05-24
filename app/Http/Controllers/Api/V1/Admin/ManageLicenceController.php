@@ -127,7 +127,7 @@ class ManageLicenceController extends Controller
                 }
             }
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_LicenceKey','create') ,$keyMgmt, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -140,7 +140,7 @@ class ManageLicenceController extends Controller
         try {
             $checkId= LicenceKeyManagement::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,'View Licence Key Management' ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {

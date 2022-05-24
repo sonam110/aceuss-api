@@ -140,7 +140,7 @@ class PatientCashierController extends Controller
             $data = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')
                 ->where('id', $patient_cashier->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('message_Patient Cashier','create') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Patient Cashier','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);

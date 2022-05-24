@@ -243,9 +243,9 @@ class JournalController extends Controller
         		// 'description' => 'required',       
 	        ],
             [   
-                'category_id' =>  getLangByLabelGroups('message_Journal','category_id'), 
-                'subcategory_id' =>  getLangByLabelGroups('message_Journal','subcategory_id'), 
-                // 'description' =>  getLangByLabelGroups('message_Journal','description'), 
+                'category_id' =>  getLangByLabelGroups('Journal','message_category_id'), 
+                'subcategory_id' =>  getLangByLabelGroups('Journal','message_subcategory_id'), 
+                // 'description' =>  getLangByLabelGroups('Journal','message_description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -270,7 +270,7 @@ class JournalController extends Controller
             DB::commit();
 
             $data = getJournal($journal->id);
-	        return prepareResult(true,getLangByLabelGroups('message_Journal','create') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Journal','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -291,9 +291,9 @@ class JournalController extends Controller
                 // 'description' => 'required',       
             ],
             [   
-                'category_id' =>  getLangByLabelGroups('message_Journal','category_id'), 
-                'subcategory_id' =>  getLangByLabelGroups('message_Journal','subcategory_id'), 
-                // 'description' =>  getLangByLabelGroups('message_Journal','description'), 
+                'category_id' =>  getLangByLabelGroups('Journal','message_category_id'), 
+                'subcategory_id' =>  getLangByLabelGroups('Journal','message_subcategory_id'), 
+                // 'description' =>  getLangByLabelGroups('Journal','message_description'), 
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -302,7 +302,7 @@ class JournalController extends Controller
         	$checkId = Journal::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
             if($checkId->is_signed == 1)
@@ -339,7 +339,7 @@ class JournalController extends Controller
 		    DB::commit();
             
             $data = getJournal($journal->id);
-	        return prepareResult(true,getLangByLabelGroups('message_Journal','update') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Journal','message_update') ,$data, config('httpcodes.success'));
 		}
         catch(Exception $exception) {
              \Log::error($exception);
@@ -355,10 +355,10 @@ class JournalController extends Controller
 	    	$user = getUser();
         	$checkId= Journal::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
             }
         	$journal = Journal::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('message_Journal','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('Journal','message_delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
@@ -376,7 +376,7 @@ class JournalController extends Controller
                 ->where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Journal','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
         	$data = getJournal($id);
@@ -410,7 +410,7 @@ class JournalController extends Controller
                 'journal_ids' => 'required|array|min:1',   
             ],
             [
-                'journal_ids' =>  getLangByLabelGroups('message_Journal','id'),   
+                'journal_ids' =>  getLangByLabelGroups('Journal','message_id'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -423,7 +423,7 @@ class JournalController extends Controller
             ]);
             DB::commit();
             $data = getJournals($request->journal_ids);
-            return prepareResult(true,getLangByLabelGroups('message_Journal','sign') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_sign') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -437,7 +437,7 @@ class JournalController extends Controller
             $checkUser = User::where('id',$request->patient_id)
                 ->first();
             if (!is_object($checkUser)) {
-                return prepareResult(false,getLangByLabelGroups('message_Patient','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Patient','id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $journals = Journal::where('patient_id', $request->patient_id);
@@ -494,7 +494,7 @@ class JournalController extends Controller
             ]);
             DB::commit();
             $data = getJournal($request->journal_id);
-            return prepareResult(true,getLangByLabelGroups('message_Journal','sign') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_sign') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

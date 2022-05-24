@@ -107,7 +107,7 @@ class QuestionController extends Controller
             $question->is_visible = ($request->is_visible)? $request->is_visible:0;
             $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $question->save();
-             return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$question, '200');
+             return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$question, '200');
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
@@ -120,7 +120,7 @@ class QuestionController extends Controller
             $user = getUser();
             $checkId= Question::where('top_most_parent_id',$this->top_most_parent_id)->where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],'404');
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],'404');
             }
             
             $question = Question::where('id',$id)->first();
@@ -150,7 +150,7 @@ class QuestionController extends Controller
             }
             $checkId = Question::where('top_most_parent_id',$this->top_most_parent_id)->where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_CompanyType','id_not_found'), [],'404');
+                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],'404');
             }
             
             $question = Question::find($id);
@@ -159,7 +159,7 @@ class QuestionController extends Controller
             $question->is_visible = ($request->is_visible)? $request->is_visible:0;
             $question->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $question->save();
-            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update'),$question, '200');
+            return prepareResult(true,getLangByLabelGroups('CompanyType','message_update'),$question, '200');
                 
                
         }
@@ -174,11 +174,11 @@ class QuestionController extends Controller
             $user = getUser();
             $checkId= Question::where('top_most_parent_id',$this->top_most_parent_id)->where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],'404');
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],'404');
             }
             
             $question = Question::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('message_CompanyType','delete') ,[], '200');
+            return prepareResult(true, getLangByLabelGroups('CompanyType','message_delete') ,[], '200');
                 
                 
         }

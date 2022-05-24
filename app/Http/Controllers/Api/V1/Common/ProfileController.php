@@ -37,7 +37,7 @@ class ProfileController extends Controller
             $user->full_address = $request->full_address;
             $user->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','update'),$user, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
         	\Log::error($exception);

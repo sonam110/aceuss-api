@@ -71,6 +71,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('get-user-list', 'Common\CommonController@getUserList');
 		Route::post('patient-types', 'Common\CommonController@pateintTypes');
 
+		Route::post('company-subscription-extend', [App\Http\Controllers\Api\V1\User\CompanyController::class, 'companySubscriptionExtend']);
+
 		/*-----Admin Route---------------------------*/
 		Route::group(['prefix' => 'administration', 'middleware' => ['admin', 'throttle:120,1']],function () {
 			/*------------Permissions--------------*/
@@ -79,7 +81,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			 /*------------Create Company--------------------*/
 			Route::post('companies', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companies']);
 		    Route::apiResource('user', Admin\CompanyAccountController::class)->only(['store','destroy','show', 'update']);
-		    Route::post('company-subscription-extend', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companySubscriptionExtend']);
+
 			/*-------------Packages------------------------*/
 			Route::post('packages', [App\Http\Controllers\Api\V1\Admin\PackageController::class, 'packages']);
 			Route::post('restore-package', [App\Http\Controllers\Api\V1\Admin\PackageController::class, 'restorePackage']);

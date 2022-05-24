@@ -103,8 +103,8 @@ class RoleController extends Controller
             'permissions' => 'required'
         ],
         [
-        'se_name.required' => getLangByLabelGroups('message_role','se_name'),
-        'permissions.required' => getLangByLabelGroups('message_role','permissions'),
+        'se_name.required' => getLangByLabelGroups('role','message_se_name'),
+        'permissions.required' => getLangByLabelGroups('role','message_permissions'),
         ]);
         if ($validator->fails()) {
             return prepareResult(false,$validator->errors()->first(),[], '422'); 
@@ -136,7 +136,7 @@ class RoleController extends Controller
                 $role->syncPermissions($request->permissions);
             }
             
-            return prepareResult(true,getLangByLabelGroups('message_role','create') ,$role, '200');
+            return prepareResult(true,getLangByLabelGroups('role','message_create') ,$role, '200');
         } catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -157,7 +157,7 @@ class RoleController extends Controller
             {
                 return prepareResult(true,'View Role',$roleInfo, '200');
             }
-            return prepareResult(false, getLangByLabelGroups('message_role','id_not_found'), [],config('httpcodes.not_found'));
+            return prepareResult(false, getLangByLabelGroups('role','message_id_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -171,8 +171,8 @@ class RoleController extends Controller
             'permissions' => 'required'
         ],
         [
-        'se_name.required' => getLangByLabelGroups('message_role','se_name'),
-        'permissions.required' => getLangByLabelGroups('message_role','permissions'),
+        'se_name.required' => getLangByLabelGroups('role','message_se_name'),
+        'permissions.required' => getLangByLabelGroups('role','message_permissions'),
         ]);
         if ($validator->fails()) {
             return prepareResult(false,$validator->errors()->first(),[],'422'); 
@@ -196,9 +196,9 @@ class RoleController extends Controller
                 if($roleInfo) {
                     $roleInfo->syncPermissions($request->permissions);
                 }
-                return prepareResult(true,getLangByLabelGroups('message_role','update') ,$roleInfo, '200');
+                return prepareResult(true,getLangByLabelGroups('role','message_update') ,$roleInfo, '200');
             }
-            return prepareResult(false, getLangByLabelGroups('message_role','role_not_found'), [],config('httpcodes.not_found'));
+            return prepareResult(false, getLangByLabelGroups('role','message_role_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -218,9 +218,9 @@ class RoleController extends Controller
             if($roleInfo)
             {
                 $roleInfo->delete();
-                 return prepareResult(true,getLangByLabelGroups('message_role','delete') ,[], '200');
+                 return prepareResult(true,getLangByLabelGroups('role','message_delete') ,[], '200');
             }
-            return prepareResult(false, getLangByLabelGroups('message_role','role_not_found'), [],config('httpcodes.not_found'));
+            return prepareResult(false, getLangByLabelGroups('role','message_role_not_found'), [],config('httpcodes.not_found'));
             
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');

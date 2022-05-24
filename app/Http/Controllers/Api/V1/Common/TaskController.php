@@ -168,9 +168,9 @@ class TaskController extends Controller
                 //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
-            'title.required' =>  getLangByLabelGroups('message_Activity','title'),
-            'description.required' =>  getLangByLabelGroups('message_Activity','description'),
-            'start_date.required' =>  getLangByLabelGroups('message_FollowUp','start_date'),  
+            'title.required' =>  getLangByLabelGroups('Activity','message_title'),
+            'description.required' =>  getLangByLabelGroups('Activity','message_description'),
+            'start_date.required' =>  getLangByLabelGroups('FollowUp','message_start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -313,9 +313,9 @@ class TaskController extends Controller
                 //"employees.*"  => "required|distinct|exists:users,id",   
             ],
             [
-            'title.required' =>  getLangByLabelGroups('message_Activity','title'),
-            'description.required' =>  getLangByLabelGroups('message_Activity','description'),
-            'start_date.required' =>  getLangByLabelGroups('message_FollowUp','start_date'),  
+            'title.required' =>  getLangByLabelGroups('Activity','message_title'),
+            'description.required' =>  getLangByLabelGroups('Activity','message_description'),
+            'start_date.required' =>  getLangByLabelGroups('FollowUp','message_start_date'),  
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -361,7 +361,7 @@ class TaskController extends Controller
             
             $checkId = Task::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $old_end_date = $checkId->end_date;
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -469,10 +469,10 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
         	$Task = Task::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('message_FollowUp','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -486,7 +486,7 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
         	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name')->first();
 	        return prepareResult(true,'View Task' ,$task, config('httpcodes.success'));

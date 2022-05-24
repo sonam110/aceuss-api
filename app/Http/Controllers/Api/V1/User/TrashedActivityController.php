@@ -87,7 +87,7 @@ class TrashedActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id', $id)->onlyTrashed()->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->onlyTrashed()->forceDelete();
             DB::commit();
@@ -106,7 +106,7 @@ class TrashedActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id', $id)->onlyTrashed()->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Activity','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->onlyTrashed()->restore();
             DB::commit();

@@ -133,16 +133,16 @@ class FollowUpsController extends Controller
                 "repeat_datetime.*.start_time"  => "required",     
             ],
             [
-                //'ip_id.required' =>  getLangByLabelGroups('message_FollowUp','ip_id'),   
-                'title.required' =>  getLangByLabelGroups('message_FollowUp','title'),   
-                // 'description.required' =>  getLangByLabelGroups('message_FollowUp','description'),           
+                //'ip_id.required' =>  getLangByLabelGroups('FollowUp','message_ip_id'),   
+                'title.required' =>  getLangByLabelGroups('FollowUp','message_title'),   
+                // 'description.required' =>  getLangByLabelGroups('FollowUp','message_description'),           
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
         	$ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
         	if(!$ipCheck) {
-              	return prepareResult(false,getLangByLabelGroups('message_FollowUp','ip_id'),[], config('httpcodes.not_found')); 
+              	return prepareResult(false,getLangByLabelGroups('FollowUp','message_ip_id'),[], config('httpcodes.not_found')); 
         	}
             if(is_array($request->repeat_datetime)   && sizeof($request->repeat_datetime) > 0){
                 $ipfollowupsId = [];
@@ -300,7 +300,7 @@ class FollowUpsController extends Controller
             
             $data = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
                 ->where('is_latest_entry', 1)->whereIn('id', $ipfollowupsId)->get();
-	        return prepareResult(true,getLangByLabelGroups('message_FollowUp','create') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -322,21 +322,21 @@ class FollowUpsController extends Controller
                 "repeat_datetime.*.start_time"  => "required",        
             ],
             [
-                'ip_id.required' =>  getLangByLabelGroups('message_FollowUp','ip_id'),   
-                'title.required' =>  getLangByLabelGroups('message_FollowUp','title'),   
-                'description.required' =>  getLangByLabelGroups('message_FollowUp','description'),           
+                'ip_id.required' =>  getLangByLabelGroups('FollowUp','message_ip_id'),   
+                'title.required' =>  getLangByLabelGroups('FollowUp','message_title'),   
+                'description.required' =>  getLangByLabelGroups('FollowUp','message_description'),           
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $ipCheck = PatientImplementationPlan::where('id',$request->ip_id)->first();
             if(!$ipCheck) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','ip_id'),[], config('httpcodes.not_found')); 
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_ip_id'),[], config('httpcodes.not_found')); 
             }
         	
         	$checkId = IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             if(is_array($request->repeat_datetime)  && sizeof($request->repeat_datetime) > 0 ){
                 $ipfollowupsId = [];
@@ -529,7 +529,7 @@ class FollowUpsController extends Controller
 
             $data = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
                 ->where('is_latest_entry', 1)->whereIn('id', $ipfollowupsId)->get();
-	        return prepareResult(true,getLangByLabelGroups('message_FollowUp','update') ,$data, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_update') ,$data, config('httpcodes.success'));
 			  
         }
         catch(Exception $exception) {
@@ -545,10 +545,10 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
         	$IpFollowUp = IpFollowUp::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('message_FollowUp','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
 		     	
         }
         catch(Exception $exception) {
@@ -561,7 +561,7 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
         	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
 	        return prepareResult(true,'View Patient plan' ,$ipFollowups, config('httpcodes.success'));
@@ -578,7 +578,7 @@ class FollowUpsController extends Controller
         		'id' => 'required',   
 	        ],
             [
-            'id' =>  getLangByLabelGroups('message_FollowUp','id'),
+            'id' =>  getLangByLabelGroups('FollowUp','message_id'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -586,14 +586,14 @@ class FollowUpsController extends Controller
         	$id = $request->id;
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $ipFollowups = IpFollowUp::find($id);
 		 	$ipFollowups->approved_by = $user->id;
 		 	$ipFollowups->approved_date = date('Y-m-d');
 		 	$ipFollowups->status = '1';
 		 	$ipFollowups->save();
-	        return prepareResult(true,getLangByLabelGroups('message_FollowUp','approve') ,$ipFollowups, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_approve') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -611,7 +611,7 @@ class FollowUpsController extends Controller
                 //'witness.*' => 'required|distinct|exists:users,id',   
             ],
             [
-            'id' =>  getLangByLabelGroups('message_FollowUp','id'),
+            'id' =>  getLangByLabelGroups('FollowUp','message_id'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -619,7 +619,7 @@ class FollowUpsController extends Controller
             $id = $request->follow_up_id;
             $checkId= IpFollowUp::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_FollowUp','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $witness = null;

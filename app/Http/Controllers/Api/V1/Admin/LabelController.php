@@ -90,7 +90,7 @@ class LabelController extends Controller
 			$count = Label::where('label_name',$request->label_name)->where('label_value',$request->label_value)->where('language_id',$request->language_id)->count();
 			if($count>=1)
 			{
-				return prepareResult(false,getLangByLabelGroups('message_Label','Dublicate Entry'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Label','message_Dublicate Entry'), [],config('httpcodes.not_found'));
             
 			}
 			$label = new Label;
@@ -102,7 +102,7 @@ class LabelController extends Controller
 			$label->entry_mode       = $request->entry_mode;
 			$label->save();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('message_Label','create') ,$label, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Label','message_create') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
 			DB::rollback();
@@ -123,7 +123,7 @@ class LabelController extends Controller
 		{
 			$checkId= Label::find($id);
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('message_Label','id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Label','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 			 return prepareResult(true,'View Label' ,$checkId, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
@@ -162,7 +162,7 @@ class LabelController extends Controller
 			$label->entry_mode       = $request->entry_mode;
 			$label->save();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('message_Label','update') ,$label, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Label','message_update') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
 			DB::rollback();
@@ -183,12 +183,12 @@ class LabelController extends Controller
 		{
 			$checkId= Label::find($id);
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('message_Label','id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Label','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 			if(auth()->user()->user_type_id=='1')
 			{
 				Label::where('id',$id)->delete();
-				return prepareResult(true,getLangByLabelGroups('message_Label','delete') ,[], config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Label','message_delete') ,[], config('httpcodes.success'));
 			}
 		   return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
 			
@@ -204,6 +204,6 @@ class LabelController extends Controller
 		Label::where('language_id',$request->language_id)->delete();
 		$import = Excel::import(new LabelsImport($data),request()->file('file'));
 
-		return prepareResult(true,getLangByLabelGroups('message_Label','import') ,[], config('httpcodes.success'));
+		return prepareResult(true,getLangByLabelGroups('Label','message_import') ,[], config('httpcodes.success'));
 	}
 }

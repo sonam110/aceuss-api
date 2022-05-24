@@ -58,21 +58,21 @@ class CategoryTypeController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'name.required' => getLangByLabelGroups('message_CategoryType','name'),
+            'name.required' => getLangByLabelGroups('CategoryType','message_name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = CategoryType::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('message_CategoryType','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryType','message_name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $categoryType = new CategoryType;
 		 	$categoryType->created_by = $user->id;
 		 	$categoryType->name = $request->name;
             $categoryType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryType->save();
-	        return prepareResult(true,getLangByLabelGroups('message_CategoryType','create') ,$categoryType, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('CategoryType','message_create') ,$categoryType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -85,7 +85,7 @@ class CategoryTypeController extends Controller
             $user = getUser();
             $checkId= CategoryType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_CategoryType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $categoryType = CategoryType::where('id',$id)->first();
@@ -107,19 +107,19 @@ class CategoryTypeController extends Controller
 			
 	        ],
 	    	[
-            'name.required' => getLangByLabelGroups('message_CategoryType','name'),
+            'name.required' => getLangByLabelGroups('CategoryType','message_name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_CategoryType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryType::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('message_CategoryType','name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('CategoryType','message_name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $categoryType = CategoryType::find($id);
@@ -127,7 +127,7 @@ class CategoryTypeController extends Controller
             $categoryType->status = ($request->status) ? $request->status:'1';
             $categoryType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$categoryType->save();
-	        return prepareResult(true,getLangByLabelGroups('message_CategoryType','update') ,$categoryType, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('CategoryType','message_update') ,$categoryType, config('httpcodes.success'));
 			    
 		       
         }
@@ -142,12 +142,12 @@ class CategoryTypeController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_CategoryType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryType = CategoryType::findOrFail($id);
             $categoryType->delete();
-         	return prepareResult(true,getLangByLabelGroups('message_CategoryType','delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('CategoryType','message_delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }

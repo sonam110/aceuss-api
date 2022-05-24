@@ -287,7 +287,7 @@ class RequestApprovalController extends Controller
             $approval_request =  RequestForApproval::where('id',$id)->first();
             $is_approved = false;
             if (!is_object($approval_request)) {
-                return prepareResult(false,getLangByLabelGroups('message_IP','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('IP','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $group_token = $approval_request->group_token;
 

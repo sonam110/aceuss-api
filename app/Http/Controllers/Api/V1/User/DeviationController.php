@@ -259,11 +259,11 @@ class DeviationController extends Controller
                 'immediate_action' => 'required',       
             ],
             [  
-                'category_id' =>  getLangByLabelGroups('message_Deviation','category_id'),   
-                'sub_category_id' =>  getLangByLabelGroups('message_Deviation','sub_category_id'),   
-                'date_time' =>  getLangByLabelGroups('message_Deviation','date_time'),     
-                'description' =>  getLangByLabelGroups('message_Deviation','description'),     
-                'immediate_action' =>  getLangByLabelGroups('message_Deviation','immediate_action'),     
+                'category_id' =>  getLangByLabelGroups('Deviation','message_category_id'),   
+                'sub_category_id' =>  getLangByLabelGroups('Deviation','message_sub_category_id'),   
+                'date_time' =>  getLangByLabelGroups('Deviation','message_date_time'),     
+                'description' =>  getLangByLabelGroups('Deviation','message_description'),     
+                'immediate_action' =>  getLangByLabelGroups('Deviation','message_immediate_action'),     
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -303,7 +303,7 @@ class DeviationController extends Controller
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
                 ->where('id', $deviation->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('message_Deviation','create') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -320,7 +320,7 @@ class DeviationController extends Controller
             $checkId= Deviation::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Deviation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch')->first();
@@ -345,11 +345,11 @@ class DeviationController extends Controller
                 'immediate_action' => 'required',       
             ],
             [  
-                'category_id' =>  getLangByLabelGroups('message_Deviation','category_id'),   
-                'sub_category_id' =>  getLangByLabelGroups('message_Deviation','sub_category_id'),   
-                'date_time' =>  getLangByLabelGroups('message_Deviation','date_time'),     
-                'description' =>  getLangByLabelGroups('message_Deviation','description'),     
-                'immediate_action' =>  getLangByLabelGroups('message_Deviation','immediate_action'),     
+                'category_id' =>  getLangByLabelGroups('Deviation','message_category_id'),   
+                'sub_category_id' =>  getLangByLabelGroups('Deviation','message_sub_category_id'),   
+                'date_time' =>  getLangByLabelGroups('Deviation','message_date_time'),     
+                'description' =>  getLangByLabelGroups('Deviation','message_description'),     
+                'immediate_action' =>  getLangByLabelGroups('Deviation','message_immediate_action'),     
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -358,7 +358,7 @@ class DeviationController extends Controller
             $deviation = Deviation::where('id',$id)
                 ->first();
             if (!is_object($deviation)) {
-                return prepareResult(false,getLangByLabelGroups('message_Deviation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
@@ -395,7 +395,7 @@ class DeviationController extends Controller
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
                 ->where('id', $deviation->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('message_Deviation','update') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_update') ,$data, config('httpcodes.success'));
               
         }
         catch(Exception $exception) {
@@ -412,10 +412,10 @@ class DeviationController extends Controller
             $user = getUser();
             $checkId= Deviation::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Deviation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             Deviation::where('id',$id)->delete();
-            return prepareResult(true,getLangByLabelGroups('message_Deviation','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -431,7 +431,7 @@ class DeviationController extends Controller
                 'deviation_ids' => 'required|array|min:1',   
             ],
             [
-                'deviation_ids' =>  getLangByLabelGroups('message_Journal','id'),   
+                'deviation_ids' =>  getLangByLabelGroups('Journal','id'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -444,7 +444,7 @@ class DeviationController extends Controller
                 'completed_date' => date('Y-m-d')
             ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_Deviation','approve') ,$deviation, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_approve') ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -458,7 +458,7 @@ class DeviationController extends Controller
             $checkId = Deviation::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Deviation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
 
             $deviation = Deviation::where('id', $id)->first();

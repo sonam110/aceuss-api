@@ -40,12 +40,12 @@ class BranchController extends Controller
 
             ],
             [
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('message_UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('message_UserValidation','email_invalid'),
-            'password.required' =>  getLangByLabelGroups('message_UserValidation','password'),
-            'password.min' =>  getLangByLabelGroups('message_UserValidation','password_min'),
-            'contact_number' =>  getLangByLabelGroups('message_UserValidation','contact_number'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+            'email.required' =>  getLangByLabelGroups('UserValidation','message_email'),
+            'email.email' =>  getLangByLabelGroups('UserValidation','message_email_invalid'),
+            'password.required' =>  getLangByLabelGroups('UserValidation','message_password'),
+            'password.min' =>  getLangByLabelGroups('UserValidation','message_password_min'),
+            'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -115,7 +115,7 @@ class BranchController extends Controller
 
              DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','create') ,$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -137,8 +137,8 @@ class BranchController extends Controller
 
             ],
             [
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
-            'contact_number' =>  getLangByLabelGroups('message_UserValidation','contact_number'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+            'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -148,7 +148,7 @@ class BranchController extends Controller
 
             $checkId = User::where('id',$id)->where('top_most_parent_id',$top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_UserValidation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
@@ -177,7 +177,7 @@ class BranchController extends Controller
 
             DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','update'),$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$userdetail, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

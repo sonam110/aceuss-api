@@ -39,7 +39,7 @@ class FileUploadController extends Controller
                     $extension = strtolower($value->getClientOriginalExtension());
                     if(!in_array($extension, $formatCheck))
                     {
-                        return prepareResult(false,getLangByLabelGroups('message_fileUploadValidation','file_not_allowed'),[], config('httpcodes.bad_request'));
+                        return prepareResult(false,getLangByLabelGroups('fileUploadValidation','message_file_not_allowed'),[], config('httpcodes.bad_request'));
                     }
                     $fileName   = time().'-'.rand(0,99999).'.' . $value->getClientOriginalExtension();
                     $extension = $value->getClientOriginalExtension();
@@ -69,7 +69,7 @@ class FileUploadController extends Controller
                 $fileSize = $file->getSize();
                 if(!in_array($extension, $formatCheck))
                 {
-                    return prepareResult(false,getLangByLabelGroups('message_fileUploadValidation','file_not_allowed'),[], config('httpcodes.bad_request'));
+                    return prepareResult(false,getLangByLabelGroups('fileUploadValidation','message_file_not_allowed'),[], config('httpcodes.bad_request'));
                 }
                 
                 $file->move($destinationPath, $fileName);

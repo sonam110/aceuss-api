@@ -80,7 +80,7 @@ class GroupController extends Controller
             $group->entry_mode = $request->entry_mode;
             $group->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_Group','create') ,$group, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Group','message_create') ,$group, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -100,7 +100,7 @@ class GroupController extends Controller
         {
             $checkId= Group::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Group','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Group','message_id_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,'View Group' ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -135,7 +135,7 @@ class GroupController extends Controller
             $group->entry_mode = $request->entry_mode;
             $group->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_Group','create') ,$group, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Group','message_create') ,$group, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -156,12 +156,12 @@ class GroupController extends Controller
         {
             $checkId= Group::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_Group','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Group','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 Group::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('message_Group','delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('Group','message_delete') ,[], config('httpcodes.success'));
             }
            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             

@@ -129,13 +129,13 @@ class CompanyAccountController extends Controller
 
             ],
             [
-            'company_type_id.required' =>  getLangByLabelGroups('message_UserValidation','company_type_id'),
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('message_UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('message_UserValidation','email_invalid'),
-            'password.required' =>  getLangByLabelGroups('message_UserValidation','password'),
-            'password.min' =>  getLangByLabelGroups('message_UserValidation','password_min'),
-            'contact_number' =>  getLangByLabelGroups('message_UserValidation','contact_number'),
+            'company_type_id.required' =>  getLangByLabelGroups('UserValidation','message_company_type_id'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+            'email.required' =>  getLangByLabelGroups('UserValidation','message_email'),
+            'email.email' =>  getLangByLabelGroups('UserValidation','message_email_invalid'),
+            'password.required' =>  getLangByLabelGroups('UserValidation','message_password'),
+            'password.min' =>  getLangByLabelGroups('UserValidation','message_password_min'),
+            'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -271,7 +271,7 @@ class CompanyAccountController extends Controller
             $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','create') ,$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -287,7 +287,7 @@ class CompanyAccountController extends Controller
             
             $checkId= User::where('id',$user->id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_UserValidation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $userShow = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
@@ -316,11 +316,11 @@ class CompanyAccountController extends Controller
 
             ],
             [
-            'user_type_id.required' =>  getLangByLabelGroups('message_UserValidation','user_type_id'),
-            'role_id.required' =>  getLangByLabelGroups('message_UserValidation','role_id'),
-            'company_type_id.required' =>  getLangByLabelGroups('message_UserValidation','company_type_id'),
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
-            'contact_number' =>  getLangByLabelGroups('message_UserValidation','contact_number'),
+            'user_type_id.required' =>  getLangByLabelGroups('UserValidation','message_user_type_id'),
+            'role_id.required' =>  getLangByLabelGroups('UserValidation','message_role_id'),
+            'company_type_id.required' =>  getLangByLabelGroups('UserValidation','message_company_type_id'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+            'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -328,7 +328,7 @@ class CompanyAccountController extends Controller
 
             $checkId = User::where('id',$user->id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_UserValidation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
@@ -390,7 +390,7 @@ class CompanyAccountController extends Controller
             $userdetail = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','update'),$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$userdetail, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
@@ -407,11 +407,11 @@ class CompanyAccountController extends Controller
             $id = $user->id;
             $checkId= User::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_UserValidation','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $updateStatus = User::where('id',$id)->update(['status'=>'2']);
             $userDelete = User::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('message_UserValidation','delete'),[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('UserValidation','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -428,63 +428,5 @@ class CompanyAccountController extends Controller
         return($w);
     }
 
-    public function companySubscriptionExtend(Request $request)
-    {
-        $validation = \Validator::make($request->all(), [
-            'user_id'      => 'required',
-            'licence_key'  => 'required',
-        ]);
-
-        if ($validation->fails()) {
-           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
-        }
-
-        DB::beginTransaction();
-        try {
-                $licenceKeyData = LicenceKeyManagement::where('top_most_parent_id',$request->user_id)->where('license_key',$request->licence_key)->latest()->first();
-                $package_details =  json_decode($licenceKeyData->package_details);
-                $package = Package::where('id',$package_details->id)->first();
-                $package_expire_at = date('Y-m-d', strtotime($package->validity_in_days.' days'));
-
-                // Create Licence History
-                $createLicHistory = new LicenceHistory;
-                $createLicHistory->top_most_parent_id = $request->user_id;
-                $createLicHistory->created_by = auth()->id();
-                $createLicHistory->license_key = $request->licence_key;
-                $createLicHistory->active_from = date('Y-m-d');
-                $createLicHistory->expire_at = $package_expire_at;
-                $createLicHistory->module_attached = $licenceKeyData->module_attached;
-                $createLicHistory->package_details = $package;
-                $createLicHistory->save();
-
-                // Create Licence Key
-                $keyMgmt = new LicenceKeyManagement;
-                $keyMgmt->top_most_parent_id = $request->user_id;
-                $keyMgmt->created_by = auth()->id();
-                $keyMgmt->license_key = $request->licence_key;
-                $keyMgmt->active_from = date('Y-m-d');
-                $keyMgmt->expire_at = $package_expire_at;
-                $keyMgmt->module_attached = $licenceKeyData->module_attached;
-                $keyMgmt->package_details = $package;
-                $keyMgmt->is_used = false;
-                $keyMgmt->save();
-
-                $packageSubscribe = new Subscription;
-                $packageSubscribe->user_id = $request->user_id;
-                $packageSubscribe->package_id = $package_details->id;
-                $packageSubscribe->package_details = $package;
-                $packageSubscribe->license_key = $request->licencse_key;
-                $packageSubscribe->start_date = date('Y-m-d');
-                $packageSubscribe->end_date = $package_expire_at;
-                $packageSubscribe->status = 1;
-                $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                $packageSubscribe->save();
-            DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_LicenceKey','create') ,$keyMgmt, config('httpcodes.success'));
-        } catch (\Throwable $exception) {
-            \Log::error($exception);
-            DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-        }
-    }
+    
 }

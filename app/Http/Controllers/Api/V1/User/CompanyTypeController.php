@@ -77,14 +77,14 @@ class CompanyTypeController extends Controller
                 'name' => 'required',   
             ],
             [
-            'name.required' => getLangByLabelGroups('message_CompanyType','name'),
+            'name.required' => getLangByLabelGroups('CompanyType','message_name'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkAlready = CompanyType::where('name',$request->name)->first(); 
             if($checkAlready) {
-                return prepareResult(false, getLangByLabelGroups('message_CompanyType','name_already_exists'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_name_already_exists'),[], config('httpcodes.bad_request')); 
 
             }
             $companyType = new CompanyType;
@@ -93,7 +93,7 @@ class CompanyTypeController extends Controller
             $companyType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $companyType->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_CompanyType','create') ,$companyType, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$companyType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -109,7 +109,7 @@ class CompanyTypeController extends Controller
             $user = getUser();
             $checkId= CompanyType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $companyType = CompanyType::where('id',$id)->first();
@@ -131,18 +131,18 @@ class CompanyTypeController extends Controller
                 'name' => 'required',   
             ],
             [
-            'name.required' => getLangByLabelGroups('message_CompanyType','name'),
+            'name.required' => getLangByLabelGroups('CompanyType','message_name'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $checkId = CompanyType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CompanyType::where('id','!=',$id)->where('name',$request->name)->first(); 
             if($checkAlready) {
-                return prepareResult(false,getLangByLabelGroups('message_CompanyType','name_already_exists'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('CompanyType','message_name_already_exists'),[], config('httpcodes.bad_request')); 
             }
             $companyType = CompanyType::find($id);
             $companyType->name = $request->name;
@@ -150,7 +150,7 @@ class CompanyTypeController extends Controller
             $companyType->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $companyType->save();
               DB::commit();
-            return prepareResult(true,getLangByLabelGroups('message_CompanyType','update'),$companyType, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CompanyType','message_update'),$companyType, config('httpcodes.success'));
                 
                
         }
@@ -166,11 +166,11 @@ class CompanyTypeController extends Controller
             $user = getUser();
             $checkId= CompanyType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_CompanyType','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             
             $companyType = CompanyType::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('message_CompanyType','delete') ,[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('CompanyType','message_delete') ,[], config('httpcodes.success'));
                 
                 
         }

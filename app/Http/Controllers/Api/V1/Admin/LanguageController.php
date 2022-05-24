@@ -34,11 +34,11 @@ class LanguageController extends Controller
             {
                 $languages = Language::get();
             }
-            return response(prepareResult(false, LanguageResource::collection($languages), getLangByLabelGroups('message_messages','message_language_list')), config('http_response.success'));
+            return response(prepareResult(false, LanguageResource::collection($languages), getLangByLabelGroups('messages','message_language_list')), config('http_response.success'));
         }
         catch (\Throwable $exception) 
         {
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('message_messages','message_error')), config('http_response.internal_server_error'));
+            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
         }
     }
 
@@ -56,7 +56,7 @@ class LanguageController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('message_messages','message_validation')), config('http_response.bad_request'));
+            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_validation')), config('http_response.bad_request'));
         }
 
         DB::beginTransaction();
@@ -69,12 +69,12 @@ class LanguageController extends Controller
             $language->direction      		= $request->direction;
             $language->save();
             DB::commit();
-            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('message_messages','message_language_created')), config('http_response.created'));
+            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_created')), config('http_response.created'));
         }
         catch (\Throwable $exception)
         {
         	DB::rollback();
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('message_messages','message_error')), config('http_response.internal_server_error'));
+            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
         }
     }
 
@@ -86,7 +86,7 @@ class LanguageController extends Controller
      */
     public function show(Language $language)
     {
-        return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('message_messages','message_language_list')), config('http_response.success'));
+        return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_list')), config('http_response.success'));
     }
 
     /**
@@ -104,7 +104,7 @@ class LanguageController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('message_messages','message_validation')), config('http_response.bad_request'));
+            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_validation')), config('http_response.bad_request'));
         }
 
         DB::beginTransaction();
@@ -116,12 +116,12 @@ class LanguageController extends Controller
             $language->direction            = $request->direction;
             $language->save();
             DB::commit();
-            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('message_messages','message_language_updated')), config('http_response.success'));
+            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_updated')), config('http_response.success'));
         }
         catch (\Throwable $exception)
         {
         	DB::rollback();
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('message_messages','message_error')), config('http_response.internal_server_error'));
+            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
         }
     }
 
@@ -136,7 +136,7 @@ class LanguageController extends Controller
     {
         if($language->title == 'english')
         {
-            return response()->json(prepareResult(true, ['English language can not be deleted'], getLangByLabelGroups('message_messages','message_language_cannot_be_deleted')), config('http_response.success'));
+            return response()->json(prepareResult(true, ['English language can not be deleted'], getLangByLabelGroups('messages','message_language_cannot_be_deleted')), config('http_response.success'));
         }
         else
         {  
@@ -144,13 +144,13 @@ class LanguageController extends Controller
             $language->delete();
         }
 
-        return response()->json(prepareResult(false, [], getLangByLabelGroups('message_messages','message_language_deleted')), config('http_response.success'));
+        return response()->json(prepareResult(false, [], getLangByLabelGroups('messages','message_language_deleted')), config('http_response.success'));
     }
 
     public function languagesImport(Request $request)
     {
         $import = Excel::import(new LanguagesImport(),request()->file('file'));
 
-        return response(prepareResult(false, [], getLangByLabelGroups('message_messages','messages_languages_imported')), config('http_response.success'));
+        return response(prepareResult(false, [], getLangByLabelGroups('messages','messages_languages_imported')), config('http_response.success'));
     }
 }

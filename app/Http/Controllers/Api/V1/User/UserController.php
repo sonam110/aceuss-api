@@ -121,11 +121,11 @@ class UserController extends Controller
                 'email'     => 'required|email|unique:users,email',
             ],
             [
-            'user_type_id.required' =>  getLangByLabelGroups('message_UserValidation','user_type_id'),
-            'role_id.required' =>  getLangByLabelGroups('message_UserValidation','role_id'),
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
-            'email.required' =>  getLangByLabelGroups('message_UserValidation','email'),
-            'email.email' =>  getLangByLabelGroups('message_UserValidation','email_invalid'),
+            'user_type_id.required' =>  getLangByLabelGroups('UserValidation','message_user_type_id'),
+            'role_id.required' =>  getLangByLabelGroups('UserValidation','message_role_id'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+            'email.required' =>  getLangByLabelGroups('UserValidation','message_email'),
+            'email.email' =>  getLangByLabelGroups('UserValidation','message_email_invalid'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
@@ -143,9 +143,9 @@ class UserController extends Controller
 
                 ],
                 [
-                'password.required' =>  getLangByLabelGroups('message_UserValidation','password'),
-                'password.min' =>  getLangByLabelGroups('message_UserValidation','password_min'),
-                'contact_number' =>  getLangByLabelGroups('message_UserValidation','contact_number'),
+                'password.required' =>  getLangByLabelGroups('UserValidation','message_password'),
+                'password.min' =>  getLangByLabelGroups('UserValidation','message_password_min'),
+                'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], '422'); 
@@ -410,7 +410,7 @@ class UserController extends Controller
             }
             DB::commit();
             $user['branch'] = $user->branch()->select('id', 'name')->first();
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','create') ,$user, '200');
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$user, '200');
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -426,7 +426,7 @@ class UserController extends Controller
             
             $checkId= User::where('id', $user->id)->where('top_most_parent_id', $this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_UserValidation','id_not_found'), [],'404');
+                return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
             }
             $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number')->first();
             return prepareResult(true,'User View' ,$userShow, '200');
@@ -449,9 +449,9 @@ class UserController extends Controller
                 'name' => 'required', 
             ],
             [
-            'user_type_id.required' =>  getLangByLabelGroups('message_UserValidation','user_type_id'),
-            'role_id.required' =>  getLangByLabelGroups('message_UserValidation','role_id'),
-            'name.required' =>  getLangByLabelGroups('message_UserValidation','name'),
+            'user_type_id.required' =>  getLangByLabelGroups('UserValidation','message_user_type_id'),
+            'role_id.required' =>  getLangByLabelGroups('UserValidation','message_role_id'),
+            'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], '422'); 
@@ -469,7 +469,7 @@ class UserController extends Controller
             
             $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('message_UserValidation','id_not_found'), [],'404');
+                return prepareResult(false, getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
             }
 
             //for role set
@@ -691,7 +691,7 @@ class UserController extends Controller
 
             DB::commit();
             $user['branch'] = $user->branch()->select('id', 'name')->first();
-            return prepareResult(true,getLangByLabelGroups('message_UserValidation','update'),$user, '200');
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, '200');
                 
         }
         catch(Exception $exception) {
@@ -709,11 +709,11 @@ class UserController extends Controller
             $id = $user->id;
             $checkId= User::where('id',$id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('message_UserValidation','id_not_found'), [],'404');
+                return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
             }
             $updateStatus = User::where('id',$id)->update(['status'=>'2']);
             $userDelete = User::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('message_UserValidation','delete'),[], '200');
+            return prepareResult(true, getLangByLabelGroups('UserValidation','message_delete'),[], '200');
                 
         }
         catch(Exception $exception) {
