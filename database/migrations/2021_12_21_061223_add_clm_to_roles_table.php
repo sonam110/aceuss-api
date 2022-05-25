@@ -34,6 +34,8 @@ class AddClmToRolesTable extends Migration
     public function down()
     {
         Schema::table('roles', function (Blueprint $table) {
+            $table->dropForeign(['top_most_parent_id']);
+            $table->dropForeign(['user_type_id']);
             $table->dropColumn('top_most_parent_id');
             $table->dropColumn('user_type_id');
             $table->dropColumn('se_name');
