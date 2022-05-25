@@ -366,6 +366,12 @@ class PermissionSeeder extends Seeder
          Permission::create(['name' => 'licence-read', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-read','belongs_to'=>'1']);
          Permission::create(['name' => 'licence-delete', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-delete','belongs_to'=>'1']);
 
+         Permission::create(['name' => 'import-language', 'guard_name' => 'api','group_name'=>'language','se_name'=>'import-language','belongs_to'=>'1']);
+         
+         Permission::create(['name' => 'trashed-activites', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites','belongs_to'=>'2']);
+         Permission::create(['name' => 'trashed-activites-permanent-delete', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-permanent-delete','belongs_to'=>'2']);
+         Permission::create(['name' => 'trashed-activites-restore', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-restore','belongs_to'=>'2']);
+
           
 
     }

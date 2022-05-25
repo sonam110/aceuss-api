@@ -11,6 +11,10 @@ use App\Models\Language;
 use App\Models\Package;
 use App\Models\ActivityOption;
 use App\Models\Module;
+use App\Models\UserType;
+use App\Models\User;
+use App\Models\EmployeeType;
+
 class DefaultEntrySeeder extends Seeder
 {
     /**
@@ -20,51 +24,33 @@ class DefaultEntrySeeder extends Seeder
      */
     public function run()
     {
-        \DB::table('company_types')->truncate();
-        $companyType1 = CompanyType::create(['id' => '1','created_by'=>'1','name' => 'Group Living']);
-        $companyType2 = CompanyType::create(['id' => '2','created_by'=>'1','name' => 'Home Living']);
-        $companyType3 = CompanyType::create(['id' => '3','created_by'=>'1','name' => 'Single Living']);
-
-        \DB::table('category_types')->truncate();
-        $cataegoryType1 = CategoryType::create(['id' => '1','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Activity']);
-        $cataegoryType2 = CategoryType::create(['id' => '2','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Implementation Plan']);
-        $cataegoryType3 = CategoryType::create(['id' => '3','created_by'=>'1','top_most_parent_id'=>'1','name' => 'User']);
-        $cataegoryType4 = CategoryType::create(['id' => '4','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Deviation']);
-        $cataegoryType5 = CategoryType::create(['id' => '5','created_by'=>'1','top_most_parent_id'=>'1','name' => 'FollowUps']);
-        $cataegoryType6 = CategoryType::create(['id' => '6','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Journal']);
-        $cataegoryType7 = CategoryType::create(['id' => '7','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Patient']);
-        $cataegoryType8 = CategoryType::create(['id' => '8','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Employee']);
-        $cataegoryType9 = CategoryType::create(['id' => '9','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Category Update Permission']);
-
-        \DB::table('languages')->truncate();
-            Language::create([
+        Language::create([
             'title'          => 'English',
             'value'      => 'en',
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s')
-            ]);
-            Language::create([
-                'title'          => 'Swedish',
-                'value'      => 'sw',
-                'created_at'    => date('Y-m-d H:i:s'),
-                'updated_at'    => date('Y-m-d H:i:s')
-            ]);
+        ]);
+        Language::create([
+            'title'          => 'Swedish',
+            'value'      => 'sw',
+            'created_at'    => date('Y-m-d H:i:s'),
+            'updated_at'    => date('Y-m-d H:i:s')
+        ]);
 
-            Package::truncate();
-            Package::create([
-                'name'                  => 'Basic pack',
-                'price'                 =>'540',
-                'is_on_offer'           =>'1',
-                'discount_type'         =>'1',
-                'discount_value'        =>'67',
-                'discounted_price'      =>'178.2',
-                'validity_in_days'      =>'100',
-                'number_of_patients'    =>'100',
-                'number_of_employees'   =>'50',
-                'status'                =>'1',
-                'created_at'            => date('Y-m-d H:i:s'),
-                'updated_at'            => date('Y-m-d H:i:s')
-            ]);
+        Package::create([
+            'name'                  => 'Basic pack',
+            'price'                 =>'540',
+            'is_on_offer'           =>'1',
+            'discount_type'         =>'1',
+            'discount_value'        =>'67',
+            'discounted_price'      =>'178.2',
+            'validity_in_days'      =>'100',
+            'number_of_patients'    =>'100',
+            'number_of_employees'   =>'50',
+            'status'                =>'1',
+            'created_at'            => date('Y-m-d H:i:s'),
+            'updated_at'            => date('Y-m-d H:i:s')
+        ]);
 
 
         ActivityOption::truncate();
@@ -75,11 +61,34 @@ class DefaultEntrySeeder extends Seeder
         $ActivityOption4 = ActivityOption::create(['id' => '5','option'=>'Staff could not','is_journal' => '1','is_deviation'=>'1']);
 
 
-        Module::truncate();
         Module::create(['id' => '1','name'=>'Activity']);
         Module::create(['id' => '2','name'=>'Journal']);
         Module::create(['id' => '3','name'=>'Deviation']);
         Module::create(['id' => '4','name'=>'Schedule']);
+
+        $UserType1 = UserType::create(['id' => '1','name' => 'Super Admin']);
+        $UserType2 = UserType::create(['id' => '2','name' => 'Company']);
+        $UserType3 = UserType::create(['id' => '3','name' => 'Employee']);
+        $UserType4 = UserType::create(['id' => '4','name' => 'Hospital']);
+        $UserType5 = UserType::create(['id' => '5','name' => 'Nurse']);
+        $UserType6 = UserType::create(['id' => '6','name' => 'Patient']);
+        $UserType7 = UserType::create(['id' => '7','name' => 'careTaker']);
+        $UserType8 = UserType::create(['id' => '8','name' => 'FamilyMember']);
+        $UserType9 = UserType::create(['id' => '9','name' => 'ContactPerson']);
+        $UserType10 = UserType::create(['id' => '10','name' => 'careTakerFamily']);
+        $UserType11 = UserType::create(['id' => '11','name' => 'Branch']);
+        $UserType12 = UserType::create(['id' => '12','name' => 'Guardian']);
+        $UserType13 = UserType::create(['id' => '13','name' => 'Presented']);
+        $UserType14 = UserType::create(['id' => '14','name' => 'Participated']);
+        $UserType15 = UserType::create(['id' => '15','name' => 'Other']);
+        $UserType15 = UserType::create(['id' => '16','name' => 'Admin Employee']);
+   
+
+        \DB::table('employee_types')->truncate();
+        $patientType1 = EmployeeType::create(['id' => '1','type'=>'patient','designation' => 'Minor Child']);
+        $patientType2 = EmployeeType::create(['id' => '2','type'=>'patient','designation' => 'Student']);
+        $patientType3 = EmployeeType::create(['id' => '3','type'=>'patient','designation' => 'Working']);
+        $patientType4 = EmployeeType::create(['id' => '4','type'=>'patient','designation' => 'Old age']);
 
     }
 }

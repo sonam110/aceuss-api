@@ -20,10 +20,10 @@ class CreateEmergencyContactsTable extends Migration
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger('user_id')->comment('User Table id')->nullable();
-            $table->foreign('user_id')->references('id')->on('user_types')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->foreignId('created_by');
-            $table->foreign('created_by')->references('id')->on('user_types')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('contact_number')->nullable();
             $table->boolean('is_default')->default('0')->comment('1:Yes,0:No');

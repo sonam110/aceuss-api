@@ -20,7 +20,7 @@ class CreateAdminFilesTable extends Migration
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             
             $table->unsignedBigInteger('created_by');
-            $table->foreign('created_by')->references('id')->on('user_types')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             
             $table->text('title');
             $table->string('file_path');

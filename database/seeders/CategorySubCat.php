@@ -15,7 +15,6 @@ class CategorySubCat extends Seeder
      */
     public function run()
     {
-        \DB::table('category_masters')->truncate();
         $data = [
             [
                 'ICF_kod' => 'd1',
