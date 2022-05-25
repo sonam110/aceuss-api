@@ -288,15 +288,15 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'words-delete', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-delete','belongs_to'=>'2']);
 
-        Permission::create(['name' => 'paragraphs-browse', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-browse','belongs_to'=>'2']);
+        Permission::create(['name' => 'paragraphs-browse', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-browse','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'paragraphs-add', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-add','belongs_to'=>'2']);
+        Permission::create(['name' => 'paragraphs-add', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-add','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'paragraphs-read', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-read','belongs_to'=>'2']);
+        Permission::create(['name' => 'paragraphs-read', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-read','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'paragraphs-edit', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-edit','belongs_to'=>'2']);
+        Permission::create(['name' => 'paragraphs-edit', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-edit','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'paragraphs-delete', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-delete','belongs_to'=>'2']);
+        Permission::create(['name' => 'paragraphs-delete', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-delete','belongs_to'=>'3']);
         
 
         Permission::create(['name' => 'task-browse', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-browse','belongs_to'=>'2']);
@@ -358,13 +358,6 @@ class PermissionSeeder extends Seeder
          Permission::create(['name' => 'files-add', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-add','belongs_to'=>'3']);
 
          Permission::create(['name' => 'files-delete', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-delete','belongs_to'=>'3']);
-
-         //Licence
-         Permission::create(['name' => 'licences', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licences','belongs_to'=>'1']);
-         Permission::create(['name' => 'licence-add', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-add','belongs_to'=>'1']);
-         Permission::create(['name' => 'licence-edit', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-edit','belongs_to'=>'1']);
-         Permission::create(['name' => 'licence-read', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-read','belongs_to'=>'1']);
-         Permission::create(['name' => 'licence-delete', 'guard_name' => 'api','group_name'=>'licence','se_name'=>'licence-delete','belongs_to'=>'1']);
 
          Permission::create(['name' => 'import-language', 'guard_name' => 'api','group_name'=>'language','se_name'=>'import-language','belongs_to'=>'1']);
          

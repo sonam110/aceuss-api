@@ -22,11 +22,11 @@ class ManageLicenceController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:licences',['except' => ['show']]);
-        $this->middleware('permission:licence-add', ['only' => ['store']]);
-        $this->middleware('permission:licence-edit', ['only' => ['update']]);
-        $this->middleware('permission:licence-read', ['only' => ['show']]);
-        $this->middleware('permission:licence-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:licences-browse',['except' => ['show']]);
+        $this->middleware('permission:licences-add', ['only' => ['store']]);
+        $this->middleware('permission:licences-edit', ['only' => ['update']]);
+        $this->middleware('permission:licences-read', ['only' => ['show']]);
+        $this->middleware('permission:licences-delete', ['only' => ['destroy']]);
     }
 
     public function index()
