@@ -55,8 +55,8 @@ class CreateJournalsTable extends Migration
             $table->date('signed_date')->nullable();
             $table->boolean('is_secret')->default(0);
             $table->boolean('is_active')->default(0);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

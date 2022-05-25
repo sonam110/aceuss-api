@@ -85,8 +85,8 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->tinyInteger('step_seven')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->string('entry_mode')->nullable();
             $table->boolean('is_latest_entry')->default(1);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

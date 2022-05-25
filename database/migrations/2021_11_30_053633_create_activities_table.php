@@ -103,8 +103,8 @@ class CreateActivitiesTable extends Migration
             $table->string('activity_tag')->nullable();
             $table->text('action_comment')->nullable()->comment('for delete');
             $table->boolean('is_latest_entry')->default(1);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

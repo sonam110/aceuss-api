@@ -34,8 +34,8 @@ class CreateCategoryMastersTable extends Migration
             $table->boolean('status')->default('1')->comment('1:Active,0:Inactive');
             $table->string('follow_up_image')->nullable();
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

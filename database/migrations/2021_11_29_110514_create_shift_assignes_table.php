@@ -30,8 +30,8 @@ class CreateShiftAssignesTable extends Migration
             $table->date('shift_end_date');
             $table->boolean('status')->default(1);
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -37,9 +37,9 @@ class CreateFilesTable extends Migration
             $table->boolean('approval_required')->default(0);
             $table->date('approved_date')->nullable();
             $table->string('visible_to_users')->nullable();
-            $table->softDeletes();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

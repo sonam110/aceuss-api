@@ -366,17 +366,7 @@ class PermissionSeeder extends Seeder
          Permission::create(['name' => 'trashed-activites-restore', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-restore','belongs_to'=>'2']);
 
          
-        Permission::create(['name' => 'journal-read', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-add', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-edit', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-delete', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-browse', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-browse','belongs_to'=>'2']);
-
-
+        
         Permission::create(['name' => 'journal-action-read', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-read','belongs_to'=>'2']);
 
         Permission::create(['name' => 'journal-action-add', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-create','belongs_to'=>'2']);

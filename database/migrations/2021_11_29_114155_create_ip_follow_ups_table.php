@@ -59,10 +59,10 @@ class CreateIpFollowUpsTable extends Migration
             $table->text('witness')->nullable();
             $table->text('more_witness')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0:Pending,1:Approved,2:Completed,3:Reject,4:Hold');
-            $table->softDeletes();
             $table->string('entry_mode')->nullable();
             $table->boolean('is_latest_entry')->default(1);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

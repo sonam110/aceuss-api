@@ -20,8 +20,7 @@ class CreateTasksTable extends Migration
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
 
-            $table->unsignedBigInteger('group_id')->nullable();
-            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+            $table->string('group_id', 50)->nullable();
             
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
@@ -64,8 +63,8 @@ class CreateTasksTable extends Migration
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Not Done,1:Done');
             $table->boolean('is_latest_entry')->default(1);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -30,8 +30,8 @@ class CreatePackagesTable extends Migration
             $table->tinyInteger('is_enable_bankid_charges')->default('0')->comment('1:Yes,0:No');
             $table->tinyInteger('status')->default('1')->comment('1:Active,0:Inactive,2:Deleted');
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

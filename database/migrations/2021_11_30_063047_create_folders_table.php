@@ -26,8 +26,8 @@ class CreateFoldersTable extends Migration
             $table->string('visible_to_users');
             $table->boolean('status')->default(1);
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

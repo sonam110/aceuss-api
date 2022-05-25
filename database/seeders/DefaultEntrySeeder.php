@@ -14,6 +14,7 @@ use App\Models\Module;
 use App\Models\UserType;
 use App\Models\User;
 use App\Models\EmployeeType;
+use App\Models\BookmarkMaster;
 
 class DefaultEntrySeeder extends Seeder
 {
@@ -89,6 +90,14 @@ class DefaultEntrySeeder extends Seeder
         $patientType2 = EmployeeType::create(['id' => '2','type'=>'patient','designation' => 'Student']);
         $patientType3 = EmployeeType::create(['id' => '3','type'=>'patient','designation' => 'Working']);
         $patientType4 = EmployeeType::create(['id' => '4','type'=>'patient','designation' => 'Old age']);
+
+        //Bookmarks
+        BookmarkMaster::create([
+            'target'    => 'dashboard',
+            'title'     => 'Analytics Dashboard',
+            'icon'      => 'Home',
+            'link'      => '/dashboard/analytics'
+        ]);
 
     }
 }

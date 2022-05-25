@@ -29,8 +29,8 @@ class CreateJournalActionLogsTable extends Migration
             $table->text('comment_result')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->datetime('comment_created_at');
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -77,8 +77,8 @@ class CreateUsersTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->string('contact_person_name')->nullable();
             $table->rememberToken();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

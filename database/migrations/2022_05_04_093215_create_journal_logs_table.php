@@ -28,8 +28,8 @@ class CreateJournalLogsTable extends Migration
             $table->text('description')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->datetime('description_created_at');
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -38,6 +38,7 @@ use App\Models\Employee;
 use App\Models\Patient;
 use App\Models\Journal;
 use App\Models\Deviation;
+use App\Models\Bookmark;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
 
@@ -330,6 +331,11 @@ class User extends Authenticatable
     public function deviations()
     {
         return $this->hasMany(User::class,'patient_id','id');
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class,'user_id','id');
     }
     
 }

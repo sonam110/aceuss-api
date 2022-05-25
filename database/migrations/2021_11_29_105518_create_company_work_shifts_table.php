@@ -28,8 +28,8 @@ class CreateCompanyWorkShiftsTable extends Migration
             $table->string('shift_color')->nullable();
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

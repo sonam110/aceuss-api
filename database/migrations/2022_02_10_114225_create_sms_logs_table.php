@@ -18,9 +18,9 @@ class CreateSmsLogsTable extends Migration
 
             $table->unsignedBigInteger('type_id')->nullable();
 
-            $table->string('top_most_parent_id', 50)->comment('comes from users table (user company id)');
+            $table->integer('top_most_parent_id')->comment('comes from users table (user company id)');
             
-            $table->string('resource_id', 50)->nullable()->comment('comes from any table');
+            $table->integer('resource_id')->nullable()->comment('comes from any table');
             $table->string('mobile');
             $table->text('message');
             $table->integer('status')->nullable();
