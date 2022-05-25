@@ -82,5 +82,13 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
         $smsTemplate->custom_attributes = "";
         $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'activity-assignment';
+        $smsTemplate->mail_subject = 'Activity Assigned';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
+        $smsTemplate->custom_attributes = "";
+        $smsTemplate->save();
     }
 }

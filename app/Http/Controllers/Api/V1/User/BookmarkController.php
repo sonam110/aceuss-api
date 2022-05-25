@@ -16,11 +16,11 @@ class BookMarkController extends Controller
     public function __construct()
     {
 
-        // $this->middleware('permission:bookmark-browse',['except' => ['show']]);
-        // $this->middleware('permission:bookmark-add', ['only' => ['store']]);
-        // $this->middleware('permission:bookmark-edit', ['only' => ['update']]);
-        // $this->middleware('permission:bookmark-read', ['only' => ['show']]);
-        // $this->middleware('permission:bookmark-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:bookmark-browse',['except' => ['show']]);
+        $this->middleware('permission:bookmark-add', ['only' => ['store']]);
+        $this->middleware('permission:bookmark-edit', ['only' => ['update']]);
+        $this->middleware('permission:bookmark-read', ['only' => ['show']]);
+        $this->middleware('permission:bookmark-delete', ['only' => ['destroy']]);
         
     }
     public function bookmarks(Request $request)

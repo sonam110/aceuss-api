@@ -365,7 +365,51 @@ class PermissionSeeder extends Seeder
          Permission::create(['name' => 'trashed-activites-permanent-delete', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-permanent-delete','belongs_to'=>'2']);
          Permission::create(['name' => 'trashed-activites-restore', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-restore','belongs_to'=>'2']);
 
-          
+         
+        Permission::create(['name' => 'journal-read', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-add', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-edit', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-delete', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-browse', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-browse','belongs_to'=>'2']);
+
+
+        Permission::create(['name' => 'journal-action-read', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-action-add', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-action-edit', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-action-delete', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'journal-action-browse', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-browse','belongs_to'=>'2']); 
+
+
+        Permission::create(['name' => 'bookmark-read', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'bookmark-add', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'bookmark-edit', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'bookmark-delete', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'bookmark-browse', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-browse','belongs_to'=>'2']);
+
+         
+
+        Permission::create(['name' => 'label-read', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-read','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'label-add', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-create','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'label-edit', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-edit','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'label-delete', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-delete','belongs_to'=>'1']);
+
+        Permission::create(['name' => 'label-browse', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-browse','belongs_to'=>'1']); 
+
 
     }
 }
