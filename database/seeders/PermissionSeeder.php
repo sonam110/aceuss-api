@@ -278,15 +278,15 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'reports-delete', 'guard_name' => 'api','group_name'=>'reports','se_name'=>'reports-delete','belongs_to'=>'3']);
 
 
-        Permission::create(['name' => 'words-browse', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-browse','belongs_to'=>'2']);
+        Permission::create(['name' => 'words-browse', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-browse','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'words-add', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-add','belongs_to'=>'2']);
+        Permission::create(['name' => 'words-add', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-add','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'words-read', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-read','belongs_to'=>'2']);
+        Permission::create(['name' => 'words-read', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-read','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'words-edit', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-edit','belongs_to'=>'2']);
+        Permission::create(['name' => 'words-edit', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-edit','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'words-delete', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-delete','belongs_to'=>'2']);
+        Permission::create(['name' => 'words-delete', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-delete','belongs_to'=>'3']);
 
         Permission::create(['name' => 'paragraphs-browse', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-browse','belongs_to'=>'3']);
 
@@ -299,15 +299,15 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'paragraphs-delete', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-delete','belongs_to'=>'3']);
         
 
-        Permission::create(['name' => 'task-browse', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-browse','belongs_to'=>'2']);
+        Permission::create(['name' => 'task-browse', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-browse','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'task-add', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-add','belongs_to'=>'2']);
+        Permission::create(['name' => 'task-add', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-add','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'task-read', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-read','belongs_to'=>'2']);
+        Permission::create(['name' => 'task-read', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-read','belongs_to'=>'3']);
 
-        Permission::create(['name' => 'task-edit', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-edit','belongs_to'=>'2']);
+        Permission::create(['name' => 'task-edit', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-edit','belongs_to'=>'3']);
         
-        Permission::create(['name' => 'task-delete', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-delete','belongs_to'=>'2']);
+        Permission::create(['name' => 'task-delete', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-delete','belongs_to'=>'3']);
 
         Permission::create(['name' => 'internalCom-read', 'guard_name' => 'api','group_name'=>'command','se_name'=>'internalCom-read','belongs_to'=>'2']);
 
