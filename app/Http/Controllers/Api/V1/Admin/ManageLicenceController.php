@@ -100,21 +100,6 @@ class ManageLicenceController extends Controller
                 $keyMgmt->is_used = false;
                 $keyMgmt->save();
 
-            if(is_array($request->modules)  && sizeof($request->modules) >0)
-            { 
-                foreach ($request->modules as $key => $module) 
-                {
-                    $count = AssigneModule::where('user_id',$request->user_id)->where('module_id',$module)->count();
-                    if($count<1)
-                    { 
-                        $assigneModule = new AssigneModule;
-                        $assigneModule->user_id = $request->user_id;
-                        $assigneModule->module_id = $module;
-                        $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save();
-                    }
-                }
-            }
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -186,21 +171,6 @@ class ManageLicenceController extends Controller
                 $keyMgmt->is_used = false;
                 $keyMgmt->save();
 
-            if(is_array($request->modules)  && sizeof($request->modules) >0)
-            { 
-                foreach ($request->modules as $key => $module) 
-                {
-                    $count = AssigneModule::where('user_id',$request->user_id)->where('module_id',$module)->count();
-                    if($count<1)
-                    { 
-                        $assigneModule = new AssigneModule;
-                        $assigneModule->user_id = $request->user_id;
-                        $assigneModule->module_id = $module;
-                        $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                        $assigneModule->save();
-                    }
-                }
-            }
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -220,44 +190,49 @@ class ManageLicenceController extends Controller
         DB::beginTransaction();
         try {
                 $licenceKeyData = LicenceKeyManagement::find($id);
+
                 if(empty($licenceKeyData))
                 {
                     return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_id') ,[], config('httpcodes.success'));
                 }
+
+                if($licenceKeyData->is_used == 1)
+                {
+                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_already_assigned') ,[], config('httpcodes.success'));
+                }
+
                 $package_details =  json_decode($licenceKeyData->package_details);
                 $package_expire_at = date('Y-m-d', strtotime($package_details->validity_in_days.' days'));
 
                 $assignLicenceKey = LicenceKeyManagement::where('id',$id)->update(['is_used' => 1]);
 
+                Subscription::where('user_id',$licenceKeyData->top_most_parent_id)->update(['status' => 0]);
 
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $licenceKeyData->top_most_parent_id;
                 $packageSubscribe->package_id = $package_details->id;
                 $packageSubscribe->package_details = $package_details;
-                $packageSubscribe->license_key = $licenceKeyData->licencse_key;
+                $packageSubscribe->license_key = $licenceKeyData->license_key;
                 $packageSubscribe->start_date = date('Y-m-d');
                 $packageSubscribe->end_date = $package_expire_at;
                 $packageSubscribe->status = 1;
                 $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $packageSubscribe->save();
 
-                // $modules_attached = json_decode($licenceKeyData->module_attached);
+                $modules_attached = json_decode($licenceKeyData->module_attached);
 
-                // if($modules_attached  && sizeof($modules_attached) >0)
-                // { 
-                //     foreach ($modules_attached as $key => $module) 
-                //     {
-                //         $count = AssigneModule::where('user_id',$user_id)->where('module_id',$module)->count();
-                //         if($count<1)
-                //         { 
-                //             $assigneModule = new AssigneModule;
-                //             $assigneModule->user_id = $user_id;
-                //             $assigneModule->module_id = $module;
-                //             $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
-                //             $assigneModule->save();
-                //         }
-                //     }
-                // }
+                if($modules_attached  && sizeof($modules_attached) >0)
+                {
+                    AssigneModule::where('user_id',$licenceKeyData->top_most_parent_id)->delete(); 
+                    foreach ($modules_attached as $key => $module) 
+                    {
+                        $assigneModule = new AssigneModule;
+                        $assigneModule->user_id = $licenceKeyData->top_most_parent_id;
+                        $assigneModule->module_id = $module;
+                        $assigneModule->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web'; 
+                        $assigneModule->save();
+                    }
+                }
 
                 User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status' => 1]);
             DB::commit();
