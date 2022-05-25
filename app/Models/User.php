@@ -39,6 +39,8 @@ use App\Models\Patient;
 use App\Models\Journal;
 use App\Models\Deviation;
 use App\Models\Bookmark;
+use App\Models\ActivityAssigne;
+use App\Models\AssignTask;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
 
@@ -264,6 +266,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(PatientImplementationPlan::class,'user_id','id');
     }
+
+    public function assignedActivity()
+    {
+        return $this->hasMany(ActivityAssigne::class,'user_id','id');
+    }
+
+    public function assignedTask()
+    {
+        return $this->hasMany(AssignTask::class,'user_id','id');
+    }
+
     public function patientActivity()
     {
         return $this->hasMany(Activity::class,'patient_id','id');
@@ -298,6 +311,16 @@ class User extends Authenticatable
          return $this->hasMany(Task::class,'top_most_parent_id','id');
     }
 
+    public function patientTasks()
+    {
+         return $this->hasMany(Task::class,'resource_id','id')->where('type_id', 7);
+    }
+
+    public function assignedTasks()
+    {
+         return $this->hasMany(Task::class,'resource_id','id')->where('type_id', 7);
+    }
+
     public function activities()
     {
          return $this->hasMany(Activity::class,'top_most_parent_id','id');
@@ -330,12 +353,13 @@ class User extends Authenticatable
 
     public function deviations()
     {
-        return $this->hasMany(User::class,'patient_id','id');
+        return $this->hasMany(Deviation::class,'patient_id','id');
     }
 
     public function bookmarks()
     {
         return $this->hasMany(Bookmark::class,'user_id','id');
     }
+
     
 }

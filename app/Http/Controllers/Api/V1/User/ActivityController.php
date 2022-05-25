@@ -107,6 +107,7 @@ class ActivityController extends Controller
                 \DB::raw('COUNT(id) as total_activities_time_passed'),
             ])
             ->where('is_latest_entry', 1)
+            ->where('status', 0)
             ->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
             if($user->user_type_id =='2'){
 
