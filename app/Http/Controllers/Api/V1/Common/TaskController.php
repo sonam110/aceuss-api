@@ -106,6 +106,16 @@ class TaskController extends Controller
                         ->orWhere('tasks.patient_id', $user->parent_id);
                 });
             }
+
+            if(!empty($request->type_id))
+            {
+                $taskCounts->where('type_id', $request->type_id);
+            }
+
+            if(!empty($request->resource_id))
+            {
+                $taskCounts->where('resource_id', $request->resource_id);
+            }
             
 
             $whereRaw2 = $this->getWhereRawFromRequestOther($request);

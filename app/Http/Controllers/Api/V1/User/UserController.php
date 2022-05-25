@@ -50,12 +50,14 @@ class UserController extends Controller
             $allChilds = array_merge($branchids,[$branch_id]);
             $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status','step_one','step_two','step_three','step_four','step_five', 
                 DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1) ipCount"), 
-                DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount") , 
-                DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), 
                 DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), 
+                DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id  AND is_latest_entry = 1) patientActivityCount"), 
+                DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), 
+                DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND is_latest_entry = 1) patientTaskCount"), 
                 DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
                 DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
-                DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
+                DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
+            ->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
             if(in_array($user->user_type_id, [1,2,3,4,5,11]))
             {
 

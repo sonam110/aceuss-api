@@ -400,6 +400,10 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'label-browse', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-browse','belongs_to'=>'1']); 
 
+        Permission::create(['name' => 'patient_cashiers', 'guard_name' => 'api','group_name'=>'patient_cashiers','se_name'=>'patient_cashiers','belongs_to'=>'2']); 
+
+        Permission::create(['name' => 'patient_cashier-add', 'guard_name' => 'api','group_name'=>'patient_cashiers','se_name'=>'patient_cashier-add','belongs_to'=>'2']); 
+
 
     }
 }

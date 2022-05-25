@@ -52,7 +52,7 @@ class PatientController extends Controller
 
             $query = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','branch:id,name')
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','ipFollowUps','branch:id,name')
             ->withCount('ipFollowUps','activities')
             ->with(
                 ['patient' => function ($query) {
@@ -146,6 +146,41 @@ class PatientController extends Controller
             } else {
                 $query = $query->orderBy('patient_implementation_plans.id', 'DESC');
             }
+
+            ////////Counts
+            $ipCounts = PatientImplementationPlan::select([
+                \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_not_approved'),
+                \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_incompleted'),
+                \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_completed'),
+            ])->where('is_latest_entry', 1);
+            if($user->user_type_id =='2'){
+
+            } else{
+                $ipCounts =  $ipCounts->whereIn('patient_implementation_plans.branch_id',$allChilds);
+            }
+
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $ipCounts->where(function ($q) use ($user) {
+                    $q->where('patient_implementation_plans.user_id', $user->id)
+                        ->orWhere('patient_implementation_plans.user_id', $user->parent_id);
+                });
+            }
+
+            if(!empty($request->start_date) && !empty($request->end_date))
+            {
+                $ipCounts->whereDate('patient_implementation_plans.start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
+            }
+            elseif(!empty($request->start_date) && empty($request->end_date))
+            {
+                $ipCounts->whereDate('patient_implementation_plans.start_date', ">=" ,$request->start_date);
+            }
+            elseif(empty($request->start_date) && !empty($request->end_date))
+            {
+                $ipCounts->whereDate('patient_implementation_plans.end_date', '<=', $request->end_date);
+            }
+            $ipCounts = $ipCounts->first();
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -158,7 +193,10 @@ class PatientController extends Controller
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
+                    'last_page' => ceil($total / $perPage),
+                    'total_not_approved' => $ipCounts->total_not_approved,
+                    'total_incompleted' => $ipCounts->total_incompleted,
+                    'total_completed' => $ipCounts->total_completed,
                 ];
                 return prepareResult(true,"Ip list",$pagination,config('httpcodes.success'));
             }
