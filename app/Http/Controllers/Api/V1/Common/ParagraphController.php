@@ -27,7 +27,7 @@ class ParagraphController extends Controller
         try {
             $query = Paragraph::where(function ($q) use ($request) {
                 $q->whereNull('top_most_parent_id')
-                    ->orWhere('top_most_parent_id', 1);
+                    ->orWhere('top_most_parent_id', 1)
                     ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
             })
             ->withoutGlobalScope('top_most_parent_id')
