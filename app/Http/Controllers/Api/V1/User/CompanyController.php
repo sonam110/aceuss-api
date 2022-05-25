@@ -326,7 +326,7 @@ class CompanyController extends Controller
                 $package_details =  json_decode($licenceKeyData->package_details);
                 $package_expire_at = date('Y-m-d', strtotime($package_details->validity_in_days.' days'));
 
-                LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('license_key',$request->licence_key)->where('is_used','!=',1)->update(['is_used' => 1]);
+                LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('license_key',$request->licence_key)->where('is_used',0)->update(['is_used' => 1]);
 
 
                 $packageSubscribe = new Subscription;

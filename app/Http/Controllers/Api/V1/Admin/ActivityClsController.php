@@ -41,7 +41,6 @@ class ActivityClsController extends Controller
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-            
         }
     }
 

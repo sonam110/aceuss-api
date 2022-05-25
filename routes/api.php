@@ -123,6 +123,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		    
 	     	Route::post('licence-keys', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'index']);
 			Route::apiResource('licence-key',Admin\ManageLicenceController::class)->only(['store','destroy','show', 'update']);
+			Route::post('assign-licence-key/{id}', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'assignLicenceKey']);
 
 		});
 

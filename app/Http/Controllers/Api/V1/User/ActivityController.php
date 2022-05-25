@@ -66,6 +66,11 @@ class ActivityController extends Controller
                 });
             }
 
+            if(!empty($request->title))
+            {
+                $query->where('title', $request->title);
+            }
+
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw);
             } else {
