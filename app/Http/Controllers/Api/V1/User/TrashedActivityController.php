@@ -17,7 +17,7 @@ class TrashedActivityController extends Controller
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->onlyTrashed();
+            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')->onlyTrashed();
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('id','DESC');
             } else{
