@@ -23,7 +23,7 @@ class BankIdVerified implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('bank-id-verified');
-        //return new Channel('bank-id-verified');
+        //return new PrivateChannel('bank-id-verified');
+        return new Channel('bank-id-verified');
     }
 }
