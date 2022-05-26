@@ -46,7 +46,6 @@ class UserLoginController extends Controller
             $user = User::where('email',$request->email)->with('TopMostParent:id,user_type_id,name,email')
             ->withoutGlobalScope('top_most_parent_id')
             ->first();
-           return $user;
             if (!empty($user)) {
                 
                 if (Hash::check($request->password, $user->password)) {
