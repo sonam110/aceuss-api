@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\OauthAccessTokens;
 use Auth;
 use DB;
+use Carbon\Carbon;
 
 class WebSocketController implements MessageComponentInterface {
 
@@ -56,7 +57,7 @@ class WebSocketController implements MessageComponentInterface {
         $data = json_decode($msg);
         if (isset($data->command)) {
             if (isset($data->token)) {
-                $userToken = $this->checkUserToken($data->token);
+                $userToken = checkUserToken($data->token);
                
                 if (!empty($userToken)) {
                     $checkToken = OauthAccessTokens::where([
@@ -69,7 +70,8 @@ class WebSocketController implements MessageComponentInterface {
                 } else {
                     $conn->send(json_encode('Token not valid'));
                 }
-                 switch ($data->command) {
+                
+                switch ($data->command) {
                     case "message":
 
                     if ($userToken['user_id'] != $data->from ) {
@@ -96,7 +98,7 @@ class WebSocketController implements MessageComponentInterface {
                     $message->sender_id = $data->from;
                     $message->receiver_id = $data->to;
                     $message->message = $data->message;
-                    $message->is_read = '0';
+                    $message->read_at = null;
                     $message->save();
                     }
                     break;
@@ -155,43 +157,4 @@ class WebSocketController implements MessageComponentInterface {
         $conn->send(json_encode('An error has occurred '.$e->getMessage().''));
         $conn->close();
     }
-    /*----get user id from token----------*/
-
-    function checkUserToken($token) 
-    {
-        $result =[];
-        // break up the token_name(token)en into its three parts
-        $token_parts = explode('.', $token);
-        if (is_array($token_parts) && array_key_exists('1', $token_parts))
-        {
-           $token_header =  $token_parts[1] ;
-        
-        } else {
-            $token_header = null;
-        }
-
-        // base64 decode to get a json string
-        $token_header_json = base64_decode($token_header);
-        
-        // then convert the json to an array
-        $token_header_array = json_decode($token_header_json, true);
-        
-        $user_token = (is_array($token_header_array) && array_key_exists('jti', $token_header_array))   ? $token_header_array['jti'] :null;
-        // find the user ID from the oauth access token table
-        // based on the token we just got
-        if($user_token){
-            $user_id = DB::table('oauth_access_tokens')->where('id', $user_token)->first();
-            $user_id = $user_id->user_id;
-            $result  = [
-                "user_token" => $user_token,
-                "user_id" => $user_id,
-            ];
-            return $result;
-        
-        } else {
-            return $result;
-        }
-  
-    }
-
 }

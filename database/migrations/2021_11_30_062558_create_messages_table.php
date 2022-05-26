@@ -15,6 +15,9 @@ class CreateMessagesTable extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('top_most_parent_id')->nullable();
+            $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
             
             $table->unsignedBigInteger('sender_id')->nullable();
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
@@ -23,7 +26,8 @@ class CreateMessagesTable extends Migration
             $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->text('message');
-            $table->boolean('is_read')->default(0);
+            $table->string('file_path');
+            $table->timestamp('read_at')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
         });

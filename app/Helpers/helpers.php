@@ -18,6 +18,7 @@ use App\Models\Activity;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\CategoryMaster;
+use App\Models\OauthAccessTokens;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
@@ -872,4 +873,35 @@ function getPersonUserId($personal_info_during_ips_id)
         }
     }
     return $user_id;
+}
+
+function checkUserToken($token) 
+{
+    // break up the token_name(token)en into its three parts
+    $token_parts = explode('.', $token);
+    if (is_array($token_parts) && array_key_exists('1', $token_parts)) {
+       $token_header =  $token_parts[1];
+    } else {
+        $token_header = null;
+    }
+
+    // base64 decode to get a json string
+    $token_header_json = base64_decode($token_header);
+
+    // then convert the json to an array
+    $token_header_array = json_decode($token_header_json, true);
+
+    $user_token = (is_array($token_header_array) && array_key_exists('jti', $token_header_array)) ? $token_header_array['jti'] : null;
+
+    // find the user ID from the oauth access token table
+    // based on the token we just got
+    if($user_token) {
+        $userAccessToken = OauthAccessTokens::find($user_token);
+        $result  = [
+            "user_token"=> $user_token,
+            "user_id"   => $userAccessToken->user_id,
+        ];
+        return $result;
+    } 
+    return false;
 }

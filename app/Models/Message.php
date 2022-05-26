@@ -13,12 +13,19 @@ class Message extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
+        'top_most_parent_id',
         'sender_id',
 		'receiver_id',
 		'message',
-		'is_read',
+        'file_path',
+		'read_at',
         'entry_mode',
     ];
+
+    public function TopMostParent()
+    {
+        return $this->belongsTo(User::class,'top_most_parent_id','id');
+    }
 
     public function sender()
     {
@@ -28,5 +35,12 @@ class Message extends Model
     public function receiver()
     {
         return $this->hasOne(User::class,'id','receiver_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(self::class, 'receiver_id', 'id')
+            ->whereNull('read_at')
+            ->withoutGlobalScope('top_most_parent_id');
     }
 }

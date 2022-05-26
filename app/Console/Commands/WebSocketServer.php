@@ -8,7 +8,7 @@ use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Factory as LoopFactory;
 use React\Socket\Server as Reactor;
-use App\Http\Controllers\Api\V1\WebSocketController;
+use App\Http\Controllers\Api\V1\Common\WebSocketController;
 
 class WebSocketServer extends Command
 {

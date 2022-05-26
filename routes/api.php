@@ -127,6 +127,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		});
 
+		//messages
+    	Route::post('get-users', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getUsers']);
+
 		//Notification
 		Route::apiResource('/notification', 'Common\NotificationController')->only('store','index','destroy','show');
 		Route::get('/notification/{id}/read', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'read']);
