@@ -10,6 +10,7 @@ use Auth;
 use DB;
 use Exception;
 use PDF;
+use App\Models\EmailTemplate;
 use Str;
 
 class DeviationController extends Controller
@@ -298,6 +299,37 @@ class DeviationController extends Controller
 
             $deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $deviation->save();
+
+            /*-----------Send notification---------------------*/
+
+            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
+            $module =  "deviation";
+            $data_id =  $deviation->id;
+            $screen =  "";
+
+            $title  = false;
+            $body   = false;
+            $getMsg = EmailTemplate::where('mail_sms_for', 'deviation')->first();
+            $companyObj = companySetting($user->top_most_parent_id);
+
+            if($getMsg)
+            {
+                $body = $getMsg->notify_body;
+                $title = $getMsg->mail_subject;
+                $arrayVal = [
+                    '{{name}}'              => $user->name,
+                    '{{email}}'             => $user->email,
+                    '{{title}}'             => $title,
+                    '{{company_name}}'      => $companyObj['company_name'],
+                    '{{company_address}}'   => $companyObj['company_address'],
+                ];
+                $body = strReplaceAssoc($arrayVal, $body);
+                $title = strReplaceAssoc($arrayVal, $title);
+            }
+
+
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+
             DB::commit();
 
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')

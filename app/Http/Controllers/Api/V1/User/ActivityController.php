@@ -1107,9 +1107,7 @@ class ActivityController extends Controller
     			if ($validator->fails()) {
     				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
-
     		}
-
 
     		$activity->status = $request->status;
     		$activity->selected_option = ($option) ? $option->option : null;
@@ -1229,14 +1227,14 @@ class ActivityController extends Controller
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
     	}
     }
 
     public function activityTag(Request $request)
     {
     	DB::beginTransaction();
-    	try {
+    	try 
+    	{
     		$user = getUser();
     		Activity::where('id', $request->activity_id)->update([
     			'activity_tag' => $request->activity_tag
@@ -1246,7 +1244,6 @@ class ActivityController extends Controller
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
     	}
     }
 
@@ -1326,9 +1323,6 @@ class ActivityController extends Controller
     		{
     			$w = $w . "("."activities.start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
     		}
-
-
-
     	}
     	if (is_null($request->input('activities.title')) == false) {
     		if ($w != '') {$w = $w . " AND ";}
@@ -1339,10 +1333,8 @@ class ActivityController extends Controller
     	if (is_null($request->input('activities.title')) == false) {
     		if ($w != '') {$w = $w . " OR ";}
     		$w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-
     	}
     	return($w);
-
     }
 
     private function getWhereRawFromRequestOther(Request $request)
@@ -1382,15 +1374,10 @@ class ActivityController extends Controller
     		{
     			$w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
     		}
-
-
-
     	}
     	if (is_null($request->input('title')) == false) {
     		if ($w != '') {$w = $w . " AND ";}
     		$w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
-
-
     	}
     	if (is_null($request->input('title')) == false) {
     		if ($w != '') {$w = $w . " OR ";}
@@ -1398,7 +1385,6 @@ class ActivityController extends Controller
 
     	}
     	return($w);
-
     }
 
     private function getWhereRawFromRequestTimeExeceed(Request $request)
@@ -1421,6 +1407,5 @@ class ActivityController extends Controller
     		$w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
     	}        
     	return($w);
-
     }
 }

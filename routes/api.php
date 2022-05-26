@@ -81,6 +81,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			 /*------------Create Company--------------------*/
 			Route::post('companies', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companies']);
 		    Route::apiResource('user', Admin\CompanyAccountController::class)->only(['store','destroy','show', 'update']);
+		    Route::post('company-stats/{id}', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companyStats']);
 
 			/*-------------Packages------------------------*/
 			Route::post('packages', [App\Http\Controllers\Api\V1\Admin\PackageController::class, 'packages']);

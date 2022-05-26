@@ -11,7 +11,9 @@ use DB;
 use App\Models\JournalLog;
 use App\Models\User;
 use Exception;
+use App\Models\Activity;
 use PDF;
+use App\Models\EmailTemplate;
 use Str;
 
 class JournalController extends Controller
@@ -267,6 +269,37 @@ class JournalController extends Controller
             $journal->is_active = ($request->is_active)? $request->is_active :0;
             $journal->edit_date = date('Y-m-d H:i:s');
 		 	$journal->save();
+
+            /*-----------Send notification---------------------*/
+
+            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
+            $module =  "journal";
+            $data_id =  $journal->id;
+            $screen =  "";
+
+            $title  = false;
+            $body   = false;
+            $getMsg = EmailTemplate::where('mail_sms_for', 'journal')->first();
+            $companyObj = companySetting($user->top_most_parent_id);
+
+            if($getMsg)
+            {
+                $body = $getMsg->notify_body;
+                $title = $getMsg->mail_subject;
+                $arrayVal = [
+                    '{{name}}'              => $user->name,
+                    '{{email}}'             => $user->email,
+                    '{{title}}'             => $title,
+                    '{{company_name}}'      => $companyObj['company_name'],
+                    '{{company_address}}'   => $companyObj['company_address'],
+                ];
+                $body = strReplaceAssoc($arrayVal, $body);
+                $title = strReplaceAssoc($arrayVal, $title);
+            }
+
+
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+
             DB::commit();
 
             $data = getJournal($journal->id);

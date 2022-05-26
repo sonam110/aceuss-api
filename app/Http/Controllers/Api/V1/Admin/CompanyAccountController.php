@@ -428,5 +428,34 @@ class CompanyAccountController extends Controller
         return($w);
     }
 
+    public function companyStats(Request $request,$id)
+    {
+        try 
+        {
+
+            $date = date('Y-m-d',strtotime('-'."$request->data_of" ));
+            $user = User::find($id);
+            if (!is_object($user)) {
+                return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
+            }
+            $data = [];
+            $data['company_employees_count'] = $user->employees->where('created_at','>',$date)->count();
+            $data['company_patients_count'] = $user->patients->where('created_at','>',$date)->count();
+            $data['company_tasks_count'] = $user->tasks->where('created_at','>',$date)->count();
+            $data['company_activities_count'] = $user->activities->where('created_at','>',$date)->count();
+            $data['company_ips_count'] = $user->ips->where('created_at','>',$date)->count();
+            $data['company_followUps_count'] = $user->followUps->where('created_at','>',$date)->count();
+            $data['company_assignedModule_count'] = $user->assignedModule->where('created_at','>',$date)->count();
+            $data['company_branchs_count'] = $user->branchs->where('created_at','>',$date)->count();
+
+            return prepareResult(true,'User Stats' ,$data, config('httpcodes.success'));
+                
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
     
 }
