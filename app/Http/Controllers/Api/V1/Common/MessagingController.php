@@ -55,7 +55,7 @@ class MessagingController extends Controller
                     ->where('user_type_id', 1)
                     ->withoutGlobalScope('top_most_parent_id')
                     ->first();
-                $getAdminCount = Messaging::where('sender_id', $adminInfo->id)
+                $getAdminCount = Message::where('sender_id', $adminInfo->id)
                     ->where('receiver_id', auth()->id())
                     ->whereNull('read_at')
                     ->withoutGlobalScope('top_most_parent_id')
