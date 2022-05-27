@@ -12,6 +12,7 @@ use Auth;
 use Exception;
 use App\Models\User;
 use App\Models\Label;
+use App\Models\Language;
 use App\Models\SmsLog;
 use Illuminate\Support\Facades\Hash;
 
@@ -63,6 +64,19 @@ class NoAuthController extends Controller
             }
 
             return $data;
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
+    public function getLanguages()
+    {
+        try{
+            $query = Language::get();
+
+            return prepareResult(true,"Language List",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

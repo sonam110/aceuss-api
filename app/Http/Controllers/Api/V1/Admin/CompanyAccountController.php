@@ -24,6 +24,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\LicenceHistory;
 use App\Models\LicenceKeyManagement;
+use App\Models\Deviation;
 
 class CompanyAccountController extends Controller
 {
@@ -431,22 +432,34 @@ class CompanyAccountController extends Controller
     public function companyStats(Request $request,$id)
     {
         try 
-        {
-
+        { 
             $date = date('Y-m-d',strtotime('-'."$request->data_of" ));
+            // for($i=$request->data_of; $i>=1; $i--)
+            // {
+            //     $dates['dates'][] = date('Y-m-d',strtotime('-'.$i.' day'));
+            // }
+            // return $dates;
+
+            
             $user = User::find($id);
             if (!is_object($user)) {
                 return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $data = [];
-            $data['company_employees_count'] = $user->employees->where('created_at','>',$date)->count();
-            $data['company_patients_count'] = $user->patients->where('created_at','>',$date)->count();
-            $data['company_tasks_count'] = $user->tasks->where('created_at','>',$date)->count();
-            $data['company_activities_count'] = $user->activities->where('created_at','>',$date)->count();
-            $data['company_ips_count'] = $user->ips->where('created_at','>',$date)->count();
-            $data['company_followUps_count'] = $user->followUps->where('created_at','>',$date)->count();
-            $data['company_assignedModule_count'] = $user->assignedModule->where('created_at','>',$date)->count();
-            $data['company_branchs_count'] = $user->branchs->where('created_at','>',$date)->count();
+            for($i=$request->data_of; $i>=0; $i--)
+            {
+                $date = date('Y-m-d',strtotime('-'.$i.' day'));
+                $previous_date = date('Y-m-d',strtotime('-'.($i + 1).' day'));
+                $data['date_labels'][] = $date;
+                $data['company_employees_count'][] = $user->employees->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_patients_count'][] = $user->patients->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_tasks_count'][] = $user->tasks->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_activities_count'][] = $user->activities->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_ips_count'][] = $user->ips->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_followUps_count'][] = $user->followUps->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_assignedModule_count'][] = $user->assignedModule->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+                $data['company_branchs_count'][] = $user->branchs->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
+            }
 
             return prepareResult(true,'User Stats' ,$data, config('httpcodes.success'));
                 

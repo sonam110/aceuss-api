@@ -1274,11 +1274,46 @@ class ActivityController extends Controller
                 'action_by' => auth()->id(),
                 'action_date' => date('Y-m-d')
             ]);
+
+            /*-----------Send notification---------------------*/
+
+            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
+            $module =  "activity";
+            $data_id =  $getActivity->id;
+            $screen =  "details";
+
+            $title 	= false;
+            $body 	= false;
+            $getMsg = EmailTemplate::where('mail_sms_for', 'activity-action')->first();
+            $companyObj = companySetting($user->top_most_parent_id);
+
+            if($getMsg)
+            {
+            	$body = $getMsg->notify_body;
+            	$title = $getMsg->mail_subject;
+            	$arrayVal = [
+            		'{{name}}'  			=> $user->name,
+            		'{{email}}' 			=> $user->email,
+            		'{{title}}' 			=> $title,
+            		'{{patient_id}}' 		=> $getActivity->Patient ? $getActivity->Patient->unique_id : null,
+            		'{{start_date}}' 		=> $getActivity->start_date,
+            		'{{start_time}}' 		=> $getActivity->start_time,
+            		'{{action}}'            => 'Activity Not Applicable',
+    				'{{activity_title}}'    => $getActivity->title,
+            		'{{company_name}}' 		=> $companyObj['company_name'],
+            		'{{company_address}}' 	=> $companyObj['company_address'],
+            	];
+            	$body = strReplaceAssoc($arrayVal, $body);
+            	$title = strReplaceAssoc($arrayVal, $title);
+            }
+
+
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+
     		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
     	}
     }
 
