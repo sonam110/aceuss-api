@@ -3,6 +3,7 @@
 /public/storage
 /public/uploads
 /public/reports
+/public/export
 /storage/*.key
 aceuss-api.zip
 /vendor

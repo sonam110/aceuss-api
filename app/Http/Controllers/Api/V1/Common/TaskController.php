@@ -41,6 +41,16 @@ class TaskController extends Controller
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.resource_id', $user->parent_id);
+                })
+                ->where('type_id', 7);
+            }
+
+
             if($user->user_type_id =='3'){
                 $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id');
                 $query = $query->whereIn('id', $assTask);
