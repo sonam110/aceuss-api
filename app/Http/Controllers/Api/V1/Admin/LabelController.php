@@ -10,19 +10,20 @@ use Str;
 use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LabelsImport;
+use App\Models\Language;
 
 class LabelController extends Controller
 {
-	public function __construct()
-    {
+	// public function __construct()
+ //    {
 
-        $this->middleware('permission:label-browse',['except' => ['show']]);
-        $this->middleware('permission:label-add', ['only' => ['store']]);
-        $this->middleware('permission:label-edit', ['only' => ['update']]);
-        $this->middleware('permission:label-read', ['only' => ['show']]);
-        $this->middleware('permission:label-delete', ['only' => ['destroy']]);
+ //        $this->middleware('permission:label-browse',['except' => ['show']]);
+ //        $this->middleware('permission:label-add', ['only' => ['store']]);
+ //        $this->middleware('permission:label-edit', ['only' => ['update']]);
+ //        $this->middleware('permission:label-read', ['only' => ['show']]);
+ //        $this->middleware('permission:label-delete', ['only' => ['destroy']]);
         
-    }
+ //    }
 	public function labels(Request $request)
 	{
 
@@ -200,8 +201,23 @@ class LabelController extends Controller
 
 	public function labelsImport(Request $request)
 	{
-		$data = ['language_id' => $request->language_id];
-		Label::where('language_id',$request->language_id)->delete();
+		if($request->language_id)
+		{
+			$language =  Language::find($request->language_id);
+            $language->title                = $request->language_title;
+            $language->value                = $request->language_value;
+            $language->save();
+		}
+        else
+        {
+            $language = new Language;
+            $language->title                = $request->language_title;
+            $language->value                = $request->language_value;
+            $language->status               = 1;
+            $language->save();
+        }
+		$data = ['language_id' => $language->id];
+		Label::where('language_id',$language->id)->delete();
 		$import = Excel::import(new LabelsImport($data),request()->file('file'));
 
 		return prepareResult(true,getLangByLabelGroups('Label','message_import') ,[], config('httpcodes.success'));

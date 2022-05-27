@@ -169,6 +169,7 @@ class CompanyAccountController extends Controller
             $user->is_seasonal = ($request->is_seasonal) ? 1:0 ;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->documents = $request->documents;
             $user->save();
 
 
@@ -350,6 +351,7 @@ class CompanyAccountController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->contact_person_name;
+            $user->documents = $request->documents;
             $user->save();
             if(!empty($request->package_id)){
                 $validator = Validator::make($request->all(),[ 
@@ -433,7 +435,8 @@ class CompanyAccountController extends Controller
     {
         try 
         { 
-            $date = date('Y-m-d',strtotime('-'."$request->data_of" ));
+            $data_of = !empty($request->data_of) ? $request->data_of : 7;
+            $date = date('Y-m-d',strtotime('-'. $data_of));
             // for($i=$request->data_of; $i>=1; $i--)
             // {
             //     $dates['dates'][] = date('Y-m-d',strtotime('-'.$i.' day'));
@@ -446,7 +449,7 @@ class CompanyAccountController extends Controller
                 return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $data = [];
-            for($i=$request->data_of; $i>=0; $i--)
+            for($i=$data_of; $i>=0; $i--)
             {
                 $date = date('Y-m-d',strtotime('-'.$i.' day'));
                 $previous_date = date('Y-m-d',strtotime('-'.($i + 1).' day'));

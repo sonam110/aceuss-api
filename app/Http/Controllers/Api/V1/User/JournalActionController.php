@@ -28,29 +28,14 @@ class JournalActionController extends Controller
       
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
             $query = JournalAction::with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name');
-            
-
-            if($user->user_type_id =='2'){
-                
-                $query = $query->orderBy('id','DESC');
-            } else{
-                $query =  $query->whereIn('branch_id',$allChilds);
-            }
             $whereRaw = $this->getWhereRawFromRequest($request);
 
             if($whereRaw != '') { 
                 $query =  $query->whereRaw($whereRaw)
                  ->orderBy('id', 'DESC');
-                
-               
-            } else {
-                $query = $query->orderBy('id', 'DESC');
-                
             }
+            $query = $query->orderBy('id', 'DESC');
 
             if(!empty($request->journal_id))
             {
