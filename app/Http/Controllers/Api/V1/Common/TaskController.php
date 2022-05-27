@@ -636,7 +636,7 @@ class TaskController extends Controller
         try {
             $user = getUser();
             $validator = Validator::make($request->all(),[
-                'task_id' => 'required|exists:activities,id',   
+                'task_id' => 'required|exists:tasks,id',   
                 'status'     => 'required|in:1,2,3',  
             ]);
             if ($validator->fails()) {
