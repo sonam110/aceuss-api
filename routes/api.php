@@ -101,7 +101,11 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			/*-------------Label------------------------*/
 			Route::post('labels', [App\Http\Controllers\Api\V1\Admin\LabelController::class, 'labels']);
 			Route::apiResource('label',Admin\LabelController::class)->only(['store','destroy','show', 'update']);
-			Route::post('/labels-import', [App\Http\Controllers\API\V1\Admin\LabelController::class, 'labelsImport']);
+			Route::post('/labels-import', [App\Http\Controllers\Api\V1\Admin\LabelController::class, 'labelsImport']);
+			Route::post('/labels-export', [App\Http\Controllers\Api\V1\Admin\LabelController::class, 'labelsExport']);
+
+			/*----------------------Language------------------*/
+			Route::apiResource('language',Admin\LanguageController::class)->only(['store','destroy','show', 'update','index']);
 
 
 			Route::post('assigne-package', 'Admin\ModuleController@assigenPackage');

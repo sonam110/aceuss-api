@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Admin;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Language;
@@ -24,21 +24,34 @@ class LanguageController extends Controller
 
     public function index(Request $request)
     {
-        try
-        {
-            if(!empty($request->per_page_record))
+    	try{
+
+            $query = Language::orderBy('id', 'DESC');
+            if(!empty($request->perPage))
             {
-                $languages = Language::simplePaginate($request->per_page_record)->appends(['per_page_record' => $request->per_page_record]);
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Language List",$pagination,config('httpcodes.success'));
             }
             else
             {
-                $languages = Language::get();
+                $query = $query->get();
             }
-            return response(prepareResult(false, LanguageResource::collection($languages), getLangByLabelGroups('messages','message_language_list')), config('http_response.success'));
+            return prepareResult(true,"Language List",$query,config('httpcodes.success'));
         }
-        catch (\Throwable $exception) 
-        {
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
         }
     }
 
@@ -50,32 +63,37 @@ class LanguageController extends Controller
      */
 
     public function store(Request $request)
-    {        
-        $validation = Validator::make($request->all(), [
-            'title'  => 'required'
-        ]);
+    { 
+    	$validation = \Validator::make($request->all(), [
+    		'title'      => 'required',
+    	]);
 
-        if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_validation')), config('http_response.bad_request'));
-        }
+    	if ($validation->fails()) {
+    		return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+    	}
 
-        DB::beginTransaction();
-        try
-        {
-            $language = new Language;
-            $language->title               	= $request->title;
-            $language->value         		= $request->value;
-            $language->status               = $request->status;
-            $language->direction      		= $request->direction;
-            $language->save();
-            DB::commit();
-            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_created')), config('http_response.created'));
-        }
-        catch (\Throwable $exception)
-        {
-        	DB::rollback();
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
-        }
+    	DB::beginTransaction();
+    	try 
+    	{
+    		$count = Language::where('title',$request->title)->where('value',$request->value)->count();
+    		if($count>=1)
+    		{
+    			return prepareResult(false,getLangByLabelGroups('Language','message_Dublicate Entry'), [],config('httpcodes.not_found'));
+
+    		}
+    		$language = new Language;
+    		$language->title                = $request->title;
+    		$language->value                = $request->value;
+    		$language->status               = $request->status;
+    		$language->entry_mode           = $request->entry_mode;
+    		$language->save();
+    		DB::commit();
+    		return prepareResult(true,getLangByLabelGroups('Language','message_create') ,$language, config('httpcodes.success'));
+    	} catch (\Throwable $exception) {
+    		\Log::error($exception);
+    		DB::rollback();
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+    	}
     }
 
     /**
@@ -86,7 +104,7 @@ class LanguageController extends Controller
      */
     public function show(Language $language)
     {
-        return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_list')), config('http_response.success'));
+    	return prepareResult(true,getLangByLabelGroups('Language','message_language_create') ,$language, config('httpcodes.success'));
     }
 
     /**
@@ -99,30 +117,29 @@ class LanguageController extends Controller
     
     public function update(Request $request,Language $language)
     {
-        $validation = Validator::make($request->all(), [
-            'title' => 'required'
-        ]);
+    	$validation = \Validator::make($request->all(), [
+    		'title'      => 'required',
+    	]);
 
-        if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_validation')), config('http_response.bad_request'));
-        }
+    	if ($validation->fails()) {
+    		return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+    	}
 
-        DB::beginTransaction();
-        try
-        {
-            $language->title               	= $request->title;
-            $language->value         		= $request->value;
-            $language->status      			= $request->status;
-            $language->direction            = $request->direction;
-            $language->save();
-            DB::commit();
-            return response()->json(prepareResult(false, new LanguageResource($language), getLangByLabelGroups('messages','message_language_updated')), config('http_response.success'));
-        }
-        catch (\Throwable $exception)
-        {
-        	DB::rollback();
-            return response()->json(prepareResult(true, $exception->getMessage(), getLangByLabelGroups('messages','message_error')), config('http_response.internal_server_error'));
-        }
+    	DB::beginTransaction();
+    	try 
+    	{
+    		$language->title                = $request->title;
+    		$language->value                = $request->value;
+    		$language->status               = $request->status;
+    		$language->entry_mode           = $request->entry_mode;
+    		$language->save();
+    		DB::commit();
+    		return prepareResult(true,getLangByLabelGroups('Language','message_language_update') ,$language, config('httpcodes.success'));
+    	} catch (\Throwable $exception) {
+    		\Log::error($exception);
+    		DB::rollback();
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+    	}
     }
 
     /**
@@ -134,23 +151,24 @@ class LanguageController extends Controller
      */
     public function destroy(Language $language)
     {
-        if($language->title == 'english')
-        {
-            return response()->json(prepareResult(true, ['English language can not be deleted'], getLangByLabelGroups('messages','message_language_cannot_be_deleted')), config('http_response.success'));
-        }
-        else
-        {  
-            Label::where('language_id',$language->id)->delete();
-            $language->delete();
-        }
+    	try 
+    	{
+    		if($language->title == 'english')
+    		{
+    			return prepareResult(true,getLangByLabelGroups('Language','message_language_cannot_be_deleted') ,['English language can not be deleted'], config('httpcodes.success'));
+    		}
+    		else
+    		{  
+    			Label::where('language_id',$language->id)->delete();
+    			$language->delete();
+    		}
 
-        return response()->json(prepareResult(false, [], getLangByLabelGroups('messages','message_language_deleted')), config('http_response.success'));
+    		return prepareResult(true,getLangByLabelGroups('Language','message_language_deleted') ,[], config('httpcodes.success'));
+    	} catch (\Throwable $exception) {
+    		\Log::error($exception);
+    		DB::rollback();
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+    	}
     }
 
-    public function languagesImport(Request $request)
-    {
-        $import = Excel::import(new LanguagesImport(),request()->file('file'));
-
-        return response(prepareResult(false, [], getLangByLabelGroups('messages','messages_languages_imported')), config('http_response.success'));
-    }
 }

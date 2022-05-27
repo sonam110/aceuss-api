@@ -29,32 +29,54 @@ class ManageLicenceController extends Controller
         $this->middleware('permission:licences-delete', ['only' => ['destroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
 
-            $query = LicenceKeyManagement::orderBy('id', 'DESC');
-            if(!empty($request->perPage))
-            {
-                $perPage = $request->perPage;
-                $page = $request->input('page', 1);
-                $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+            $query = LicenceKeyManagement::orderBy('id', 'DESC')->get();
+            $data = [];
+            foreach ($query as $key => $value) {
+                $modules = json_decode($value->module_attached);
+                foreach ($modules as $key => $module) {
+                    $mod[] = Module::find($module);
+                }
+                $value['company']=User::find($value->top_most_parent_id);
+                $value['package']=json_decode($value->package_details);
+                $value['module'] = $mod;
+                $data[] = $value;
+            }
+            // if(!empty($request->perPage))
+            // {
+            //     $perPage = $request->perPage;
+            //     $page = $request->input('page', 1);
+            //     $total = $query->count();
+            //     $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
-                $pagination =  [
-                    'data' => $result,
-                    'total' => $total,
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'last_page' => ceil($total / $perPage)
-                ];
-                return prepareResult(true,"Licence Key list",$pagination,config('httpcodes.success'));
+            //     $pagination =  [
+            //         'data' => $result,
+            //         'total' => $total,
+            //         'current_page' => $page,
+            //         'per_page' => $perPage,
+            //         'last_page' => ceil($total / $perPage)
+            //     ];
+            //     return prepareResult(true,"Licence Key list",$pagination,config('httpcodes.success'));
+            // }
+            // else
+            // {
+            //     $query = $query->get();
+            // }
+            $data = [];
+            foreach ($query as $key => $value) {
+                $modules = json_decode($value->module_attached);
+                foreach ($modules as $key => $module) {
+                    $mod[] = Module::find($module);
+                }
+                $value['company']=User::find($value->top_most_parent_id);
+                $value['package']=json_decode($value->package_details);
+                $value['module'] = $mod;
+                $data[] = $value;
             }
-            else
-            {
-                $query = $query->get();
-            }
-            return prepareResult(true,"Licence Key list",$query,config('httpcodes.success'));
+            return prepareResult(true,"Licence Key list",$data,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\Admin;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Label;
@@ -11,6 +11,7 @@ use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LabelsImport;
 use App\Models\Language;
+use App\Exports\LabelsExport;
 
 class LabelController extends Controller
 {
@@ -222,4 +223,14 @@ class LabelController extends Controller
 
 		return prepareResult(true,getLangByLabelGroups('Label','message_import') ,[], config('httpcodes.success'));
 	}
+
+	public function labelsExport(Request $request) 
+    {
+        $rand = rand(1,9);
+        
+        $excel = Excel::store(new LabelsExport(), 'export/'.$rand.'.csv' , 'export_path');
+        
+        return prepareResult(true,getLangByLabelGroups('Label','message_label_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.csv'], config('httpcodes.success'));
+         
+    }
 }

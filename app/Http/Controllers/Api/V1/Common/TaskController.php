@@ -102,9 +102,10 @@ class TaskController extends Controller
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
                 $taskCounts->where(function ($q) use ($user) {
-                    $q->where('tasks.patient_id', $user->id)
-                        ->orWhere('tasks.patient_id', $user->parent_id);
-                });
+                    $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.resource_id', $user->parent_id);
+                })
+                ->where('type_id', 7);
             }
 
             if(!empty($request->type_id))
@@ -283,6 +284,7 @@ class TaskController extends Controller
                                         ->where('user_id', auth()->id())->first();
                                     if(!$checkEntry)
                                     {
+                                        $taskAssign = new AssignTask;
                                         $taskAssign->task_id = $task->id;
                                         $taskAssign->user_id = auth()->id();
                                         $taskAssign->assignment_date = date('Y-m-d');
@@ -304,6 +306,7 @@ class TaskController extends Controller
             }
         }
         catch(Exception $exception) {
+            \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

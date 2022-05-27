@@ -113,15 +113,6 @@ class StatisticsActivityController extends Controller
                     \DB::raw('COUNT(IF(selected_option = "not-done-by-employee", 0, NULL)) as total_not_done_by_employee'),
                 ]);
 
-                if(in_array($user->user_type_id, [2,3,4,5,11]))
-                {
-
-                }
-                else
-                {
-                    $query = $query->where('is_secret', '!=', 1);
-                }
-
                 if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
                 {
                     $query->where(function ($q) use ($user) {
@@ -236,15 +227,6 @@ class StatisticsActivityController extends Controller
                     \DB::raw('COUNT(IF(goal IS NOT NULL, 0, NULL)) as total_goal'),
                     \DB::raw('COUNT(IF(sub_goal IS NOT NULL, 0, NULL)) as total_sub_goal'),
                 ]);
-
-                if(in_array($user->user_type_id, [2,3,4,5,11]))
-                {
-
-                }
-                else
-                {
-                    $query = $query->where('is_secret', '!=', 1);
-                }
 
                 if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
                 {

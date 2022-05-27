@@ -71,11 +71,31 @@ class NoAuthController extends Controller
         }
     }
 
-    public function getLanguages()
+    public function getLanguages(Request $request)
     {
         try{
-            $query = Language::get();
 
+            $query = Language::orderBy('id', 'DESC');
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Language List",$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
             return prepareResult(true,"Language List",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
