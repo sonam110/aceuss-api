@@ -33,39 +33,42 @@ class ManageLicenceController extends Controller
     {
         try {
 
-            $query = LicenceKeyManagement::orderBy('id', 'DESC')->get();
-            $data = [];
-            foreach ($query as $key => $value) {
-                $modules = json_decode($value->module_attached);
-                foreach ($modules as $key => $module) {
-                    $mod[] = Module::find($module);
+            $query = LicenceKeyManagement::orderBy('id', 'DESC');
+            
+            if(!empty($request->perPage))
+            {
+                $data = [];
+                foreach ($query as $key => $value) {
+                    $modules = json_decode($value->module_attached);
+                    foreach ($modules as $key => $module) {
+                        $mod[] = Module::find($module);
+                    }
+                    $value['company']=User::find($value->top_most_parent_id);
+                    $value['package']=json_decode($value->package_details);
+                    $value['module'] = $mod;
+                    $data[] = $value;
                 }
-                $value['company']=User::find($value->top_most_parent_id);
-                $value['package']=json_decode($value->package_details);
-                $value['module'] = $mod;
-                $data[] = $value;
-            }
-            // if(!empty($request->perPage))
-            // {
-            //     $perPage = $request->perPage;
-            //     $page = $request->input('page', 1);
-            //     $total = $query->count();
-            //     $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
-            //     $pagination =  [
-            //         'data' => $result,
-            //         'total' => $total,
-            //         'current_page' => $page,
-            //         'per_page' => $perPage,
-            //         'last_page' => ceil($total / $perPage)
-            //     ];
-            //     return prepareResult(true,"Licence Key list",$pagination,config('httpcodes.success'));
-            // }
-            // else
-            // {
-            //     $query = $query->get();
-            // }
-            $data = [];
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Licence Key list",$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
+
+
+            /*$data = [];
             foreach ($query as $key => $value) {
                 $modules = json_decode($value->module_attached);
                 foreach ($modules as $key => $module) {
@@ -75,7 +78,7 @@ class ManageLicenceController extends Controller
                 $value['package']=json_decode($value->package_details);
                 $value['module'] = $mod;
                 $data[] = $value;
-            }
+            }*/
             return prepareResult(true,"Licence Key list",$data,config('httpcodes.success'));
         }
         catch(Exception $exception) {
