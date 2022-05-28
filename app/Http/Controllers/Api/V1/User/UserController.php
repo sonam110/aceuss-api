@@ -58,7 +58,7 @@ class UserController extends Controller
                 DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
                 DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
             ->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
-            if(in_array($user->user_type_id, [1,2,3,4,5,11]))
+            if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
             {
 
             }
