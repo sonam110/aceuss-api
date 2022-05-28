@@ -141,7 +141,7 @@ class ManageLicenceController extends Controller
                 $createLicHistory->created_by = auth()->id();
                 $createLicHistory->license_key = $request->license_key;
                 $createLicHistory->active_from = date('Y-m-d');
-                $createLicHistory->expire_at = $package_expire_at;
+                $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : null;
                 $createLicHistory->package_details = $package;
                 $createLicHistory->save();
