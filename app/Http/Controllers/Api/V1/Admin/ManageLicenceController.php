@@ -307,7 +307,7 @@ class ManageLicenceController extends Controller
                     }
                 }
 
-                User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status' => 1]);
+                User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status'=>1, 'license_key'=>$licenceKeyData->license_key,'license_end_date'=>$package_expire_at]);
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {

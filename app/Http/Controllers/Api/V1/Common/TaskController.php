@@ -11,6 +11,8 @@ use Auth;
 use Exception;
 use DB;
 use Carbon\Carbon;
+use App\Models\EmailTemplate;
+use App\Models\User;
 
 class TaskController extends Controller
 {
@@ -306,6 +308,34 @@ class TaskController extends Controller
 						}
 					}
 				}
+
+                /*-----------Send notification---------------------*/
+
+                $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$branch_id)->first();
+                $module =  "task";
+                $data_id =  "";
+                $screen =  "list";
+
+                $title  = false;
+                $body   = false;
+                $getMsg = EmailTemplate::where('mail_sms_for', 'task-create')->first();
+                $companyObj = companySetting($user->top_most_parent_id);
+                if($getMsg)
+                {
+                    $body = $getMsg->notify_body;
+                    $title = $getMsg->mail_subject;
+                    $arrayVal = [
+                        '{{name}}'              => $user->name,
+                        '{{email}}'             => $user->email,
+                        '{{title}}'             => $title,
+                        '{{company_name}}'      => $companyObj['company_name'],
+                        '{{company_address}}'   => $companyObj['company_address'],
+                    ];
+                    $body = strReplaceAssoc($arrayVal, $body);
+                    $title = strReplaceAssoc($arrayVal, $title);
+                }
+
+                actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();

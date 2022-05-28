@@ -195,6 +195,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	   	Route::post('users', [App\Http\Controllers\Api\V1\User\UserController::class, 'users']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
 
+	   	Route::get('get-licence-status', [App\Http\Controllers\Api\V1\User\UserController::class, 'getLicenceStatus']);
+
 		/*-------------Branch -------------------*/
 		Route::apiResource('branch', User\BranchController::class)->only(['store','update']);
 		/*-------------work shift ------------------------*/
