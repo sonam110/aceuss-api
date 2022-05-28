@@ -15,11 +15,11 @@ class ParagraphController extends Controller
     public function __construct()
     {
 
-        $this->middleware('permission:paragraphs-browse',['except' => ['show']]);
+        /*$this->middleware('permission:paragraphs-browse',['except' => ['show']]);
         $this->middleware('permission:paragraphs-add', ['only' => ['store']]);
         $this->middleware('permission:paragraphs-edit', ['only' => ['update']]);
         $this->middleware('permission:paragraphs-read', ['only' => ['show']]);
-        $this->middleware('permission:paragraphs-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:paragraphs-delete', ['only' => ['destroy']]);*/
         
     }
     public function paragraphs(Request $request)

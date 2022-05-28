@@ -15,11 +15,11 @@ class WordController extends Controller
     public function __construct()
     {
 
-        $this->middleware('permission:words-browse',['except' => ['show']]);
+        /*$this->middleware('permission:words-browse',['except' => ['show']]);
         $this->middleware('permission:words-add', ['only' => ['store']]);
         $this->middleware('permission:words-edit', ['only' => ['update']]);
         $this->middleware('permission:words-read', ['only' => ['show']]);
-        $this->middleware('permission:words-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:words-delete', ['only' => ['destroy']]);*/
         
     }
     public function words(Request $request)
