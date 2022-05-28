@@ -160,7 +160,7 @@ class AdminFileController extends Controller
             $fileAccessLog->admin_file_id = $request->admin_file_id; 
             $fileAccessLog->user_id = auth()->id(); 
             $fileAccessLog->save(); 
-            return prepareResult(false, 'File access log added',[], config('httpcodes.internal_server_error'));
+            return prepareResult(true, 'File access log added',[], config('httpcodes.internal_server_error'));
             
         }
         catch(Exception $exception) {
