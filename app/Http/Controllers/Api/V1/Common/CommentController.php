@@ -10,6 +10,9 @@ use Exception;
 use DB;
 use Carbon\Carbon;
 use App\Models\Comment;
+use App\Models\Activity;
+use App\Models\EmailTemplate;
+use App\Models\User;
 
 class CommentController extends Controller
 {
@@ -42,7 +45,7 @@ class CommentController extends Controller
             $addComment['total_comment'] = $getCommentInfo;
 
 
-            if($request->source_name == 'activity')
+            if($request->source_name == 'Activity')
             {
                 /*-----------Send notification---------------------*/
 
@@ -56,7 +59,6 @@ class CommentController extends Controller
                 $body   = false;
                 $getMsg = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
                 $companyObj = companySetting($user->top_most_parent_id);
-
                 if($getMsg)
                 {
                     $body = $getMsg->notify_body;
@@ -68,13 +70,13 @@ class CommentController extends Controller
                         '{{patient_id}}'        => $activity->Patient ? $activity->Patient->unique_id : null,
                         '{{start_date}}'        => $activity->start_date,
                         '{{start_time}}'        => $activity->start_time,
-                        '{{company_name}}'      => $companyObj->company_name,
-                        '{{company_address}}'   => $companyObj->company_address,
+                        '{{company_name}}'      => $companyObj['company_name'],
+                        '{{company_address}}'   => $companyObj['company_address'],
                     ];
                     $body = strReplaceAssoc($arrayVal, $body);
                     $title = strReplaceAssoc($arrayVal, $title);
                 }
-                
+
                 actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
 
             }

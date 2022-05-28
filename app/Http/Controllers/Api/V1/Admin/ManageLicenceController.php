@@ -55,10 +55,15 @@ class ManageLicenceController extends Controller
                 $query = $query->where('is_used', 0);
             }
 
-            // if(!empty($request->packaget_id))
-            // {
-            //     $query->where('packaget_id', $request->packaget_id);
-            // }
+            if(!empty($request->active_from))
+            {
+                $query->where('active_from','>=', $request->active_from);
+            }
+
+            if(!empty($request->expire_at))
+            {
+                $query->where('expire_at','<=', $request->expire_at);
+            }
             
             if(!empty($request->perPage))
             {
@@ -71,6 +76,7 @@ class ManageLicenceController extends Controller
                 $data = [];
                 foreach ($result as $key => $value) {
                     $modules = json_decode($value->module_attached);
+                    $mod = [];
                     foreach ($modules as $key => $module) {
                         $mod[] = Module::find($module);
                     }
@@ -146,7 +152,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt->created_by = auth()->id();
                 $keyMgmt->license_key = $request->license_key;
                 $keyMgmt->active_from = date('Y-m-d');
-                $keyMgmt->expire_at = $package_expire_at;
+                $keyMgmt->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : null;
                 $keyMgmt->package_details = $package;
                 $keyMgmt->is_used = false;
@@ -213,7 +219,7 @@ class ManageLicenceController extends Controller
                 $createLicHistory->created_by = auth()->id();
                 $createLicHistory->license_key = $licenceKeyData->license_key;
                 $createLicHistory->active_from = date('Y-m-d');
-                $createLicHistory->expire_at = $package_expire_at;
+                $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
                 $createLicHistory->package_details = $package;
                 $createLicHistory->save();
@@ -277,6 +283,15 @@ class ManageLicenceController extends Controller
                 $packageSubscribe->status = 1;
                 $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $packageSubscribe->save();
+
+                // if($request->modules)
+                // {
+                //     $modules_attached = $request->modules;
+                // }
+                // else
+                // {
+                //     $modules_attached = json_decode($licenceKeyData->module_attached);
+                // }
 
                 $modules_attached = json_decode($licenceKeyData->module_attached);
 
