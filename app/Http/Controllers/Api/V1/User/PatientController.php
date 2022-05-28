@@ -113,7 +113,7 @@ class PatientController extends Controller
 
             if(!empty($request->patient_id))
             {
-                $query->where('patient_implementation_plans.patient_id', $request->patient_id);
+                $query->where('patient_implementation_plans.user_id', $request->patient_id);
             }
 
             if(!empty($request->status))

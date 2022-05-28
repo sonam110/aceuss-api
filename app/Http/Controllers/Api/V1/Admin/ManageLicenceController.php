@@ -233,7 +233,6 @@ class ManageLicenceController extends Controller
                 $keyMgmt->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
                 $keyMgmt->package_details = $package;
-                $keyMgmt->is_used = false;
                 $keyMgmt->save();
 
             DB::commit();

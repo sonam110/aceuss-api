@@ -64,8 +64,8 @@ function getTopParent($id) {
 function findTopParentId($parent_id) {
 
     if(is_null($parent_id) == false ){
-        $parent = Department::find($parent_id)->parent_id;
-        return $parent ? findTopParentId($parent) : $parent_id;
+        $parent = Department::find($parent_id);
+        return $parent ? findTopParentId($parent->parent_id) : $parent_id;
     }else {
         return $parent_id;
     }
