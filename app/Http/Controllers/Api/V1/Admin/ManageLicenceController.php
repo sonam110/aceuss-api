@@ -219,7 +219,7 @@ class ManageLicenceController extends Controller
                 $createLicHistory->created_by = auth()->id();
                 $createLicHistory->license_key = $licenceKeyData->license_key;
                 $createLicHistory->active_from = date('Y-m-d');
-                $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;;
+                $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
                 $createLicHistory->package_details = $package;
                 $createLicHistory->save();
@@ -230,7 +230,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt->created_by = auth()->id();
                 $keyMgmt->license_key = $licenceKeyData->license_key;
                 $keyMgmt->active_from = date('Y-m-d');
-                $keyMgmt->expire_at = $package_expire_at;
+                $keyMgmt->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
                 $keyMgmt->package_details = $package;
                 $keyMgmt->save();
