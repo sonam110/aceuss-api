@@ -34,11 +34,42 @@ class ManageLicenceController extends Controller
         try {
 
             $query = LicenceKeyManagement::orderBy('id', 'DESC');
+
+            if(!empty($request->user_id))
+            {
+                $query->where('top_most_parent_id', $request->user_id);
+            }
+
+            if(!empty($request->licence_key))
+            {
+                $query->where('licence_key', $request->licence_key);
+            }
+
+            if($request->is_used == "1")
+            {
+                $query = $query->where('is_used', 1);
+            }
+
+            if($request->is_used == "0")
+            {
+                $query = $query->where('is_used', 0);
+            }
+
+            // if(!empty($request->packaget_id))
+            // {
+            //     $query->where('packaget_id', $request->packaget_id);
+            // }
             
             if(!empty($request->perPage))
             {
+                
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
                 $data = [];
-                foreach ($query as $key => $value) {
+                foreach ($result as $key => $value) {
                     $modules = json_decode($value->module_attached);
                     foreach ($modules as $key => $module) {
                         $mod[] = Module::find($module);
@@ -48,13 +79,9 @@ class ManageLicenceController extends Controller
                     $value['module'] = $mod;
                     $data[] = $value;
                 }
-                $perPage = $request->perPage;
-                $page = $request->input('page', 1);
-                $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
                 $pagination =  [
-                    'data' => $result,
+                    'data' => $data,
                     'total' => $total,
                     'current_page' => $page,
                     'per_page' => $perPage,
@@ -79,7 +106,7 @@ class ManageLicenceController extends Controller
                 $value['module'] = $mod;
                 $data[] = $value;
             }*/
-            return prepareResult(true,"Licence Key list",$data,config('httpcodes.success'));
+            return prepareResult(true,"Licence Key list",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -138,6 +165,13 @@ class ManageLicenceController extends Controller
     {
         try {
             $checkId= LicenceKeyManagement::where('id',$id)->first();
+            $modules = json_decode($checkId->module_attached);
+            foreach ($modules as $key => $module) {
+                $mod[] = Module::find($module);
+            }
+            $checkId['company']=User::find($checkId->top_most_parent_id);
+            $checkId['package']=json_decode($checkId->package_details);
+            $checkId['module'] = $mod;
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('LicenceKey','message_id_not_found'), [],config('httpcodes.not_found'));
             }

@@ -40,6 +40,44 @@ class CommentController extends Controller
                 ->where('source_name', $request->source_name)
                 ->count();
             $addComment['total_comment'] = $getCommentInfo;
+
+
+            if($request->source_name == 'activity')
+            {
+                /*-----------Send notification---------------------*/
+
+                $activity = Activity::find($request->source_id);
+                $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
+                $module =  "comment";
+                $data_id =  $addComment->id;
+                $screen =  "details";
+
+                $title  = false;
+                $body   = false;
+                $getMsg = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
+                $companyObj = companySetting($user->top_most_parent_id);
+
+                if($getMsg)
+                {
+                    $body = $getMsg->notify_body;
+                    $title = $getMsg->mail_subject;
+                    $arrayVal = [
+                        '{{name}}'              => $user->name,
+                        '{{email}}'             => $user->email,
+                        '{{title}}'             => $title,
+                        '{{patient_id}}'        => $activity->Patient ? $activity->Patient->unique_id : null,
+                        '{{start_date}}'        => $activity->start_date,
+                        '{{start_time}}'        => $activity->start_time,
+                        '{{company_name}}'      => $companyObj->company_name,
+                        '{{company_address}}'   => $companyObj->company_address,
+                    ];
+                    $body = strReplaceAssoc($arrayVal, $body);
+                    $title = strReplaceAssoc($arrayVal, $title);
+                }
+                
+                actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+
+            }
 		
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$addComment, config('httpcodes.success'));
         }
