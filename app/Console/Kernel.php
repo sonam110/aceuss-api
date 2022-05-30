@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('licence:expire')->dailyAt('00:01');
         $schedule->command('send:activity-notification')->dailyAt('00:01');
         $schedule->command('send:task-notification')->dailyAt('00:01');
+        $schedule->command('websockets:clean')->daily();
     }
 
     protected function commands()

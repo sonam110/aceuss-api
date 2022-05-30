@@ -14,11 +14,11 @@ class BankIdVerified implements ShouldBroadcast
 {
     use SerializesModels;
 
-    public string $message;
+    public $data;
 
-    public function __construct(string $message)
+    public function __construct($data)
     {
-        $this->message = $message;
+        $this->data = $data;
     }
 
     public function broadcastOn()

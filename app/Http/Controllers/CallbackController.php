@@ -97,7 +97,12 @@ class CallbackController extends Controller
 
     public function checkEvent()
     {
-        $data = 'Ashok Sahu: '. time();
+        $data = [
+            "module" => 'Activity',
+            "user_id" => 1,
+            "message" => 'test message',
+            "message_type" => 'success',
+        ];
         \broadcast(new BankIdVerified($data));
         //event(new BankIdVerified('Hello World'));
         return 'Success';

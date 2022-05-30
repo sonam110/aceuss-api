@@ -94,7 +94,7 @@ class UserLoginController extends Controller
                                     }
                                 }
                         
-                                $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email')->first();    
+                                $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','language:id,title,value')->first();    
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;
@@ -535,6 +535,17 @@ class UserLoginController extends Controller
                 
         }
         
+    }
+
+    public function changeLanguage(Request $request)
+    {
+        $user = Auth::user();
+        if($user)
+        {
+            $user->language_id   = $request->language_id;
+            $user->save();
+        }
+        return prepareResult(true, 'language added',$user,config('httpcodes.success'));
     }
     
 }

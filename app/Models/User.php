@@ -41,6 +41,7 @@ use App\Models\Deviation;
 use App\Models\Bookmark;
 use App\Models\ActivityAssigne;
 use App\Models\AssignTask;
+use App\Models\Language;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
 
@@ -108,6 +109,7 @@ class User extends Authenticatable
         'step_five',
         'entry_mode',
         'contact_person_name',
+        'language_id'
     ];
 
     /**
@@ -146,6 +148,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UserType::class,'user_type_id','id');
     }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class,'language_id','id');
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class,'role_id','id');

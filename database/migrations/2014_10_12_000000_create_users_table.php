@@ -76,6 +76,7 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('step_five')->default(0)->comment('0:Pending,1:Partial Completed,2:Completed');
             $table->string('entry_mode')->nullable();
             $table->string('contact_person_name')->nullable();
+            $table->integer('language_id')->default(1)->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

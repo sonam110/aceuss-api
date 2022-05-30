@@ -134,11 +134,23 @@ function getChildren($parent_id)
     return $count;
 }
 
-
+function getUserLanguage()
+{
+    $getLang = env('APP_DEFAULT_LANGUAGE', '1');
+    if(Auth::check())
+    {
+        $getLang = Auth::user()->language_id;
+        if(empty($getLang))
+        {
+            $getLang = env('APP_DEFAULT_LANGUAGE', '1');
+        }
+    }
+    return $getLang;
+}
 
 function getLangByLabelGroups($groupName,$label_name)
 {
-    $lang = env('APP_DEFAULT_LANGUAGE',1);
+    $lang = getUserLanguage();
     $getGroup = Group::select('id')
     ->with(['LabelGroups' => function($q) use ($lang, $label_name) {
         $q->select('id','group_id','label_value')
@@ -147,6 +159,17 @@ function getLangByLabelGroups($groupName,$label_name)
     }])
     ->where('name', $groupName)
     ->first();
+    if(!$getGroup)
+    {
+        $getGroup = Group::select('id')
+        ->with(['LabelGroups' => function($q) use ($lang, $label_name) {
+            $q->select('id','group_id','label_value')
+            ->where('language_id', 1)
+            ->where('label_name', $label_name);
+        }])
+        ->where('name', $groupName)
+        ->first();
+    }
     $data = @$getGroup->LabelGroups;
     return @$data['label_value'];
 }

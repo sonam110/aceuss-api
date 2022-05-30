@@ -132,6 +132,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		});
 
+		Route::get('change-language/{language_id}', [App\Http\Controllers\Api\V1\Common\UserLoginController::class, 'changeLanguage']);
+
 		//messages
     	Route::post('get-users', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getUsers']);
     	Route::post('get-messages', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getMessages']);

@@ -136,7 +136,9 @@
         </script> -->
         <script>
             Echo.channel('bank-id-verified')
-                .listen('BankIdVerified', (e) => console.log('BankIdVerified: ' + e.message));
+                .listen('BankIdVerified', (e) => {
+                    console.log(e.data.message);
+                });
         </script>
     </body>
 </html>
