@@ -736,7 +736,7 @@ class TaskController extends Controller
 
             $receivers_ids = array_filter(array_unique($receivers_ids));
 
-            $module =  "activity";
+            $module =  "task";
             $data_id =  $task->id;
             $screen =  "detail";
 
