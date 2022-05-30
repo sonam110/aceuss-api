@@ -83,12 +83,73 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "";
         $smsTemplate->save();
 
+
+        /*-------------------------Added by khushboo------------------------*/
+
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'activity-assignment';
-        $smsTemplate->mail_subject = 'Activity Assigned';
+        $smsTemplate->mail_subject = 'New Activity Assigned';
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
-        $smsTemplate->custom_attributes = "";
+        $smsTemplate->notify_body = "Dear {{name}}, New Activity {{activity_title}} starts at {{start_date}}   {{start_time}}  is assigned to you  by {{assigned_by}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}},{{assigned_by}}";
         $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'activity-action';
+        $smsTemplate->mail_subject = 'Activity Action Performed';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Action {{action}} is performed on Activity {{activity_title}}   starts at {{start_date}} {{start_time}} by {{action_by}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{start_date}}, {{start_time}}, {{action_by}}, {{activity_title}}, {{action}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'activity-comment';
+        $smsTemplate->mail_subject = 'Activity comment posted';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, comment is posted on Activity {{activity_title}} by {{comment_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{activity_title}}},{{comment_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'journal';
+        $smsTemplate->mail_subject = 'Journal Created';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, New Journal is created by {{created_by}";
+        $smsTemplate->custom_attributes = "{{name}},{{created_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'deviation';
+        $smsTemplate->mail_subject = 'Deviation Created';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, New Deviation is created by {{created_by}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{created_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'task-created-assigned';
+        $smsTemplate->mail_subject = 'Task Created And Assigned';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, New Tasks {{task_title}} is  created and assigned successfully.";
+        $smsTemplate->custom_attributes = "{{name}},{{task_title}}";
+        $smsTemplate->save();
+
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'task-assignment';
+        $smsTemplate->mail_subject = 'New Task Assigned';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, New Tasks {{task_title}} is  assigned to by {{assigned_by}}.";
+        $smsTemplate->custom_attributes = "{{name}},{{task_title}},{{assigned_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'task-action';
+        $smsTemplate->mail_subject = 'Task Action Performed';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Action {{action}} is performed on {{task_title}} by {{action_by}}.";
+        $smsTemplate->custom_attributes = "{{name}}, {{task_title}},{{action_by}}";
+        $smsTemplate->save();
+
     }
 }
