@@ -22,7 +22,9 @@ class LabelSeeder extends Seeder
     		"LoginValidation" => [
     			"message_email" => "The email field is required", 
     			"message_email_invalid" => "The email must be a valid email address", 
-    			"message_password" => "The password field is required.", 
+                "message_password" => "The password field is required.", 
+                "message_language_cannot_be_deleted" => "You cannot delete default languages.", 
+    			"message_language_deleted" => "Language deleted successfully.", 
     			"message_confirm_password" => "Password  and confirm password does not match.", 
     			"message_user_not_found" => "Unable to find user", 
     			"message_account_inactive" => "Your account is temparory inactive please contact to your admin",

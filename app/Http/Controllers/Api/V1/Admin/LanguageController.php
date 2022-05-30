@@ -155,7 +155,7 @@ class LanguageController extends Controller
     	{
     		if(strtolower($language->title) == 'english' || $language->id == 1)
     		{
-    			return prepareResult(false ,getLangByLabelGroups('Language','message_language_cannot_be_deleted') ,['English language can not be deleted'], config('httpcodes.success'));
+    			return prepareResult(false ,getLangByLabelGroups('LoginValidation','message_language_cannot_be_deleted') ,['English language can not be deleted'], config('httpcodes.success'));
     		}
     		else
     		{  
