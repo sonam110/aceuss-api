@@ -476,7 +476,7 @@ class ActivityController extends Controller
             								$user_type =  $getUser->user_type_id;
             								$module =  "";
             								$id =  $activityAssigne->id;
-            								$screen =  "";
+            								$screen =  "detail";
             								$companyObj = companySetting($getUser->top_most_parent_id);
             								$obj  =[
             									"type"=> 'activity',
@@ -776,7 +776,7 @@ class ActivityController extends Controller
             								$user_type =  $getUser->user_type_id;
             								$module =  "";
             								$id =  $activityAssigne->id;
-            								$screen =  "";
+            								$screen =  "detail";
             								$companyObj = companySetting($getUser->top_most_parent_id);
 
             								if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
@@ -951,7 +951,7 @@ class ActivityController extends Controller
     		$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$module =  "activity";
     		$data_id =  $activityAssigne->id;
-    		$screen =  "";
+    		$screen =  "detail";
 
     		$title 	= false;
     		$body 	= false;
@@ -1151,7 +1151,7 @@ class ActivityController extends Controller
 
     			$module =  "activity";
     			$data_id =  $activity->id;
-    			$screen =  "";
+    			$screen =  "detail";
 
     			$title  = false;
     			$body   = false;
@@ -1280,7 +1280,7 @@ class ActivityController extends Controller
             $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
             $module =  "activity";
             $data_id =  $getActivity->id;
-            $screen =  "details";
+            $screen =  "detail";
 
             $title 	= false;
             $body 	= false;

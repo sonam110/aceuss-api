@@ -53,7 +53,7 @@ class CommentController extends Controller
                 $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
                 $module =  "comment";
                 $data_id =  $addComment->id;
-                $screen =  "details";
+                $screen =  "detail";
 
                 $title  = false;
                 $body   = false;
