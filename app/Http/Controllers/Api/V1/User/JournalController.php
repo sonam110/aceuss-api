@@ -280,7 +280,6 @@ class JournalController extends Controller
             $title  = false;
             $body   = false;
             $getMsg = EmailTemplate::where('mail_sms_for', 'journal')->first();
-            $companyObj = companySetting($user->top_most_parent_id);
 
             if($getMsg)
             {
@@ -288,17 +287,11 @@ class JournalController extends Controller
                 $title = $getMsg->mail_subject;
                 $arrayVal = [
                     '{{name}}'              => $user->name,
-                    '{{email}}'             => $user->email,
-                    '{{title}}'             => $title,
-                    '{{company_name}}'      => $companyObj['company_name'],
-                    '{{company_address}}'   => $companyObj['company_address'],
+                    '{{created_by}}'        => Auth::User()->name,
                 ];
                 $body = strReplaceAssoc($arrayVal, $body);
-                $title = strReplaceAssoc($arrayVal, $title);
             }
-
-
-            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
 
             DB::commit();
 

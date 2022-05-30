@@ -35,7 +35,7 @@ class TaskController extends Controller
             $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
             $branchids = branchChilds($branch_id);
             $allChilds = array_merge($branchids,[$branch_id]);
-            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.end_date','tasks.comment','tasks.action_by')->where('is_latest_entry',1)->with('actionBy:id,name');
+            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')->where('is_latest_entry',1)->with('actionBy:id,name');
             if($user->user_type_id =='2'){
                 
                 // $query = $query->orderBy('id','DESC');
@@ -286,6 +286,30 @@ class TaskController extends Controller
         						            $taskAssign->assignment_date = date('Y-m-d');
         						            $taskAssign->assigned_by = $user->id;
         						            $taskAssign->save();
+
+                                            /*-----------Send notification---------------------*/
+
+                                            $userRec = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+                                            $module =  "task";
+                                            $data_id =  $task->id;
+                                            $screen =  "detail";
+
+                                            $title  = false;
+                                            $body   = false;
+                                            $getMsg = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
+
+                                            if($getMsg && $userRec)
+                                            {
+                                                $body = $getMsg->notify_body;
+                                                $title = $getMsg->mail_subject;
+                                                $arrayVal = [
+                                                    '{{name}}'              => $userRec->name,
+                                                    '{{assigned_by}}'       => Auth::User()->name,
+                                                    '{{task_title}}'    => $task->title
+                                                ];
+                                                $body = strReplaceAssoc($arrayVal, $body);
+                                            }
+                                            actionNotification($userRec,$title,$body,$module,$screen,$data_id,'success',1);
     						           }
                                     }
     						    }
@@ -302,6 +326,29 @@ class TaskController extends Controller
                                         $taskAssign->assignment_date = date('Y-m-d');
                                         $taskAssign->assigned_by = $user->id;
                                         $taskAssign->save();
+
+
+                                        /*-----------Send notification---------------------*/
+
+                                        $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
+                                        $module =  "task";
+                                        $data_id =  $task->id;
+                                        $screen =  "list";
+
+                                        $title  = false;
+                                        $body   = false;
+                                        $getMsg = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
+                                        if($getMsg)
+                                        {
+                                            $body = $getMsg->notify_body;
+                                            $title = $getMsg->mail_subject;
+                                            $arrayVal = [
+                                                '{{name}}'              => $user->name,
+                                                '{{task_title}}'        => $task_title,
+                                            ];
+                                            $body = strReplaceAssoc($arrayVal, $body);
+                                        }
+                                        actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
                                     }
                                 }
                             }
@@ -309,33 +356,7 @@ class TaskController extends Controller
 					}
 				}
 
-                /*-----------Send notification---------------------*/
-
-                $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$branch_id)->first();
-                $module =  "task";
-                $data_id =  "";
-                $screen =  "list";
-
-                $title  = false;
-                $body   = false;
-                $getMsg = EmailTemplate::where('mail_sms_for', 'task-create')->first();
-                $companyObj = companySetting($user->top_most_parent_id);
-                if($getMsg)
-                {
-                    $body = $getMsg->notify_body;
-                    $title = $getMsg->mail_subject;
-                    $arrayVal = [
-                        '{{name}}'              => $user->name,
-                        '{{email}}'             => $user->email,
-                        '{{title}}'             => $title,
-                        '{{company_name}}'      => $companyObj['company_name'],
-                        '{{company_address}}'   => $companyObj['company_address'],
-                    ];
-                    $body = strReplaceAssoc($arrayVal, $body);
-                    $title = strReplaceAssoc($arrayVal, $title);
-                }
-
-                actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+                
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
@@ -660,6 +681,7 @@ class TaskController extends Controller
             
         }
     }
+    
      public function taskAction(Request $request)
     {
         DB::beginTransaction();
@@ -672,22 +694,36 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
+
+            $id = $request->task_id;
+            $task = Task::find($id);
+
+            $receivers_ids = [];
+
+            if($task->assignEmployee->count() > 0)
+            {
+                foreach ($task->assignEmployee as $key => $value) {
+                    $receivers_ids[] = $value->user_id;
+                }
+            }
+
             $is_action_perform = false;
            
             $isAssignEmp = AssignTask::where('user_id',$user->id)->where('task_id',$request->task_id)->first();
             if(is_object($isAssignEmp)){
                 $is_action_perform = true; 
+                $receivers_ids[] = $task->top_most_parent_id;
+                $receivers_ids[] = $task->branch_id;
             }
             $isBranch = Task::where('branch_id',$user->id)->where('id',$request->task_id)->first();
             if(is_object($isBranch)){
                 $is_action_perform = true; 
+                $receivers_ids[] = $task->top_most_parent_id;
             }
             if($is_action_perform == false){
                 return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
             }
-            
-            $id = $request->task_id;
-            $task = Task::find($id);
+
             $task->status = $request->status;
             $task->action_by = $user->id;
             $task->action_date = date('Y-m-d');
@@ -695,6 +731,44 @@ class TaskController extends Controller
             $task->save();
 
             $updateStatus = AssignTask::where('task_id',$request->task_id)->update(['status'=> $request->status]);
+
+            /*-----------Send notification---------------------*/
+
+            $receivers_ids = array_filter(array_unique($receivers_ids));
+
+            $module =  "activity";
+            $data_id =  $task->id;
+            $screen =  "detail";
+
+            $title  = false;
+            $body   = false;
+            $getMsg = EmailTemplate::where('mail_sms_for', 'task-action')->first();
+
+            if($request->status == 0) {
+                $action = "Marked as Done";
+                $status_code = 'warning';
+            }
+            elseif ($request->status == 1) {
+                $action = "Marked as Not Done";
+                $status_code = 'success';
+            }
+
+            foreach ($receivers_ids as $key => $value) {
+                if($getMsg)
+                {
+                    $body = $getMsg->notify_body;
+                    $title = $getMsg->mail_subject;
+                    $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+                    $arrayVal = [
+                        '{{name}}'              => $user->name,
+                        '{{action_by}}'         => Auth::User()->name,
+                        '{{action}}'            => $action,
+                        '{{task_title}}'    => $task->title
+                    ];
+                    $body = strReplaceAssoc($arrayVal, $body);
+                }
+                actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,1);
+            }
             
             DB::commit();
             $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')

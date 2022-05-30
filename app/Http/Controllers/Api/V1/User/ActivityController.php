@@ -956,7 +956,6 @@ class ActivityController extends Controller
     		$title 	= false;
     		$body 	= false;
     		$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
-    		$companyObj = companySetting($user->top_most_parent_id);
 
     		if($getMsg)
     		{
@@ -964,20 +963,15 @@ class ActivityController extends Controller
     			$title = $getMsg->mail_subject;
     			$arrayVal = [
     				'{{name}}'  			=> $user->name,
-    				'{{email}}' 			=> $user->email,
-    				'{{title}}' 			=> $title,
-    				'{{patient_id}}' 		=> $checkId->Patient ? $checkId->Patient->unique_id : null,
+    				'{{assigned_by}}' 		=> Auth::User()->name,
+    				'{{activity_title}}'	=> $checkId->title,
     				'{{start_date}}' 		=> $checkId->start_date,
-    				'{{start_time}}' 		=> $checkId->start_time,
-    				'{{company_name}}' 		=> $companyObj->company_name,
-    				'{{company_address}}' 	=> $companyObj->company_address,
+    				'{{start_time}}' 		=> $checkId->start_time
     			];
     			$body = strReplaceAssoc($arrayVal, $body);
-    			$title = strReplaceAssoc($arrayVal, $title);
     		}
 
-
-    		actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+    		actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
 
     		DB::commit();
 
@@ -1156,21 +1150,19 @@ class ActivityController extends Controller
     			$title  = false;
     			$body   = false;
     			$getMsg = EmailTemplate::where('mail_sms_for', 'activity-action')->first();
-    			$companyObj = companySetting($activity->top_most_parent_id);
 
-
-
-    			if($request->status == 1)
-    			{
-    				$action = "Done";
+    			if($request->status == 1) {
+    				$action = "Marked as Done";
+    				$status_code = 'info';
     			}
     			elseif ($request->status == 2) {
-    				$action = "Not Done";
+    				$action = "Marked as Not Done";
+    				$status_code = 'warning';
     			}
     			elseif ($request->status == 3) {
-    				$action = "Not applicable";
+    				$action = "Marked as Not applicable";
+    				$status_code = 'danger';
     			}
-
 
     			foreach ($receivers_ids as $key => $value) {
     				if($getMsg)
@@ -1180,20 +1172,15 @@ class ActivityController extends Controller
     					$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
     					$arrayVal = [
     						'{{name}}'              => $user->name,
-    						'{{email}}'             => $user->email,
-    						'{{title}}'             => $title,
-    						'{{patient_id}}'        => $activity->Patient ? $activity->Patient->unique_id : null,
-    						'{{start_date}}'        => $activity->start_date,
-    						'{{start_time}}'        => $activity->start_time,
+    						'{{action_by}}'         => Auth::User()->name,
     						'{{action}}'            => $action,
     						'{{activity_title}}'    => $activity->title,
-    						'{{company_name}}'      => $companyObj['company_name'],
-    						'{{company_address}}'   => $companyObj['company_address'],
+    						'{{start_date}}'        => $activity->start_date,
+    						'{{start_time}}'        => $activity->start_time
     					];
     					$body = strReplaceAssoc($arrayVal, $body);
-    					$title = strReplaceAssoc($arrayVal, $title);
-    					actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
     				}
+    				actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,1);
     			}
     			DB::commit();
 
@@ -1290,25 +1277,19 @@ class ActivityController extends Controller
             if($getMsg)
             {
             	$body = $getMsg->notify_body;
-            	$title = $getMsg->mail_subject;
-            	$arrayVal = [
-            		'{{name}}'  			=> $user->name,
-            		'{{email}}' 			=> $user->email,
-            		'{{title}}' 			=> $title,
-            		'{{patient_id}}' 		=> $getActivity->Patient ? $getActivity->Patient->unique_id : null,
-            		'{{start_date}}' 		=> $getActivity->start_date,
-            		'{{start_time}}' 		=> $getActivity->start_time,
-            		'{{action}}'            => 'Activity Not Applicable',
-    				'{{activity_title}}'    => $getActivity->title,
-            		'{{company_name}}' 		=> $companyObj['company_name'],
-            		'{{company_address}}' 	=> $companyObj['company_address'],
-            	];
-            	$body = strReplaceAssoc($arrayVal, $body);
-            	$title = strReplaceAssoc($arrayVal, $title);
+				$title = $getMsg->mail_subject;
+				$arrayVal = [
+					'{{name}}'              => $user->name,
+					'{{action_by}}'         => Auth::User()->name,
+					'{{action}}'            => 'Marked as Not Applicable',
+					'{{activity_title}}'    => $getActivity->title,
+					'{{start_date}}'        => $getActivity->start_date,
+					'{{start_time}}'        => $getActivity->start_time
+				];
+				$body = strReplaceAssoc($arrayVal, $body);
             }
 
-
-            actionNotification($user,$title,$body,$module,$screen,$data_id,'success',1);
+            actionNotification($user,$title,$body,$module,$screen,$data_id,'danger',1);
 
     		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
     	}
