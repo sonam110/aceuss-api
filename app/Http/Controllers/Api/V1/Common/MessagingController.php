@@ -107,7 +107,7 @@ class MessagingController extends Controller
                 ->get();
             }
             
-            return prepareResult(true,'Users List' ,$query, config('httpcodes.success'));
+            return prepareResult(true,'messsages List' ,$query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
