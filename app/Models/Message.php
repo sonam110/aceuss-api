@@ -13,7 +13,6 @@ class Message extends Model
 
     protected static $logOnlyDirty = true;
     protected $fillable =[
-        'top_most_parent_id',
         'sender_id',
 		'receiver_id',
 		'message',
@@ -21,11 +20,6 @@ class Message extends Model
 		'read_at',
         'entry_mode',
     ];
-
-    public function TopMostParent()
-    {
-        return $this->belongsTo(User::class,'top_most_parent_id','id');
-    }
 
     public function sender()
     {

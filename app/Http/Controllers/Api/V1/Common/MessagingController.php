@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
+use Carbon\Carbon;
 use DB;
 
 class MessagingController extends Controller
@@ -28,9 +29,9 @@ class MessagingController extends Controller
                 $query->where('users.name', 'LIKE', '%'.$request->name.'%');
             }
 
-            if(!empty($request->per_page_record))
+            if(!empty($request->perPage))
             {
-                $perPage = $request->per_page_record;
+                $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
                 $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
@@ -65,6 +66,45 @@ class MessagingController extends Controller
                     'name' => $adminInfo->name,
                     'unread_messages_count' => $getAdminCount
                 ];
+            }
+            
+            return prepareResult(true,'Users List' ,$query, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function getMessages(Request $request)
+    {
+        try {
+            $query = Message::with('sender:id,name,gender,user_type_id', 'receiver:id,name,gender,user_type_id', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+            ->where(function($q) {
+                $q->where('sender_id', auth()->id())
+                    ->orWhere('receiver_id', auth()->id());
+            });
+
+            if(!empty($request->from_date) && !empty($request->end_date))
+            {
+                $query->whereBetween('created_at', [$request->from_date, $request->end_date]);
+            }
+            else
+            {
+                // last 7 days
+                $query->whereBetween('created_at',[(new Carbon)->subDays(7)->startOfDay()->toDateString(),(new Carbon)->now()->endOfDay()->toDateString()]);
+            }
+
+            $query = $query->get();
+
+            //if message count is less than 20 then load all messages
+            if($query->count()<20)
+            {
+                $query = Message::with('sender:id,name,gender,user_type_id', 'receiver:id,name,gender,user_type_id', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+                ->where(function($q) {
+                    $q->where('sender_id', auth()->id())
+                        ->orWhere('receiver_id', auth()->id());
+                })
+                ->get();
             }
             
             return prepareResult(true,'Users List' ,$query, config('httpcodes.success'));
