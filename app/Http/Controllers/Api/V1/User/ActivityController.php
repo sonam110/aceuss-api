@@ -49,16 +49,16 @@ class ActivityController extends Controller
 			$query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
 			->where('is_latest_entry', 1);
 
-			if($user->user_type_id =='2'){
+			if($user->user_type_id =='2') {
 
-			} else{
-				$query =  $query->whereIn('activities.branch_id',$allChilds);
 			}
-
-			if($user->user_type_id =='3'){
+			elseif($user->user_type_id =='3') {
 				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
 				$query = $query->whereIn('activities.id',$agnActivity);
 
+			}
+			else {
+				$query =  $query->whereIn('activities.branch_id',$allChilds);
 			}
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))

@@ -41,7 +41,13 @@ class TaskController extends Controller
             if($user->user_type_id =='2'){
                 
                 // $query = $query->orderBy('id','DESC');
-            } else{
+            }
+            elseif($user->user_type_id =='3'){
+                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id');
+                $query = $query->whereIn('id', $assTask);
+            }
+            else
+            {
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
@@ -54,12 +60,6 @@ class TaskController extends Controller
                 ->where('type_id', 7);
             }
 
-
-            if($user->user_type_id =='3'){
-                $assTask  = AssignTask::where('user_id',$user->id)->pluck('task_id');
-                $query = $query->whereIn('id', $assTask);
-
-            }
            
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
