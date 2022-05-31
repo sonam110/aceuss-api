@@ -783,8 +783,12 @@ function userChildBranches(User $user)
             $allBranches = array_merge($allBranches,is_array(userChildBranches($child))?userChildBranches($child):[] );
         }
     }
-    //$allBranches = array_merge($allBranches, $user->id);
-    return $allBranches;
+    if(@auth()->user()->user_type_id==3)
+    {
+        $allBranches = array_merge($allBranches, [$user->id]);
+    }
+    
+    return array_keys(array_flip($allBranches));
 }
 
 function bankIdVerification($personalNumber, $person_id, $group_token)
