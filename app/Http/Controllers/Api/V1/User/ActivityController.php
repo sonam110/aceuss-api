@@ -114,14 +114,14 @@ class ActivityController extends Controller
 			->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
 			if($user->user_type_id =='2'){
 
-			} else{
-				$datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
 			}
-
-			if($user->user_type_id =='3'){
+			elseif($user->user_type_id =='3'){
 				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
 				$datePassedActivityCounts = $datePassedActivityCounts->whereIn('activities.id', $agnActivity);
 
+			}
+			else{
+				$datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
@@ -150,15 +150,17 @@ class ActivityController extends Controller
 			])->where('is_latest_entry', 1);
 			if($user->user_type_id =='2'){
 
-			} else{
-				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
 			}
-
-			if($user->user_type_id =='3'){
+			elseif($user->user_type_id =='3'){
 				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
 				$activityCounts = $activityCounts->whereIn('activities.id', $agnActivity);
 
 			}
+			 else{
+				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
+			}
+
+			
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
