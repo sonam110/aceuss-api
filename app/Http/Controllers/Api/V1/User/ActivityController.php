@@ -401,9 +401,9 @@ class ActivityController extends Controller
             $branch_id = getBranchId();
             $activity_ids = [];
             if(!empty($repeatedDates)) {
-            	foreach ($repeatedDates as $key => $date) {
+            	foreach ($repeatedDates as $key1 => $date) {
             		if(is_array($request->how_many_time_array) && sizeof($request->how_many_time_array) > 0){
-            			foreach ($request->how_many_time_array as $key => $time) {
+            			foreach ($request->how_many_time_array as $key2 => $time) {
             				if(!empty($time['start']))
             				{
             					$activity = new Activity;
@@ -476,12 +476,56 @@ class ActivityController extends Controller
             								$activityAssigne->save();
             								/*-----------Send notification---------------------*/
             								$getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
-            								$user_type =  $getUser->user_type_id;
-            								$module =  "";
+            								$title = "";
+            								$body = "";
+            								$module =  "activity";
             								$id =  $activity->id;
             								$screen =  "detail";
-            								$companyObj = companySetting($getUser->top_most_parent_id);
+            								
             								$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+
+            								if($key1 == 0 && $key2 == 0)
+            								{
+            									if($request->is_compulsory == true && $key == 0){
+            										if($getMsg )
+            										{
+            											$user = User::find($getUser->top_most_parent_id);
+            											$body = $getMsg->notify_body;
+            											$title = $getMsg->mail_subject;
+
+            											$arrayVal = [
+            												'{{name}}'  			=> $user->name,
+            												'{{assigned_by}}' 		=> Auth::User()->name,
+            												'{{activity_title}}'	=> $activity->title,
+            												'{{start_date}}' 		=> $activity->start_date,
+            												'{{start_time}}' 		=> $activity->start_time
+            											];
+            											$body = strReplaceAssoc($arrayVal, $body);
+            										}
+            										actionNotification($user,$title,$body,$module,$screen,$id,'warning',1);
+            									}
+            									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
+            										if($getMsg)
+            										{
+            											$body = $getMsg->notify_body;
+            											$title = $getMsg->mail_subject;
+            											$arrayVal = [
+            												'{{name}}'  			=> $getUser->name,
+            												'{{assigned_by}}' 		=> Auth::User()->name,
+            												'{{activity_title}}'	=> $activity->title,
+            												'{{start_date}}' 		=> $activity->start_date,
+            												'{{start_time}}' 		=> $activity->start_time
+            											];
+            											$body = strReplaceAssoc($arrayVal, $body);
+            										}
+            										actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+            									}
+            								}
+
+
+
+            								$companyObj = companySetting($getUser->top_most_parent_id);
+
             								$obj  =[
             									"type"=> 'activity',
             									"user_id"=> $getUser->id,
@@ -496,41 +540,6 @@ class ActivityController extends Controller
             									"company_id"=>  $getUser->top_most_parent_id,
 
             								];
-            								if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
-            									$objCom  =[
-            										"type"=> 'activity',
-            										"user_id"=> $getUser->top_most_parent_id,
-            										"name"=> $getUser->name,
-            										"email"=> $getUser->email,
-            										"user_type"=> $getUser->user_type_id,
-            										"title"=> $activity->title,
-            										"patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-            										"start_date"=> $activity->start_date,
-            										"start_time"=> $activity->start_time,
-            										"company"=>  $companyObj,
-            										"company_id"=>  $getUser->top_most_parent_id,
-            									];
-            									// pushNotification('activity',$companyObj,$objCom,1,$module,$id,$screen, 'success');
-
-            									if($getMsg)
-            									{
-            										$user = User::find($getUser->top_most_parent_id);
-            										$body = $getMsg->notify_body;
-            										$title = $getMsg->mail_subject;
-            										$arrayVal = [
-            											'{{name}}'  			=> $user->name,
-            											'{{assigned_by}}' 		=> Auth::User()->name,
-            											'{{activity_title}}'	=> $activity->title,
-            											'{{start_date}}' 		=> $activity->start_date,
-            											'{{start_time}}' 		=> $activity->start_time
-            										];
-            										$body = strReplaceAssoc($arrayVal, $body);
-            									}
-            									actionNotification($user,$title,$body,$module,$screen,$data_id,'warning',1);
-            								}
-            								if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            									pushNotification('activity',$companyObj,$obj,1,$module,$id,$screen, 'success');
-            								}
             								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
             									sendMessage('activity',$obj,$companyObj);
             								}
@@ -712,9 +721,9 @@ class ActivityController extends Controller
             $activity_ids = [];
             $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
             if(!empty($repeatedDates)) {
-            	foreach ($repeatedDates as $key => $date) {
+            	foreach ($repeatedDates as $key1 => $date) {
             		if(is_array($request->how_many_time_array)  && sizeof($request->how_many_time_array) > 0 ){
-            			foreach ($request->how_many_time_array as $key => $time) {
+            			foreach ($request->how_many_time_array as $key2 => $time) {
             				if(!empty($time['start']))
             				{
             					Activity::where('id',$id)->update(['is_latest_entry'=>0]);
@@ -795,41 +804,48 @@ class ActivityController extends Controller
             								$getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$user_type =  $getUser->user_type_id;
             								$module =  "activity";
+            								$title = "";
+            								$body = "";
             								$id =  $activity->id;
             								$screen =  "detail";
-            								$companyObj = companySetting($getUser->top_most_parent_id);
             								$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
 
-            								if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
-            									$objCom  =[
-            										"type"=> 'activity',
-            										"user_id"=> $getUser->top_most_parent_id,
-            										"name"=> $getUser->name,
-            										"email"=> $getUser->email,
-            										"user_type"=> $getUser->user_type_id,
-            										"title"=> $activity->title,
-            										"patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-            										"start_date"=> $activity->start_date,
-            										"start_time"=> $activity->start_time,
-            										"company"=>  $companyObj,
-            										"company_id"=>  $getUser->top_most_parent_id,
-            									];
+            								if($key1 == 0 && $key2 == 0)
+            								{
+            									if($request->is_compulsory == true && $key == 0){
+            										if($getMsg )
+            										{
+            											$user = User::find($getUser->top_most_parent_id);
+            											$body = $getMsg->notify_body;
+            											$title = $getMsg->mail_subject;
 
-            									if($getMsg)
-            									{
-            										$user = User::find($getUser->top_most_parent_id);
-            										$body = $getMsg->notify_body;
-            										$title = $getMsg->mail_subject;
-            										$arrayVal = [
-            											'{{name}}'  			=> $user->name,
-            											'{{assigned_by}}' 		=> Auth::User()->name,
-            											'{{activity_title}}'	=> $activity->title,
-            											'{{start_date}}' 		=> $activity->start_date,
-            											'{{start_time}}' 		=> $activity->start_time
-            										];
-            										$body = strReplaceAssoc($arrayVal, $body);
+            											$arrayVal = [
+            												'{{name}}'  			=> $user->name,
+            												'{{assigned_by}}' 		=> Auth::User()->name,
+            												'{{activity_title}}'	=> $activity->title,
+            												'{{start_date}}' 		=> $activity->start_date,
+            												'{{start_time}}' 		=> $activity->start_time
+            											];
+            											$body = strReplaceAssoc($arrayVal, $body);
+            										}
+            										actionNotification($user,$title,$body,$module,$screen,$id,'warning',1);
             									}
-            									actionNotification($user,$title,$body,$module,$screen,$data_id,'warning',1);
+            									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
+            										if($getMsg)
+            										{
+            											$body = $getMsg->notify_body;
+            											$title = $getMsg->mail_subject;
+            											$arrayVal = [
+            												'{{name}}'  			=> $getUser->name,
+            												'{{assigned_by}}' 		=> Auth::User()->name,
+            												'{{activity_title}}'	=> $activity->title,
+            												'{{start_date}}' 		=> $activity->start_date,
+            												'{{start_time}}' 		=> $activity->start_time
+            											];
+            											$body = strReplaceAssoc($arrayVal, $body);
+            										}
+            										actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+            									}
             								}
             								$obj  =[
             									"type"=> 'activity',
@@ -845,24 +861,7 @@ class ActivityController extends Controller
             									"company_id"=>  $getUser->top_most_parent_id,
 
             								];
-            								if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-
-            									if($getMsg)
-            									{
-            										$user = User::find($getUser->top_most_parent_id);
-            										$body = $getMsg->notify_body;
-            										$title = $getMsg->mail_subject;
-            										$arrayVal = [
-            											'{{name}}'  			=> $user->name,
-            											'{{assigned_by}}' 		=> Auth::User()->name,
-            											'{{activity_title}}'	=> $activity->title,
-            											'{{start_date}}' 		=> $activity->start_date,
-            											'{{start_time}}' 		=> $activity->start_time
-            										];
-            										$body = strReplaceAssoc($arrayVal, $body);
-            									}
-            									actionNotification($grtUser,$title,$body,$module,$screen,$data_id,'info',1);
-            								}
+            								$companyObj = companySetting($getUser->top_most_parent_id);
             								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
             									sendMessage('activity',$obj,$companyObj);
             								}
@@ -997,7 +996,7 @@ class ActivityController extends Controller
 
     		$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$module =  "activity";
-    		$data_id =  $activity->id;
+    		$data_id =  $checkId->id;
     		$screen =  "detail";
 
     		$title 	= false;

@@ -330,59 +330,63 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 
 function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,$save_to_database)
 {
-    if(!empty($user))
+    if(env('IS_NOTIFICATION_ENABLE')== true)
     {
-        $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)
-            ->whereNotNull('device_token')
-            ->whereIn('login_via',['1','2'])
-            ->orderBy('created_at', 'DESC')
-            ->first();
-
-        if($userDeviceInfo)
-        { 
-            $push = new PushNotification('fcm');
-            $push->setMessage([
-                "notification"=>[
-                    'title' => $title,
-                    'body'  => $body,
-                    'sound' => 'default',
-                    'android_channel_id' => '1',
-                    //'timestamp' => date('Y-m-d G:i:s')
-                ],
-                'data'=>[
-                    'id'  		=> $data_id,
-                    'user_type' => $user->user_type_id,
-                    'module'  	=> $module,
-                    'screen'  	=> $screen
-                ]                        
-            ])
-            ->setApiKey(env('FIREBASE_KEY'))
-            ->setDevicesToken($userDeviceInfo->device_token)
-            ->send();
-        }
-
-        if($save_to_database == true)
+        if(!empty($user))
         {
-            $notification = new Notification;
-            $notification->user_id          = $user->id;
-            $notification->sender_id        = Auth::id();
-            $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
-            $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-            $notification->type             = $module;
-            $notification->status_code      = $status_code;
-            $notification->user_type        = $user->user_type_id;
-            $notification->module           = $module;
-            $notification->title            = $title;
-            $notification->sub_title        = $title;
-            $notification->message          = $body;
-            $notification->image_url        = '';
-            $notification->screen           = $screen;
-            $notification->data_id          = $data_id;
-            $notification->read_status      = false;
-            $notification->save();
-        }    
+            $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)
+                ->whereNotNull('device_token')
+                ->whereIn('login_via',['1','2'])
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            if($userDeviceInfo)
+            { 
+                $push = new PushNotification('fcm');
+                $push->setMessage([
+                    "notification"=>[
+                        'title' => $title,
+                        'body'  => $body,
+                        'sound' => 'default',
+                        'android_channel_id' => '1',
+                        //'timestamp' => date('Y-m-d G:i:s')
+                    ],
+                    'data'=>[
+                        'id'        => $data_id,
+                        'user_type' => $user->user_type_id,
+                        'module'    => $module,
+                        'screen'    => $screen
+                    ]                        
+                ])
+                ->setApiKey(env('FIREBASE_KEY'))
+                ->setDevicesToken($userDeviceInfo->device_token)
+                ->send();
+            }
+
+            if($save_to_database == true)
+            {
+                $notification = new Notification;
+                $notification->user_id          = $user->id;
+                $notification->sender_id        = Auth::id();
+                $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
+                $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
+                $notification->type             = $module;
+                $notification->status_code      = $status_code;
+                $notification->user_type        = $user->user_type_id;
+                $notification->module           = $module;
+                $notification->title            = $title;
+                $notification->sub_title        = $title;
+                $notification->message          = $body;
+                $notification->image_url        = '';
+                $notification->screen           = $screen;
+                $notification->data_id          = $data_id;
+                $notification->read_status      = false;
+                $notification->save();
+            }    
+        }
     }
-    return true;
+    
+        return true;
 }
 
 function strReplaceAssoc(array $replace, $subject) 
