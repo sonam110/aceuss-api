@@ -442,6 +442,7 @@ function smslog($top_most_parent_id,$type_id ,$resource_id, $phone_number, $mess
     $smsLog->save();
     return true;
 }
+
 function comment($source_id, $source_namen,$comment) 
 { 
     if(Auth::check()){

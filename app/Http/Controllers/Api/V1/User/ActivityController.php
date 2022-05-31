@@ -774,10 +774,11 @@ class ActivityController extends Controller
             								/*-----------Send notification---------------------*/
             								$getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$user_type =  $getUser->user_type_id;
-            								$module =  "";
-            								$id =  $activityAssigne->id;
+            								$module =  "activity";
+            								$id =  $activity->id;
             								$screen =  "detail";
             								$companyObj = companySetting($getUser->top_most_parent_id);
+            								$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
 
             								if(env('IS_NOTIFICATION_ENABLE')== true && $request->is_compulsory == true){
             									$objCom  =[
@@ -793,7 +794,22 @@ class ActivityController extends Controller
             										"company"=>  $companyObj,
             										"company_id"=>  $getUser->top_most_parent_id,
             									];
-            									pushNotification('activity',$companyObj,$objCom,1,$module,$id,$screen, 'success');
+
+            									if($getMsg)
+            									{
+            										$user = User::find($getUser->top_most_parent_id);
+            										$body = $getMsg->notify_body;
+            										$title = $getMsg->mail_subject;
+            										$arrayVal = [
+            											'{{name}}'  			=> $user->name,
+            											'{{assigned_by}}' 		=> Auth::User()->name,
+            											'{{activity_title}}'	=> $activity->title,
+            											'{{start_date}}' 		=> $activity->start_date,
+            											'{{start_time}}' 		=> $activity->start_time
+            										];
+            										$body = strReplaceAssoc($arrayVal, $body);
+            									}
+            									actionNotification($user,$title,$body,$module,$screen,$data_id,'warning',1);
             								}
             								$obj  =[
             									"type"=> 'activity',
@@ -810,22 +826,33 @@ class ActivityController extends Controller
 
             								];
             								if(env('IS_NOTIFICATION_ENABLE')== true &&  ($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            									pushNotification('activity',$companyObj,$obj,1,$module,$id,$screen, 'success');
+
+            									if($getMsg)
+            									{
+            										$user = User::find($getUser->top_most_parent_id);
+            										$body = $getMsg->notify_body;
+            										$title = $getMsg->mail_subject;
+            										$arrayVal = [
+            											'{{name}}'  			=> $user->name,
+            											'{{assigned_by}}' 		=> Auth::User()->name,
+            											'{{activity_title}}'	=> $activity->title,
+            											'{{start_date}}' 		=> $activity->start_date,
+            											'{{start_time}}' 		=> $activity->start_time
+            										];
+            										$body = strReplaceAssoc($arrayVal, $body);
+            									}
+            									actionNotification($grtUser,$title,$body,$module,$screen,$data_id,'info',1);
             								}
             								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
             									sendMessage('activity',$obj,$companyObj);
             								}
             							}
-
-
             						}
             					}
             					if(!empty($request->task) ){
             						addTask($request->task,$activity->id);
             					}
             				}
-
-
             			}
             		}
             	}
@@ -950,7 +977,7 @@ class ActivityController extends Controller
 
     		$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$module =  "activity";
-    		$data_id =  $activityAssigne->id;
+    		$data_id =  $activity->id;
     		$screen =  "detail";
 
     		$title 	= false;
