@@ -257,8 +257,8 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             ->orderBy('created_at', 'DESC')
             ->first();
 
-        $title 	= false;
-        $body 	= false;
+        $title  = false;
+        $body   = false;
         $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
        
         if($getMsg)
@@ -266,14 +266,14 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $body = $getMsg->notify_body;
             $title = $getMsg->mail_subject;
             $arrayVal = [
-                '{{name}}'  			=> $obj['name'],
-                '{{email}}' 			=> $obj['email'],
-                '{{title}}' 			=> $obj['title'],
-                '{{patient_id}}' 		=> $obj['patient_id'],
-                '{{start_date}}' 		=> $obj['start_date'],
-                '{{start_time}}' 		=> $obj['start_time'],
-                '{{company_name}}' 		=> $companyObj['company_name'],
-                '{{company_address}}' 	=> $companyObj['company_address'],
+                '{{name}}'              => $obj['name'],
+                '{{email}}'             => $obj['email'],
+                '{{title}}'             => $obj['title'],
+                '{{patient_id}}'        => $obj['patient_id'],
+                '{{start_date}}'        => $obj['start_date'],
+                '{{start_time}}'        => $obj['start_time'],
+                '{{company_name}}'      => $companyObj['company_name'],
+                '{{company_address}}'   => $companyObj['company_address'],
             ];
             $body = strReplaceAssoc($arrayVal, $body);
             $title = strReplaceAssoc($arrayVal, $title);
@@ -783,11 +783,11 @@ function userChildBranches(User $user)
             $allBranches = array_merge($allBranches,is_array(userChildBranches($child))?userChildBranches($child):[] );
         }
     }
-    if(@auth()->user()->user_type_id==3)
+    if(in_array(@auth()->user()->user_type_id, [3,4,5,6,7,8,9,10,12,13,14,15]))
     {
         $allBranches = array_merge($allBranches, [$user->id]);
     }
-    
+    //$allBranches = array_merge($allBranches, [$user->id]);
     return array_keys(array_flip($allBranches));
 }
 

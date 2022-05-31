@@ -187,6 +187,10 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'journal-delete', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-delete','belongs_to'=>'2']);
 
+        Permission::create(['name' => 'journal-action', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-action','belongs_to'=>'2']);
+        
+        Permission::create(['name' => 'journal-stats-view', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-stats-view','belongs_to'=>'2']);
+
        
         Permission::create(['name' => 'deviation-browse', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-browse','belongs_to'=>'2']);
 
@@ -364,18 +368,6 @@ class PermissionSeeder extends Seeder
          Permission::create(['name' => 'trashed-activites', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites','belongs_to'=>'2']);
          Permission::create(['name' => 'trashed-activites-permanent-delete', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-permanent-delete','belongs_to'=>'2']);
          Permission::create(['name' => 'trashed-activites-restore', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-restore','belongs_to'=>'2']);
-
-         
-        
-        Permission::create(['name' => 'journal-action-read', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-action-add', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-action-edit', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-action-delete', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-action-browse', 'guard_name' => 'api','group_name'=>'journal-action','se_name'=>'journal-action-browse','belongs_to'=>'2']); 
 
 
         Permission::create(['name' => 'bookmark-read', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-read','belongs_to'=>'2']);
