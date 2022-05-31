@@ -171,31 +171,39 @@ class RequestApprovalController extends Controller
                             }
                         }
 
-                        if($request->approval_type == '3') 
+                        if($request->approval_type == '2') 
                         {
                             if($nkey==0)
                             {
-                                $companyObj = companySetting($user->top_most_parent_id);
                                 if($request->request_type == '9' || $request->request_type == '2'){
                                     $ip = PatientImplementationPlan::where('id', $requestTypeId)->first();
                                 }
                             
-                                $obj = [
-                                    "type"=> 'request-approval',
-                                    "user_id"=> $value,
-                                    "name"=> $user->name,
-                                    "email"=> $user->email,
-                                    "user_type"=> $user->user_type_id,
-                                    "title"=> ($ip) ? $ip->title : $request->reason_for_requesting,
-                                    "patient_id"=>  null,
-                                    "start_date"=> '',
-                                    "start_time"=> '',
-                                    "company"=>  $companyObj,
-                                    "company_id"=>  $user->top_most_parent_id,
+                                /*-----------Send notification---------------------*/
 
-                                ];
-                                if(env('IS_NOTIFICATION_ENABLE')== true){
-                                    pushNotification('request-approval',$companyObj,$obj,1,'',$addRequest->id,'','info');
+                                $module =  "request-approval";
+                                $data_id =  $addRequest->id;
+                                $screen =  "detail";
+
+                                $title  = false;
+                                $body   = false;
+                                $getMsg = EmailTemplate::where('mail_sms_for', 'request-approval')->first();
+
+                                foreach ($request->requested_to as $key => $value) {
+                                    $userRec = User::find($value);
+                                    // return $value;
+                                    if($getMsg)
+                                    {
+                                        $body = $getMsg->notify_body;
+                                        $title = $getMsg->mail_subject;
+                                        $arrayVal = [
+                                            '{{name}}'              => $userRec->name,
+                                            '{{requested_by}}'      => Auth::User()->name,
+                                            '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
+                                        ];
+                                        $body = strReplaceAssoc($arrayVal, $body);
+                                    }
+                                    actionNotification($userRec,$title,$body,$module,$screen,$data_id,'info',1);
                                 }
                             }
                         }
