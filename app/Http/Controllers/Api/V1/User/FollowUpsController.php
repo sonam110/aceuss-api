@@ -41,9 +41,12 @@ class FollowUpsController extends Controller
     {
         try {
 	        $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             $query = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
                 ->where('is_latest_entry', 1);

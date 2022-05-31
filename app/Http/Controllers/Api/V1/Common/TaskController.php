@@ -31,10 +31,12 @@ class TaskController extends Controller
     {
         try {
 	        $user = getUser();
-
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
             $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')->where('is_latest_entry',1)->with('actionBy:id,name');
             if($user->user_type_id =='2'){
                 

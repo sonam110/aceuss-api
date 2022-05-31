@@ -30,9 +30,12 @@ class DeviationController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+
             $query = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
             ->orderBy('deviations.date_time', 'DESC');
 

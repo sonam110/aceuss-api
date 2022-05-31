@@ -747,28 +747,7 @@ function getDuration($totalDuration,$type="0")
         return $duration;
     }    
 }
-/*function getBranchChildren()
-{
-    $user = getUser();
-    $branch_id  = $user->id;
-    $tree = Array();
-    $branchArray = [];
-    if (!empty($branch_id))
-    {
-        $tree = User::where('branch_id', $branch_id)->pluck('id')
-            ->toArray();
-        foreach ($tree as $key => $val)
-        {
-            $ids = getBranchChildren($val);
-            if (!empty($ids))
-            {
-                if (count($ids) > 0) $tree = array_merge($tree, $ids);
-            }
-        }
-    }
-     
-    return array_merge($tree,[$branch_id]);
-}*/
+
 
 function branchChilds($branch_id)
 {
@@ -789,6 +768,19 @@ function branchChilds($branch_id)
     }
      
     return $tree;
+}
+
+function userChildBranches(User $user)
+{
+    $allBranches = [];
+    if ($user->allChildBranches->count() > 0) {
+        foreach ($user->allChildBranches as $child) {
+            $allBranches[] = $child->id;
+            $allBranches = array_merge($allBranches,is_array(userChildBranches($child))?userChildBranches($child):[] );
+        }
+    }
+    //$allBranches = array_merge($allBranches, $user->id);
+    return $allBranches;
 }
 
 function bankIdVerification($personalNumber, $person_id, $group_token)

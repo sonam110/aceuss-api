@@ -27,3 +27,5 @@ Route::get('/verified/{person_id}/{group_token}', [App\Http\Controllers\Callback
 
 Route::get('/check-event', [App\Http\Controllers\CallbackController::class, 'checkEvent']);
 
+Route::get('/check-childs', [App\Http\Controllers\CallbackController::class, 'checkChilds']);
+

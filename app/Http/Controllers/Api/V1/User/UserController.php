@@ -46,9 +46,12 @@ class UserController extends Controller
     {
     	try {
     		$user = getUser();
-    		$branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-    		$branchids = branchChilds($branch_id);
-    		$allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
     		$query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status','step_one','step_two','step_three','step_four','step_five', 
     			DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1) ipCount"), 
     			DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), 
@@ -61,7 +64,7 @@ class UserController extends Controller
     		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
-
+                $query =  $query->where('id', '!=',$user->id);
     		}
     		else
     		{
@@ -714,6 +717,12 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
     		}
+
+            if($user->id == auth()->id())
+            {
+                return prepareResult(false,getLangByLabelGroups('common','cant_delete'), [],'503');
+            }
+
     		$updateStatus = User::where('id',$id)->update(['status'=>'2']);
     		$userDelete = User::where('id',$id)->delete();
     		return prepareResult(true, getLangByLabelGroups('UserValidation','message_delete'),[], '200');

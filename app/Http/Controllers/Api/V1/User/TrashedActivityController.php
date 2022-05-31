@@ -13,9 +13,12 @@ class TrashedActivityController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ? $user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')->onlyTrashed();
             if($user->user_type_id =='2'){

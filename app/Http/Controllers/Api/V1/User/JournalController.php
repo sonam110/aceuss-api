@@ -35,9 +35,12 @@ class JournalController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
             $query = Journal::select('journals.*')
                 ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
                 ->withCount('journalActions')

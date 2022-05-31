@@ -278,6 +278,9 @@ class LabelSeeder extends Seeder
     			"message_id_not_found" => "Id Not Found",
     			"message_per_not_found" => "Permission Not Found",
     		],
+            'common' => [
+                'cant_delete' => 'You cannot delete this record.',
+            ],
             'mobile_web' => [
                "Dashboards" => "Dashboards", 
                "Analytics" => "Analytics", 

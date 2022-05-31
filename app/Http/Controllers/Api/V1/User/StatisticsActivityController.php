@@ -34,9 +34,12 @@ class StatisticsActivityController extends Controller
                 $datalabels[] = $date;
 
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 $query = Activity::select([
                     \DB::raw('COUNT(id) as total_activity'),
                     \DB::raw('COUNT(IF(is_compulsory = 1, 0, NULL)) as total_compulsory'),
@@ -94,9 +97,12 @@ class StatisticsActivityController extends Controller
                 $datalabels[] = $date;
 
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 $query = Activity::select([
                     \DB::raw('COUNT(id) as total_activity'),
                     \DB::raw('COUNT(IF(is_compulsory = 1, 0, NULL)) as total_compulsory'),
@@ -180,9 +186,12 @@ class StatisticsActivityController extends Controller
                 $datalabels[] = $date;
 
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 $query = PatientImplementationPlan::select([
                     \DB::raw('COUNT(IF(goal IS NOT NULL, 0, NULL)) as total_goal'),
                     \DB::raw('COUNT(IF(sub_goal IS NOT NULL, 0, NULL)) as total_sub_goal'),
@@ -191,8 +200,8 @@ class StatisticsActivityController extends Controller
                 if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
                 {
                     $query->where(function ($q) use ($user) {
-                        $q->where('patient_id', $user->id)
-                            ->orWhere('patient_id', $user->parent_id);
+                        $q->where('user_id', $user->id)
+                            ->orWhere('user_id', $user->parent_id);
                     });
                 }
                 
@@ -202,7 +211,7 @@ class StatisticsActivityController extends Controller
 
                 if(!empty($request->patient_id))
                 {
-                    $query->where('patient_id', $request->patient_id);
+                    $query->where('user_id', $request->patient_id);
                 }
 
                 $query->whereDate('start_date', $date);         
@@ -219,9 +228,12 @@ class StatisticsActivityController extends Controller
                 $datalabels[] = $date;
 
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 
                 $query = PatientImplementationPlan::select([
                     \DB::raw('COUNT(IF(goal IS NOT NULL, 0, NULL)) as total_goal'),
@@ -231,8 +243,8 @@ class StatisticsActivityController extends Controller
                 if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
                 {
                     $query->where(function ($q) use ($user) {
-                        $q->where('patient_id', $user->id)
-                            ->orWhere('patient_id', $user->parent_id);
+                        $q->where('user_id', $user->id)
+                            ->orWhere('user_id', $user->parent_id);
                     });
                 }
                 
@@ -242,7 +254,7 @@ class StatisticsActivityController extends Controller
 
                 if(!empty($request->patient_id))
                 {
-                    $query->where('patient_id', $request->patient_id);
+                    $query->where('user_id', $request->patient_id);
                 }
                 $query->whereDate('start_date', $date);         
                 $result = $query->first();

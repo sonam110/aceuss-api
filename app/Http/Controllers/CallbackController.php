@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PatientImplementationPlan;
+use App\Models\User;
 use App\Events\BankIdVerified;
 
 class CallbackController extends Controller
@@ -106,5 +107,19 @@ class CallbackController extends Controller
         \broadcast(new BankIdVerified($data));
         //event(new BankIdVerified('Hello World'));
         return 'Success';
+    }
+
+    public function checkChilds()
+    {
+        $getBtachId = User::select('branch_id')->find(361);
+        if(!empty($getBtachId->branch_id))
+        {
+            $data = userChildBranches(User::find($getBtachId->branch_id));
+        }
+        else
+        {
+            $data = userChildBranches(User::find(361));
+        }
+        return $data;
     }
 }

@@ -375,5 +375,8 @@ class User extends Authenticatable
             ->withoutGlobalScope('top_most_parent_id');
     }
 
+    public function allChildBranches(){
+        return $this->hasMany(self::class, 'branch_id', 'id')->whereIn('user_type_id', [2,11])->with('allChildBranches');
+    }
     
 }

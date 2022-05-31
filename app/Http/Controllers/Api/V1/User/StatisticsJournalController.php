@@ -16,9 +16,12 @@ class StatisticsJournalController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
             $query = Journal::select([
                 \DB::raw('COUNT(id) as total_journal'),
                 \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
@@ -88,10 +91,14 @@ class StatisticsJournalController extends Controller
             {
                 $date = date("Y-m-d", strtotime('-'.($i-1).' days', strtotime($request->end_date)));
                 $datalabels[] = $date;
+
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 $query = Journal::select([
                     \DB::raw('COUNT(id) as total_journal'),
                     \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
@@ -139,10 +146,14 @@ class StatisticsJournalController extends Controller
             {
                 $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
                 $datalabels[] = $date;
+                
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
                 $query = Journal::select([
                     \DB::raw('COUNT(id) as total_journal'),
                     \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),

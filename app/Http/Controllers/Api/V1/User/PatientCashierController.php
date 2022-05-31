@@ -22,9 +22,12 @@ class PatientCashierController extends Controller
     {
         try {
             $user = getUser();
-            $branch_id = (!empty($user->branch_id)) ?$user->branch_id : $user->id;
-            $branchids = branchChilds($branch_id);
-            $allChilds = array_merge($branchids,[$branch_id]);
+            if(!empty($user->branch_id)) {
+                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
+            
             $query = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')->orderBy('id','DESC');
 
             if($user->user_type_id !='2') {

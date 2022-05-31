@@ -61,9 +61,12 @@ class DashboardController extends Controller
             elseif($user->user_type_id == 3)
             {
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ? $user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
 
                 $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
                 $data['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
@@ -124,9 +127,12 @@ class DashboardController extends Controller
             else
             {
                 $user = getUser();
-                $branch_id = (!empty($user->branch_id)) ? $user->branch_id : $user->id;
-                $branchids = branchChilds($branch_id);
-                $allChilds = array_merge($branchids,[$branch_id]);
+                if(!empty($user->branch_id)) {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                
 
                 $data['activityCount'] = Activity::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
                 $data['activityPendingCount'] = Activity::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
