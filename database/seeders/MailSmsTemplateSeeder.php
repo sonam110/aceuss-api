@@ -67,17 +67,17 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "";
         $smsTemplate->save();
 
-        $smsTemplate = new EmailTemplate;
-        $smsTemplate->mail_sms_for = 'Request approval';
-        $smsTemplate->mail_subject = 'Request for approval Notification';
-        $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
-        $smsTemplate->custom_attributes = "";
-        $smsTemplate->save();
+        // $smsTemplate = new EmailTemplate;
+        // $smsTemplate->mail_sms_for = 'Request approval';
+        // $smsTemplate->mail_subject = 'Request for approval Notification';
+        // $smsTemplate->sms_body = "";
+        // $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
+        // $smsTemplate->custom_attributes = "";
+        // $smsTemplate->save();
 
         $smsTemplate = new EmailTemplate;
-        $smsTemplate->mail_sms_for = 'Request approval';
-        $smsTemplate->mail_subject = 'Request for approval Notification';
+        $smsTemplate->mail_sms_for = 'request-approval';
+        $smsTemplate->mail_subject = 'New Approval Request';
         $smsTemplate->sms_body = "";
         $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
         $smsTemplate->custom_attributes = "";
@@ -114,7 +114,7 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->mail_sms_for = 'journal';
         $smsTemplate->mail_subject = 'Journal Created';
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, New Journal is created by {{created_by}";
+        $smsTemplate->notify_body = "Dear {{name}}, New Journal is created by {{created_by}}";
         $smsTemplate->custom_attributes = "{{name}},{{created_by}}";
         $smsTemplate->save();
 
