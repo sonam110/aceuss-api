@@ -14,7 +14,7 @@ class MessagingController extends Controller
     public function getUsers(Request $request)
     {
         try {
-            $query = User::select('users.id','users.name')
+            $query = User::select('users.id','users.name','users.avatar')
                     ->where('users.status', 1)
                     ->where('users.id', '!=', auth()->id())
                     ->withCount('unreadMessages');
@@ -44,29 +44,48 @@ class MessagingController extends Controller
                     'last_page' => ceil($total / $perPage)
                 ];
                 $query = $pagination;
+                
+                if(auth()->user()->top_most_parent_id!='1')
+                {
+                    $adminInfo = User::select('users.id', 'users.name','users.avatar')
+                        ->where('user_type_id', 1)
+                        ->withoutGlobalScope('top_most_parent_id')
+                        ->first();
+                    $getAdminCount = Message::where('sender_id', $adminInfo->id)
+                        ->where('receiver_id', auth()->id())
+                        ->whereNull('read_at')
+                        ->withoutGlobalScope('top_most_parent_id')
+                        ->count();
+                    $result[$result->count()] = [
+                        'id' => $adminInfo->id, 
+                        'name' => $adminInfo->name,
+                        'unread_messages_count' => $getAdminCount
+                    ];
+                }
             }
             else
             {
                 $query = $query->get();
+                if(auth()->user()->top_most_parent_id!='1')
+                {
+                    $adminInfo = User::select('users.id', 'users.name','users.avatar')
+                        ->where('user_type_id', 1)
+                        ->withoutGlobalScope('top_most_parent_id')
+                        ->first();
+                    $getAdminCount = Message::where('sender_id', $adminInfo->id)
+                        ->where('receiver_id', auth()->id())
+                        ->whereNull('read_at')
+                        ->withoutGlobalScope('top_most_parent_id')
+                        ->count();
+                    $query[$query->count()] = [
+                        'id' => $adminInfo->id, 
+                        'name' => $adminInfo->name,
+                        'unread_messages_count' => $getAdminCount
+                    ];
+                }
             }
 
-            if(auth()->user()->top_most_parent_id!='1')
-            {
-                $adminInfo = User::select('users.id', 'users.name')
-                    ->where('user_type_id', 1)
-                    ->withoutGlobalScope('top_most_parent_id')
-                    ->first();
-                $getAdminCount = Message::where('sender_id', $adminInfo->id)
-                    ->where('receiver_id', auth()->id())
-                    ->whereNull('read_at')
-                    ->withoutGlobalScope('top_most_parent_id')
-                    ->count();
-                $query[$query->count()] = [
-                    'id' => $adminInfo->id, 
-                    'name' => $adminInfo->name,
-                    'unread_messages_count' => $getAdminCount
-                ];
-            }
+            
             
             return prepareResult(true,'Users List' ,$query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -78,7 +97,7 @@ class MessagingController extends Controller
     public function getMessages(Request $request)
     {
         try {
-            $query = Message::with('sender:id,name,gender,user_type_id', 'receiver:id,name,gender,user_type_id', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
             ->where(function($q) {
                 $q->where('sender_id', auth()->id())
                     ->orWhere('receiver_id', auth()->id());
@@ -99,7 +118,7 @@ class MessagingController extends Controller
             //if message count is less than 20 then load all messages
             if($query->count()<20)
             {
-                $query = Message::with('sender:id,name,gender,user_type_id', 'receiver:id,name,gender,user_type_id', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+                $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                 ->where(function($q) {
                     $q->where('sender_id', auth()->id())
                         ->orWhere('receiver_id', auth()->id());
