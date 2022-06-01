@@ -347,34 +347,34 @@ class FollowUpsController extends Controller
                     if(!empty($followup['start_date']))
                     {
                         $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
-                        $getFollowInfo = IpFollowUp::find($parent_id);
-                        if($getFollowInfo)
+                        $ipFollowups = IpFollowUp::find($parent_id);
+                        if($ipFollowups)
                         {
                             //new entry create for log
-                            $ipFollowups = $getFollowInfo->replicate();
-                            $ipFollowups->parent_id = $getFollowInfo->id;
-                            $ipFollowups->is_latest_entry = 0;
-                            $ipFollowups->created_at = $getFollowInfo->created_at;
-                            $ipFollowups->save();
+                            $ipFollowupsCopy = $ipFollowups->replicate();
+                            $ipFollowupsCopy->parent_id = $ipFollowups->id;
+                            $ipFollowupsCopy->is_latest_entry = 0;
+                            $ipFollowupsCopy->created_at = $ipFollowups->created_at;
+                            $ipFollowupsCopy->save();
 
                             //update Existing or current record
-                            $getFollowInfo->ip_id = $request->ip_id ;
-                            $getFollowInfo->branch_id = getBranchId() ;
-                            $getFollowInfo->parent_id = null;
-                            $getFollowInfo->title = $request->title;
-                            $getFollowInfo->description = $request->description;
-                            $getFollowInfo->start_date = $followup['start_date'];
-                            $getFollowInfo->start_time = $followup['start_time'];
-                            $getFollowInfo->end_date = $followup['end_date'];
-                            $getFollowInfo->end_time = $followup['end_time'];
-                            $getFollowInfo->remarks = $request->remarks;
-                            $getFollowInfo->reason_for_editing = $request->reason_for_editing;
-                            $getFollowInfo->edited_by = $user->id;
-                            $getFollowInfo->documents = !empty($request->documents) ? json_encode($request->documents) : null;
-                            $getFollowInfo->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-                            $getFollowInfo->is_latest_entry = 1;
-                            $getFollowInfo->created_at = Carbon::now();
-                            $getFollowInfo->save();
+                            $ipFollowups->ip_id = $request->ip_id ;
+                            $ipFollowups->branch_id = getBranchId() ;
+                            $ipFollowups->parent_id = null;
+                            $ipFollowups->title = $request->title;
+                            $ipFollowups->description = $request->description;
+                            $ipFollowups->start_date = $followup['start_date'];
+                            $ipFollowups->start_time = $followup['start_time'];
+                            $ipFollowups->end_date = $followup['end_date'];
+                            $ipFollowups->end_time = $followup['end_time'];
+                            $ipFollowups->remarks = $request->remarks;
+                            $ipFollowups->reason_for_editing = $request->reason_for_editing;
+                            $ipFollowups->edited_by = $user->id;
+                            $ipFollowups->documents = !empty($request->documents) ? json_encode($request->documents) : null;
+                            $ipFollowups->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                            $ipFollowups->is_latest_entry = 1;
+                            $ipFollowups->created_at = Carbon::now();
+                            $ipFollowups->save();
                         }
                         else
                         {
