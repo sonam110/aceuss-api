@@ -849,6 +849,8 @@ class ActivityController extends Controller
             										actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
             									}
             								}
+            								
+            								$companyObj = companySetting($getUser->top_most_parent_id);
             								$obj  =[
             									"type"=> 'activity',
             									"user_id"=> $getUser->id,
@@ -863,7 +865,6 @@ class ActivityController extends Controller
             									"company_id"=>  $getUser->top_most_parent_id,
 
             								];
-            								$companyObj = companySetting($getUser->top_most_parent_id);
             								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
             									sendMessage('activity',$obj,$companyObj);
             								}
