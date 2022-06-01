@@ -54,9 +54,8 @@ class CreateUsersTable extends Migration
             $table->string('license_key')->nullable();
             $table->date('license_end_date')->nullable();
             $table->boolean('license_status')->default('1')->comment('1:Active,0:Inactive');
-            $table->boolean('is_substitute')->default('0')->comment('1:Yes,0:No');
-            $table->boolean('is_regular')->default('0')->comment('1:Yes,0:No');
-            $table->boolean('is_seasonal')->default('0')->comment('1:Yes,0:No');
+            $table->enum('employee_type',['1','2','3','4'])->nullable()->comment('1:regular, 2:substitute, 3:seasonal, 4 extra');
+
             $table->date('joining_date')->nullable();
             $table->integer('establishment_year')->nullable();
             $table->string('user_color')->nullable();
@@ -77,6 +76,11 @@ class CreateUsersTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->string('contact_person_name')->nullable();
             $table->integer('language_id')->default(1)->nullable();
+
+            //for schedule module
+            $table->enum('contract_type',['1','2'])->comment('1:Hourly rate, 2: Fixed cost')->nullable();
+            $table->decimal('contract_value', 9, 2)->nullable();
+
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

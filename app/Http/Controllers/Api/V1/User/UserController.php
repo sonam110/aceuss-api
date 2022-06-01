@@ -227,9 +227,9 @@ class UserController extends Controller
     		$user->user_color = $request->user_color;
     		$user->disease_description = $request->disease_description;
     		$user->created_by = $userInfo->id;
-    		$user->is_substitute = ($request->is_substitute == true) ? 1:0;
-    		$user->is_regular = ($request->is_regular == true) ? 1:0;
-    		$user->is_seasonal = ($request->is_seasonal == true) ? 1:0;
+            $user->employee_type = $request->employee_type;
+            $user->contract_type = $request->contract_type;
+    		$user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required == true) ? 1:0;
     		$user->is_secret = ($request->is_secret == true) ? 1:0;
     		$user->is_fake =  $is_fake;
@@ -508,9 +508,9 @@ class UserController extends Controller
     		$user->establishment_year = $request->establishment_year;
     		$user->user_color = $request->user_color;
     		$user->disease_description = $request->disease_description;
-    		$user->is_substitute = ($request->is_substitute) ? 1:0;
-    		$user->is_regular = ($request->is_regular) ? 1:0;
-    		$user->is_seasonal = ($request->is_seasonal) ? 1:0;
+    		$user->employee_type = $request->employee_type;
+            $user->contract_type = $request->contract_type;
+            $user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required) ? 1:0;
     		$user->is_secret = ($request->is_secret) ? 1:0;
     		$user->step_one = (!empty($request->step_one)) ? $request->step_one:0;

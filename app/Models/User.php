@@ -87,9 +87,7 @@ class User extends Authenticatable
         'license_key',
         'license_end_date',
         'license_status',
-        'is_substitute',
-        'is_regular',
-        'is_seasonal',
+        'employee_type',
         'joining_date',
         'establishment_year',
         'user_color',
@@ -109,7 +107,9 @@ class User extends Authenticatable
         'step_five',
         'entry_mode',
         'contact_person_name',
-        'language_id'
+        'language_id',
+        'contract_type',
+        'contract_value',
     ];
 
     /**
