@@ -7,11 +7,12 @@ use Log;
 use Auth;
 use Mail;
 use Exception;
-use Edujugon\PushNotification\PushNotification;
-use App\Models\ActivityAssigne;
 use App\Models\User;
+use Edujugon\PushNotification\PushNotification;
 use App\Models\Activity;
+use App\Models\ActivityAssigne;
 use App\Models\EmergencyContact;
+use App\Models\EmailTemplate;
 use Carbon\Carbon;
 
 class notifySend extends Command
@@ -99,39 +100,56 @@ class notifySend extends Command
                 }
 
                 $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-                $user_type =  $getUser->user_type_id;
-                $module =  "";
-                $id =  $assigne->id;
-                $screen =  "";
-                $companyObj = companySetting($getUser->top_most_parent_id);
-                $obj  =[
-                    "type"=> 'activity',
-                    "user_id"=> $getUser->id,
-                    "name"=> $getUser->name,
-                    "email"=> $getUser->email,
-                    "user_type"=> $getUser->user_type_id,
-                    "title"=> $activity->title,
-                    "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-                    "start_date"=> $activity->start_date,
-                    "start_time"=> $activity->start_time,
-                    "company"=>  $companyObj,
-                    "company_id"=>  $getUser->top_most_parent_id,
+                $module =  "activity";
+                $id =  $activity->id;
+                $screen = "detail";
+                $title = "";
+                $body = "";
 
-                ];
-                
-                if(env('IS_NOTIFICATION_ENABLE')== true && ($is_push_notify == true) && ($currentDateTime  ==  $dateTime)){
-                     
-                        pushNotification('activity',$companyObj,$obj,'1',$module,$id,$screen, 'info');
+
+                if($getUser)
+                {
+                    if(($is_push_notify == true) && ($currentDateTime ==  $dateTime))
+                    {
+                        $getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+                        if($getMsg)
+                        {
+                            $body = $getMsg->notify_body;
+                            $title = $getMsg->mail_subject;
+                            $arrayVal = [
+                                '{{name}}'              => $getUser->name,
+                                '{{assigned_by}}'       => Auth::User()->name,
+                                '{{activity_title}}'    => $activity->title,
+                                '{{start_date}}'        => $activity->start_date,
+                                '{{start_time}}'        => $activity->start_time
+                            ];
+                            $body = strReplaceAssoc($arrayVal, $body);
+                        }
+                        actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+                        
                         $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-                }
-                if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
-                    sendMessage('activity',$obj,$companyObj);
+                    }
+                    
+                    $companyObj = companySetting($getUser->top_most_parent_id);
+                    $obj  =[
+                        "type"=> 'activity',
+                        "user_id"=> $getUser->id,
+                        "name"=> $getUser->name,
+                        "email"=> $getUser->email,
+                        "user_type"=> $getUser->user_type_id,
+                        "title"=> $activity->title,
+                        "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
+                        "start_date"=> $activity->start_date,
+                        "start_time"=> $activity->start_time,
+                        "company"=>  $companyObj,
+                        "company_id"=>  $getUser->top_most_parent_id,
+
+                    ];
+                    if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
+                        sendMessage('activity',$obj,$companyObj);
+                    }
                 }
             }
-            
         }
     }
-
-
-
 }

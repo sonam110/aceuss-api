@@ -7,12 +7,12 @@ use Log;
 use Auth;
 use Mail;
 use Exception;
-use Edujugon\PushNotification\PushNotification;
-use App\Models\Activity;
 use App\Models\User;
+use Edujugon\PushNotification\PushNotification;
 use App\Models\Task;
-use App\Models\EmergencyContact;
 use App\Models\AssignTask;
+use App\Models\EmergencyContact;
+use App\Models\EmailTemplate;
 use Carbon\Carbon;
 class taskNotify extends Command
 {
@@ -95,35 +95,55 @@ class taskNotify extends Command
                     }
                     
                 }
-                $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-                $user_type =  ($getUser) ? $getUser->user_type_id : null;
-                $module =  "";
-                $id =  $assigne->id;
-                $screen =  "";
-                $companyObj = companySetting($getUser->top_most_parent_id);
-                $obj  =[
-                    "type"=> 'task',
-                    "user_id"=> ($getUser) ? $getUser->id : null,
-                    "name"=> ($getUser) ? $getUser->name : null,
-                    "email"=> ($getUser) ? $getUser->email : null,
-                    "user_type"=> ($getUser) ? $getUser->user_type_id : null,
-                    "title"=> $task->title,
-                    "patient_id"=> ($task->Patient)? $task->Patient->unique_id : null,
-                    "start_date"=> $task->start_date,
-                    "start_time"=> $task->start_time,
-                    "company"=>  $companyObj,
-                    "company_id"=>  ($getUser) ? $getUser->top_most_parent_id : null,
 
-                ];
-                if(env('IS_NOTIFICATION_ENABLE')== true && ($is_push_notify == true) && ($currentDateTime  ==  $dateTime) ){
-                        pushNotification('task',$companyObj,$obj,'1',$module,$id,$screen, 'info');
-                        $update_is_notify = taskAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-                }
-                if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
-                    sendMessage('task',$obj,$companyObj);
+                $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $module = "task";
+                $id = $task->id;
+                $screen = "detail";
+                $title = "";
+                $body = "";
+
+                if($getUser)
+                {
+                   if(($is_push_notify = true) && ($currentDateTime  =  $dateTime))
+                   {
+                       $getMsg = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
+                       if($getMsg)
+                       {
+                           $body = $getMsg->notify_body;
+                           $title = $getMsg->mail_subject;
+                           $arrayVal = [
+                               '{{name}}'              => $getUser->name,
+                               '{{assigned_by}}'       => "Auth::User()->name",
+                               '{{task_title}}'        => $task->title
+                           ];
+                           $body = strReplaceAssoc($arrayVal, $body);
+                       }
+                       actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+                       
+                       $update_is_notify = AssignTask::where('id',$assigne->id)->update(['is_notify'=>'1']);
+                   } 
+
+                   $companyObj = companySetting($getUser->top_most_parent_id);
+                   $obj = [
+                       "type"=> 'task',
+                       "user_id"=> ($getUser) ? $getUser->id : null,
+                       "name"=> ($getUser) ? $getUser->name : null,
+                       "email"=> ($getUser) ? $getUser->email : null,
+                       "user_type"=> ($getUser) ? $getUser->user_type_id : null,
+                       "title"=> $task->title,
+                       "patient_id"=> ($task->Patient)? $task->Patient->unique_id : null,
+                       "start_date"=> $task->start_date,
+                       "start_time"=> $task->start_time,
+                       "company"=>  $companyObj,
+                       "company_id"=>  ($getUser) ? $getUser->top_most_parent_id : null,
+
+                   ];
+                   if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
+                       sendMessage('task',$obj,$companyObj);
+                   }
                 }
             }
-            
         }
     }
 }
