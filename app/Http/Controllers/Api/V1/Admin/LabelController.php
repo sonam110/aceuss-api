@@ -205,18 +205,15 @@ class LabelController extends Controller
 		if($request->language_id)
 		{
 			$language =  Language::find($request->language_id);
-            $language->title                = $request->language_title;
-            $language->value                = $request->language_value;
-            $language->save();
 		}
         else
         {
             $language = new Language;
-            $language->title                = $request->language_title;
-            $language->value                = $request->language_value;
-            $language->status               = 1;
-            $language->save();
         }
+        $language->title	= $request->language_title;
+        $language->value    = $request->language_value;
+        $language->status   = 1;
+        $language->save();
 		$data = ['language_id' => $language->id];
 		Label::where('language_id',$language->id)->delete();
 		$import = Excel::import(new LabelsImport($data),request()->file('file'));
@@ -228,9 +225,9 @@ class LabelController extends Controller
     {
         $rand = rand(1,9);
         
-        $excel = Excel::store(new LabelsExport(), 'export/'.$rand.'.csv' , 'export_path');
+        $excel = Excel::store(new LabelsExport(), 'export/'.$rand.'.xlsx' , 'export_path');
         
-        return prepareResult(true,getLangByLabelGroups('Label','message_label_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.csv'], config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('Label','message_label_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.xlsx'], config('httpcodes.success'));
          
     }
 }

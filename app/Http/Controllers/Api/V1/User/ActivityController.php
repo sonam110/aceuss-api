@@ -400,7 +400,7 @@ class ActivityController extends Controller
 
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
             $group_id = generateRandomNumber();
-            $branch_id = getBranchId();
+            $branch_id = User::select('branch_id')->find($request->patient_id)->branch_id;
             $activity_ids = [];
             if(!empty($repeatedDates)) {
             	foreach ($repeatedDates as $key1 => $date) {
@@ -719,7 +719,7 @@ class ActivityController extends Controller
             }
 
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
-            $branch_id = getBranchId();
+            $branch_id = User::select('branch_id')->find($request->patient_id)->branch_id;
             $activity_ids = [];
             $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
             if(!empty($repeatedDates)) {
