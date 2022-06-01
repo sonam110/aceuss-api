@@ -242,6 +242,7 @@ class UserController extends Controller
     		$user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
     		$user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
     		$user->contact_person_name = $request->contact_person_name;
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
     		$user->save();
     		if($roleInfo)
     		{
@@ -521,6 +522,7 @@ class UserController extends Controller
     		$user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
     		$user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
     		$user->contact_person_name = $request->contact_person_name;
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
     		$user->save();
 
     		if($roleInfo)

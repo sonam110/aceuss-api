@@ -170,6 +170,7 @@ class CompanyAccountController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->documents = json_encode($request->documents);
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
 
 
@@ -354,6 +355,7 @@ class CompanyAccountController extends Controller
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->contact_person_name;
             $user->documents = json_encode($request->documents);
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
             if(!empty($request->package_id)){
                 $validator = Validator::make($request->all(),[ 

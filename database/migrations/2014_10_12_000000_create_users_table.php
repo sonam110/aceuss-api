@@ -81,6 +81,8 @@ class CreateUsersTable extends Migration
             $table->enum('contract_type',['1','2'])->comment('1:Hourly rate, 2: Fixed cost')->nullable();
             $table->decimal('contract_value', 9, 2)->nullable();
 
+            $table->string('avatar')->default('https://aceuss.3mad.in/uploads/no-image.png')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

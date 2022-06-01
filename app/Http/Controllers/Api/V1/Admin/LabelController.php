@@ -40,6 +40,11 @@ class LabelController extends Controller
 				$query = $query->where('label_name','like', '%'.$request->label_name.'%');
 			}
 
+			if(!empty($request->label_value))
+			{
+				$query = $query->where('label_value','like', '%'.$request->label_value.'%');
+			}
+
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
