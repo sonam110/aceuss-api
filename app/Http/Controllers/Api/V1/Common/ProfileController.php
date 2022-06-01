@@ -35,6 +35,7 @@ class ProfileController extends Controller
             $user->organization_number = $request->organization_number;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, config('httpcodes.success'));

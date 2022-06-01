@@ -110,6 +110,7 @@ class User extends Authenticatable
         'language_id',
         'contract_type',
         'contract_value',
+        'avatar'
     ];
 
     /**
