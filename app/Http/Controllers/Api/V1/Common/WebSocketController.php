@@ -92,7 +92,7 @@ class WebSocketController implements MessageComponentInterface {
                             }
                         }
                     }
-                    $conn->send(json_encode(['message' => 'Messege Sent','created_at'=>date('Y-m-d H:i:s')]));
+                    $conn->send($msg);
 
                     $message = new Message();
                     $message->sender_id = $data->from;
