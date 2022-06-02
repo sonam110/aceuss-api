@@ -118,9 +118,6 @@ class MessagingController extends Controller
             ->where(function($q) use ($user_id) {
                 $q->where('sender_id', auth()->id())
                     ->orWhere('receiver_id', $user_id);
-
-                $q->where('sender_id', $user_id)
-                    ->orWhere('receiver_id', auth()->id());
             });
 
             if(!empty($request->from_date) && !empty($request->end_date))
@@ -142,10 +139,7 @@ class MessagingController extends Controller
                 ->where(function($q) use ($user_id) {
                     $q->where('sender_id', auth()->id())
                         ->orWhere('receiver_id', $user_id);
-
-                    $q->where('sender_id', $user_id)
-                        ->orWhere('receiver_id', auth()->id());
-                })
+                });
                 ->get();
             }
             
