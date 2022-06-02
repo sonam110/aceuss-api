@@ -17,6 +17,7 @@ class MessagingController extends Controller
             $query = User::select('users.id','users.name','users.avatar')
                     ->where('users.status', 1)
                     ->where('users.id', '!=', auth()->id())
+                    ->with('UserType:id,name')
                     ->withCount('unreadMessages');
             
             if(!empty($request->top_most_parent_id))
@@ -50,6 +51,7 @@ class MessagingController extends Controller
                     $adminInfo = User::select('users.id', 'users.name','users.avatar')
                         ->where('user_type_id', 1)
                         ->withoutGlobalScope('top_most_parent_id')
+                        ->with('UserType:id,name')
                         ->first();
                     $getAdminCount = Message::where('sender_id', $adminInfo->id)
                         ->where('receiver_id', auth()->id())
@@ -115,8 +117,15 @@ class MessagingController extends Controller
         try {
             $user_id = $request->user_id;
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-            ->where('receiver_id', auth()->id())
-            ->where('sender_id', $user_id);
+            ->where(function($q) use ($user_id) {
+                $q->where('sender_id', auth()->id())
+                    ->where('receiver_id', $user_id);;
+            })
+            ->orWhere(function($q) use ($user_id) {
+
+                $q->where('sender_id', $user_id)
+                    ->where('receiver_id', auth()->id());
+            });
 
             if(!empty($request->from_date) && !empty($request->end_date))
             {
@@ -129,13 +138,20 @@ class MessagingController extends Controller
             }
 
             $query = $query->get();
-
+            
             //if message count is less than 20 then load all messages
             if($query->count()<20)
             {
                 $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-                ->where('receiver_id', auth()->id())
-                ->where('sender_id', $user_id)
+                ->where(function($q) use ($user_id) {
+                    $q->where('sender_id', auth()->id())
+                        ->where('receiver_id', $user_id);;
+                })
+                ->orWhere(function($q) use ($user_id) {
+
+                    $q->where('sender_id', $user_id)
+                        ->where('receiver_id', auth()->id());
+                })
                 ->get();
             }
             
