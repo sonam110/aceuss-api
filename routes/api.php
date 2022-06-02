@@ -139,7 +139,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
     	Route::post('get-messages', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getMessages']);
 
 		//Notification
-		Route::apiResource('/notification', 'Common\NotificationController')->only('store','index','destroy','show');
+		Route::post('/notifications',[App\Http\Controllers\Api\V1\Common\NotificationController::class,'index']);
+		Route::apiResource('/notification', 'Common\NotificationController')->only('store','destroy','show');
 		Route::get('/notification/{id}/read', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'read']);
 		Route::get('/user-notification-read-all', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationReadAll']);
 		Route::get('/user-notification-delete', [App\Http\Controllers\Api\V1\Common\NotificationController::class,'userNotificationDelete']);
