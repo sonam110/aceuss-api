@@ -14,7 +14,7 @@ class MessagingController extends Controller
     public function getUsers(Request $request)
     {
         try {
-            $query = User::select('users.id', 'users.name', 'users.avatar')
+            $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
                 ->where('users.id', '!=', auth()->id())
                 ->with('UserType:id,name')
@@ -44,7 +44,7 @@ class MessagingController extends Controller
                 $query = $pagination;
 
                 if (auth()->user()->top_most_parent_id != '1') {
-                    $adminInfo = User::select('users.id', 'users.name', 'users.avatar')
+                    $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
                         ->withoutGlobalScope('top_most_parent_id')
                         ->with('UserType:id,name')
@@ -63,7 +63,7 @@ class MessagingController extends Controller
             } else {
                 $query = $query->get();
                 if (auth()->user()->top_most_parent_id != '1') {
-                    $adminInfo = User::select('users.id', 'users.name', 'users.avatar')
+                    $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
                         ->withoutGlobalScope('top_most_parent_id')
                         ->first();
