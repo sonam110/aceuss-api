@@ -92,15 +92,16 @@ class WebSocketController implements MessageComponentInterface {
                             }
                         }
                     }
-                    $conn->send($msg);
-
+                    
                     $message = new Message();
                     $message->sender_id = $data->from;
                     $message->receiver_id = $data->to;
                     $message->message = $data->message;
                     $message->read_at = null;
                     $message->save();
+                    $message = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')->find(4message->id);
                     }
+                    $conn->send($message);
                     break;
                     case "register":
                         //
