@@ -94,12 +94,32 @@ class MessagingController extends Controller
         }
     }
 
+    public function getUsersWithLatestMessage(Request $request)
+    {
+        try {
+            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
+            ->orderBy('id', 'desc')
+            ->where('sender_id', '!=', auth()->id())
+            ->get()
+            ->unique('sender_id');
+            
+            return prepareResult(true,'Users List' ,$query, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
     public function getMessages(Request $request)
     {
         try {
+            $user_id = $request->user_id;
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-            ->where(function($q) {
+            ->where(function($q) use ($user_id) {
                 $q->where('sender_id', auth()->id())
+                    ->orWhere('receiver_id', $user_id);
+
+                $q->where('sender_id', $user_id)
                     ->orWhere('receiver_id', auth()->id());
             });
 
@@ -119,8 +139,11 @@ class MessagingController extends Controller
             if($query->count()<20)
             {
                 $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-                ->where(function($q) {
+                ->where(function($q) use ($user_id) {
                     $q->where('sender_id', auth()->id())
+                        ->orWhere('receiver_id', $user_id);
+
+                    $q->where('sender_id', $user_id)
                         ->orWhere('receiver_id', auth()->id());
                 })
                 ->get();

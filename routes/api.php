@@ -136,6 +136,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		//messages
     	Route::post('get-users', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getUsers']);
+    	Route::post('get-users-with-latest-message', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getUsersWithLatestMessage']);
     	Route::post('get-messages', [App\Http\Controllers\Api\V1\Common\MessagingController::class, 'getMessages']);
 
 		//Notification
