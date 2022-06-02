@@ -21,17 +21,24 @@ class CreateStamplingsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->unsignedBigInteger('schedule_id');
+            $table->unsignedBigInteger('schedule_id')->nullable();
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
             $table->time('in_time');
             $table->time('out_time');
             $table->string('extra_hours');
             $table->string('reason_for_extra_hours')->default(0);
             $table->boolean('is_extra_hours_approved')->default(0);
+            $table->boolean('is_scheduled_hours_ov_hours')->default(0);
+            $table->boolean('scheduled_hours_rate')->default(0);
+            $table->boolean('is_extra_hours_ov_hours')->default(0);
+            $table->boolean('extra_hours_rate')->default(0);
+            $table->float('scheduled_hours_sum')->default(0);
+            $table->float('extra_hours_sum')->default(0);
+            $table->float('total_sum')->default(0);
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
