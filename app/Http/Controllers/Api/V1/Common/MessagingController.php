@@ -115,10 +115,8 @@ class MessagingController extends Controller
         try {
             $user_id = $request->user_id;
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-            ->where(function($q) use ($user_id) {
-                $q->where('sender_id', auth()->id())
-                    ->orWhere('receiver_id', $user_id);
-            });
+            ->where('receiver_id', auth()->id())
+            ->where('sender_id', $user_id);
 
             if(!empty($request->from_date) && !empty($request->end_date))
             {
@@ -136,10 +134,8 @@ class MessagingController extends Controller
             if($query->count()<20)
             {
                 $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
-                ->where(function($q) use ($user_id) {
-                    $q->where('sender_id', auth()->id())
-                        ->orWhere('receiver_id', $user_id);
-                })
+                ->where('receiver_id', auth()->id())
+                ->where('sender_id', $user_id)
                 ->get();
             }
             
