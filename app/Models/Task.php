@@ -119,5 +119,10 @@ class Task extends Model
         return $this->belongsTo(User::class,'action_by','id');
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(User::class,'branch_id','id');
+    }
+
 
 }
