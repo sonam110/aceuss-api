@@ -100,8 +100,9 @@ class WebSocketController implements MessageComponentInterface {
                         $message->read_at = null;
                         $message->save();
                     }
-                    $data['created_at'] = @$message->created_by;
-                    $conn->send(json_encode($data));
+                    $req = json_decode($msg, true);
+                    $req['created_at'] = date('Y-m-d H:i:s');
+                    $conn->send(json_encode($req));
                     break;
                     case "register":
                         //
