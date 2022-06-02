@@ -23,12 +23,12 @@ class Message extends Model
 
     public function sender()
     {
-    	return $this->hasOne(User::class,'id','sender_id');
+    	return $this->hasOne(User::class,'id','sender_id')->withoutGlobalScope('top_most_parent_id');
     
     }
     public function receiver()
     {
-        return $this->hasOne(User::class,'id','receiver_id');
+        return $this->hasOne(User::class,'id','receiver_id')->withoutGlobalScope('top_most_parent_id');
     }
 
     public function unreadMessages()

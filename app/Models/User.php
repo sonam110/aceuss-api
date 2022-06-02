@@ -147,7 +147,7 @@ class User extends Authenticatable
     
     public function UserType()
     {
-        return $this->belongsTo(UserType::class,'user_type_id','id');
+        return $this->belongsTo(UserType::class,'user_type_id','id')->withoutGlobalScope('top_most_parent_id');
     }
 
     public function language()
