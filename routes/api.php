@@ -130,6 +130,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			Route::apiResource('licence-key',Admin\ManageLicenceController::class)->only(['store','destroy','show', 'update']);
 			Route::post('assign-licence-key/{id}', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'assignLicenceKey']);
 
+			/*-------------OVHour------------------------*/
+			Route::post('ovhours', [App\Http\Controllers\Api\V1\Admin\OVHourontroller::class, 'ovhours']);
+			Route::apiResource('ovhour',Admin\OVHourontroller::class)->only(['store','destroy','show', 'update']);
+
 		});
 
 		Route::get('change-language/{language_id}', [App\Http\Controllers\Api\V1\Common\UserLoginController::class, 'changeLanguage']);
