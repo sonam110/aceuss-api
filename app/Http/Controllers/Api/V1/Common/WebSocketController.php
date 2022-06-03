@@ -54,6 +54,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getuserwithmessage                 conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getmessages                 conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example disconnect                 conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
@@ -148,6 +149,29 @@ class WebSocketController implements MessageComponentInterface {
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
                         break;
+                    case "disconnect":
+                        if ($userToken['user_id'] != $data->userId ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            
+                            $this->clients->detach($conn);
+                            unset($this->users[$conn->resourceId]);
+                            unset($this->subscriptions[$conn->resourceId]);
+
+                            foreach ($this->userresources as &$userId) {
+                                foreach ($userId as $key => $resourceId) {
+                                    if ($resourceId == $conn->resourceId) {
+                                        unset($userId[$key]);
+                                    }
+                                }
+                            }
+                            $returnData = [
+                                'command' => 'connectedusers',
+                                'users' => $this->userresources
+                            ];
+                            $conn->send(json_encode($returnData));
+                        }
+                        break;
                     default:
                         $conn->send(json_encode('Invalid message format'));
                         break;
@@ -165,7 +189,7 @@ class WebSocketController implements MessageComponentInterface {
     public function onClose(ConnectionInterface $conn) 
     {
         $this->clients->detach($conn);
-        $conn->send(json_encode('Connection '.$conn->resourceId.' has disconnected'));
+        //$conn->send(json_encode('Connection '.$conn->resourceId.' has disconnected'));
         unset($this->users[$conn->resourceId]);
         unset($this->subscriptions[$conn->resourceId]);
 
@@ -176,6 +200,11 @@ class WebSocketController implements MessageComponentInterface {
                 }
             }
         }
+        $returnData = [
+            'command' => 'connectedusers',
+            'users' => $this->userresources
+        ];
+        $conn->send(json_encode($returnData));
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) 
