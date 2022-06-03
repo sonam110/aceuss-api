@@ -236,11 +236,12 @@ class WebSocketController implements MessageComponentInterface {
         $conn->close();
     }
 
-    private function getUsers($userId ,$top_most_parent_id)
+    private function getUsers($userId, $top_most_parent_id)
     {
         $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
-                ->where('users.id', '!=', $userId)
+                ->where('users.id', '!=', $top_most_parent_id)
+                ->where('users.top_most_parent_id', '!=', $userId)
                 ->with('UserType:id,name')
                 ->withCount('unreadMessages');
         $query = $query->get();
