@@ -95,6 +95,7 @@ class MessagingController extends Controller
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
                 ->orderBy('id', 'desc')
                 ->where('sender_id', '!=', auth()->id())
+                ->where('receiver_id', auth()->id())
                 ->get()
                 ->unique('sender_id');
 
