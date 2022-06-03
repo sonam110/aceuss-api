@@ -52,6 +52,8 @@ class WebSocketController implements MessageComponentInterface {
      * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getusers                 conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getusers                 conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
