@@ -96,7 +96,7 @@ class OvHourController extends Controller
             $OvHour->entry_mode = $request->entry_mode;
             $OvHour->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelOvHours('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -116,7 +116,7 @@ class OvHourController extends Controller
         {
             $checkId= OvHour::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelOvHours('OvHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('OvHour','message_id_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,'View OvHour' ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -154,6 +154,8 @@ class OvHourController extends Controller
 
             if ($validation->fails()) {
                return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+           }
+       }
           
 
         DB::beginTransaction();
@@ -165,7 +167,7 @@ class OvHourController extends Controller
             $OvHour->entry_mode = $request->entry_mode;
             $OvHour->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelOvHours('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -180,18 +182,19 @@ class OvHourController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Exception
      */
+
     public function destroy($id)
     {
         try 
         {
             $checkId= OvHour::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelOvHours('OvHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('OvHour','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 OvHour::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelOvHours('OvHour','message_delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('OvHour','message_delete') ,[], config('httpcodes.success'));
             }
            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             

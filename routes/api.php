@@ -131,8 +131,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			Route::post('assign-licence-key/{id}', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'assignLicenceKey']);
 
 			/*-------------OVHour------------------------*/
-			Route::post('ovhours', [App\Http\Controllers\Api\V1\Admin\OVHourontroller::class, 'ovhours']);
-			Route::apiResource('ovhour',Admin\OVHourontroller::class)->only(['store','destroy','show', 'update']);
+			Route::post('ovhours', [App\Http\Controllers\Api\V1\Admin\OVHourController::class, 'ovhours']);
+			Route::apiResource('ovhour',Admin\OVHourController::class)->only(['store','destroy','show', 'update']);
 
 		});
 
@@ -322,6 +322,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('bookmarks', [App\Http\Controllers\Api\V1\User\BookmarkController::class, 'Bookmarks']);
 		Route::apiResource('bookmark', User\BookmarkController::class)->only(['store','destroy','show', 'update']);
+
+		//-----------------------Schedule---------------------
+		Route::post('schedules', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedules']);
+		Route::apiResource('schedule', User\ScheduleController::class)->only(['store','destroy','show', 'update']);
 		
 	});
 
