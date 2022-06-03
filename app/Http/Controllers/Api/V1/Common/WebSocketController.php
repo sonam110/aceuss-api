@@ -104,13 +104,7 @@ class WebSocketController implements MessageComponentInterface {
                         }
                         $req = json_decode($msg, true);
                         $req['created_at'] = date('Y-m-d H:i:s');
-                        
-                        $returnData = [
-                            'command'   => 'message',
-                            'data'      => $req
-                        ];
-                        $conn->send(json_encode($returnData));
-
+                        $conn->send(json_encode($req));
                         break;
                     case "getusers":
                         if ($userToken['user_id'] != $data->userId ) {
