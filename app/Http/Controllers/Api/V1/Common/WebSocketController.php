@@ -51,7 +51,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example groupchat                conn.send(JSON.stringify({command: "groupchat", message: "hello glob", channel: "global"}));
      * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
-     * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "top_most_parent_id": "2", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getuserwithmessage                 conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getmessages                 conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example disconnect                 conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
@@ -111,7 +111,11 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getUsers = $this->getUsers($data->userId, $data->top_most_parent_id);
-                            $conn->send($getUsers);
+                            $returnData = [
+                                'command'   => 'getusers',
+                                'data'      => $getUsers
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "getuserwithmessage":
@@ -119,7 +123,11 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getuserwithmessage = $this->getuserwithmessage($data->userId);
-                            $conn->send($getuserwithmessage);
+                            $returnData = [
+                                'command'   => 'getuserwithmessage',
+                                'data'      => $getuserwithmessage
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "getmessages":
@@ -127,7 +135,11 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
-                            $conn->send($getmessages);
+                            $returnData = [
+                                'command'   => 'getmessages',
+                                'data'      => $getmessages
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "register":
@@ -149,8 +161,8 @@ class WebSocketController implements MessageComponentInterface {
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
                         $returnData = [
-                            'command' => 'connectedusers',
-                            'users' => $this->userresources
+                            'command'   => 'connectedusers',
+                            'data'      => $this->userresources
                         ];
                         $conn->send(json_encode($returnData));
                         break;
@@ -171,8 +183,8 @@ class WebSocketController implements MessageComponentInterface {
                                 }
                             }
                             $returnData = [
-                                'command' => 'connectedusers',
-                                'users' => $this->userresources
+                                'command'   => 'connectedusers',
+                                'data'      => $this->userresources
                             ];
                             $conn->send(json_encode($returnData));
                         }
@@ -206,8 +218,8 @@ class WebSocketController implements MessageComponentInterface {
             }
         }
         $returnData = [
-            'command' => 'connectedusers',
-            'users' => $this->userresources
+            'command'   => 'connectedusers',
+            'data'      => $this->userresources
         ];
         $conn->send(json_encode($returnData));
     }
@@ -218,11 +230,12 @@ class WebSocketController implements MessageComponentInterface {
         $conn->close();
     }
 
-    private function getUsers($userId ,$top_most_parent_id)
+    private function getUsers($userId, $top_most_parent_id)
     {
         $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
-                ->where('users.id', '!=', $userId)
+                ->where('users.id', '!=', $top_most_parent_id)
+                ->where('users.top_most_parent_id', '!=', $userId)
                 ->with('UserType:id,name')
                 ->withCount('unreadMessages');
         $query = $query->get();
