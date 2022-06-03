@@ -51,6 +51,9 @@ class WebSocketController implements MessageComponentInterface {
      * @example groupchat                conn.send(JSON.stringify({command: "groupchat", message: "hello glob", channel: "global"}));
      * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getuserwithmessage                 conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getmessages                 conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
@@ -58,7 +61,6 @@ class WebSocketController implements MessageComponentInterface {
         if (isset($data->command)) {
             if (isset($data->token)) {
                 $userToken = checkUserToken($data->token);
-               
                 if (!empty($userToken)) {
                     $checkToken = OauthAccessTokens::where([
                         ['id', '=', $userToken['user_token']],
@@ -73,37 +75,60 @@ class WebSocketController implements MessageComponentInterface {
                 
                 switch ($data->command) {
                     case "message":
-
-                    if ($userToken['user_id'] != $data->from ) {
-                        $conn->send(json_encode('user not matched'));
-                    } else  {
-                    if (isset($this->userresources[$data->to])) {
-                        foreach ($this->userresources[$data->to] as $key => $resourceId) {
-                            if (isset($this->users[$resourceId])) {
-                                $this->users[$resourceId]->send($msg);
+                        if ($userToken['user_id'] != $data->from ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                        if (isset($this->userresources[$data->to])) {
+                            foreach ($this->userresources[$data->to] as $key => $resourceId) {
+                                if (isset($this->users[$resourceId])) {
+                                    $this->users[$resourceId]->send($msg);
+                                }
+                            }
+                            $conn->send(json_encode($this->userresources[$data->to]));
+                        }
+                        if (isset($this->userresources[$data->from])) {
+                            foreach ($this->userresources[$data->from] as $key => $resourceId) {
+                                if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
+                                    $this->users[$resourceId]->send($msg);
+                                }
                             }
                         }
-                        $conn->send(json_encode($this->userresources[$data->to]));
-                    }
-                    if (isset($this->userresources[$data->from])) {
-                        foreach ($this->userresources[$data->from] as $key => $resourceId) {
-                            if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
-                                $this->users[$resourceId]->send($msg);
-                            }
+                        
+                            $message = new Message();
+                            $message->sender_id = $data->from;
+                            $message->receiver_id = $data->to;
+                            $message->message = $data->message;
+                            $message->read_at = null;
+                            $message->save();
                         }
-                    }
-                    
-                        $message = new Message();
-                        $message->sender_id = $data->from;
-                        $message->receiver_id = $data->to;
-                        $message->message = $data->message;
-                        $message->read_at = null;
-                        $message->save();
-                    }
-                    $req = json_decode($msg, true);
-                    $req['created_at'] = date('Y-m-d H:i:s');
-                    $conn->send(json_encode($req));
-                    break;
+                        $req = json_decode($msg, true);
+                        $req['created_at'] = date('Y-m-d H:i:s');
+                        $conn->send(json_encode($req));
+                        break;
+                    case "getusers":
+                        if ($userToken['user_id'] != $data->userId ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $getUsers = $this->getUsers($data->userId, $data->top_most_parent_id);
+                            $conn->send($getUsers);
+                        }
+                        break;
+                    case "getuserwithmessage":
+                        if ($userToken['user_id'] != $data->userId ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $getuserwithmessage = $this->getuserwithmessage($data->userId);
+                            $conn->send($getuserwithmessage);
+                        }
+                        break;
+                    case "getmessages":
+                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
+                            $conn->send($getmessages);
+                        }
+                        break;
                     case "register":
                         //
                         if (isset($data->userId)) {
@@ -124,7 +149,6 @@ class WebSocketController implements MessageComponentInterface {
                         //$conn->send(json_encode($this->userresources));
                         break;
                     default:
-                       
                         $conn->send(json_encode('Invalid message format'));
                         break;
                 }
@@ -158,5 +182,68 @@ class WebSocketController implements MessageComponentInterface {
     {
         $conn->send(json_encode('An error has occurred '.$e->getMessage().''));
         $conn->close();
+    }
+
+    private function getUsers($userId ,$top_most_parent_id)
+    {
+        $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
+                ->where('users.status', 1)
+                ->where('users.id', '!=', $userId)
+                ->with('UserType:id,name')
+                ->withCount('unreadMessages');
+        $query = $query->get();
+        if ($top_most_parent_id != '1') {
+            $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
+                ->where('user_type_id', 1)
+                ->withoutGlobalScope('top_most_parent_id')
+                ->first();
+            $getAdminCount = Message::where('sender_id', $adminInfo->id)
+                ->where('receiver_id', $userId)
+                ->whereNull('read_at')
+                ->withoutGlobalScope('top_most_parent_id')
+                ->count();
+            $query[$query->count()] = [
+                'id' => $adminInfo->id,
+                'name' => $adminInfo->name,
+                'unread_messages_count' => $getAdminCount
+            ];
+        }
+        return $query;
+    }
+
+    private function getuserwithmessage($userId)
+    {
+        $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
+            ->orderBy('id', 'desc')
+            ->where('sender_id', '!=', $userId)
+            ->where('receiver_id', $userId)
+            ->get()
+            ->unique('sender_id');
+        return $query;
+    }
+
+    private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date)
+    {
+        $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+            ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
+            ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
+
+        if (!empty($from_date) && !empty($end_date)) {
+            $query->whereBetween('created_at', [$from_date, $end_date]);
+        } else {
+            // last 7 days
+            $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
+        }
+
+        $query = $query->get();
+
+        //if message count is less than 20 then load all messages
+        if ($query->count() < 20) {
+            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+                ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
+                ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
+                ->get();
+        }
+        return $query;
     }
 }
