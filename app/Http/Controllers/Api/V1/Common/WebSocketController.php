@@ -104,14 +104,24 @@ class WebSocketController implements MessageComponentInterface {
                         }
                         $req = json_decode($msg, true);
                         $req['created_at'] = date('Y-m-d H:i:s');
-                        $conn->send(json_encode($req));
+                        
+                        $returnData = [
+                            'command'   => 'message',
+                            'data'      => $req
+                        ];
+                        $conn->send(json_encode($returnData));
+
                         break;
                     case "getusers":
                         if ($userToken['user_id'] != $data->userId ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getUsers = $this->getUsers($data->userId, $data->top_most_parent_id);
-                            $conn->send($getUsers);
+                            $returnData = [
+                                'command'   => 'getusers',
+                                'data'      => $getUsers
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "getuserwithmessage":
@@ -119,7 +129,11 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getuserwithmessage = $this->getuserwithmessage($data->userId);
-                            $conn->send($getuserwithmessage);
+                            $returnData = [
+                                'command'   => 'getuserwithmessage',
+                                'data'      => $getuserwithmessage
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "getmessages":
@@ -127,7 +141,11 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
-                            $conn->send($getmessages);
+                            $returnData = [
+                                'command'   => 'getmessages',
+                                'data'      => $getmessages
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "register":
@@ -149,8 +167,8 @@ class WebSocketController implements MessageComponentInterface {
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
                         $returnData = [
-                            'command' => 'connectedusers',
-                            'users' => $this->userresources
+                            'command'   => 'connectedusers',
+                            'data'      => $this->userresources
                         ];
                         $conn->send(json_encode($returnData));
                         break;
@@ -171,8 +189,8 @@ class WebSocketController implements MessageComponentInterface {
                                 }
                             }
                             $returnData = [
-                                'command' => 'connectedusers',
-                                'users' => $this->userresources
+                                'command'   => 'connectedusers',
+                                'data'      => $this->userresources
                             ];
                             $conn->send(json_encode($returnData));
                         }
@@ -206,8 +224,8 @@ class WebSocketController implements MessageComponentInterface {
             }
         }
         $returnData = [
-            'command' => 'connectedusers',
-            'users' => $this->userresources
+            'command'   => 'connectedusers',
+            'data'      => $this->userresources
         ];
         $conn->send(json_encode($returnData));
     }
