@@ -811,12 +811,12 @@ class UserController extends Controller
 
     		if($licenceKeyData->expire_at >= date('Y-m-d'))
     		{
-    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,['active'], config('httpcodes.success'));
+    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,'active', config('httpcodes.success'));
     		}
     		else
     		{
     			Auth::user()->update(['license_status' => 0]);
-    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,['inactive'], config('httpcodes.success'));
+    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,'inactive', config('httpcodes.success'));
     		}
     	} catch (\Throwable $exception) {
     		\Log::error($exception);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\Admin;
+namespace App\Http\Controllers\API\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\OvHour;
@@ -89,14 +89,63 @@ class OvHourController extends Controller
 
         DB::beginTransaction();
         try {
-            $OvHour = new OvHour;
-            $OvHour->date = $request->date;
-            $OvHour->start_time = $request->start_time;
-            $OvHour->end_time = $request->end_time;
-            $OvHour->entry_mode = $request->entry_mode;
-            $OvHour->save();
+            if($request->is_range == 1)
+            {
+                $start_date = $request->date[0];
+                $end_date = $request->date[1];
+                $diffrece = dateDifference($start_date, $end_date) + 1;
+                $dates = [];
+                $ovhour_ids = [];
+
+                for($i = $diffrece; $i>=1; $i--)
+                {
+                    $dates[] = date("Y-m-d", strtotime('-'.($i-1).' days', strtotime($end_date)));
+                }  
+                foreach ($dates as $key => $date) 
+                {
+                    if($request->is_repeat == 1)
+                    {
+                        $everyWeek = $request->every_week;
+                        $week_days = $request->week_days;
+                        foreach ($week_days as $key => $value) {
+                            if(date('w',strtotime($date)) == $value)
+                            {
+                                $ovHour = new OvHour;
+                                $ovHour->date = $date;
+                                $ovHour->start_time = $request->start_time;
+                                $ovHour->end_time = $request->end_time;
+                                $ovHour->entry_mode = $request->entry_mode;
+                                $ovHour->save();
+
+                                $ovhour_ids[] = $ovHour->id;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $ovHour = new OvHour;
+                        $ovHour->date = $date;
+                        $ovHour->start_time = $request->start_time;
+                        $ovHour->end_time = $request->end_time;
+                        $ovHour->entry_mode = $request->entry_mode;
+                        $ovHour->save();
+                        $ovhour_ids[] = $ovHour->id;
+                    }
+                }              
+            }
+            else
+            {
+                $date = $request->date;
+                $ovHour = new OvHour;
+                $ovHour->date = $date;
+                $ovHour->start_time = $request->start_time;
+                $ovHour->end_time = $request->end_time;
+                $ovHour->entry_mode = $request->entry_mode;
+                $ovHour->save();
+            }
+            
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -107,7 +156,7 @@ class OvHourController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\OvHour  $OvHour
+     * @param  \App\OvHour  $ovHour
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -129,7 +178,7 @@ class OvHourController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\OvHour  $OvHour
+     * @param  \App\OvHour  $ovHour
      * @return \Illuminate\Http\Response
      */
     
@@ -160,14 +209,14 @@ class OvHourController extends Controller
 
         DB::beginTransaction();
         try {
-            $OvHour = OvHour::find($id);
-            $OvHour->date = $request->date;
-            $OvHour->start_time = $request->start_time;
-            $OvHour->end_time = $request->end_time;
-            $OvHour->entry_mode = $request->entry_mode;
-            $OvHour->save();
+            $ovHour = OvHour::find($id);
+            $ovHour->date = $request->date;
+            $ovHour->start_time = $request->start_time;
+            $ovHour->end_time = $request->end_time;
+            $ovHour->entry_mode = $request->entry_mode;
+            $ovHour->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$OvHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OvHour','message_create') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -178,7 +227,7 @@ class OvHourController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\OvHour $OvHour
+     * @param \App\OvHour $ovHour
      * @return \Illuminate\Http\Response
      * @throws \Exception
      */

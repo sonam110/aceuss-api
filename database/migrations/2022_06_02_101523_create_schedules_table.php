@@ -27,13 +27,17 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('schedules')->onDelete('cascade');
 
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('shift_name');
             $table->time('shift_start_time');
             $table->time('shift_end_time');
             $table->string('shift_color')->nullable();
 
             $table->string('shift_date');
-            $table->boolean('is_on_leave')->default(0);
+            $table->boolean('leave_applied')->default(0);
+            $table->boolean('leave_approved')->default(0);
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
             $table->timestamps();

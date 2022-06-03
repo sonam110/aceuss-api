@@ -102,9 +102,11 @@ class ScheduleController extends Controller
 				$schedule->shift_end_time = $shift->shift_end_time;
 				$schedule->shift_color = $shift->shift_color;
 				$schedule->shift_date = $date;
-				$schedule->is_on_leave = ($request->is_on_leave)? $request->is_on_leave :0;
+				$schedule->leave_applied = ($request->leave_applied)? $request->leave_applied :0;
+				$schedule->leave_approved = ($request->leave_approved)? $request->leave_approved :0;
 				$schedule->status = ($request->status)? $request->status :0;
 				$schedule->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+				$schedule->created_by = Auth::id();
 				$schedule->save();
 				$schedule_ids[] = $schedule->id;
 			}
@@ -126,37 +128,39 @@ class ScheduleController extends Controller
 		DB::beginTransaction();
 		try 
 		{
-			$user = getUser();
-
-			$validator = Validator::make($request->all(),[
-				'user_id' => 'required|exists:users,id'
+			$validator = Validator::make($request->all(),[   
+				'shift_id' => 'required|exists:company_work_shifts,id' 
 			],
-			[
-				'user_id' =>  getLangByLabelGroups('Schedule','message_user_id'),
+			[   
+				'shift_id' =>  getLangByLabelGroups('Schedule','message_shift_id')
 			]);
 			if ($validator->fails()) {
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
 
-			$checkId = Schedule::where('id',$id)
-			->first();
-			if (!is_object($checkId)) {
+			$schedule = Schedule::find($id);
+			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 
-			$parent_id  = (is_null($checkId->parent_id)) ? $id : $checkId->parent_id;
-			$schedule = Schedule::where('id',$id)->with('Category:id,name','Subcategory:id,name')->first();
+			$shift = CompanyWorkShift::find($request->shift_id);
+			if (!is_object($shift)) {
+				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+			}
+
 			$schedule->shift_id = $request->shift_id;
-			$schedule->user_id = $request->user_id;
+			$schedule->user_id = $request->user_id ? $request->user_id : $schedule->user_id;
 			$schedule->parent_id = $request->parent_id;
 			$schedule->shift_name = $shift->shift_name;
 			$schedule->shift_start_time = $shift->shift_start_time;
 			$schedule->shift_end_time = $shift->shift_end_time;
 			$schedule->shift_color = $shift->shift_color;
-			$schedule->shift_date = $date;
-			$schedule->is_on_leave = ($request->is_on_leave)? $request->is_on_leave :0;
+			$schedule->shift_date = $request->date ? $request->date : $schedule->date;
+			$schedule->leave_applied = ($request->leave_applied)? $request->leave_applied :0;
+			$schedule->leave_approved = ($request->leave_approved)? $request->leave_approved :0;
 			$schedule->status = ($request->status)? $request->status :0;
 			$schedule->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+			$schedule->created_by = Auth::id();
 			$schedule->save();
 
 			DB::commit();
@@ -176,8 +180,8 @@ class ScheduleController extends Controller
 
 		try {
 			$user = getUser();
-			$checkId= Schedule::where('id',$id)->first();
-			if (!is_object($checkId)) {
+			$schedule= Schedule::where('id',$id)->first();
+			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 			$schedule = Schedule::where('id',$id)->delete();
@@ -194,11 +198,11 @@ class ScheduleController extends Controller
 	public function show($id){
 		try {
 			$user = getUser();
-			$checkId= Schedule::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','ScheduleLogs','scheduleActions.scheduleActionLogs.editedBy', 'branch:id,name')
+			$schedule= Schedule::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','ScheduleLogs','scheduleActions.scheduleActionLogs.editedBy', 'branch:id,name')
 			->withCount('scheduleActions')
 			->where('id',$id)
 			->first();
-			if (!is_object($checkId)) {
+			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 
