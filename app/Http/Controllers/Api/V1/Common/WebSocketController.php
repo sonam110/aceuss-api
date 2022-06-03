@@ -148,6 +148,11 @@ class WebSocketController implements MessageComponentInterface {
                         }
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
+                        $returnData = [
+                            'command' => 'connectedusers',
+                            'users' => $this->userresources
+                        ];
+                        $conn->send(json_encode($returnData));
                         break;
                     case "disconnect":
                         if ($userToken['user_id'] != $data->userId ) {
