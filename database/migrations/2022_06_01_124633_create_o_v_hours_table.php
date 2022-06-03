@@ -17,6 +17,7 @@ class CreateOVHoursTable extends Migration
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('title');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->date('date')->nullable();

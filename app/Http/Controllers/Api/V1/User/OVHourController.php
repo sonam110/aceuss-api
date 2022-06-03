@@ -85,8 +85,6 @@ class OVHourController extends Controller
                return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
             }
         }
-        
-
         DB::beginTransaction();
         try {
             if($request->is_range == 1)
@@ -140,6 +138,7 @@ class OVHourController extends Controller
             foreach ($dates as $key => $date) 
             {
                 $ovHour = new OVHour;
+                $ovHour->title = $request->title;
                 $ovHour->date = $date;
                 $ovHour->start_time = $request->start_time;
                 $ovHour->end_time = $request->end_time;
@@ -215,6 +214,7 @@ class OVHourController extends Controller
         DB::beginTransaction();
         try {
             $ovHour = OVHour::find($id);
+            $ovHour->title = $request->title;
             $ovHour->date = $request->date;
             $ovHour->start_time = $request->start_time;
             $ovHour->end_time = $request->end_time;
@@ -245,13 +245,8 @@ class OVHourController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('OVHour','message_id_not_found'), [],config('httpcodes.not_found'));
             }
-            if(auth()->user()->user_type_id=='1')
-            {
-                OVHour::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('OVHour','message_delete') ,[], config('httpcodes.success'));
-            }
-           return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
-            
+            OVHour::where('id',$id)->delete();
+            return prepareResult(true,getLangByLabelGroups('OVHour','message_delete') ,[], config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
