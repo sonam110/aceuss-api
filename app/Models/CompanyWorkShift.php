@@ -39,12 +39,12 @@ class CompanyWorkShift extends Model
 
     public function getShiftStartTimeAttribute($value)
     {
-        return (!empty($value)) ? date('H:s', strtotime($value)) : NULL;
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
     }
 
     public function getShiftEndTimeAttribute($value)
     {
-        return (!empty($value)) ? date('H:s', strtotime($value)) : NULL;
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
     }
 
 
