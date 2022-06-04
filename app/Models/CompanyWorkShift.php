@@ -18,7 +18,6 @@ class CompanyWorkShift extends Model
     protected static $logOnlyDirty = true;
     protected $fillable =[
         'top_most_parent_id',
-		'user_id',
 		'shift_name',
 		'shift_start_time',
 		'shift_end_time',

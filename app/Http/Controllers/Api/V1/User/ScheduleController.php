@@ -34,7 +34,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC');
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name');
 			if(!empty($request->perPage))
 			{
 
@@ -110,10 +110,10 @@ class ScheduleController extends Controller
 				$schedule_ids[] = $schedule->id;
 			}
 
-			$data = Schedule::whereIn('id',$schedule_ids)->get();
+			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name')->get();
 
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$schedule, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);
@@ -195,7 +195,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$schedule= Schedule::find($id);
+			$schedule= Schedule::with('user:id,name')->where('id',$id)->first();
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}

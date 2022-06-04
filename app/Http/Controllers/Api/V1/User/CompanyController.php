@@ -175,7 +175,6 @@ class CompanyController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Company','message_id_not_found'), [],config('httpcodes.not_found'));
             }
-            
         	$checkId->delete();
             DB::commit();  
          	return prepareResult(true,getLangByLabelGroups('Company','message_delete') ,[], config('httpcodes.success'));
