@@ -16,6 +16,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Journal;
 use App\Models\Deviation;
+use App\Models\Task;
 
 class Activity extends Model
 {
@@ -28,67 +29,7 @@ class Activity extends Model
     // protected $withJournal = ['journal'];
     // protected $withDeviation = ['deviation'];
     protected $fillable =[
-        'top_most_parent_id',
-        'group_id',
-		'parent_id',
-		'ip_id',
-		'branch_id',
-        'patient_id',
-		'emp_id',
-		'shift_id',
-		'category_id',
-		'subcategory_id',
-		'title',
-		'description',
-		'start_date',
-		'start_time',
-        'how_many_time',
-        'is_repeat',
-        'every',
-        'repetition_type',
-        'how_many_time_array',
-        'repeat_dates',
-        'end_date',
-        'end_time',
-		'address_url',
-        'video_url',
-        'information_url',
-        'file',
-		'reason_for_editing',
-		'created_by',
-		'edited_by',
-		'edit_date',
-		'approved_by',
-		'approved_date',
-        'selected_option',
-        'comment',
-        'internal_comment',
-        'external_comment',
-        'remind_before_start',
-        'before_minutes',
-        'before_is_text_notify',
-        'before_is_push_notify',
-        'remind_after_end',
-        'after_minutes',
-        'after_is_text_notify',
-        'after_is_push_notify',
-        'is_emergency',
-        'emergency_minutes',
-        'emergency_is_text_notify',
-        'emergency_is_push_notify',
-        'in_time',
-        'in_time_is_text_notify',
-        'in_time_is_push_notify',
-        'is_risk',
-        'message',
-        'is_compulsory',
-		'status',
-        'action_by',
-        'action_date',
-        'entry_mode',
-        'activity_tag',
-        'action_comment',
-        'is_latest_entry'
+            'top_most_parent_id', 'group_id', 'parent_id', 'ip_id', 'branch_id', 'patient_id', 'emp_id', 'shift_id', 'category_id', 'subcategory_id', 'title', 'description', 'start_date', 'start_time', 'how_many_time', 'is_repeat', 'every', 'repetition_type', 'how_many_time_array', 'repeat_dates', 'end_date', 'end_time', 'address_url', 'video_url', 'information_url', 'file', 'reason_for_editing', 'created_by', 'edited_by', 'edit_date', 'approved_by', 'approved_date', 'selected_option', 'comment', 'internal_comment', 'external_comment', 'remind_before_start', 'before_minutes', 'before_is_text_notify', 'before_is_push_notify', 'remind_after_end', 'after_minutes', 'after_is_text_notify', 'after_is_push_notify', 'is_emergency', 'emergency_minutes', 'emergency_is_text_notify', 'emergency_is_push_notify', 'in_time', 'in_time_is_text_notify', 'in_time_is_push_notify', 'is_risk', 'message', 'is_compulsory', 'status', 'action_by', 'action_date', 'entry_mode', 'activity_tag', 'action_comment', 'is_latest_entry'
 	];
     public function ImplementationPlan()
     {
@@ -215,6 +156,12 @@ class Activity extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class,'source_id','id')->where('source_name','Activity');
+    }
+
+
+    public function tasks()
+    {
+         return $this->hasMany(Task::class,'resource_id','id')->where('type_id','1');
     }
 
 }

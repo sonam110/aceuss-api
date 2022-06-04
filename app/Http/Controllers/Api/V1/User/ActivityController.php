@@ -904,7 +904,9 @@ class ActivityController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
-    		$activity = Activity::where('id',$id)->delete();
+    		Task::where('resource_id',$id)->where('type_id','1')->delete();
+    		// $checkId->tasks->delete();
+    		$checkId->delete();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));
     	}
