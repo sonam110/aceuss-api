@@ -26,6 +26,7 @@ class CompanyWorkShift extends Model
         'entry_mode',
 
     ];
+
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
@@ -34,6 +35,16 @@ class CompanyWorkShift extends Model
     public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function getShiftStartTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:s', strtotime($value)) : NULL;
+    }
+
+    public function getShiftEndTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:s', strtotime($value)) : NULL;
     }
 
 
