@@ -14,6 +14,7 @@ use App\Models\Question;
 use App\Models\EmailTemplate;
 use App\Models\FollowupComplete;
 use App\Models\UserType;
+use App\Models\Task;
 use Validator;
 use Auth;
 use DB;
@@ -550,6 +551,7 @@ class FollowUpsController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
             }
+            Task::where('resource_id',$id)->where('type_id','5')->delete();
         	$IpFollowUp = IpFollowUp::where('id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
 		     	

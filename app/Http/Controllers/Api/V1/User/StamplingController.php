@@ -90,28 +90,26 @@ class StamplingController extends Controller
 			{
 				$date = date('Y-m-d',strtotime($shift_date));
 				$stampling = new Stampling;
-				$stampling->shedule_id 				= $request->shedule_id;
-				$stampling->user_id 				= Auth::id();
-				$stampling->shift_name 				= $request->shift_name;
-				$stampling->in_time 				= $request->in_time;
-				$stampling->out_time 				= $request->out_time;
-				$stampling->in_location 			= $request->in_location;
-				$stampling->out_location 			= $request->out_location;
-				$stampling->extra_hours 			= $request->extra_hours;
-				$stampling->reason_for_extra_hours 	= $request->reason_for_extra_hours;
-				$stampling->is_extra_hours_approved = $request->is_extra_hours_approved ? $request->is_extra_hours_approved :0;
-				$stampling->leave_approved = ($request->leave_approved)? $request->leave_approved :0;
-				$stampling->is_scheduled_hours_ov_hours = ($request->is_scheduled_hours_ov_hours)? $request->is_scheduled_hours_ov_hours :0;
-				$stampling->is_extra_hours_ov_hours = ($request->is_extra_hours_ov_hours)? $request->is_extra_hours_ov_hours :0;
-				$stampling->scheduled_hours_rate = ($request->scheduled_hours_rate)? $request->scheduled_hours_rate :0;
-				$stampling->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-				$stampling->created_by = Auth::id();
+				$stampling->shedule_id 					= $request->shedule_id;
+				$stampling->user_id 					= Auth::id();
+				$stampling->shift_name 					= $request->shift_name;
+				$stampling->in_time 					= $request->in_time;
+				$stampling->out_time 					= $request->out_time;
+				$stampling->in_location 				= $request->in_location;
+				$stampling->out_location 				= $request->out_location;
+				$stampling->extra_hours 				= $request->extra_hours;
+				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours;
+				$stampling->is_extra_hours_approved 	= 0;
+				$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
+				$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
+				$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
+				$stampling->extra_hours_rate 			= $request->extra_hours_rate;
+				$stampling->scheduled_hours_sum 		= $request->scheduled_hours_sum;
+				$stampling->extra_hours_sum 			= $request->extra_hours_sum;
+				$stampling->total_sum 					= $request->total_sum;
+				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 				$stampling->save();
-				$stampling_ids[] = $stampling->id;
-				'','','extra_hours_rate','scheduled_hours_sum','extra_hours_sum','total_sum','status','entry_mode'
 			}
-
-			$data = Stampling::whereIn('id',$stampling_ids)->get();
 
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Stampling','message_create') ,$stampling, config('httpcodes.success'));

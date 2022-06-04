@@ -749,7 +749,7 @@ class PatientController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('IP','message_id_not_found'), [],config('httpcodes.not_found'));
             }
-            
+            Task::where('resource_id',$id)->where('type_id','2')->delete();
             $patientPlan = PatientImplementationPlan::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('IP','message_delete') ,[], config('httpcodes.success'));
                 

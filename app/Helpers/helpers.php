@@ -929,3 +929,29 @@ function checkUserToken($token)
     } 
     return false;
 }
+
+function calculateDays($start_date,$end_date,$every_week,$week_days)
+{                    
+    $from = \Carbon\Carbon::parse($start_date);
+    $to =   (!empty($end_date)) ? \Carbon\Carbon::parse($end_date) : \Carbon\Carbon::parse($start_date);
+    $start_from = $from->format('Y-m-d');
+    $end_to = $to->format('Y-m-d');
+
+    $dates = [];
+    
+
+    for($w = $from; $w->lte($to); $w->addWeeks($every_week)) {
+        $date = \Carbon\Carbon::parse($w);
+        $startWeek = $w->startOfWeek()->format('Y-m-d');
+        $weekNumber = $date->weekNumberInMonth;
+        $start = \Carbon\Carbon::createFromFormat("Y-m-d", $startWeek);
+        $end = $start->copy()->endOfWeek()->format('Y-m-d');
+        for($p = $start; $p->lte($end); $p->addDays()) {
+            if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
+                if(in_array($p->dayOfWeek, $week_days)){
+                    array_push($dates, $p->copy()->format('Y-m-d'));
+                }
+            }
+        }
+    }
+}

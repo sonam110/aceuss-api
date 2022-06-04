@@ -1,0 +1,234 @@
+<?php
+
+namespace App\Http\Controllers\API\V1\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\Leave;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Str;
+use DB;
+use Auth;
+
+class LeaveController extends Controller
+{
+    // public function __construct()
+    // {
+
+    //     $this->middleware('permission:Leave-browse',['except' => ['show']]);
+    //     $this->middleware('permission:Leave-add', ['only' => ['store']]);
+    //     $this->middleware('permission:Leave-edit', ['only' => ['update']]);
+    //     $this->middleware('permission:Leave-read', ['only' => ['show']]);
+    //     $this->middleware('permission:Leave-delete', ['only' => ['destroy']]);
+        
+    // }
+
+    public function Leaves(Request $request)
+    {
+        try {
+
+            $query = Leave::orderBy('id', 'DESC');
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Leave list",$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            return prepareResult(true,"Leave list",$query,config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+        	$leave_ids = [];
+
+            if($request->is_repeat == 1)
+            {
+            	$validation = \Validator::make($request->all(), [
+            	    'start_date'      => 'required|date',
+            	    'end_date'      => 'required|date',
+            	]);
+
+            	if ($validation->fails()) {
+            	   return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+            	}
+
+                $start_date = $request->start_date;
+                $end_date = $request->end_date;
+                $every_week = $request->every_week;
+                $week_days = $request->week_days;
+
+                $dates = calculateDates($start_date,$end_date,$every_week,$week_days);
+
+	            foreach ($dates as $key => $date) 
+	            {
+	                $leave = new Leave;
+	                $leave->user_id = Auth::id();
+	                $leave->schedule_id = null;
+	                $leave->date = $date;
+	                $leave->reason = $request->reason;
+	                $leave->entry_mode = $request->entry_mode;
+	                $leave->save();
+	                $leave_ids[] = $leave->id;
+	            }        
+            }
+            else
+            {
+            	$validation = \Validator::make($request->all(), [
+            	    'leaves'      => 'required|array',
+            	]);
+
+            	if ($validation->fails()) {
+            	   return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+            	}
+
+                foreach ($request->leaves as $key => $value) 
+	            {
+	                foreach ($value['dates'] as $key => $date) 
+	                {
+
+	                    $leave = new Leave;
+	                    $leave->user_id = Auth::id();
+	                    $leave->schedule_id = null;
+	                    $leave->date = $date;
+	                    $leave->reason = $value['reason'];
+	                    $leave->entry_mode = $request->entry_mode;
+	                    $leave->save();
+	                    $leave_ids[] = $leave->id;
+	                }   
+	            }  
+            }
+
+            $data = Leave::whereIn('id',$leave_ids)->get();
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Leave  $leave
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        try 
+        {
+            $checkId= Leave::find($id);
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
+            }
+             return prepareResult(true,'View Leave' ,$checkId, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Leave  $leave
+     * @return \Illuminate\Http\Response
+     */
+    
+    public function update(Request $request,$id)
+    {
+        if(empty($request->date))
+        {
+            $validation = \Validator::make($request->all(), [
+                'start_time'      => 'required',
+                'end_time'      => 'required',
+            ]);
+
+            if ($validation->fails()) {
+               return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+        }
+        elseif(empty($request->start_time))
+        {
+            $validation = \Validator::make($request->all(), [
+                'date'      => 'required',
+            ]);
+
+            if ($validation->fails()) {
+               return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+           }
+       }
+          
+
+        DB::beginTransaction();
+        try {
+            $leave = Leave::find($id);
+            $leave->title = $request->title;
+            $leave->date = $request->date;
+            $leave->start_time = $request->start_time;
+            $leave->end_time = $request->end_time;
+            $leave->entry_mode = $request->entry_mode;
+            $leave->save();
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$leave, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param \App\Leave $leave
+     * @return \Illuminate\Http\Response
+     * @throws \Exception
+     */
+
+    public function destroy($id)
+    {
+        try 
+        {
+            $checkId= Leave::find($id);
+            if (!is_object($checkId)) {
+                return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
+            }
+            Leave::where('id',$id)->delete();
+            return prepareResult(true,getLangByLabelGroups('Leave','message_delete') ,[], config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+}
