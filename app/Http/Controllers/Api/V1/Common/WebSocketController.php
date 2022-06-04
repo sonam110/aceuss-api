@@ -76,35 +76,35 @@ class WebSocketController implements MessageComponentInterface {
                 
                 switch ($data->command) {
                     case "message":
+                        $req = json_decode($msg, true);
                         if ($userToken['user_id'] != $data->from ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
-                        if (isset($this->userresources[$data->to])) {
-                            foreach ($this->userresources[$data->to] as $key => $resourceId) {
-                                if (isset($this->users[$resourceId])) {
-                                    $this->users[$resourceId]->send($msg);
-                                }
-                            }
-                            $conn->send(json_encode($this->userresources[$data->to]));
-                        }
-                        if (isset($this->userresources[$data->from])) {
-                            foreach ($this->userresources[$data->from] as $key => $resourceId) {
-                                if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
-                                    $this->users[$resourceId]->send($msg);
-                                }
-                            }
-                        }
-                        
                             $message = new Message();
                             $message->sender_id = $data->from;
                             $message->receiver_id = $data->to;
                             $message->message = $data->message;
                             $message->read_at = null;
                             $message->save();
+                            
+                            $req['created_at'] = date('Y-m-d H:i:s');
+                            $req['id'] = $message->id;
+                            if (isset($this->userresources[$data->to])) {
+                                foreach ($this->userresources[$data->to] as $key => $resourceId) {
+                                    if (isset($this->users[$resourceId])) {
+                                        $this->users[$resourceId]->send(json_encode($req));
+                                    }
+                                }
+                                $conn->send(json_encode($this->userresources[$data->to]));
+                            }
+                            if (isset($this->userresources[$data->from])) {
+                                foreach ($this->userresources[$data->from] as $key => $resourceId) {
+                                    if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
+                                        $this->users[$resourceId]->send(json_encode($req));
+                                    }
+                                }
+                            }
                         }
-                        $req = json_decode($msg, true);
-                        $req['created_at'] = date('Y-m-d H:i:s');
-                        $req['id'] = $message->id;
                         $conn->send(json_encode($req));
                         break;
                     case "getusers":
