@@ -85,7 +85,6 @@ class CompanyController extends Controller
               	return prepareResult(false,getLangByLabelGroups('Company','message_name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $companyWorkShift = new CompanyWorkShift;
-		 	$companyWorkShift->user_id = $user->id;
 		 	$companyWorkShift->shift_name = $request->shift_name;
 		 	$companyWorkShift->shift_start_time = $request->shift_start_time;
 		 	$companyWorkShift->shift_end_time = $request->shift_end_time;
