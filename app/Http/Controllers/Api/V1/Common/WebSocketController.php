@@ -238,28 +238,37 @@ class WebSocketController implements MessageComponentInterface {
                 ->where('users.id', '!=', $userId)
                 ->with('UserType:id,name')
                 ->withCount('unreadMessages');
-        if($top_most_parent_id == '1')
-        { }
+        if($top_most_parent_id == 1)
+        { 
+            $query->where(function($q) use ($top_most_parent_id) {
+                $q->where('users.user_type_id', 2)
+                    ->orWhere('users.top_most_parent_id', $top_most_parent_id);
+            });
+        }
         else
         {
             $query->where('users.top_most_parent_id', $top_most_parent_id);
         }
         $query = $query->get();
-        if ($top_most_parent_id != '1') {
-            $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
-                ->where('user_type_id', 1)
-                ->withoutGlobalScope('top_most_parent_id')
-                ->first();
-            $getAdminCount = Message::where('sender_id', $adminInfo->id)
-                ->where('receiver_id', $userId)
-                ->whereNull('read_at')
-                ->withoutGlobalScope('top_most_parent_id')
-                ->count();
-            $query[$query->count()] = [
-                'id' => $adminInfo->id,
-                'name' => $adminInfo->name,
-                'unread_messages_count' => $getAdminCount
-            ];
+        if ($top_most_parent_id != 1) {
+            $checkCompany = User::select('user_type_id')->find($userId);
+            if($checkCompany && $checkCompany->user_type_id==2)
+            {
+                $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
+                    ->where('user_type_id', 1)
+                    ->withoutGlobalScope('top_most_parent_id')
+                    ->first();
+                $getAdminCount = Message::where('sender_id', $adminInfo->id)
+                    ->where('receiver_id', $userId)
+                    ->whereNull('read_at')
+                    ->withoutGlobalScope('top_most_parent_id')
+                    ->count();
+                $query[$query->count()] = [
+                    'id' => $adminInfo->id,
+                    'name' => $adminInfo->name,
+                    'unread_messages_count' => $getAdminCount
+                ];
+            }
         }
         return $query;
     }
