@@ -92,6 +92,7 @@ class CompanyController extends Controller
 		 	$companyWorkShift->status = '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyWorkShift->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Company','message_create') ,$companyWorkShift, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -99,9 +100,8 @@ class CompanyController extends Controller
             
         }
     }
-    public function show($id){
-        
-        DB::beginTransaction();
+    public function show($id)
+    {
         try {
             $user = getUser();
             $checkId= CompanyWorkShift::where('id',$id)->first();
@@ -117,9 +117,11 @@ class CompanyController extends Controller
             
         }
     }
-    public function update(Request $request,$id){
+    public function update(Request $request,$id)
+    {
         DB::beginTransaction();
-        try {
+        try 
+        {
 	    	$user = getUser();
 	    	$validator = Validator::make($request->all(),[ 
         		'shift_name' => 'required',   
@@ -152,6 +154,7 @@ class CompanyController extends Controller
 		 	$companyWorkShift->status = ($request->status) ? $request->status : '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$companyWorkShift->save();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Company','message_update') ,$companyWorkShift, config('httpcodes.success'));
 			  
         }
@@ -160,7 +163,8 @@ class CompanyController extends Controller
             
         }
     }
-    public function destroy($id){
+    public function destroy($id)
+    {
     	
         DB::beginTransaction();
         try {
@@ -172,7 +176,7 @@ class CompanyController extends Controller
             
         	$companyWorkShift = CompanyWorkShift::where('id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('Company','message_delete') ,[], config('httpcodes.success'));
-		     	
+		  DB::commit();   	
 			    
         }
         catch(Exception $exception) {
@@ -219,6 +223,7 @@ class CompanyController extends Controller
             $shiftAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$shiftAssigne->save();
 		 	$shiftDetail = ShiftAssigne::where('id',$shiftAssigne->id)->with('User:id,name','CompanyWorkShift')->first();
+            DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('Company','message_create'),$shiftDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {

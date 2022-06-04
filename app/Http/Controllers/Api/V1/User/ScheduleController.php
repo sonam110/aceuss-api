@@ -26,7 +26,6 @@ class ScheduleController extends Controller
 		// $this->middleware('permission:schedule-edit', ['only' => ['update']]);
 		// $this->middleware('permission:schedule-read', ['only' => ['show']]);
 		// $this->middleware('permission:schedule-delete', ['only' => ['destroy']]);
-        //$this->middleware('permission:schedule-print', ['only' => ['printSchedule']]);
 
 	}
 	
