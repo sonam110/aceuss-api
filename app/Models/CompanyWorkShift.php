@@ -31,11 +31,6 @@ class CompanyWorkShift extends Model
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
     }
-    
-    public function User()
-    {
-        return $this->belongsTo(User::class,'user_id','id');
-    }
 
     public function getShiftStartTimeAttribute($value)
     {
