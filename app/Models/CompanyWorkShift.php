@@ -11,6 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class CompanyWorkShift extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
+    
     protected $dates = ['deleted_at'];
     protected static $logAttributes = ['*'];
 
