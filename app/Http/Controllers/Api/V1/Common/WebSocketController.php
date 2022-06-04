@@ -236,9 +236,14 @@ class WebSocketController implements MessageComponentInterface {
         $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
                 ->where('users.id', '!=', $userId)
-                ->where('users.top_most_parent_id', $top_most_parent_id)
                 ->with('UserType:id,name')
                 ->withCount('unreadMessages');
+        if($top_most_parent_id == '1')
+        { }
+        else
+        {
+            $query->where('users.top_most_parent_id', $top_most_parent_id);
+        }
         $query = $query->get();
         if ($top_most_parent_id != '1') {
             $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
