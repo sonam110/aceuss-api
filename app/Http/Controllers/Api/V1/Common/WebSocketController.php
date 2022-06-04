@@ -76,34 +76,35 @@ class WebSocketController implements MessageComponentInterface {
                 
                 switch ($data->command) {
                     case "message":
+                        $req = json_decode($msg, true);
                         if ($userToken['user_id'] != $data->from ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
-                        if (isset($this->userresources[$data->to])) {
-                            foreach ($this->userresources[$data->to] as $key => $resourceId) {
-                                if (isset($this->users[$resourceId])) {
-                                    $this->users[$resourceId]->send($msg);
-                                }
-                            }
-                            $conn->send(json_encode($this->userresources[$data->to]));
-                        }
-                        if (isset($this->userresources[$data->from])) {
-                            foreach ($this->userresources[$data->from] as $key => $resourceId) {
-                                if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
-                                    $this->users[$resourceId]->send($msg);
-                                }
-                            }
-                        }
-                        
                             $message = new Message();
                             $message->sender_id = $data->from;
                             $message->receiver_id = $data->to;
                             $message->message = $data->message;
                             $message->read_at = null;
                             $message->save();
+                            
+                            $req['created_at'] = date('Y-m-d H:i:s');
+                            $req['id'] = $message->id;
+                            if (isset($this->userresources[$data->to])) {
+                                foreach ($this->userresources[$data->to] as $key => $resourceId) {
+                                    if (isset($this->users[$resourceId])) {
+                                        $this->users[$resourceId]->send(json_encode($req));
+                                    }
+                                }
+                                $conn->send(json_encode($this->userresources[$data->to]));
+                            }
+                            if (isset($this->userresources[$data->from])) {
+                                foreach ($this->userresources[$data->from] as $key => $resourceId) {
+                                    if (isset($this->users[$resourceId]) && $conn->resourceId != $resourceId) {
+                                        $this->users[$resourceId]->send(json_encode($req));
+                                    }
+                                }
+                            }
                         }
-                        $req = json_decode($msg, true);
-                        $req['created_at'] = date('Y-m-d H:i:s');
                         $conn->send(json_encode($req));
                         break;
                     case "getusers":
@@ -137,6 +138,7 @@ class WebSocketController implements MessageComponentInterface {
                             $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
                             $returnData = [
                                 'command'   => 'getmessages',
+                                'userId'   => $data->other_user_id,
                                 'data'      => $getmessages
                             ];
                             $conn->send(json_encode($returnData));
@@ -234,26 +236,40 @@ class WebSocketController implements MessageComponentInterface {
     {
         $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
-                ->where('users.id', '!=', $top_most_parent_id)
-                ->where('users.top_most_parent_id', '!=', $userId)
+                ->where('users.id', '!=', $userId)
                 ->with('UserType:id,name')
                 ->withCount('unreadMessages');
+        if($top_most_parent_id == 1)
+        { 
+            $query->where(function($q) use ($top_most_parent_id) {
+                $q->where('users.user_type_id', 2)
+                    ->orWhere('users.top_most_parent_id', $top_most_parent_id);
+            });
+        }
+        else
+        {
+            $query->where('users.top_most_parent_id', $top_most_parent_id);
+        }
         $query = $query->get();
-        if ($top_most_parent_id != '1') {
-            $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
-                ->where('user_type_id', 1)
-                ->withoutGlobalScope('top_most_parent_id')
-                ->first();
-            $getAdminCount = Message::where('sender_id', $adminInfo->id)
-                ->where('receiver_id', $userId)
-                ->whereNull('read_at')
-                ->withoutGlobalScope('top_most_parent_id')
-                ->count();
-            $query[$query->count()] = [
-                'id' => $adminInfo->id,
-                'name' => $adminInfo->name,
-                'unread_messages_count' => $getAdminCount
-            ];
+        if ($top_most_parent_id != 1) {
+            $checkCompany = User::select('user_type_id')->find($userId);
+            if($checkCompany && $checkCompany->user_type_id==2)
+            {
+                $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
+                    ->where('user_type_id', 1)
+                    ->withoutGlobalScope('top_most_parent_id')
+                    ->first();
+                $getAdminCount = Message::where('sender_id', $adminInfo->id)
+                    ->where('receiver_id', $userId)
+                    ->whereNull('read_at')
+                    ->withoutGlobalScope('top_most_parent_id')
+                    ->count();
+                $query[$query->count()] = [
+                    'id' => $adminInfo->id,
+                    'name' => $adminInfo->name,
+                    'unread_messages_count' => $getAdminCount
+                ];
+            }
         }
         return $query;
     }
