@@ -138,6 +138,7 @@ class WebSocketController implements MessageComponentInterface {
                             $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
                             $returnData = [
                                 'command'   => 'getmessages',
+                                'userId'   => $data->other_user_id,
                                 'data'      => $getmessages
                             ];
                             $conn->send(json_encode($returnData));
