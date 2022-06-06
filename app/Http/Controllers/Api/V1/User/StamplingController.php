@@ -100,13 +100,20 @@ class StamplingController extends Controller
 				$extra_hours =  $worked_hours - $scheduled_hours;
 			}
 
-			$ov_hours = OVHour::where('date',$date)->first();
-			if($ov_hours)
+			$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
+			if($ov)
 			{
-				$ov_start_time = ($ov_hours->start_time); //20:00
-				$ov_end_time = $ov_hours->end_time;  //06:00
+				$ov_start_time = ($ov->start_time); //20:00
+				$ov_end_time = $ov->end_time;  //06:00
+				$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
 			}
-			return getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
+			else
+			{
+				$ov_hours = 0;
+			}
+			return $ov_hours;
+
+			
 			
 
 			// $ov_hours = OVHour::where('date',null)->where('start_time','<=',$in_time)->where('start_time','>=',$out_time)

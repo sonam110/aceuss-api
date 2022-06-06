@@ -991,37 +991,35 @@ function getHours($time1,$time2)
 
 function getOVHours($time1, $time2, $ovtime1, $ovtime2)
 {
-    $time1 = new DateTime($time1);
-    $time2 = new DateTime($time2);
-    if($time2 < $time1)
+    $convert_time1 = new DateTime($time1);
+    $convert_time2 = new DateTime($time2);
+    if($convert_time2 < $convert_time1)
     {
-        $time2 = $time2->modify('+1 day');
+        $convert_time2 = $convert_time2->modify('+1 day');
     }
 
-    $ovtime1 = new DateTime($ovtime1);
-    $ovtime2 = new DateTime($ovtime2);
-    if($ovtime2 < $ovtime1)
+    $convert_ovtime1 = new DateTime($ovtime1);
+    $convert_ovtime2 = new DateTime($ovtime2);
+    if($convert_ovtime2 < $convert_ovtime1)
     {
-        $ovtime2 = $ovtime2->modify('+1 day');
+        $convert_ovtime2 = $convert_ovtime2->modify('+1 day');
     }
 
-    if(($ovtime1 >= $time1) && ($ovtime2 <= $time2))
+    if(($convert_ovtime1 >= $convert_time1) && ($convert_ovtime2 <= $convert_time2))
     {
         $hours = getHours($ovtime1,$ovtime2);
     }
-    elseif (($ovtime1 <= $time1) && ($ovtime2 >= $time2)) 
+    elseif (($convert_ovtime1 <= $convert_time1) && ($convert_ovtime2 >= $convert_time2)) 
     {
         $hours = getHours($time1,$time2);
     }
-    elseif (($ovtime1 <= $time1) && ($ovtime2 <= $time2)) 
+    elseif (($convert_ovtime1 <= $convert_time1) && ($convert_ovtime2 <= $convert_time2)) 
     {
         $hours = getHours($time1,$ovtime2);
     }
-    elseif (($ovtime1 >= $time1) && ($ovtime2 >= $time2)) 
+    elseif (($convert_ovtime1 >= $convert_time1) && ($convert_ovtime2 >= $convert_time2)) 
     {
         $hours = getHours($ovtime2,$time1);
     }
-
     return $hours;
-
 }
