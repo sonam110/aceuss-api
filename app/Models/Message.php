@@ -33,13 +33,5 @@ class Message extends Model
         return $this->hasOne(User::class,'id','receiver_id')->withoutGlobalScope('top_most_parent_id');
     }
 
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans();
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans();
-    }
+    
 }
