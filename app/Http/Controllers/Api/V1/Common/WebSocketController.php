@@ -174,13 +174,20 @@ class WebSocketController implements MessageComponentInterface {
                                 }
                             }
                         }
+
+                        //for resend all connected user info
+                        foreach ($this->clients as $client) {
+                            if ($conn !== $client) {
+                                // The sender is not the receiver, send to each client connected
+                                $returnData = [
+                                    'command'   => 'connectedusers',
+                                    'data'      => $this->userresources
+                                ];
+                                $client->send(json_encode($returnData));
+                            }
+                        }
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
-                        $returnData = [
-                            'command'   => 'connectedusers',
-                            'data'      => $this->userresources
-                        ];
-                        $conn->send(json_encode($returnData));
                         break;
                     case "disconnect":
                         if ($userToken['user_id'] != $data->userId ) {
@@ -279,7 +286,7 @@ class WebSocketController implements MessageComponentInterface {
         }
         $query = $query->get();
         foreach ($query as $key => $user) {
-            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
             $query[$key]['unread_messages_count'] = $data->unread_messages_count;
         }
 
@@ -315,7 +322,7 @@ class WebSocketController implements MessageComponentInterface {
             ->get()
             ->unique('sender_id');
         foreach ($query as $key => $user) {
-            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();
             $query[$key]['unread_messages_count'] = $data->unread_messages_count;
         }
         return $query;
@@ -334,13 +341,14 @@ class WebSocketController implements MessageComponentInterface {
             $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
         }
 
-        $query = $query->get();
+        $query = $query->orderBy('created_at', 'DESC')->get();
 
         //if message count is less than 20 then load all messages
         if ($query->count() < 20) {
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                 ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
+                ->orderBy('created_at', 'DESC')
                 ->get();
         }
         return $query;
