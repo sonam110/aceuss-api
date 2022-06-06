@@ -930,7 +930,7 @@ function checkUserToken($token)
     return false;
 }
 
-function calculateDays($start_date,$end_date,$every_week,$week_days)
+function calculateDates($start_date,$end_date,$every_week,$week_days)
 {                    
     $from = \Carbon\Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? \Carbon\Carbon::parse($end_date) : \Carbon\Carbon::parse($start_date);
@@ -954,4 +954,47 @@ function calculateDays($start_date,$end_date,$every_week,$week_days)
             }
         }
     }
+
+    return $dates;
+}
+
+
+function getTimeDifference($time1,$time2)
+{
+    $time1 = new DateTime($time1);
+    $time2 = new DateTime($time2);
+    if($time2 < $time1)
+    {
+        return "htffth";
+    }
+    else
+    {
+        return "789";
+    }
+    $timediff = $time1->diff($time2);
+
+    return  $timediff->format('%y year %m month %d days %h hour %i minute %s second')."<br/>";
+    $time1 = strtotime($time1);
+    $time2 = strtotime($time2);
+
+
+
+    if($time2 < $time1)
+    {
+        $time2 = $time2 + 60*60*24;
+    }
+    $timeDiff = $time2-$time1;
+
+    if(date('i',$timeDiff) > 15)
+    {
+        $hours = date('H',$timeDiff);
+    }
+    else
+    {
+        $hours = date('H',$timeDiff);
+    }
+     
+    return $hours;
+
+    
 }

@@ -70,7 +70,7 @@ class StamplingController extends Controller
 		try 
 		{
 			$validator = Validator::make($request->all(),[   
-				'schedule_id' => 'required|exists:company_work_shifts,id',
+				'schedule_id' => 'required|exists:schedules,id',
 			],
 			[   
 				'schedule_id' =>  getLangByLabelGroups('Stampling','message_shift_id'),
@@ -84,7 +84,13 @@ class StamplingController extends Controller
 				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
 
-			$shedule_ids = [];
+			$scheduled_shift_hours = $schedule->end_time - $schedule->start_time;
+			$worked_hours = $request->end_time - $request->end_time;
+			$extra_hours = $worked_hours - $scheduled_shift_hours;
+
+			$data = getTimeDifference('20:00','00:10');
+
+			return $data; 
 
 			foreach($request->shift_dates as $key=>$shift_date)
 			{
@@ -108,6 +114,7 @@ class StamplingController extends Controller
 				$stampling->extra_hours_sum 			= $request->extra_hours_sum;
 				$stampling->total_sum 					= $request->total_sum;
 				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+				$stampling->status 						= (!empty($request->status)) ? $request->status :'Web';
 				$stampling->save();
 			}
 
@@ -122,7 +129,8 @@ class StamplingController extends Controller
 		}
 	}
 
-	public function update(Request $request,$id){
+	public function update(Request $request,$id)
+	{
 		DB::beginTransaction();
 		try 
 		{
@@ -205,5 +213,4 @@ class StamplingController extends Controller
 
 		}
 	}
-
 }

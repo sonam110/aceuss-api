@@ -330,6 +330,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);
 		Route::apiResource('leave', User\LeaveController::class)->only(['store','destroy','show', 'update']);
+
+		//-----------------------Stampling---------------------//
+		Route::post('stamplings', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplings']);
+		Route::apiResource('stampling', User\StamplingController::class)->only(['store','destroy','show', 'update']);
 		
 	});
 

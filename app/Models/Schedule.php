@@ -31,4 +31,14 @@ class Schedule extends Model
     {
         return $this->belongsTo(CompanyWorkShift::class,'shift_id','id');
     }
+
+    public function getShiftStartTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
+    }
+
+    public function getShiftEndTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
+    }
 }
