@@ -17,8 +17,7 @@ class MessagingController extends Controller
             $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
                 ->where('users.id', '!=', auth()->id())
-                ->with('UserType:id,name')
-                ->withCount('unreadMessages');
+                ->with('UserType:id,name');
 
             if (!empty($request->top_most_parent_id)) {
                 $query->where('users.top_most_parent_id', $request->top_most_parent_id);
@@ -42,6 +41,12 @@ class MessagingController extends Controller
                     'last_page' => ceil($total / $perPage)
                 ];
                 $query = $pagination;
+                foreach ($result as $key => $user) 
+                {
+                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+                    $result[$key]['unread_messages_count'] = $data->unread_messages_count;
+                    
+                }
 
                 if (auth()->user()->top_most_parent_id != '1') {
                     $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
@@ -57,14 +62,27 @@ class MessagingController extends Controller
                     $result[$result->count()] = [
                         'id' => $adminInfo->id,
                         'name' => $adminInfo->name,
-                        'unread_messages_count' => $getAdminCount
+                        'avatar' => $adminInfo->avatar,
+                        'user_type_id' => $adminInfo->user_type_id,
+                        'unread_messages_count' => $getAdminCount,
+                        'user_type' => [
+                            'id' => $adminInfo->UserType->id,
+                            'name' => $adminInfo->UserType->name,
+                        ]
                     ];
                 }
             } else {
                 $query = $query->get();
+
+                foreach ($query as $key => $user) {
+                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+                    $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+                }
+
                 if (auth()->user()->top_most_parent_id != '1') {
                     $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
+                        ->with('UserType:id,name')
                         ->withoutGlobalScope('top_most_parent_id')
                         ->first();
                     $getAdminCount = Message::where('sender_id', $adminInfo->id)
@@ -75,12 +93,16 @@ class MessagingController extends Controller
                     $query[$query->count()] = [
                         'id' => $adminInfo->id,
                         'name' => $adminInfo->name,
-                        'unread_messages_count' => $getAdminCount
+                        'avatar' => $adminInfo->avatar,
+                        'user_type_id' => $adminInfo->user_type_id,
+                        'unread_messages_count' => $getAdminCount,
+                        'user_type' => [
+                            'id' => $adminInfo->UserType->id,
+                            'name' => $adminInfo->UserType->name,
+                        ]
                     ];
                 }
             }
-
-
 
             return prepareResult(true, 'Users List', $query, config('httpcodes.success'));
         } catch (\Throwable $exception) {

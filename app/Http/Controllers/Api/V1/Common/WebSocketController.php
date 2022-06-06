@@ -52,9 +52,10 @@ class WebSocketController implements MessageComponentInterface {
      * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "top_most_parent_id": "2", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
-     * @example getuserwithmessage                 conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
-     * @example getmessages                 conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
-     * @example disconnect                 conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
+     * @example getuserwithmessage       conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getmessages              conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example disconnect               conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
+     * @example readmessages             conn.send(JSON.stringify({"command": "readmessages", "logged_in_user_id": "2", "other_user_id": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
@@ -140,6 +141,19 @@ class WebSocketController implements MessageComponentInterface {
                                 'command'   => 'getmessages',
                                 'userId'   => $data->other_user_id,
                                 'data'      => $getmessages
+                            ];
+                            $conn->send(json_encode($returnData));
+                        }
+                        break;
+                    case "readmessages":
+                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $readmessages = $this->readmessages($data->logged_in_user_id,$data->other_user_id);
+                            $returnData = [
+                                'command'   => 'readmessages',
+                                'userId'   => $data->other_user_id,
+                                'data'      => null
                             ];
                             $conn->send(json_encode($returnData));
                         }
@@ -251,8 +265,7 @@ class WebSocketController implements MessageComponentInterface {
         $query = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                 ->where('users.status', 1)
                 ->where('users.id', '!=', $userId)
-                ->with('UserType:id,name')
-                ->withCount('unreadMessages');
+                ->with('UserType:id,name');
         if($top_most_parent_id == 1)
         { 
             $query->where(function($q) use ($top_most_parent_id) {
@@ -265,6 +278,11 @@ class WebSocketController implements MessageComponentInterface {
             $query->where('users.top_most_parent_id', $top_most_parent_id);
         }
         $query = $query->get();
+        foreach ($query as $key => $user) {
+            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+            $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+        }
+
         if ($top_most_parent_id != 1) {
             $checkCompany = User::select('user_type_id')->find($userId);
             if($checkCompany && $checkCompany->user_type_id==2)
@@ -325,6 +343,16 @@ class WebSocketController implements MessageComponentInterface {
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
                 ->get();
         }
+        return $query;
+    }
+
+    private function readmessages($logged_in_user_id, $other_user_id)
+    {
+        $query = Message::where('sender_id', $other_user_id)
+            ->where('receiver_id', $logged_in_user_id)
+            ->update([
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
         return $query;
     }
 }
