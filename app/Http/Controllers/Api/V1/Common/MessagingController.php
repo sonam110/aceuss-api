@@ -115,7 +115,7 @@ class MessagingController extends Controller
     {
         try {
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
-                ->orderBy('id', 'desc')
+                ->orderBy('id', 'ASC')
                 ->where('sender_id', '!=', auth()->id())
                 ->where('receiver_id', auth()->id())
                 ->get()
@@ -148,7 +148,7 @@ class MessagingController extends Controller
                 $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
             }
 
-            $query = $query->orderBy('id', 'DESC')->get();
+            $query = $query->orderBy('id', 'ASC')->get();
             //return $query;
 
             //if message count is less than 20 then load all messages
@@ -156,7 +156,7 @@ class MessagingController extends Controller
                 $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                     ->whereIn('sender_id', [auth()->id(), $user_id])
                     ->whereIn('receiver_id', [auth()->id(), $user_id])
-                    ->orderBy('id', 'DESC')
+                    ->orderBy('id', 'ASC')
                     ->get();
             }
 
