@@ -965,36 +965,26 @@ function getTimeDifference($time1,$time2)
     $time2 = new DateTime($time2);
     if($time2 < $time1)
     {
-        return "htffth";
-    }
-    else
-    {
-        return "789";
+        $time2 = $time2->modify('+1 day');
     }
     $timediff = $time1->diff($time2);
+    $time = $timediff->format('%h:%i');
+    return $time;
+}
 
-    return  $timediff->format('%y year %m month %d days %h hour %i minute %s second')."<br/>";
-    $time1 = strtotime($time1);
-    $time2 = strtotime($time2);
+function getHours($time1,$time2)
+{
+    $time1 = new DateTime($time1);
+    $time2 = new DateTime($time2);
 
-
-
-    if($time2 < $time1)
+    $timediff = $time1->diff($time2);
+    if($timediff->format('%i') >= 15)
     {
-        $time2 = $time2 + 60*60*24;
-    }
-    $timeDiff = $time2-$time1;
-
-    if(date('i',$timeDiff) > 15)
-    {
-        $hours = date('H',$timeDiff);
+        $hours = $timediff->format('%h') +1;
     }
     else
     {
-        $hours = date('H',$timeDiff);
+        $hours = $timediff->format('%h');
     }
-     
     return $hours;
-
-    
 }
