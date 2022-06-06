@@ -14,12 +14,12 @@ class OVHour extends Model
 
     protected $fillable  = ['top_most_parent_id','start_time','end_time','entry_mode'];
 
-    public function getShiftStartTimeAttribute($value)
+    public function getStartTimeAttribute($value)
     {
         return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
     }
 
-    public function getShiftEndTimeAttribute($value)
+    public function getEndTimeAttribute($value)
     {
         return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
     }
