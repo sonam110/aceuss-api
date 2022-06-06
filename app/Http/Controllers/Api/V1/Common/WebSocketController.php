@@ -184,11 +184,18 @@ class WebSocketController implements MessageComponentInterface {
                                     }
                                 }
                             }
-                            $returnData = [
-                                'command'   => 'connectedusers',
-                                'data'      => $this->userresources
-                            ];
-                            $conn->send(json_encode($returnData));
+
+                            //for resend all connected user info
+                            foreach ($this->clients as $client) {
+                                if ($conn !== $client) {
+                                    // The sender is not the receiver, send to each client connected
+                                    $returnData = [
+                                        'command'   => 'connectedusers',
+                                        'data'      => $this->userresources
+                                    ];
+                                    $client->send(json_encode($returnData));
+                                }
+                            }
                         }
                         break;
                     default:
@@ -219,11 +226,18 @@ class WebSocketController implements MessageComponentInterface {
                 }
             }
         }
-        $returnData = [
-            'command'   => 'connectedusers',
-            'data'      => $this->userresources
-        ];
-        $conn->send(json_encode($returnData));
+
+        //for resend all connected user info
+        foreach ($this->clients as $client) {
+            if ($conn !== $client) {
+                // The sender is not the receiver, send to each client connected
+                $returnData = [
+                    'command'   => 'connectedusers',
+                    'data'      => $this->userresources
+                ];
+                $client->send(json_encode($returnData));
+            }
+        }
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) 
@@ -282,6 +296,10 @@ class WebSocketController implements MessageComponentInterface {
             ->where('receiver_id', $userId)
             ->get()
             ->unique('sender_id');
+        foreach ($query as $key => $user) {
+            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+            $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+        }
         return $query;
     }
 
