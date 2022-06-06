@@ -100,7 +100,8 @@ class MessagingController extends Controller
                 ->unique('sender_id');
 
             foreach ($query as $key => $user) {
-                $query[$key]['unread_messages_count'] = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+                $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+                $query[$key]['unread_messages_count'] = $data->unread_messages_count;
             }
 
             return prepareResult(true, 'Users List', $query, config('httpcodes.success'));

@@ -296,6 +296,10 @@ class WebSocketController implements MessageComponentInterface {
             ->where('receiver_id', $userId)
             ->get()
             ->unique('sender_id');
+        foreach ($query as $key => $user) {
+            $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+            $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+        }
         return $query;
     }
 
