@@ -92,8 +92,8 @@ class StamplingController extends Controller
 
 			$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
 			$worked_duration = getTimeDifference($in_time,$out_time);
-			$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time);
-			$worked_hours = getHours($in_time,$out_time);
+			$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
+			$worked_hours = getHours($in_time,$out_time,0);
 			$extra_hours =  0;
 			if($worked_hours > $scheduled_hours)
 			{

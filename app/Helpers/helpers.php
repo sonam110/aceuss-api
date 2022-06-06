@@ -972,10 +972,18 @@ function getTimeDifference($time1,$time2)
     return $time;
 }
 
-function getHours($time1,$time2)
+function getHours($time1,$time2,$add_day)
 {
     $time1 = new DateTime($time1);
     $time2 = new DateTime($time2);
+
+    if($add_day == 1)
+    {
+        if($time2 < $time1)
+        {
+            $time2 = $time2->modify('+1 day');
+        }
+    }
 
     $timediff = $time1->diff($time2);
     if($timediff->format('%i') >= 15)
@@ -991,35 +999,41 @@ function getHours($time1,$time2)
 
 function getOVHours($time1, $time2, $ovtime1, $ovtime2)
 {
-    $convert_time1 = new DateTime($time1);
-    $convert_time2 = new DateTime($time2);
-    if($convert_time2 < $convert_time1)
+    $converted_time1 = new DateTime($time1);
+    $converted_time2 = new DateTime($time2);
+    if($converted_time2 < $converted_time1)
     {
-        $convert_time2 = $convert_time2->modify('+1 day');
+        $converted_time2 = $converted_time2->modify('+1 day');
     }
 
-    $convert_ovtime1 = new DateTime($ovtime1);
-    $convert_ovtime2 = new DateTime($ovtime2);
-    if($convert_ovtime2 < $convert_ovtime1)
+    $converted_ovtime1 = new DateTime($ovtime1);
+    $converted_ovtime2 = new DateTime($ovtime2);
+
+    if($converted_ovtime2 < $converted_ovtime1)
     {
-        $convert_ovtime2 = $convert_ovtime2->modify('+1 day');
+
+        $converted_ovtime2 = $converted_ovtime2->modify('+1 day');
     }
 
-    if(($convert_ovtime1 >= $convert_time1) && ($convert_ovtime2 <= $convert_time2))
+    if(($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 <= $converted_time2))
     {
-        $hours = getHours($ovtime1,$ovtime2);
+        $hours = getHours($ovtime1,$ovtime2,0);
+        return $hours.'between';
     }
-    elseif (($convert_ovtime1 <= $convert_time1) && ($convert_ovtime2 >= $convert_time2)) 
+    elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
     {
-        $hours = getHours($time1,$time2);
+        $hours = getHours($time1,$time2,0);
+        return $hours.'beyond';
     }
-    elseif (($convert_ovtime1 <= $convert_time1) && ($convert_ovtime2 <= $convert_time2)) 
+    elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 <= $converted_time2)) 
     {
-        $hours = getHours($time1,$ovtime2);
+        $hours = getHours($time1,$ovtime2,0);
+        return $hours.'before';
     }
-    elseif (($convert_ovtime1 >= $convert_time1) && ($convert_ovtime2 >= $convert_time2)) 
+    elseif (($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
     {
-        $hours = getHours($ovtime2,$time1);
+        $hours = getHours($ovtime1,$time2,1);
+        return $hours.'after';
     }
     return $hours;
 }
