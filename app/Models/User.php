@@ -370,21 +370,8 @@ class User extends Authenticatable
         return $this->hasMany(Bookmark::class,'user_id','id');
     }
 
-    /*public function unreadMessages()
-    {
-        return $this->hasMany(Message::class, 'receiver_id', 'id')->whereNull('read_at')
-            ->withoutGlobalScope('top_most_parent_id');
-    }*/
-
     public function allChildBranches(){
         return $this->hasMany(self::class, 'branch_id', 'id')->whereIn('user_type_id', [2,11])->with('allChildBranches');
-    }
-
-    public function unreadMessages()
-    {
-        return $this->belongsToMany(self::class, 'messages', 'sender_id', 'receiver_id')
-        ->whereNull('read_at')
-        ->withoutGlobalScope('top_most_parent_id');
     }
     
 }
