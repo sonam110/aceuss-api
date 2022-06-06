@@ -103,8 +103,11 @@ class StamplingController extends Controller
 			$ov_hours = OVHour::where('date',$date)->first();
 			if($ov_hours)
 			{
-				$ov_start_time = new DateTime($ov_hours->start_time);
+				$ov_start_time = ($ov_hours->start_time); //20:00
+				$ov_end_time = $ov_hours->end_time;  //06:00
 			}
+			return getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
+			
 
 			// $ov_hours = OVHour::where('date',null)->where('start_time','<=',$in_time)->where('start_time','>=',$out_time)
 			// ->orWhere(function ($query)use($out_time,$in_time) {
