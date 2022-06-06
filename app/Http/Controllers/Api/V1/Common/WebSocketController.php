@@ -292,7 +292,7 @@ class WebSocketController implements MessageComponentInterface {
             ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
 
         if (!empty($from_date) && !empty($end_date)) {
-            $query->whereBetween('created_at', [$from_date, $end_date]);
+            $query->whereBetween('created_at', [$from_date.' 00:00:00', $end_date.' 23:59:59']);
         } else {
             // last 7 days
             $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);

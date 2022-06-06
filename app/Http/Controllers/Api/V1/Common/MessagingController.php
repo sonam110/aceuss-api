@@ -115,7 +115,7 @@ class MessagingController extends Controller
                 ->whereIn('receiver_id', [auth()->id(), $user_id]);
 
             if (!empty($request->from_date) && !empty($request->end_date)) {
-                $query->whereBetween('created_at', [$request->from_date, $request->end_date]);
+                $query->whereBetween('created_at', [$request->from_date.' 00:00:00', $request->end_date.' 23:59:59']);
             } else {
                 // last 7 days
                 $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
