@@ -988,3 +988,40 @@ function getHours($time1,$time2)
     }
     return $hours;
 }
+
+function getOVHours($time1, $time2, $ovtime1, $ovtime2)
+{
+    $time1 = new DateTime($time1);
+    $time2 = new DateTime($time2);
+    if($time2 < $time1)
+    {
+        $time2 = $time2->modify('+1 day');
+    }
+
+    $ovtime1 = new DateTime($ovtime1);
+    $ovtime2 = new DateTime($ovtime2);
+    if($ovtime2 < $ovtime1)
+    {
+        $ovtime2 = $ovtime2->modify('+1 day');
+    }
+
+    if(($ovtime1 >= $time1) && ($ovtime2 <= $time2))
+    {
+        $hours = getHours($ovtime1,$ovtime2);
+    }
+    elseif (($ovtime1 <= $time1) && ($ovtime2 >= $time2)) 
+    {
+        $hours = getHours($time1,$time2);
+    }
+    elseif (($ovtime1 <= $time1) && ($ovtime2 <= $time2)) 
+    {
+        $hours = getHours($time1,$ovtime2);
+    }
+    elseif (($ovtime1 >= $time1) && ($ovtime2 >= $time2)) 
+    {
+        $hours = getHours($ovtime2,$time1);
+    }
+
+    return $hours;
+
+}
