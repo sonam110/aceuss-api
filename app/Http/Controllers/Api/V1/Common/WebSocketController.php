@@ -174,13 +174,20 @@ class WebSocketController implements MessageComponentInterface {
                                 }
                             }
                         }
+
+                        //for resend all connected user info
+                        foreach ($this->clients as $client) {
+                            if ($conn !== $client) {
+                                // The sender is not the receiver, send to each client connected
+                                $returnData = [
+                                    'command'   => 'connectedusers',
+                                    'data'      => $this->userresources
+                                ];
+                                $client->send(json_encode($returnData));
+                            }
+                        }
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
-                        $returnData = [
-                            'command'   => 'connectedusers',
-                            'data'      => $this->userresources
-                        ];
-                        $conn->send(json_encode($returnData));
                         break;
                     case "disconnect":
                         if ($userToken['user_id'] != $data->userId ) {
