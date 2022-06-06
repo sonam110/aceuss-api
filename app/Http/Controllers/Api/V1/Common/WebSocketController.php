@@ -148,7 +148,7 @@ class WebSocketController implements MessageComponentInterface {
                         if ($userToken['user_id'] != $data->logged_in_user_id ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
-                            $readmessages = $this->readmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
+                            $readmessages = $this->readmessages($data->logged_in_user_id,$data->other_user_id);
                             $returnData = [
                                 'command'   => 'readmessages',
                                 'userId'   => $data->other_user_id,

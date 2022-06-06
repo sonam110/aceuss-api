@@ -61,7 +61,8 @@ class MessagingController extends Controller
                     ];
                 }
             } else {
-                $query = $query->get();
+                $query = $query->toSql();
+                return $query;
                 if (auth()->user()->top_most_parent_id != '1') {
                     $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
