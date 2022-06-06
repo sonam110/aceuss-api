@@ -43,7 +43,7 @@ class MessagingController extends Controller
                 $query = $pagination;
                 foreach ($result as $key => $user) 
                 {
-                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
                     $result[$key]['unread_messages_count'] = $data->unread_messages_count;
                     
                 }
@@ -75,7 +75,7 @@ class MessagingController extends Controller
                 $query = $query->get();
 
                 foreach ($query as $key => $user) {
-                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id.") unread_messages_count"))->first();
+                    $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
                     $query[$key]['unread_messages_count'] = $data->unread_messages_count;
                 }
 
@@ -122,7 +122,7 @@ class MessagingController extends Controller
                 ->unique('sender_id');
 
             foreach ($query as $key => $user) {
-                $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id.") unread_messages_count"))->first();
+                $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();
                 $query[$key]['unread_messages_count'] = $data->unread_messages_count;
             }
 
