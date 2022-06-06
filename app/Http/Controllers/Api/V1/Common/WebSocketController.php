@@ -226,11 +226,18 @@ class WebSocketController implements MessageComponentInterface {
                 }
             }
         }
-        $returnData = [
-            'command'   => 'connectedusers',
-            'data'      => $this->userresources
-        ];
-        $conn->send(json_encode($returnData));
+
+        //for resend all connected user info
+        foreach ($this->clients as $client) {
+            if ($conn !== $client) {
+                // The sender is not the receiver, send to each client connected
+                $returnData = [
+                    'command'   => 'connectedusers',
+                    'data'      => $this->userresources
+                ];
+                $client->send(json_encode($returnData));
+            }
+        }
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) 
