@@ -144,6 +144,19 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode($returnData));
                         }
                         break;
+                    case "readmessages":
+                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $readmessages = $this->readmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
+                            $returnData = [
+                                'command'   => 'readmessages',
+                                'userId'   => $data->other_user_id,
+                                'data'      => $readmessages
+                            ];
+                            $conn->send(json_encode($returnData));
+                        }
+                        break;
                     case "register":
                         //
                         if (isset($data->userId)) {
@@ -325,6 +338,16 @@ class WebSocketController implements MessageComponentInterface {
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
                 ->get();
         }
+        return $query;
+    }
+
+    private function readmessages($logged_in_user_id, $other_user_id)
+    {
+        $query = Message::where('sender_id', $other_user_id)
+            ->where('receiver_id', $logged_in_user_id)
+            ->update([
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
         return $query;
     }
 }

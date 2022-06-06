@@ -80,8 +80,6 @@ class MessagingController extends Controller
                 }
             }
 
-
-
             return prepareResult(true, 'Users List', $query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);

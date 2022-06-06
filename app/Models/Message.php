@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Carbon\Carbon;
+
 class Message extends Model
 {
     use HasFactory,LogsActivity;
@@ -31,10 +33,13 @@ class Message extends Model
         return $this->hasOne(User::class,'id','receiver_id')->withoutGlobalScope('top_most_parent_id');
     }
 
-    public function unreadMessages()
+    public function getCreatedAtAttribute($value)
     {
-        return $this->hasMany(self::class, 'receiver_id', 'id')
-            ->whereNull('read_at')
-            ->withoutGlobalScope('top_most_parent_id');
+        return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans();
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans();
     }
 }
