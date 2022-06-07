@@ -317,8 +317,10 @@ class WebSocketController implements MessageComponentInterface {
     {
         $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
             ->orderBy('id', 'ASC')
-            ->where('sender_id', '!=', $userId)
-            ->where('receiver_id', $userId)
+            ->where(function($q){
+                $q->where('sender_id', auth()->id())
+                ->orWhere('receiver_id', auth()->id());
+            })
             ->get()
             ->unique('sender_id');
         foreach ($query as $key => $user) {
