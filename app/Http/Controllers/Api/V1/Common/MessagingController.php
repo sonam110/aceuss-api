@@ -114,10 +114,12 @@ class MessagingController extends Controller
     public function getUsersWithLatestMessage(Request $request)
     {
         try {
-            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name')
-                ->orderBy('id', 'ASC')
-                ->where('sender_id', '!=', auth()->id())
-                ->where('receiver_id', auth()->id())
+            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver:id,name,gender,user_type_id,avatar', 'receiver.UserType:id,name')
+                ->orderBy('id', 'DESC')
+                ->where(function($q){
+                    $q->where('sender_id', auth()->id())
+                        ->orWhere('receiver_id', auth()->id());
+                })
                 ->get()
                 ->unique('sender_id');
 
