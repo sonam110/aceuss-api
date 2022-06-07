@@ -51,6 +51,8 @@ class SettingController extends Controller
             $user->contact_person_phone = $request->contact_person_phone;
             $user->company_website = $request->company_website;
             $user->before_minute = $request->before_minute;
+            $user->extra_hour_rate = $request->extra_hour_rate;
+            $user->ov_hour_rate = $request->ov_hour_rate;
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
              DB::commit();
