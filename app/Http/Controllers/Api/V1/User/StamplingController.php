@@ -80,6 +80,8 @@ class StamplingController extends Controller
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
 
+			$user = Auth::User();
+
 			$schedule = Schedule::find($request->schedule_id);
 			$in_time = $request->in_time;
 			$out_time = $request->out_time;
@@ -112,9 +114,27 @@ class StamplingController extends Controller
 				$ov_hours = 0;
 			}
 
+			$is_scheduled_hours_ov_hours = 0;
+			$is_extra_hours_ov_hours = 0;
+			$scheduled_hours_rate = $user->contract_value;
+			$companySetting = companySetting($user->top_most_parent_id);
+			$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
+			if($is_scheduled_hours_ov_hours == 1)
+			{
+				$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
+			}
+			if($is_extra_hours_ov_hours == 1)
+			{
+				$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
+			}
+			
+			$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
+			$extra_hours_sum = $extra_hours_rate * $extra_hours;
+			$total_sum = $scheduled_hours_sum + $extra_hours_sum;
+
 			
 			$stampling = new Stampling;
-			$stampling->shedule_id 					= $request->shedule_id;
+			$stampling->schedule_id 				= $request->schedule_id;
 			$stampling->user_id 					= Auth::id();
 			$stampling->in_time 					= $in_time;
 			$stampling->out_time 					= $out_time;
@@ -131,7 +151,7 @@ class StamplingController extends Controller
 			$stampling->extra_hours_sum 			= $extra_hours_sum;
 			$stampling->total_sum 					= $total_sum;
 			$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->status 						= $request->status;
+			$stampling->status 						= $request->status ? $request->status : 0;
 			$stampling->save();
 
 			DB::commit();
