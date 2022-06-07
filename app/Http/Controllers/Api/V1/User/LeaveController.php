@@ -83,9 +83,21 @@ class LeaveController extends Controller
     			$start_date = $request->start_date;
     			$end_date = $request->end_date;
     			$every_week = $request->every_week;
-    			$week_days = $request->week_days;
+                $week_days = $request->week_days;
 
-    			$dates = calculateDates($start_date,$end_date,$every_week,$week_days);
+                if(empty($request->week_days) && empty($request->every_week) )
+                {
+                    $date1 = strtotime($start_date);
+                    $date2 = strtotime($end_date);
+                    for ($currentDate=$date1; $currentDate<=$date2; $currentDate += (86400)) 
+                    {                                   
+                        $dates[] = date('Y-m-d', $currentDate);
+                    }
+                }
+                else
+                {
+                    $dates = calculateDates($start_date,$end_date,$every_week,$week_days);
+                }
 
     			foreach ($dates as $key => $date) 
     			{

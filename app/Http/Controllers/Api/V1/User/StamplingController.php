@@ -111,23 +111,11 @@ class StamplingController extends Controller
 			{
 				$ov_hours = 0;
 			}
-			return $ov_hours;
-
-			
-			
-
-			// $ov_hours = OVHour::where('date',null)->where('start_time','<=',$in_time)->where('start_time','>=',$out_time)
-			// ->orWhere(function ($query)use($out_time,$in_time) {
-   //              $query->where('end_time','>=',$out_time)->where('end_time','<=',$in_time);
-   //          })
-   //          ->get();
-			return $ov_hours;
 
 			
 			$stampling = new Stampling;
 			$stampling->shedule_id 					= $request->shedule_id;
 			$stampling->user_id 					= Auth::id();
-			$stampling->shift_name 					= $request->shift_name;
 			$stampling->in_time 					= $in_time;
 			$stampling->out_time 					= $out_time;
 			$stampling->in_location 				= $request->in_location;
@@ -138,12 +126,12 @@ class StamplingController extends Controller
 			$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
 			$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
 			$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
-			$stampling->extra_hours_rate 			= $request->extra_hours_rate;
-			$stampling->scheduled_hours_sum 		= $request->scheduled_hours_sum;
-			$stampling->extra_hours_sum 			= $request->extra_hours_sum;
-			$stampling->total_sum 					= $request->total_sum;
+			$stampling->extra_hours_rate 			= $extra_hours_rate;
+			$stampling->scheduled_hours_sum 		= $scheduled_hours_sum;
+			$stampling->extra_hours_sum 			= $extra_hours_sum;
+			$stampling->total_sum 					= $total_sum;
 			$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->status 						= (!empty($request->status)) ? $request->status :'Web';
+			$stampling->status 						= $request->status;
 			$stampling->save();
 
 			DB::commit();
