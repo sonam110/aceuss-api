@@ -213,4 +213,22 @@ class LeaveController extends Controller
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
     }
+
+    public function getUserLeaves($id)
+    {
+    	try {
+
+    		$query = Leave::where('user_id', $id)->get(['date']);
+    		$dates = [];
+    		foreach ($query as $key => $value) {
+    			$dates[] = $value->date;
+    		}
+
+    		return prepareResult(true,"Leave list",$dates,config('httpcodes.success'));
+    	}
+    	catch(Exception $exception) {
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+
+    	}
+    }
 }
