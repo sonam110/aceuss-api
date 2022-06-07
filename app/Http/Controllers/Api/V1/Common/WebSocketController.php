@@ -176,11 +176,7 @@ class WebSocketController implements MessageComponentInterface {
                         }
 
                         //for resend all connected user info
-                        foreach ($this->clients as $client) {
-                            if ($conn->resourceId == $client->resourceId) {
-                                continue;
-                            }
-                            // The sender is not the receiver, send to each client connected
+                        foreach ($this->users as $client) {
                             $returnData = [
                                 'command'   => 'connectedusers',
                                 'data'      => $this->userresources
@@ -205,19 +201,6 @@ class WebSocketController implements MessageComponentInterface {
                                         unset($userId[$key]);
                                     }
                                 }
-                            }
-
-                            //for resend all connected user info
-                            foreach ($this->clients as $client) {
-                                if ($conn->resourceId == $client->resourceId) {
-                                    continue;
-                                }
-                                // The sender is not the receiver, send to each client connected
-                                $returnData = [
-                                    'command'   => 'connectedusers',
-                                    'data'      => $this->userresources
-                                ];
-                                $client->send(json_encode($returnData));
                             }
                         }
                         break;
@@ -251,11 +234,7 @@ class WebSocketController implements MessageComponentInterface {
         }
 
         //for resend all connected user info
-        foreach ($this->clients as $client) {
-            if ($conn->resourceId == $client->resourceId) {
-                continue;
-            }
-            // The sender is not the receiver, send to each client connected
+        foreach ($this->users as $client) {
             $returnData = [
                 'command'   => 'connectedusers',
                 'data'      => $this->userresources
