@@ -27,7 +27,7 @@ class LeaveController extends Controller
 	{
 		try {
 
-			$query = Leave::orderBy('id', 'DESC');
+			$query = Leave::orderBy('id', 'DESC')->with('user:id,name');
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
@@ -138,7 +138,7 @@ class LeaveController extends Controller
     			}  
     		}
 
-    		$data = Leave::whereIn('id',$leave_ids)->get();
+    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name')->get();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
@@ -158,7 +158,7 @@ class LeaveController extends Controller
     {
     	try 
     	{
-    		$checkId= Leave::find($id);
+    		$checkId= Leave::where('id',$id)->with('user:id,name')->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -189,7 +189,7 @@ class LeaveController extends Controller
 
     	DB::beginTransaction();
     	try {
-    		$leave = Leave::find($id);
+    		$leave = Leave::where('id',$id)->with('user:id,name')->first();
     		$leave->reason = $request->reason;
     		$leave->entry_mode = $request->entry_mode;
     		$leave->save();

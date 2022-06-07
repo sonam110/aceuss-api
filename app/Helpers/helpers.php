@@ -482,6 +482,8 @@ function companySetting($company_id){
             "contact_person_phone" => $user->contact_person_phone,
             "follow_up_reminder" => $user->follow_up_reminder,
             "before_minute" => $user->before_minute,
+            "extra_hour_rate" => $user->extra_hour_rate,
+            "ov_hour_rate" => $user->ov_hour_rate,
         ];
         return  $settingDetail;
 
