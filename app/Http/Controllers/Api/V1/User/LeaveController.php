@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Leave;
+use App\Models\Schedule;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Str;
@@ -101,14 +103,27 @@ class LeaveController extends Controller
 
     			foreach ($dates as $key => $date) 
     			{
+                    $schedule_id = null;
+                    $schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+
+                    if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
+                    {
+                        $schedule_id = $schedule->id;
+                        $schedule->update(['leave_applied' => '1']);
+                    }
+
     				$leave = new Leave;
     				$leave->user_id = Auth::id();
-    				$leave->schedule_id = null;
+    				$leave->schedule_id = $schedule_id;
     				$leave->date = $date;
     				$leave->reason = $request->reason;
-    				$leave->entry_mode = $request->entry_mode;
+    				$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
+                    $leave->status = $request->status ? $request->status : 0;
+                    $leave->approved_by = $request->approved_by;
     				$leave->save();
     				$leave_ids[] = $leave->id;
+
+                    
     			}        
     		}
     		else
@@ -125,13 +140,21 @@ class LeaveController extends Controller
     			{
     				foreach ($value['dates'] as $key => $date) 
     				{
+                        $schedule_id = null;
+                        $schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+
+                        if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
+                        {
+                            $schedule_id = $schedule->id;
+                            $schedule->update(['leave_applied' => '1']);
+                        }
 
     					$leave = new Leave;
     					$leave->user_id = Auth::id();
-    					$leave->schedule_id = null;
+    					$leave->schedule_id = $schedule_id;
     					$leave->date = $date;
     					$leave->reason = $value['reason'];
-    					$leave->entry_mode = $request->entry_mode;
+    					$leave->entry_mode = $request->entry_mode?$request->entry_mode:'web';
     					$leave->save();
     					$leave_ids[] = $leave->id;
     				}   
@@ -191,7 +214,7 @@ class LeaveController extends Controller
     	try {
     		$leave = Leave::where('id',$id)->with('user:id,name')->first();
     		$leave->reason = $request->reason;
-    		$leave->entry_mode = $request->entry_mode;
+    		$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
     		$leave->save();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$leave, config('httpcodes.success'));
@@ -242,5 +265,37 @@ class LeaveController extends Controller
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
+    }
+
+    public function leavesApprove(Request $request)
+    {
+        $validation = \Validator::make($request->all(), [
+            'leave_ids'      => 'required',
+        ]);
+
+        if ($validation->fails()) {
+            return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+        } 
+
+        DB::beginTransaction();
+        try {
+            $leave = Leave::whereIn('id',$request->leave_ids)->update(['is_approved' => '1','approved_by' => Auth::id(), "approved_date" => date('Y-m-d'), 'approved_time' => date('H:i'), 'status' => 1]);
+
+            $data = Leave::whereIn('id',$request->leave_ids)->with('user:id,name')->get();
+
+            foreach ($data as $key => $value) {
+                $schedule = Schedule::where('shift_date',$value->date)->where('user_id',$value->user_id)->first();
+                if(Schedule::where('shift_date',$value->date)->where('user_id',$value->user_id)->count() > 0)
+                {
+                    $schedule->update(['leave_approved' => '1']);
+                }
+            }
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$data, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
     }
 }

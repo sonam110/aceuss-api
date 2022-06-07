@@ -34,7 +34,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$query = Stampling::orderBy('created_at', 'DESC');
+			$query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name');
 			if(!empty($request->perPage))
 			{
 
@@ -154,6 +154,8 @@ class StamplingController extends Controller
 			$stampling->status 						= $request->status ? $request->status : 0;
 			$stampling->save();
 
+			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
+
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Stampling','message_create') ,$stampling, config('httpcodes.success'));
 		}
@@ -238,7 +240,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stampling= Stampling::find($id);
+			$stampling = Stampling::where('id',$id)->with('user:id,name')->first();
 			if (!is_object($stampling)) {
 				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
 			}

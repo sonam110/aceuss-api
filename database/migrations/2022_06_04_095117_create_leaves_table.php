@@ -23,8 +23,15 @@ class CreateLeavesTable extends Migration
 
             $table->unsignedBigInteger('schedule_id')->nullable();
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
+
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->date('date');
             $table->text('reason')->nullable(0);
+            $table->boolean('is_approved')->default(0)->nullable();
+            $table->date('approved_date')->nullable();
+            $table->string('approved_time')->nullable();
             $table->boolean('status')->default(0)->comment('0 for not approved, 1 for approved');
             $table->string('entry_mode')->nullable();
             $table->timestamps();
