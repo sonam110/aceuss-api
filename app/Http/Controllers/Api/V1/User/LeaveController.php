@@ -85,7 +85,7 @@ class LeaveController extends Controller
     			$every_week = $request->every_week;
                 $week_days = $request->week_days;
 
-                if(empty($request->week_days) && empty($request->every_week) )
+                if(empty($request->week_days) && (empty($request->every_week) || $request->every_week == 1) )
                 {
                     $date1 = strtotime($start_date);
                     $date2 = strtotime($end_date);

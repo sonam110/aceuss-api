@@ -931,7 +931,11 @@ function checkUserToken($token)
 }
 
 function calculateDates($start_date,$end_date,$every_week,$week_days)
-{                    
+{  
+    if(empty($week_days))
+    {
+        $week_days = [0,1,2,3,4,5,6];
+    }                  
     $from = \Carbon\Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? \Carbon\Carbon::parse($end_date) : \Carbon\Carbon::parse($start_date);
     $start_from = $from->format('Y-m-d');
