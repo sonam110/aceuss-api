@@ -208,7 +208,7 @@ class WebSocketController implements MessageComponentInterface {
 
                             //for resend all connected user info
                             foreach ($this->clients as $client) {
-                                if ($conn !== $client) {
+                                if ($conn->resourceId !== $client->resourceId) {
                                     // The sender is not the receiver, send to each client connected
                                     $returnData = [
                                         'command'   => 'connectedusers',
@@ -250,7 +250,7 @@ class WebSocketController implements MessageComponentInterface {
 
         //for resend all connected user info
         foreach ($this->clients as $client) {
-            if ($conn !== $client) {
+            if ($conn->resourceId !== $client->resourceId) {
                 // The sender is not the receiver, send to each client connected
                 $returnData = [
                     'command'   => 'connectedusers',
