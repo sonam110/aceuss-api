@@ -31,7 +31,7 @@ class LeaveController extends Controller
 	{
 		try {
 
-			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id','user.userType');
+			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id','user.userType')->groupBy('group_id');
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;

@@ -71,107 +71,6 @@ class StamplingController extends Controller
 		try 
 		{
 			$validator = Validator::make($request->all(),[   
-				'schedule_id' => 'required|exists:schedules,id',
-			],
-			[   
-				'schedule_id' =>  getLangByLabelGroups('Stampling','message_shift_id'),
-			]);
-			if ($validator->fails()) {
-				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-			}
-
-			$user = Auth::User();
-
-			$schedule = Schedule::find($request->schedule_id);
-			$in_time = $request->in_time;
-			$out_time = $request->out_time;
-			
-			if (!is_object($schedule)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
-			}
-
-			$date = $request->date ? $request->date : $schedule->shift_date;
-
-			$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
-			$worked_duration = getTimeDifference($in_time,$out_time);
-			$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
-			$worked_hours = getHours($in_time,$out_time,0);
-			$extra_hours =  0;
-			if($worked_hours > $scheduled_hours)
-			{
-				$extra_hours =  $worked_hours - $scheduled_hours;
-			}
-
-			$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
-			if($ov)
-			{
-				$ov_start_time = ($ov->start_time); //20:00
-				$ov_end_time = $ov->end_time;  //06:00
-				$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
-			}
-			else
-			{
-				$ov_hours = 0;
-			}
-
-			$is_scheduled_hours_ov_hours = 0;
-			$is_extra_hours_ov_hours = 0;
-			$scheduled_hours_rate = $user->contract_value;
-			$companySetting = companySetting($user->top_most_parent_id);
-			$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
-			if($is_scheduled_hours_ov_hours == 1)
-			{
-				$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			if($is_extra_hours_ov_hours == 1)
-			{
-				$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			
-			$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
-			$extra_hours_sum = $extra_hours_rate * $extra_hours;
-			$total_sum = $scheduled_hours_sum + $extra_hours_sum;
-
-			
-			$stampling = new Stampling;
-			$stampling->schedule_id 				= $request->schedule_id;
-			$stampling->user_id 					= Auth::id();
-			$stampling->in_time 					= $in_time;
-			$stampling->out_time 					= $out_time;
-			$stampling->in_location 				= $request->in_location;
-			$stampling->out_location 				= $request->out_location;
-			$stampling->extra_hours 				= $extra_hours;
-			$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours;
-			$stampling->is_extra_hours_approved 	= 0;
-			$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
-			$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
-			$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
-			$stampling->extra_hours_rate 			= $extra_hours_rate;
-			$stampling->scheduled_hours_sum 		= $scheduled_hours_sum;
-			$stampling->extra_hours_sum 			= $extra_hours_sum;
-			$stampling->total_sum 					= $total_sum;
-			$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->status 						= $request->status ? $request->status : 0;
-			$stampling->save();
-
-			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
-
-			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Stampling','message_create') ,$stampling, config('httpcodes.success'));
-		}
-		catch(Exception $exception) {
-			\Log::error($exception);
-			DB::rollback();
-			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
-		}
-	}
-
-	public function stamplingInOut(Request $request){
-		DB::beginTransaction();
-		try 
-		{
-			$validator = Validator::make($request->all(),[   
 				'type' => 'required',
 			],
 			[   
@@ -182,22 +81,29 @@ class StamplingController extends Controller
 			}
 
 			$user = Auth::User();
-
-			$schedule = Schedule::find($request->schedule_id);
-			if (!is_object($schedule)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
-			}
-
+			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
-				$schedule = Schedule::where('shift_date',date(''))->where('user_id',$value->user_id)->first();
-				if(Schedule::where('shift_date',$value->date)->where('user_id',$value->user_id)->count() > 0)
+				$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
 				{
-				    $schedule->update(['leave_approved' => '1']);
+				    $schedule_id = $schedule->id;
 				}
-				$stampling = new Stampling;
-				$stampling->schedule_id 				= $request->schedule_id;
+				else
+				{
+					$schedule_id = null;
+				}
+				if(Stampling::where('date',$date)->where('user_id',Auth::id())->count() > 0)
+				{
+					$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
+				}
+				else
+				{
+					$stampling = new Stampling;
+				}
+				$stampling->schedule_id 				= $schedule_id;
 				$stampling->user_id 					= Auth::id();
+				$stampling->date 						= date('Y-m-d');
 				$stampling->in_time 					= date('Y-m-d H:i:s');
 				$stampling->out_time 					= null;
 				$stampling->in_location 				= $request->location;
@@ -216,11 +122,24 @@ class StamplingController extends Controller
 				$stampling->status 						= $request->status ? $request->status : 0;
 				$stampling->save();
 			}
-			else
+			elseif($request->type == "OUT")
 			{
-				$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+				$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
+				if($stampling->schedule_id != null)
+				{
+					$schedule = Schedule::find($stampling->schedule_id);
+					$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+					$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
+				}
+				else
+				{
+					$scheduled_hours_rate = "08";
+				}
+				$in_time = $stampling->in_time;
+				$out_time = date('Y-m-d H:i:s');
+				
 				$worked_duration = getTimeDifference($in_time,$out_time);
-				$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
+				
 				$worked_hours = getHours($in_time,$out_time,0);
 				$extra_hours =  0;
 				if($worked_hours > $scheduled_hours)
@@ -231,129 +150,55 @@ class StamplingController extends Controller
 				$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
 				if($ov)
 				{
-				$ov_start_time = ($ov->start_time); //20:00
-				$ov_end_time = $ov->end_time;  //06:00
-				$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
+					$ov_start_time = ($ov->start_time);
+					$ov_end_time = $ov->end_time;
+					$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
+				}
+				else
+				{
+					$ov_hours = 0;
+				}
+
+				$is_scheduled_hours_ov_hours = 0;
+				$is_extra_hours_ov_hours = 0;
+				$scheduled_hours_rate = $user->contract_value;
+				$companySetting = companySetting($user->top_most_parent_id);
+				$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
+				if($is_scheduled_hours_ov_hours == 1)
+				{
+					$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
+				}
+				if($is_extra_hours_ov_hours == 1)
+				{
+					$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
+				}
+			
+				$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
+				$extra_hours_sum = $extra_hours_rate * $extra_hours;
+				$total_sum = $scheduled_hours_sum + $extra_hours_sum;
+
+				$stampling->out_time 					= $out_time;
+				$stampling->out_location 				= $request->location;
+				$stampling->extra_hours 				= $extra_hours;
+				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours;
+				$stampling->is_extra_hours_approved 	= 0;
+				$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
+				$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
+				$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
+				$stampling->extra_hours_rate 			= $extra_hours_rate;
+				$stampling->scheduled_hours_sum 		= $scheduled_hours_sum;
+				$stampling->extra_hours_sum 			= $extra_hours_sum;
+				$stampling->total_sum 					= $total_sum;
+				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+				$stampling->status 						= $request->status ? $request->status : 0;
+				$stampling->save();
+
+				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
 			}
 			else
 			{
-				$ov_hours = 0;
+				return prepareResult(true,getLangByLabelGroups('Stampling','message_Invalid_Type') ,['type invalid'], config('httpcodes.success'));
 			}
-
-			$is_scheduled_hours_ov_hours = 0;
-			$is_extra_hours_ov_hours = 0;
-			$scheduled_hours_rate = $user->contract_value;
-			$companySetting = companySetting($user->top_most_parent_id);
-			$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
-			if($is_scheduled_hours_ov_hours == 1)
-			{
-				$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			if($is_extra_hours_ov_hours == 1)
-			{
-				$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			
-			$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
-			$extra_hours_sum = $extra_hours_rate * $extra_hours;
-			$total_sum = $scheduled_hours_sum + $extra_hours_sum;
-
-			
-			$stampling = new Stampling;
-			$stampling->schedule_id 				= $request->schedule_id;
-			$stampling->user_id 					= Auth::id();
-			$stampling->in_time 					= $in_time;
-			$stampling->out_time 					= $out_time;
-			$stampling->in_location 				= $request->in_location;
-			$stampling->out_location 				= $request->out_location;
-			$stampling->extra_hours 				= $extra_hours;
-			$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours;
-			$stampling->is_extra_hours_approved 	= 0;
-			$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
-			$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
-			$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
-			$stampling->extra_hours_rate 			= $extra_hours_rate;
-			$stampling->scheduled_hours_sum 		= $scheduled_hours_sum;
-			$stampling->extra_hours_sum 			= $extra_hours_sum;
-			$stampling->total_sum 					= $total_sum;
-			$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->status 						= $request->status ? $request->status : 0;
-			$stampling->save();
-
-			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
-		}
-
-			// $schedule = Schedule::find($request->schedule_id);
-			// $in_time = $request->in_time;
-			// $out_time = $request->out_time;
-
-		if (!is_object($schedule)) {
-			return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
-		}
-
-		$date = $request->date ? $request->date : $schedule->shift_date;
-
-		$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
-		$worked_duration = getTimeDifference($in_time,$out_time);
-		$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
-		$worked_hours = getHours($in_time,$out_time,0);
-		$extra_hours =  0;
-		if($worked_hours > $scheduled_hours)
-		{
-			$extra_hours =  $worked_hours - $scheduled_hours;
-		}
-
-		$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
-		if($ov)
-		{
-				$ov_start_time = ($ov->start_time); //20:00
-				$ov_end_time = $ov->end_time;  //06:00
-				$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
-			}
-			else
-			{
-				$ov_hours = 0;
-			}
-
-			$is_scheduled_hours_ov_hours = 0;
-			$is_extra_hours_ov_hours = 0;
-			$scheduled_hours_rate = $user->contract_value;
-			$companySetting = companySetting($user->top_most_parent_id);
-			$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
-			if($is_scheduled_hours_ov_hours == 1)
-			{
-				$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			if($is_extra_hours_ov_hours == 1)
-			{
-				$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-			}
-			
-			$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
-			$extra_hours_sum = $extra_hours_rate * $extra_hours;
-			$total_sum = $scheduled_hours_sum + $extra_hours_sum;
-
-			
-			$stampling = new Stampling;
-			$stampling->schedule_id 				= $request->schedule_id;
-			$stampling->user_id 					= Auth::id();
-			$stampling->in_time 					= date('H:i:s');
-			$stampling->out_time 					= null;
-			$stampling->in_location 				= $request->in_location;
-			$stampling->out_location 				= null;
-			$stampling->extra_hours 				= 0;
-			$stampling->reason_for_extra_hours 		= null;
-			$stampling->is_extra_hours_approved 	= 0;
-			$stampling->is_scheduled_hours_ov_hours = 0;
-			$stampling->is_extra_hours_ov_hours 	= 0;
-			$stampling->scheduled_hours_rate 		= 0;
-			$stampling->extra_hours_rate 			= 0;
-			$stampling->scheduled_hours_sum 		= 0;
-			$stampling->extra_hours_sum 			= 0;
-			$stampling->total_sum 					= 0;
-			$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->status 						= $request->status ? $request->status : 0;
-			$stampling->save();
 
 			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
 

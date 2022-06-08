@@ -1043,3 +1043,23 @@ function getOVHours($time1, $time2, $ovtime1, $ovtime2)
     }
     return $hours;
 }
+
+function getLeaveDatesByGroupId($group_id)
+{
+    $leave = Leave::where('group_id',$group_id)->get();
+    $dates = [];
+    foreach ($leave as $key => $value) {
+        $dates[] = $value->date;
+    }
+    return $dates;
+}
+
+function getLeaveDatesByUserId($user_id)
+{
+    $leave = Leave::where('user_id',$user_id)->get();
+    $dates = [];
+    foreach ($leave as $key => $value) {
+        $dates[] = $value->date;
+    }
+    return $dates;
+}

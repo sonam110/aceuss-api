@@ -25,9 +25,9 @@ class CreateStamplingsTable extends Migration
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
             $table->date('date');
             $table->datetime('in_time');
-            $table->datetime('out_time');
+            $table->datetime('out_time')->nullable();
             $table->string('in_location');
-            $table->string('out_location');
+            $table->string('out_location')->nullable();
             $table->string('extra_hours');
             $table->string('reason_for_extra_hours')->default(0)->nullable();
             $table->boolean('is_extra_hours_approved')->default(0)->nullable();
