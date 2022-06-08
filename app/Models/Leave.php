@@ -30,4 +30,9 @@ class Leave extends Model
     {
         return $this->belongsTo(User::class,'user_id','id');
     }
+
+    public function leaves()
+    {
+        return $this->hasMany(self::class,'group_id','group_id');
+    }
 }

@@ -31,7 +31,7 @@ class LeaveController extends Controller
 	{
 		try {
 
-			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id','user.userType')->groupBy('group_id');
+			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id','user.userType', 'leaves:id,group_id,date')->groupBy('group_id');
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
@@ -189,7 +189,7 @@ class LeaveController extends Controller
     {
     	try 
     	{
-    		$checkId= Leave::where('id',$id)->with('user:id,name,user_type_id','user.userType')->first();
+    		$checkId= Leave::where('id',$id)->with('user:id,name,user_type_id','user.userType', 'leaves:id,group_id,date')->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -284,13 +284,13 @@ class LeaveController extends Controller
             {
             	$leave = Leave::where('group_id',$request->group_id)->first();
                 $update = Leave::where('group_id',$request->group_id)
-                				->update([
-                					'is_approved' => '1',
-                					'approved_by' => Auth::id(), 
-                					'approved_date' => date('Y-m-d'), 
-                					'approved_time' => date('H:i'), 
-                					'status' => 1
-                				]);
+    				->update([
+    					'is_approved' => '1',
+    					'approved_by' => Auth::id(), 
+    					'approved_date' => date('Y-m-d'), 
+    					'approved_time' => date('H:i'), 
+    					'status' => 1
+    				]);
                 $dates = [];
                 $leaves = Leave::where('group_id',$request->group_id)->get();
                 foreach ($leaves as $key => $value) {
@@ -387,12 +387,12 @@ class LeaveController extends Controller
         			}
 
         			$update = $leave->update([
-    								'is_approved' => '1',
-    								'approved_by' => Auth::id(), 
-    								'approved_date' => date('Y-m-d'), 
-    								'approved_time' => date('H:i'), 
-    								'status' => 1
-    							]);
+						'is_approved' => '1',
+						'approved_by' => Auth::id(), 
+						'approved_date' => date('Y-m-d'), 
+						'approved_time' => date('H:i'), 
+						'status' => 1
+					]);
 			        if($request->notify_employees == true)
 			        {
 						$title = "";
