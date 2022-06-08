@@ -133,13 +133,13 @@ class StamplingController extends Controller
 				}
 				else
 				{
-					$scheduled_hours_rate = "08";
+					$scheduled_hours = "08";
 				}
+
 				$in_time = $stampling->in_time;
 				$out_time = date('Y-m-d H:i:s');
 				
 				$worked_duration = getTimeDifference($in_time,$out_time);
-				
 				$worked_hours = getHours($in_time,$out_time,0);
 				$extra_hours =  0;
 				if($worked_hours > $scheduled_hours)
