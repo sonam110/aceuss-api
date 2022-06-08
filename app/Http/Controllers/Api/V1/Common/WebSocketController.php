@@ -49,7 +49,7 @@ class WebSocketController implements MessageComponentInterface {
      * @return [JSON]                    [description]
      * @example subscribe                conn.send(JSON.stringify({"command": "subscribe", channel: "global"}));
      * @example groupchat                conn.send(JSON.stringify({command: "groupchat", message: "hello glob", channel: "global"}));
-     * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection"}));
+     * @example message                  conn.send(JSON.stringify({"command":"message", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7", "to": "1", "from":"2", "message":"it needs xss protection","file_path":"","file_type":""}));
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "top_most_parent_id": "2", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getuserwithmessage       conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
@@ -85,6 +85,8 @@ class WebSocketController implements MessageComponentInterface {
                             $message->sender_id = $data->from;
                             $message->receiver_id = $data->to;
                             $message->message = $data->message;
+                            $message->file_path = $data->file_path;
+                            $message->file_type = $data->file_type;
                             $message->read_at = null;
                             $message->save();
                             
@@ -156,6 +158,17 @@ class WebSocketController implements MessageComponentInterface {
                                 'data'      => null
                             ];
                             $conn->send(json_encode($returnData));
+
+                            foreach ($this->userresources[$data->other_user_id] as $key => $resourceId) {
+                                if (isset($this->users[$resourceId])) {
+                                    $returnData = [
+                                        'command'   => 'readmessagesforother',
+                                        'userId'    => $data->other_user_id,
+                                        'data'      => $readmessages
+                                    ];
+                                    $this->users[$resourceId]->send(json_encode($returnData));
+                                }
+                            }
                         }
                         break;
                     case "register":

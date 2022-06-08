@@ -19,6 +19,7 @@ class Message extends Model
 		'receiver_id',
 		'message',
         'file_path',
+        'file_type',
 		'read_at',
         'entry_mode',
     ];

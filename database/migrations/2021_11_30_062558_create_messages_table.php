@@ -25,8 +25,9 @@ class CreateMessagesTable extends Migration
             $table->unsignedBigInteger('receiver_id')->nullable();
             $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->text('message');
-            $table->string('file_path');
+            $table->text('message')->nullable();
+            $table->string('file_path')->nullable();
+            $table->string('file_type')->nullable();
             $table->timestamp('read_at')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
