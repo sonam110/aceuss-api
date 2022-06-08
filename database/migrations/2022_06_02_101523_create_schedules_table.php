@@ -31,8 +31,8 @@ class CreateSchedulesTable extends Migration
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('shift_name');
-            $table->time('shift_start_time');
-            $table->time('shift_end_time');
+            $table->datetime('shift_start_time');
+            $table->datetime('shift_end_time');
             $table->string('shift_color')->nullable();
 
             $table->string('shift_date');

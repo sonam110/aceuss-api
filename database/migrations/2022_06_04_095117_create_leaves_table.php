@@ -27,6 +27,7 @@ class CreateLeavesTable extends Migration
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
 
+            $table->string('group_id')->nullable();
             $table->date('date');
             $table->text('reason')->nullable(0);
             $table->boolean('is_approved')->default(0)->nullable();

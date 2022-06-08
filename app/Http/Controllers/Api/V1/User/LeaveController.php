@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\V1\User;
 use App\Http\Controllers\Controller;
 use App\Models\Leave;
 use App\Models\Schedule;
+use App\Models\User;
+use App\Models\EmailTemplate;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +31,7 @@ class LeaveController extends Controller
 	{
 		try {
 
-			$query = Leave::orderBy('id', 'DESC')->with('user:id,name');
+			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id','user.userType');
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
@@ -73,6 +75,7 @@ class LeaveController extends Controller
 
     		if($request->is_repeat == 1)
     		{
+
     			$validation = \Validator::make($request->all(), [
     				'start_date'      => 'required|date',
     				'end_date'      => 'required|date',
@@ -81,6 +84,8 @@ class LeaveController extends Controller
     			if ($validation->fails()) {
     				return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
+
+    			$group_id = generateRandomNumber();
 
     			$start_date = $request->start_date;
     			$end_date = $request->end_date;
@@ -115,6 +120,7 @@ class LeaveController extends Controller
     				$leave = new Leave;
     				$leave->user_id = Auth::id();
     				$leave->schedule_id = $schedule_id;
+    				$leave->group_id = $group_id;
     				$leave->date = $date;
     				$leave->reason = $request->reason;
     				$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
@@ -135,6 +141,7 @@ class LeaveController extends Controller
     			if ($validation->fails()) {
     				return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
+                $group_id = generateRandomNumber();
 
     			foreach ($request->leaves as $key => $value) 
     			{
@@ -152,6 +159,7 @@ class LeaveController extends Controller
     					$leave = new Leave;
     					$leave->user_id = Auth::id();
     					$leave->schedule_id = $schedule_id;
+                        $leave->group_id = $group_id;
     					$leave->date = $date;
     					$leave->reason = $value['reason'];
     					$leave->entry_mode = $request->entry_mode?$request->entry_mode:'web';
@@ -161,7 +169,7 @@ class LeaveController extends Controller
     			}  
     		}
 
-    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name')->get();
+    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name,user_type_id','user.userType')->get();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
@@ -181,7 +189,7 @@ class LeaveController extends Controller
     {
     	try 
     	{
-    		$checkId= Leave::where('id',$id)->with('user:id,name')->first();
+    		$checkId= Leave::where('id',$id)->with('user:id,name,user_type_id','user.userType')->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -212,7 +220,7 @@ class LeaveController extends Controller
 
     	DB::beginTransaction();
     	try {
-    		$leave = Leave::where('id',$id)->with('user:id,name')->first();
+    		$leave = Leave::where('id',$id)->with('user:id,name,user_type_id','user.userType')->first();
     		$leave->reason = $request->reason;
     		$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
     		$leave->save();
@@ -269,29 +277,153 @@ class LeaveController extends Controller
 
     public function leavesApprove(Request $request)
     {
-        $validation = \Validator::make($request->all(), [
-            'leave_ids'      => 'required',
-        ]);
-
-        if ($validation->fails()) {
-            return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
-        } 
-
         DB::beginTransaction();
-        try {
-            $leave = Leave::whereIn('id',$request->leave_ids)->update(['is_approved' => '1','approved_by' => Auth::id(), "approved_date" => date('Y-m-d'), 'approved_time' => date('H:i'), 'status' => 1]);
-
-            $data = Leave::whereIn('id',$request->leave_ids)->with('user:id,name')->get();
-
-            foreach ($data as $key => $value) {
-                $schedule = Schedule::where('shift_date',$value->date)->where('user_id',$value->user_id)->first();
-                if(Schedule::where('shift_date',$value->date)->where('user_id',$value->user_id)->count() > 0)
+        try 
+        {
+            if(!empty($request->group_id))
+            {
+            	$leave = Leave::where('group_id',$request->group_id)->first();
+                $update = Leave::where('group_id',$request->group_id)
+                				->update([
+                					'is_approved' => '1',
+                					'approved_by' => Auth::id(), 
+                					'approved_date' => date('Y-m-d'), 
+                					'approved_time' => date('H:i'), 
+                					'status' => 1
+                				]);
+                $dates = [];
+                $leaves = Leave::where('group_id',$request->group_id)->get();
+                foreach ($leaves as $key => $value) {
+                	$dates[] = $value->date;
+                }
+                $dates = implode(',', $dates);
+                $users = User::whereIn('employee_type',$request->employee_type)->get();
+                if($request->notify_employees == true)
                 {
-                    $schedule->update(['leave_approved' => '1']);
+                	foreach ($users as $key => $user) 
+                	{
+                		//---------------------Notification------------------//
+
+        				$title = "";
+        				$body = "";
+        				$module =  "leave";
+        				$id =  $request->group_id;
+        				$screen =  "list";
+        				
+        				$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
+        				if($getMsg )
+        				{
+        					$body = $getMsg->notify_body;
+        					$title = $getMsg->mail_subject;
+
+        					$arrayVal = [
+        						'{{name}}'  		=> $user->name,
+        						'{{requested_by}}' 	=> Auth::User()->name,
+        						'{{dates}}'			=> $dates
+        					];
+        					$body = strReplaceAssoc($arrayVal, $body);
+        				}
+        				actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+                	}
+
+                }
+                
+            }
+            elseif(!empty($request->leaves))
+            {
+            	$leave_ids = [];
+            	foreach ($request->leaves as $key => $value) 
+            	{
+            		$leave_ids[] = $value['leave_id']; 
+            		$leave = Leave::find($value['leave_id']);
+        			$schedule = Schedule::where('shift_date',$leave->date)->where('user_id',$leave->user_id)->first();
+        			$user = User::find($leave['user_id']);
+        			if(!empty($schedule))
+        			{
+        				$assignSchedule = new Schedule;
+        				$assignSchedule->shift_id = $schedule->shift_id;
+        				$assignSchedule->user_id = $leave['user_id'];
+        				$assignSchedule->parent_id = $schedule->id;
+        				$assignSchedule->shift_name = $schedule->shift_name;
+        				$assignSchedule->shift_start_time = $schedule->shift_start_time;
+        				$assignSchedule->shift_end_time = $schedule->shift_end_time;
+        				$assignSchedule->shift_color = $schedule->shift_color;
+        				$assignSchedule->shift_date = $schedule->shift_date;
+        				$assignSchedule->leave_applied = 0;
+        				$assignSchedule->leave_approved = 0;
+        				$assignSchedule->status = 0;
+        				$assignSchedule->entry_mode = $request->entry_mode ? $request->entry_mode :'Web';
+        				$assignSchedule->created_by = Auth::id();
+        				$assignSchedule->save();
+
+        				$schedule->update(['leave_approved' => '1']);
+
+        				//---------------------Notification------------------//
+
+        				$title = "";
+        				$body = "";
+        				$module =  "schedule";
+        				$id =  $assignSchedule->id;
+        				$screen =  "detail";
+        				
+        				$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+        				if($getMsg )
+        				{
+        					$body = $getMsg->notify_body;
+        					$title = $getMsg->mail_subject;
+
+        					$arrayVal = [
+        						'{{name}}'  		=> $user->name,
+        						'{{assigned_by}}' 	=> Auth::User()->name,
+        						'{{schedule_title}}'=> $assignSchedule->shift_name,
+        						'{{date}}' 			=> $assignSchedule->shift_date,
+        						'{{start_time}}' 	=> $assignSchedule->shift_start_time,
+        						'{{end_time}}' 		=> $assignSchedule->shift_end_time,
+
+        					];
+        					$body = strReplaceAssoc($arrayVal, $body);
+        				}
+        				actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+        			}
+
+        			$update = $leave->update([
+    								'is_approved' => '1',
+    								'approved_by' => Auth::id(), 
+    								'approved_date' => date('Y-m-d'), 
+    								'approved_time' => date('H:i'), 
+    								'status' => 1
+    							]);
+			        if($request->notify_employees == true)
+			        {
+						$title = "";
+						$body = "";
+						$module =  "leave";
+						$id =  $leave->group_id;
+						$screen =  "detail";
+						
+						$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
+						if($getMsg )
+						{
+							$body = $getMsg->notify_body;
+							$title = $getMsg->mail_subject;
+
+							$arrayVal = [
+								'{{name}}'  		=> $user->name,
+								'{{requested_by}}' 	=> Auth::User()->name,
+								'{{dates}}'			=> $leave->date
+							];
+							$body = strReplaceAssoc($arrayVal, $body);
+						}
+						actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+			        	
+			        }
+        			$leaves = Leave::whereIn('id',$leave_ids)->get();
                 }
             }
+
+
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
