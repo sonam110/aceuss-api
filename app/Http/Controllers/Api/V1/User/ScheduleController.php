@@ -93,19 +93,20 @@ class ScheduleController extends Controller
 			{
 				$date = date('Y-m-d',strtotime($shift_date));
 				$schedule = new Schedule;
-				$schedule->shift_id = $request->shift_id;
-				$schedule->user_id = $request->user_id;
-				$schedule->parent_id = $request->parent_id;
-				$schedule->shift_name = $shift->shift_name;
-				$schedule->shift_start_time = $shift->shift_start_time;
-				$schedule->shift_end_time = $shift->shift_end_time;
-				$schedule->shift_color = $shift->shift_color;
-				$schedule->shift_date = $date;
-				$schedule->leave_applied = ($request->leave_applied)? $request->leave_applied :0;
-				$schedule->leave_approved = ($request->leave_approved)? $request->leave_approved :0;
-				$schedule->status = ($request->status)? $request->status :0;
-				$schedule->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-				$schedule->created_by = Auth::id();
+				$schedule->shift_id 		= $request->shift_id;
+				$schedule->user_id 			= $request->user_id;
+				$schedule->parent_id 		= $request->parent_id;
+				$schedule->shift_name 		= $shift->shift_name;
+				$schedule->shift_start_time = $request->shift_start_time;
+				$schedule->shift_end_time 	= $request->shift_end_time;
+				$schedule->patient_id 		= $request->patient_id;
+				$schedule->shift_color 		= $shift->shift_color;
+				$schedule->shift_date 		= $date;
+				$schedule->leave_applied 	= $request->leave_applied? $request->leave_applied :0;
+				$schedule->leave_approved 	= $request->leave_approved? $request->leave_approved :0;
+				$schedule->status 			= $request->status? $request->status :0;
+				$schedule->entry_mode 		=  $request->entry_mode ? $request->entry_mode :'Web';
+				$schedule->created_by 		= Auth::id();
 				$schedule->save();
 				$schedule_ids[] = $schedule->id;
 			}
@@ -153,14 +154,15 @@ class ScheduleController extends Controller
 			$schedule->user_id 			= $request->user_id ? $request->user_id : $schedule->user_id;
 			$schedule->parent_id 		= $request->parent_id;
 			$schedule->shift_name 		= $shift->shift_name;
-			$schedule->shift_start_time	= $shift->shift_start_time;
-			$schedule->shift_end_time 	= $shift->shift_end_time;
+			$schedule->shift_start_time = $request->shift_start_time;
+			$schedule->shift_end_time 	= $request->shift_end_time;
+			$schedule->patient_id 		= $request->patient_id;
 			$schedule->shift_color 		= $shift->shift_color;
 			$schedule->shift_date 		= $request->shift_date ? $date : $schedule->shift_date;
-			$schedule->leave_applied 	= ($request->leave_applied)? $request->leave_applied :0;
-			$schedule->leave_approved 	= ($request->leave_approved)? $request->leave_approved :0;
-			$schedule->status 			= ($request->status)? $request->status :0;
-			$schedule->entry_mode 		=  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+			$schedule->leave_applied 	= $request->leave_applied ? $request->leave_applied :0;
+			$schedule->leave_approved 	= $request->leave_approved ? $request->leave_approved :0;
+			$schedule->status 			= $request->status ? $request->status :0;
+			$schedule->entry_mode 		= $request->entry_mode ? $request->entry_mode :'Web';
 			$schedule->created_by 		= Auth::id();
 			$schedule->save();
 

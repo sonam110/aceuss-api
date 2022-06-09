@@ -21,6 +21,9 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('patient_id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->unsignedBigInteger('shift_id');
             $table->foreign('shift_id')->references('id')->on('company_work_shifts')->onDelete('cascade');
 

@@ -109,7 +109,7 @@ class StamplingController extends Controller
 				$stampling->in_location 				= $request->location;
 				$stampling->out_location 				= null;
 				$stampling->extra_hours 				= 0;
-				$stampling->reason_for_extra_hours 		= null;
+				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours ;
 				$stampling->is_extra_hours_approved 	= 0;
 				$stampling->is_scheduled_hours_ov_hours = 0;
 				$stampling->is_extra_hours_ov_hours 	= 0;
