@@ -16,23 +16,18 @@ class BankIdVerified implements ShouldBroadcast
 
     public $data;
     public $userId;
+    public $uniqueId;
 
-    public function __construct($data, $user)
+    public function __construct($data, $user, $uniqueId)
     {
         $this->data = $data;
         $this->userId = $user->id;
+        $this->uniqueId = $user->unique_id;
     }
-
-    /*public function broadcastOn()
-    {
-        //return new PrivateChannel('bank-id-verified');
-        return new Channel('bank-id-verified');
-    }*/
 
     public function broadcastOn()
     {
-        return new PrivateChannel('bank-id-verified.' . $this->userId);
-        //return new Channel('bank-id-verified.' . $this->userId);
+        return new PrivateChannel('bank-id-verified.' . $this->userId.'-' . $this->uniqueId);
     }
 
     public function broadcastAs()

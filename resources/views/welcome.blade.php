@@ -138,7 +138,7 @@
             });
         </script>
         <script>
-            Echo.private('bank-id-verified.{{auth()->id()}}')
+            Echo.private('bank-id-verified.{{auth()->id()}}-{{auth()->user()->unique_id}}')
                 .listen('.bankIdVerified.event', (e) => {
                     console.log('bankIdVerified.event fired: ')
                     console.log(e)

@@ -21,6 +21,6 @@ Broadcast::channel('notification-for-all', function ($data) {
     return true;
 });
 
-Broadcast::channel('bank-id-verified.{userId}', function ($user, $userId){
+Broadcast::channel('bank-id-verified.{userId}-{uniqueId}', function ($data, $userId, $uniqueId){
     return true;
 });
