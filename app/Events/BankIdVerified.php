@@ -27,7 +27,7 @@ class BankIdVerified implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('bank-id-verified.' . $this->userId.'-' . $this->uniqueId);
+        return new Channel('bank-id-verified.' . $this->userId.'-' . $this->uniqueId);
     }
 
     public function broadcastAs()
