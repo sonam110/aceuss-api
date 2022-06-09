@@ -87,7 +87,7 @@ class StamplingController extends Controller
 				$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
 				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
 				{
-				    $schedule_id = $schedule->id;
+					$schedule_id = $schedule->id;
 				}
 				else
 				{
@@ -109,7 +109,7 @@ class StamplingController extends Controller
 				$stampling->in_location 				= $request->location;
 				$stampling->out_location 				= null;
 				$stampling->extra_hours 				= 0;
-				$stampling->reason_for_extra_hours 		= null;
+				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours ;
 				$stampling->is_extra_hours_approved 	= 0;
 				$stampling->is_scheduled_hours_ov_hours = 0;
 				$stampling->is_extra_hours_ov_hours 	= 0;
@@ -120,12 +120,19 @@ class StamplingController extends Controller
 				$stampling->total_sum 					= 0;
 				$stampling->entry_mode 					= $request->entry_mode ? $request->entry_mode :'Web';
 				$stampling->status 						= $request->status ? $request->status : 0;
+				$stampling->latitude 					= $request->latitude;
+				$stampling->longitude 					= $request->longitude;
+				$stampling->ip_address 					= $request->ip_address;
 				$stampling->save();
 			}
 			elseif($request->type == "OUT")
 			{
 				$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
-				if($stampling->schedule_id != null)
+				if (!is_object($stampling)) 
+				{
+	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['data not found'],config('httpcodes.not_found'));
+	            }
+				if(!empty($stampling->schedule_id))
 				{
 					$schedule = Schedule::find($stampling->schedule_id);
 					$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
@@ -172,7 +179,7 @@ class StamplingController extends Controller
 				{
 					$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
 				}
-			
+
 				$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
 				$extra_hours_sum = $extra_hours_rate * $extra_hours;
 				$total_sum = $scheduled_hours_sum + $extra_hours_sum;
@@ -191,6 +198,9 @@ class StamplingController extends Controller
 				$stampling->total_sum 					= $total_sum;
 				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 				$stampling->status 						= $request->status ? $request->status : 0;
+				$stampling->latitude 					= $request->latitude;
+				$stampling->longitude 					= $request->longitude;
+				$stampling->ip_address 					= $request->ip_address;
 				$stampling->save();
 
 				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
