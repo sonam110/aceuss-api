@@ -84,15 +84,12 @@ class StamplingController extends Controller
 			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
-				$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
-				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
+				$schedule_id = null;
+				if(!empty($request->schedule_id))
 				{
-					$schedule_id = $schedule->id;
+					$schedule_id = $request->schedule_id;
 				}
-				else
-				{
-					$schedule_id = null;
-				}
+
 				if(Stampling::where('date',$date)->where('user_id',Auth::id())->count() > 0)
 				{
 					$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
@@ -101,15 +98,17 @@ class StamplingController extends Controller
 				{
 					$stampling = new Stampling;
 				}
+
 				$stampling->schedule_id 				= $schedule_id;
 				$stampling->user_id 					= Auth::id();
 				$stampling->date 						= date('Y-m-d');
 				$stampling->in_time 					= date('Y-m-d H:i:s');
+				$stampling->reason_for_early_in 		= $request->reason_for_early_in;
+				$stampling->reason_for_late_in 			= $request->reason_for_late_in;
 				$stampling->out_time 					= null;
-				$stampling->in_location 				= $request->location;
+				$stampling->in_location 				= json_encode($request->location);
 				$stampling->out_location 				= null;
 				$stampling->extra_hours 				= 0;
-				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours ;
 				$stampling->is_extra_hours_approved 	= 0;
 				$stampling->is_scheduled_hours_ov_hours = 0;
 				$stampling->is_extra_hours_ov_hours 	= 0;
@@ -120,9 +119,6 @@ class StamplingController extends Controller
 				$stampling->total_sum 					= 0;
 				$stampling->entry_mode 					= $request->entry_mode ? $request->entry_mode :'Web';
 				$stampling->status 						= $request->status ? $request->status : 0;
-				$stampling->latitude 					= $request->latitude;
-				$stampling->longitude 					= $request->longitude;
-				$stampling->ip_address 					= $request->ip_address;
 				$stampling->save();
 			}
 			elseif($request->type == "OUT")
@@ -185,9 +181,10 @@ class StamplingController extends Controller
 				$total_sum = $scheduled_hours_sum + $extra_hours_sum;
 
 				$stampling->out_time 					= $out_time;
-				$stampling->out_location 				= $request->location;
+				$stampling->out_location 				= json_encode($request->location);
 				$stampling->extra_hours 				= $extra_hours;
-				$stampling->reason_for_extra_hours 		= $request->reason_for_extra_hours;
+				$stampling->reason_for_early_out 		= $request->reason_for_early_out;
+				$stampling->reason_for_late_out 		= $request->reason_for_late_out;
 				$stampling->is_extra_hours_approved 	= 0;
 				$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
 				$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
@@ -198,9 +195,6 @@ class StamplingController extends Controller
 				$stampling->total_sum 					= $total_sum;
 				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 				$stampling->status 						= $request->status ? $request->status : 0;
-				$stampling->latitude 					= $request->latitude;
-				$stampling->longitude 					= $request->longitude;
-				$stampling->ip_address 					= $request->ip_address;
 				$stampling->save();
 
 				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();

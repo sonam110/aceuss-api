@@ -29,7 +29,10 @@ class CreateStamplingsTable extends Migration
             $table->string('in_location');
             $table->string('out_location')->nullable();
             $table->string('extra_hours');
-            $table->string('reason_for_extra_hours')->default(0)->nullable();
+            $table->string('reason_for_early_in')->nullable();
+            $table->string('reason_for_early_out')->nullable();
+            $table->string('reason_for_late_in')->nullable();
+            $table->string('reason_for_late_out')->nullable();
             $table->boolean('is_extra_hours_approved')->default(0)->nullable();
             $table->boolean('is_scheduled_hours_ov_hours')->default(0)->nullable();
             $table->boolean('scheduled_hours_rate')->default(0)->nullable();
@@ -40,9 +43,9 @@ class CreateStamplingsTable extends Migration
             $table->float('total_sum')->default(0)->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
-            $table->string('ip_address')->nullable();
+            // $table->string('latitude')->nullable();
+            // $table->string('longitude')->nullable();
+            // $table->string('ip_address')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

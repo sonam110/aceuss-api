@@ -280,4 +280,17 @@ class ScheduleController extends Controller
 		}
 	}
 
+	public function getUserSchedules($id)
+	{
+		try 
+		{
+			$query = Schedule::where('user_id', $id)->where('shift_date',date('Y-m-d'))->get();
+			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+
+		}
+	}
+
 }

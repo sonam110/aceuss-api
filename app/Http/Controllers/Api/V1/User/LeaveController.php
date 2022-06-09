@@ -169,7 +169,7 @@ class LeaveController extends Controller
     			}  
     		}
 
-    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name,user_type_id','user.userType')->get();
+    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date')->groupBy('group_id')->get();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
     	} catch (\Throwable $exception) {

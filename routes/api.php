@@ -326,6 +326,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		//-----------------------Schedule---------------------//
 		Route::post('schedules', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedules']);
 		Route::apiResource('schedule', User\ScheduleController::class)->only(['store','destroy','show', 'update']);
+		Route::get('user-schedules/{id}', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getUserSchedules']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);
