@@ -130,14 +130,18 @@
             </div>
         </div>
         <script src="{{ asset('js/app.js') }}"></script>
-        <!-- <script>
-            Echo.private('bank-id-verified')
-            .listen('bank-id-verified', (e) => console.log('Private bank-id-verified: ' + e.message));
-        </script> -->
         <script>
-            Echo.channel('bank-id-verified')
-                .listen('BankIdVerified', (e) => {
-                    console.log(e.data.message);
+            Echo.channel('notification-for-all')
+            .listen('.NotificationForAll.event', (e) => {
+                console.log('NotificationForAll.event fired: ')
+                console.log(e)
+            });
+        </script>
+        <script>
+            Echo.private('bank-id-verified.{{auth()->id()}}')
+                .listen('.bankIdVerified.event', (e) => {
+                    console.log('bankIdVerified.event fired: ')
+                    console.log(e)
                 });
         </script>
     </body>

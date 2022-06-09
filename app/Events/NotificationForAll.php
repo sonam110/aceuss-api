@@ -10,33 +10,24 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BankIdVerified implements ShouldBroadcast
+class NotificationForAll implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $data;
-    public $userId;
 
-    public function __construct($data, $user)
+    public function __construct($data)
     {
         $this->data = $data;
-        $this->userId = $user->id;
     }
-
-    /*public function broadcastOn()
-    {
-        //return new PrivateChannel('bank-id-verified');
-        return new Channel('bank-id-verified');
-    }*/
 
     public function broadcastOn()
     {
-        return new PrivateChannel('bank-id-verified.' . $this->userId);
-        //return new Channel('bank-id-verified.' . $this->userId);
+        return new Channel('notification-for-all');
     }
 
     public function broadcastAs()
     {
-        return 'bankIdVerified.event';
+        return 'NotificationForAll.event';
     }
 }

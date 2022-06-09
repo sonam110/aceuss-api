@@ -13,10 +13,14 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+/*Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
+});*/
+
+Broadcast::channel('notification-for-all', function ($data) {
+    return true;
 });
 
-Broadcast::channel('bank-id-verified', function ($user) {
+Broadcast::channel('bank-id-verified.{userId}', function ($user, $userId){
     return true;
 });

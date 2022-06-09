@@ -8,6 +8,7 @@ use App\Models\MobileBankIdLoginLog;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
 use App\Events\BankIdVerified;
+use App\Events\NotificationForAll;
 
 class CallbackController extends Controller
 {
@@ -98,13 +99,15 @@ class CallbackController extends Controller
 
     public function checkEvent()
     {
+        $user = User::first();
         $data = [
             "module" => 'Activity',
             "user_id" => 1,
             "message" => 'test message',
             "message_type" => 'success',
         ];
-        \broadcast(new BankIdVerified($data));
+        \broadcast(new NotificationForAll($data));
+        //\broadcast(new BankIdVerified($data, $user));
         //event(new BankIdVerified('Hello World'));
         return 'Success';
     }
