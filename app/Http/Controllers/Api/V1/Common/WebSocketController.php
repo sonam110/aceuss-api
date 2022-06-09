@@ -159,14 +159,16 @@ class WebSocketController implements MessageComponentInterface {
                             ];
                             $conn->send(json_encode($returnData));
 
-                            foreach ($this->userresources[$data->other_user_id] as $key => $resourceId) {
-                                if (isset($this->users[$resourceId])) {
-                                    $returnData = [
-                                        'command'   => 'readmessagesforother',
-                                        'userId'    => $data->other_user_id,
-                                        'data'      => $readmessages
-                                    ];
-                                    $this->users[$resourceId]->send(json_encode($returnData));
+                            if (isset($this->userresources[$data->other_user_id])) {
+                                $returnData = [
+                                    'command'   => 'readmessagesforother',
+                                    'userId'    => $data->other_user_id,
+                                    'data'      => $readmessages
+                                ];
+                                foreach ($this->userresources[$data->other_user_id] as $key => $resourceId) {
+                                    if (isset($this->users[$resourceId])) {
+                                        $this->users[$resourceId]->send(json_encode($returnData));
+                                    }
                                 }
                             }
                         }
