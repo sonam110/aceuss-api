@@ -13,8 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-       
-        
+       \Artisan::call('create:directory');        
         //$this->call(PermissionSeeder::class);
         $this->call(DefaultEntrySeeder::class);
         $this->call(AgencySeeder::class);
