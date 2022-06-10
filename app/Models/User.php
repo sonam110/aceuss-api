@@ -373,5 +373,12 @@ class User extends Authenticatable
     public function allChildBranches(){
         return $this->hasMany(self::class, 'branch_id', 'id')->whereIn('user_type_id', [2,11])->with('allChildBranches');
     }
+
+    public function childs()
+    {
+         return $this->hasMany(User::class,'top_most_parent_id','id');
+    }
+
+
     
 }

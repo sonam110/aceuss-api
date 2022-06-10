@@ -126,7 +126,7 @@ class StamplingController extends Controller
 				$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
 				if (!is_object($stampling)) 
 				{
-	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['data not found'],config('httpcodes.not_found'));
+	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
 	            }
 				if(!empty($stampling->schedule_id))
 				{

@@ -30,8 +30,12 @@ class LeaveController extends Controller
 	public function Leaves(Request $request)
 	{
 		try {
+            $child_ids = [Auth::id()];
+            foreach (Auth::user()->childs as $key => $value) {
+                $child_ids[] = $value->id;
+            }
 
-			$query = Leave::orderBy('id', 'DESC')->with('user:id,name,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date')->groupBy('group_id');
+			$query = Leave::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date')->groupBy('group_id');
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
