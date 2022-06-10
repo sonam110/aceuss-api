@@ -36,6 +36,30 @@ class LeaveController extends Controller
             }
 
 			$query = Leave::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date')->groupBy('group_id');
+
+            if(!empty($request->emp_id))
+            {
+                $query->where('user_id', $request->emp_id);
+            }
+            if(!empty($request->start_date))
+            {
+                $query->where('date',">=" ,$request->start_date);
+            }
+            if(!empty($request->end_date))
+            {
+                $query->where('date',"<=" ,$request->end_date);
+            }
+
+            if(!empty($request->is_approved == "1"))
+            {
+                $query->where('is_approved', 1);
+            }
+
+            if(!empty($request->is_approved == "0"))
+            {
+                $query->where('is_approved', 0);
+            }
+
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
