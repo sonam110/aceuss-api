@@ -85,6 +85,7 @@ class AdminFileController extends Controller
             }
             else
             {
+                /*
                 $query->where(function ($q) use ($request) {
                     $q->where('top_most_parent_id', 1)
                         ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
@@ -93,6 +94,12 @@ class AdminFileController extends Controller
                     $q->where('top_most_parent_id', 1)
                         ->orWhere('user_type_id', auth()->user()->user_type_id);
                 });
+                */
+                $query->where(function ($q) use ($request) {
+                    $q->where('top_most_parent_id', auth()->user()->top_most_parent_id)
+                        ->orWhere('user_type_id', auth()->user()->user_type_id);
+                });
+                
             }
             
 
