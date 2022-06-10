@@ -48,7 +48,7 @@ class MessagingController extends Controller
                     
                 }
 
-                if (auth()->user()->top_most_parent_id != '1') {
+                if (auth()->user()->user_type_id == 2) {
                     $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
                         ->withoutGlobalScope('top_most_parent_id')
@@ -79,7 +79,7 @@ class MessagingController extends Controller
                     $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
                 }
 
-                if (auth()->user()->top_most_parent_id != '1') {
+                if (auth()->user()->user_type_id == 2) {
                     $adminInfo = User::select('users.id', 'users.name', 'users.avatar','users.user_type_id')
                         ->where('user_type_id', 1)
                         ->with('UserType:id,name')
@@ -121,7 +121,7 @@ class MessagingController extends Controller
                         ->orWhere('receiver_id', auth()->id());
                 })
                 ->get()
-                ->unique('sender_id');
+                ->unique('receiver_id');
 
             foreach ($query as $key => $user) {
                 $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();

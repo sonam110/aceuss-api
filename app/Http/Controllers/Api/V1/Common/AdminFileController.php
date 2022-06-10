@@ -76,6 +76,11 @@ class AdminFileController extends Controller
                     $q->where('top_most_parent_id', 1)
                         ->orWhere('top_most_parent_id', auth()->user()->top_most_parent_id);
                 });
+
+                $query->where(function ($q) use ($request) {
+                    $q->where('company_ids', 'all')
+                        ->orWhere('company_ids', 'LIKE', auth()->id().'%');
+                });
             }
             else
             {

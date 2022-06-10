@@ -19,7 +19,7 @@ class NotificationController extends Controller
     {
         try
         {
-            $query =  Notification::where('user_id',Auth::id())->orderBy('created_at','DESC');
+            $query =  Notification::where('user_id',Auth::id())->orderBy('id','DESC');
             if($request->mark_all_as_read == 'true' || $request->mark_all_as_read == 1)
             {
                 Notification::where('user_id',Auth::id())->update(['read_status' => 1]);
