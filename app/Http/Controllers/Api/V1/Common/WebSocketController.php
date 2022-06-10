@@ -348,13 +348,13 @@ class WebSocketController implements MessageComponentInterface {
         $query = $query->orderBy('id', 'ASC')->get();
 
         //if message count is less than 20 then load all messages
-        if ($query->count() < 20) {
+        /*if ($query->count() < 20) {
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                 ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
                 ->orderBy('id', 'ASC')
                 ->get();
-        }
+        }*/
         return $query;
     }
 
