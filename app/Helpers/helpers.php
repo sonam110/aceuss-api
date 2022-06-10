@@ -390,7 +390,7 @@ function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user->id, $user->->unique_id));
+                \broadcast(new EventNotification($notification, $user->id, $user->unique_id));
             }    
         }
     }
