@@ -284,7 +284,7 @@ class WebSocketController implements MessageComponentInterface {
         $query = $query->get();
         foreach ($query as $key => $user) {
             $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
-            $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+            $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
         }
 
         if ($top_most_parent_id != 1) {
@@ -322,7 +322,7 @@ class WebSocketController implements MessageComponentInterface {
             ->unique('sender_id');
         foreach ($query as $key => $user) {
             $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".$userId." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();
-            $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+            $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
         }
         return $query;
     }

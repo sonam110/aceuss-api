@@ -44,7 +44,7 @@ class MessagingController extends Controller
                 foreach ($result as $key => $user) 
                 {
                     $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
-                    $result[$key]['unread_messages_count'] = $data->unread_messages_count;
+                    $result[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
                     
                 }
 
@@ -76,7 +76,7 @@ class MessagingController extends Controller
 
                 foreach ($query as $key => $user) {
                     $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->id." AND messages.read_at IS NULL) unread_messages_count"))->first();
-                    $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+                    $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
                 }
 
                 if (auth()->user()->top_most_parent_id != '1') {
@@ -125,7 +125,7 @@ class MessagingController extends Controller
 
             foreach ($query as $key => $user) {
                 $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();
-                $query[$key]['unread_messages_count'] = $data->unread_messages_count;
+                $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
             }
 
             return prepareResult(true, 'Users List', $query, config('httpcodes.success'));
