@@ -78,8 +78,9 @@ class AdminFileController extends Controller
                 });
 
                 $query->where(function ($q) use ($request) {
-                    $q->where('company_ids', 'all')
-                        ->orWhere('company_ids', 'LIKE', auth()->id().'%');
+                    $sql = "REPLACE(REPLACE(REPLACE(company_ids, '\"', ''),'[', ''),']','')";
+                    $q->where('company_ids', '["all"]')
+                        ->orWhereRaw('FIND_IN_SET(?, '.$sql.')', [auth()->id()]);
                 });
             }
             else
