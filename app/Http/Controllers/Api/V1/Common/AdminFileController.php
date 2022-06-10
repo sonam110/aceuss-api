@@ -81,7 +81,8 @@ class AdminFileController extends Controller
                 $query->where(function ($q) use ($request) {
                     $sql = "REPLACE(REPLACE(REPLACE(company_ids, '\"', ''),'[', ''),']','')";
                     $q->where('company_ids', '["all"]')
-                        ->orWhereRaw('FIND_IN_SET(?, '.$sql.')', [auth()->id()]);
+                        ->orWhereRaw('FIND_IN_SET(?, '.$sql.')', [auth()->id()])
+                        ->orWhere('created_by', auth()->id());
                 });
             }
             else
@@ -101,8 +102,11 @@ class AdminFileController extends Controller
                     $q->where('top_most_parent_id', auth()->user()->top_most_parent_id)
                         ->orWhere('created_by', auth()->id());
                 });
-                $query->where('user_type_id', auth()->user()->user_type_id);
 
+                if(auth()->user()->user_type_id!=11)
+                {
+                    $query->where('user_type_id', auth()->user()->user_type_id);
+                }
             }
             
 
