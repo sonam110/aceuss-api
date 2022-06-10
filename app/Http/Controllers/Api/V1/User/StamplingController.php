@@ -34,7 +34,30 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name');
+			$child_ids = [Auth::id()];
+			foreach (Auth::user()->childs as $key => $value) {
+			    $child_ids[] = $value->id;
+			}
+
+			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name');
+
+			// $query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name');
+			if(!empty($request->user_id))
+			{
+			    $query->where('user_id', $request->user_id);
+			}
+			if(!empty($request->date))
+			{
+			    $query->where('date' ,$request->date);
+			}
+			if(!empty($request->in_time))
+			{
+			    $query->where('in_time',">=" ,$request->in_time);
+			}
+			if(!empty($request->out_time))
+			{
+			    $query->where('out_time',"<=" ,$request->out_time);
+			}
 			if(!empty($request->perPage))
 			{
 

@@ -35,4 +35,9 @@ class Leave extends Model
     {
         return $this->hasMany(self::class,'group_id','group_id');
     }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class,'approved_by','id');
+    }
 }
