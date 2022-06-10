@@ -139,10 +139,14 @@ class WebSocketController implements MessageComponentInterface {
                             $conn->send(json_encode('user not matched'));
                         } else  {
                             $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
+                            $from_date = (!empty($data->from_date)) ? $data->from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
+                            $end_date = (!empty($data->end_date)) ? $data->end_date : (new Carbon)->now()->endOfDay()->toDateString();
                             $returnData = [
                                 'command'   => 'getmessages',
-                                'userId'   => $data->other_user_id,
-                                'data'      => $getmessages
+                                'userId'    => $data->other_user_id,
+                                'data'      => $getmessages,
+                                'from_date' => $from_date,
+                                'end_date'  => $end_date
                             ];
                             $conn->send(json_encode($returnData));
                         }
@@ -329,8 +333,7 @@ class WebSocketController implements MessageComponentInterface {
 
     private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date)
     {
-        $from_date = (!empty($from_date)) ? $from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
-        $to_date = (!empty($end_date)) ? $end_date : (new Carbon)->now()->endOfDay()->toDateString();
+        
         $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
             ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
             ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
@@ -352,8 +355,6 @@ class WebSocketController implements MessageComponentInterface {
                 ->orderBy('id', 'ASC')
                 ->get();
         }
-        $query['from_date'] = $from_date;
-        $query['to_date'] = $to_date;
         return $query;
     }
 

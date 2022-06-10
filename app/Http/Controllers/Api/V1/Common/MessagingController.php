@@ -140,7 +140,7 @@ class MessagingController extends Controller
         try {
 
             $from_date = (!empty($request->from_date)) ? $request->from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
-            $to_date = (!empty($request->end_date)) ? $request->end_date : (new Carbon)->now()->endOfDay()->toDateString();
+            $end_date = (!empty($request->end_date)) ? $request->end_date : (new Carbon)->now()->endOfDay()->toDateString();
 
             $user_id = $request->user_id;
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
@@ -166,10 +166,15 @@ class MessagingController extends Controller
                     ->orderBy('id', 'ASC')
                     ->get();
             }
-            $query['from_date'] = $from_date;
-            $query['to_date'] = $to_date;
 
-            return prepareResult(true, 'messsages List', $query, config('httpcodes.success'));
+            $returnData = [
+                'userId'    => $user_id,
+                'data'      => $query,
+                'from_date' => $from_date,
+                'end_date'  => $end_date
+            ];
+
+            return prepareResult(true, 'messsages List', $returnData, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(), [], config('httpcodes.internal_server_error'));
