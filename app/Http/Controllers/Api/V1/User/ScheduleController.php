@@ -34,7 +34,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name','scheduleDates:group_id,shift_date')->groupBy('group_id');
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id');
 
 			if(!empty($request->shift_id))
 			{
@@ -201,7 +201,7 @@ class ScheduleController extends Controller
 				}
 			}
 
-			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
+			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
 
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
@@ -296,7 +296,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$schedule= Schedule::with('user:id,name')->groupBy('group_id')->where('id',$id)->first();
+			$schedule= Schedule::with('user:id,name,gender')->groupBy('group_id')->where('id',$id)->first();
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}

@@ -39,9 +39,9 @@ class StamplingController extends Controller
 			    $child_ids[] = $value->id;
 			}
 
-			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name');
+			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch');
 
-			// $query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name');
+			// $query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch');
 			if(!empty($request->user_id))
 			{
 			    $query->where('user_id', $request->user_id);
@@ -220,14 +220,14 @@ class StamplingController extends Controller
 				$stampling->status 						= $request->status ? $request->status : 0;
 				$stampling->save();
 
-				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
+				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch')->first();
 			}
 			else
 			{
 				return prepareResult(true,getLangByLabelGroups('Stampling','message_Invalid_Type') ,['type invalid'], config('httpcodes.success'));
 			}
 
-			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name')->first();
+			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch')->first();
 
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Stampling','message_create') ,$stampling, config('httpcodes.success'));
@@ -313,7 +313,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stampling = Stampling::where('id',$id)->with('user:id,name')->first();
+			$stampling = Stampling::where('id',$id)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch')->first();
 			if (!is_object($stampling)) {
 				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
