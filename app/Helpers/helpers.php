@@ -22,6 +22,7 @@ use App\Models\OauthAccessTokens;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
+use App\Events\EventNotification;
 
 function getUser() {
     return auth('api')->user();
@@ -315,13 +316,19 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $notification->user_type        = $obj['user_type'];
             $notification->module           = $module;
             $notification->title            = $title;
-            $notification->sub_title        = $title;
+            $notification->sub_title        = null;
             $notification->message          = $body;
             $notification->image_url        = '';
             $notification->screen           = $screen;
             $notification->data_id          = $id;
             $notification->read_status      = false;
             $notification->save();
+
+            $userUniqueId = User::select('unique_id')->find($obj['user_id']);
+            if($userUniqueId)
+            {
+                \broadcast(new EventNotification($notification, $obj['user_id'], $userUniqueId->unique_id));
+            }
         }    
     }
     return true;
@@ -375,13 +382,15 @@ function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_
                 $notification->user_type        = $user->user_type_id;
                 $notification->module           = $module;
                 $notification->title            = $title;
-                $notification->sub_title        = $title;
+                $notification->sub_title        = null;
                 $notification->message          = $body;
                 $notification->image_url        = '';
                 $notification->screen           = $screen;
                 $notification->data_id          = $data_id;
                 $notification->read_status      = false;
                 $notification->save();
+
+                \broadcast(new EventNotification($notification, $user->id, $user->->unique_id));
             }    
         }
     }

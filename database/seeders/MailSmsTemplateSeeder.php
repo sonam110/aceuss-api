@@ -46,10 +46,10 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'task';
         $smsTemplate->mail_subject = 'New Task Assigned';
-        $smsTemplate->sms_body = "Dear {{name}}, New task {{title}} is assigne task to your and  start at
+        $smsTemplate->sms_body = "Dear {{name}}, New task {{title}} is assigned to you. start at
 		{{start_date}}
 		{{start_time}}.";
-        $smsTemplate->notify_body = "Dear {{name}}, New task {{title}} is assigne to you and  task start at
+        $smsTemplate->notify_body = "Dear {{name}}, New task {{title}} is assigned to you. start at
 		{{start_date}}
 		{{start_time}}.";
         $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";

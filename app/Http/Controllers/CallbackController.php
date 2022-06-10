@@ -9,6 +9,7 @@ use App\Models\PatientImplementationPlan;
 use App\Models\User;
 use App\Events\BankIdVerified;
 use App\Events\NotificationForAll;
+use App\Events\EventNotification;
 
 class CallbackController extends Controller
 {
@@ -108,6 +109,7 @@ class CallbackController extends Controller
         ];
         //\broadcast(new NotificationForAll($data));
         \broadcast(new BankIdVerified($data, $user, $user->unique_id));
+        \broadcast(new EventNotification($data, $user->id, $user->unique_id));
         //event(new BankIdVerified('Hello World'));
         return 'Success';
     }

@@ -133,16 +133,22 @@
         <script>
             Echo.channel('notification-for-all')
             .listen('.NotificationForAll.event', (e) => {
-                console.log('NotificationForAll.event fired: ')
-                console.log(e)
+                console.log('NotificationForAll.event fired: ', e)
             });
         </script>
+        @if(auth()->check())
         <script>
-            Echo.private('bank-id-verified.{{auth()->id()}}-{{auth()->user()->unique_id}}')
+            Echo.channel('bank-id-verified.{{auth()->id()}}-{{auth()->user()->unique_id}}')
                 .listen('.bankIdVerified.event', (e) => {
-                    console.log('bankIdVerified.event fired: ')
-                    console.log(e)
+                    console.log('bankIdVerified.event fired: ', e)
                 });
         </script>
+        <script>
+            Echo.channel('notifications.{{auth()->id()}}-{{auth()->user()->unique_id}}')
+                .listen('.notifications', (e) => {
+                    console.log('notifications: ', e)
+                });
+        </script>
+        @endif
     </body>
 </html>

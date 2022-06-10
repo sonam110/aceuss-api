@@ -477,7 +477,7 @@ class ActivityController extends Controller
             								$activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             								$activityAssigne->save();
             								/*-----------Send notification---------------------*/
-            								$getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+            								$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$title = "";
             								$body = "";
             								$module =  "activity";
@@ -803,7 +803,7 @@ class ActivityController extends Controller
             								$activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             								$activityAssigne->save();
             								/*-----------Send notification---------------------*/
-            								$getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+            								$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$user_type =  $getUser->user_type_id;
             								$module =  "activity";
             								$title = "";

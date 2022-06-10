@@ -99,7 +99,7 @@ class notifySend extends Command
                     
                 }
 
-                $getUser = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
                 $module =  "activity";
                 $id =  $activity->id;
                 $screen = "detail";
