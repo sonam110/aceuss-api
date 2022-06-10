@@ -329,6 +329,8 @@ class WebSocketController implements MessageComponentInterface {
 
     private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date)
     {
+        $from_date = (!empty($from_date)) ? $from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
+        $to_date = (!empty($end_date)) ? $end_date : (new Carbon)->now()->endOfDay()->toDateString();
         $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
             ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
             ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
@@ -350,6 +352,8 @@ class WebSocketController implements MessageComponentInterface {
                 ->orderBy('id', 'ASC')
                 ->get();
         }
+        $query['from_date'] = $from_date;
+        $query['to_date'] = $to_date;
         return $query;
     }
 

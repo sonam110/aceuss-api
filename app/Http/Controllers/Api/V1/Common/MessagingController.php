@@ -138,6 +138,10 @@ class MessagingController extends Controller
     public function getMessages(Request $request)
     {
         try {
+
+            $from_date = (!empty($request->from_date)) ? $request->from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
+            $to_date = (!empty($request->end_date)) ? $request->end_date : (new Carbon)->now()->endOfDay()->toDateString();
+
             $user_id = $request->user_id;
             $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                 ->whereIn('sender_id', [auth()->id(), $user_id])
@@ -152,6 +156,7 @@ class MessagingController extends Controller
 
             $query = $query->orderBy('id', 'ASC')->get();
             //return $query;
+            
 
             //if message count is less than 20 then load all messages
             if ($query->count() < 20) {
@@ -161,6 +166,8 @@ class MessagingController extends Controller
                     ->orderBy('id', 'ASC')
                     ->get();
             }
+            $query['from_date'] = $from_date;
+            $query['to_date'] = $to_date;
 
             return prepareResult(true, 'messsages List', $query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
