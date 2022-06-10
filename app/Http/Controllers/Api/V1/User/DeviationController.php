@@ -305,7 +305,7 @@ class DeviationController extends Controller
 
             /*-----------Send notification---------------------*/
 
-            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
+            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
             $module =  "deviation";
             $data_id =  $deviation->id;
             $screen =  "detail";

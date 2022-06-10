@@ -999,7 +999,7 @@ class ActivityController extends Controller
 
     		/*-----------Send notification---------------------*/
 
-    		$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
+    		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$module =  "activity";
     		$data_id =  $checkId->id;
     		$screen =  "detail";
@@ -1220,7 +1220,7 @@ class ActivityController extends Controller
     				{
     					$body = $getMsg->notify_body;
     					$title = $getMsg->mail_subject;
-    					$user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+    					$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
     					$arrayVal = [
     						'{{name}}'              => $user->name,
     						'{{action_by}}'         => Auth::User()->name,
@@ -1315,7 +1315,7 @@ class ActivityController extends Controller
 
             /*-----------Send notification---------------------*/
 
-            $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
+            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
             $module =  "activity";
             $data_id =  $getActivity->id;
             $screen =  "detail";

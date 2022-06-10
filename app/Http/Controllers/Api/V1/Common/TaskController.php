@@ -291,7 +291,7 @@ class TaskController extends Controller
 
                                             /*-----------Send notification---------------------*/
 
-                                            $userRec = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+                                            $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
                                             $module =  "task";
                                             $data_id =  $task->id;
                                             $screen =  "detail";
@@ -332,7 +332,7 @@ class TaskController extends Controller
 
                                         /*-----------Send notification---------------------*/
 
-                                        $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
+                                        $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
                                         $module =  "task";
                                         $data_id =  $task->id;
                                         $screen =  "list";
@@ -760,7 +760,7 @@ class TaskController extends Controller
                 {
                     $body = $getMsg->notify_body;
                     $title = $getMsg->mail_subject;
-                    $user = User::select('id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+                    $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
                     $arrayVal = [
                         '{{name}}'              => $user->name,
                         '{{action_by}}'         => Auth::User()->name,
