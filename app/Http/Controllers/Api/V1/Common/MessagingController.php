@@ -121,7 +121,7 @@ class MessagingController extends Controller
                         ->orWhere('receiver_id', auth()->id());
                 })
                 ->get()
-                ->unique('sender_id');
+                ->unique('receiver_id');
 
             foreach ($query as $key => $user) {
                 $data = Message::select(DB::raw("(SELECT count(*) from messages WHERE messages.receiver_id = ".auth()->id()." AND messages.sender_id = ".$user->sender_id." AND messages.read_at IS NULL) unread_messages_count"))->first();
