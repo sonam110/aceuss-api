@@ -69,7 +69,7 @@ class CompanyController extends Controller
 	    	$validator = Validator::make($request->all(),[
         		'shift_name' => 'required',   
         		'shift_start_time' => 'required|date_format:H:i',   
-                'shift_end_time' => 'required|date_format:H:i|after:shift_start_time',   
+                'shift_end_time' => 'required|date_format:H:i',   
 	        ],
 		    [
             'shift_name.required' =>  getLangByLabelGroups('Company','message_shift_name'),
@@ -128,7 +128,7 @@ class CompanyController extends Controller
 	    	$validator = Validator::make($request->all(),[ 
         		'shift_name' => 'required',   
         		'shift_start_time' => 'required|date_format:H:i',   
-        		'shift_end_time' => 'required|date_format:H:i|after:shift_start_time',   
+        		'shift_end_time' => 'required|date_format:H:i',   
 	        ],
             [
             'shift_name.required' =>  getLangByLabelGroups('Company','message_shift_name'),

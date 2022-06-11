@@ -794,7 +794,7 @@ function userChildBranches(User $user)
             $allBranches = array_merge($allBranches,is_array(userChildBranches($child))?userChildBranches($child):[] );
         }
     }
-    if(in_array(@auth()->user()->user_type_id, [3,4,5,6,7,8,9,10,12,13,14,15]))
+    if(in_array(@auth()->user()->user_type_id, [1,3,4,5,6,7,8,9,10,12,13,14,15]))
     {
         $allBranches = array_merge($allBranches, [$user->id]);
     }
@@ -973,6 +973,24 @@ function calculateDates($start_date,$end_date,$every_week,$week_days)
     return $dates;
 }
 
+function getStartEndTime($from, $end, $date=null)
+{
+    if(empty($date))
+    {
+        $date = date('Y-m-d');
+    }
+    $startTime = $date.' '.$from;
+    $endTime = $date.' '.$end;
+    if(strtotime($startTime)>strtotime($endTime))
+    {
+        $endTime = date('Y-m-d H:i:s', strtotime('1 days', strtotime($endTime)));
+    }
+    $return = [
+        'start_time'    => $startTime,
+        'end_time'      => $endTime,
+    ];
+    dd($return);
+}
 
 function getTimeDifference($time1,$time2)
 {

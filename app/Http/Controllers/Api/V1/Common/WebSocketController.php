@@ -331,7 +331,7 @@ class WebSocketController implements MessageComponentInterface {
         return $query;
     }
 
-    private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date)
+    private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date, $perPage)
     {
         $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
             ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
@@ -339,8 +339,27 @@ class WebSocketController implements MessageComponentInterface {
 
         if (!empty($from_date) && !empty($end_date)) {
             $query->whereBetween('created_at', [$from_date.' 00:00:00', $end_date.' 23:59:59']);
-            $query = $query->orderBy('id', 'ASC')->get();
-        } else {
+            
+        }
+
+        if(!empty($request->perPage))
+        {
+            $perPage = $request->perPage;
+            $page = $request->input('page', 1);
+            $total = $query->count();
+            $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->orderBy('id', 'DESC')->get();
+
+            $pagination =  [
+                'data' => $result,
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
+            ];
+            $query = $pagination;
+        }
+        else
+        {
             // last 7 days
             $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
             $query = $query->orderBy('id', 'ASC')->get();
@@ -351,7 +370,8 @@ class WebSocketController implements MessageComponentInterface {
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
                 ->orderBy('id', 'ASC')
                 ->get();
-            } 
+            }
+            $query = $query->orderBy('id', 'ASC')->get();
         }
         return $query;
     }

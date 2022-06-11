@@ -39,7 +39,7 @@ class StamplingController extends Controller
 			    $child_ids[] = $value->id;
 			}
 
-			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch');
+			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch:id,branch_id,company_type_id','schedule');
 
 			// $query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name,gender,branch_id,user_type_id','user.userType','user.branch');
 			if(!empty($request->user_id))

@@ -8,6 +8,7 @@ use App\Traits\TopMostParentId;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
+use App\Models\Schedule;
 
 class Stampling extends Model
 {
@@ -20,5 +21,10 @@ class Stampling extends Model
     public function user()
     {
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class,'schedule_id','id');
     }
 }

@@ -34,7 +34,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id');
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id');
 
 			if(!empty($request->shift_id))
 			{
@@ -180,12 +180,14 @@ class ScheduleController extends Controller
 				{
 					$date = date('Y-m-d',strtotime($shift_date));
 
+					$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
+
 					$schedule = new Schedule;
 					$schedule->shift_id 		= $request->shift_id;
 					$schedule->user_id 			= $value;
 					$schedule->parent_id 		= $request->parent_id;
-					$schedule->shift_start_time = $request->shift_start_time;
-					$schedule->shift_end_time 	= $request->shift_end_time;
+					$schedule->shift_start_time = $startEndTime['start_time'];
+					$schedule->shift_end_time 	= $startEndTime['end_time'];
 					$schedule->patient_id 		= $request->patient_id;
 					$schedule->group_id 		= $group_id;
 					$schedule->shift_name 		= $shift_name;
@@ -247,17 +249,20 @@ class ScheduleController extends Controller
 				$shift_color 		= $shift->shift_color;
 			}
 
-			$date = date('Y-m-d',strtotime($request->shift_date));
+			$shift_date = date('Y-m-d', strtotime($request->shift_date));
+			$date = !empty($request->shift_date) ? $shift_date : $schedule->shift_date;
+			
+			$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
 
 			$schedule->shift_id 		= $request->shift_id;
 			$schedule->user_id 			= $request->user_id ? $request->user_id : $schedule->user_id;
 			$schedule->parent_id 		= $request->parent_id;
 			$schedule->shift_name 		= $shift_name;
-			$schedule->shift_start_time = $request->shift_start_time;
-			$schedule->shift_end_time 	= $request->shift_end_time;
+			$schedule->shift_start_time = $startEndTime['start_time'];
+			$schedule->shift_end_time 	= $startEndTime['end_time'];
 			$schedule->patient_id 		= $request->patient_id;
 			$schedule->shift_color 		= $shift_color;
-			$schedule->shift_date 		= $request->shift_date ? $date : $schedule->shift_date;
+			$schedule->shift_date 		= $date;
 			$schedule->leave_applied 	= $request->leave_applied ? $request->leave_applied :0;
 			$schedule->leave_approved 	= $request->leave_approved ? $request->leave_approved :0;
 			$schedule->status 			= $request->status ? $request->status :0;
@@ -296,7 +301,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$schedule= Schedule::with('user:id,name,gender')->groupBy('group_id')->where('id',$id)->first();
+			$schedule= Schedule::with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id')->where('id',$id)->first();
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
