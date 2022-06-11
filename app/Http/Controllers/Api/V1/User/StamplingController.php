@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use App\Models\OVHour;
 use App\Models\Stampling;
 use App\Models\EmailTemplate;
+use App\Models\CompanyWorkShift;
 use Exception;
 use PDF;
 use Validator;

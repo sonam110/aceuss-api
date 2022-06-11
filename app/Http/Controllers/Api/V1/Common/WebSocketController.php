@@ -53,7 +53,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example register                 conn.send(JSON.stringify({"command": "register", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "top_most_parent_id": "2", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getuserwithmessage       conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
-     * @example getmessages              conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getmessages              conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "per_page": 5, "page": 1, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example disconnect               conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
      * @example readmessages             conn.send(JSON.stringify({"command": "readmessages", "logged_in_user_id": "2", "other_user_id": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
@@ -348,7 +348,8 @@ class WebSocketController implements MessageComponentInterface {
         {
             $page = !empty($page) ? $page : 1;
             $total = $query->count();
-            $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->orderBy('id', 'DESC')->get();
+            $result = $query->offset(((ceil($total / $perPage)) - $page) * $perPage)->limit($perPage)->orderBy('id', 'ASC')->get();
+
 
             $pagination =  [
                 'data' => $result,
