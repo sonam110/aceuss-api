@@ -459,4 +459,28 @@ class LeaveController extends Controller
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
+
+    public function leavesApproveByGroupId($group_id)
+    {
+        try 
+        {
+            $update = Leave::where('group_id',$group_id)
+                ->update([
+                    'is_approved' => '1',
+                    'approved_by' => Auth::id(), 
+                    'approved_date' => date('Y-m-d'), 
+                    'approved_time' => date('H:i'), 
+                    'status' => 1
+                ]);
+            $leaves = Leave::where('group_id', $group_id)
+                ->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')
+                ->groupBy('group_id')
+                ->first();
+            return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
 }

@@ -989,7 +989,7 @@ function getStartEndTime($from, $end, $date=null)
         'start_time'    => $startTime,
         'end_time'      => $endTime,
     ];
-    dd($return);
+    return $return;
 }
 
 function getTimeDifference($time1,$time2)

@@ -333,6 +333,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('leave', User\LeaveController::class)->only(['store','destroy','show', 'update']);
 		Route::get('user-leaves/{id}', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'getUserLeaves']);
 		Route::post('leaves-approve', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leavesApprove']);
+		Route::get('leaves-approve-by-group-id/{group_id}', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leavesApproveByGroupId']);
 
 		//-----------------------Stampling---------------------//
 		Route::post('stamplings', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplings']);
