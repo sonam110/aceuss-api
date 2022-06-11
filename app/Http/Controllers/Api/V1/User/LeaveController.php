@@ -35,7 +35,7 @@ class LeaveController extends Controller
                 $child_ids[] = $value->id;
             }
 
-			$query = Leave::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')->groupBy('group_id');
+			$query = Leave::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id');
 
             if(!empty($request->emp_id))
             {
@@ -197,7 +197,7 @@ class LeaveController extends Controller
     			}  
     		}
 
-    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')->groupBy('group_id')->get();
+    		$data = Leave::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
@@ -217,7 +217,7 @@ class LeaveController extends Controller
     {
     	try 
     	{
-    		$checkId= Leave::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')->first();
+    		$checkId= Leave::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType:id,name', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -248,7 +248,7 @@ class LeaveController extends Controller
 
     	DB::beginTransaction();
     	try {
-    		$leave = Leave::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType')->first();
+    		$leave = Leave::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType:id,name')->first();
     		$leave->reason = $request->reason;
     		$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
     		$leave->save();
@@ -320,7 +320,7 @@ class LeaveController extends Controller
     					'status' => 1
     				]);
                 $dates = [];
-                $leaves = Leave::where('group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')->groupBy('group_id')->get();
+                $leaves = Leave::where('group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
                 foreach ($leaves as $key => $value) {
                 	$dates[] = $value->date;
                 }
@@ -446,7 +446,7 @@ class LeaveController extends Controller
 						actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
 			        	
 			        }
-        			$leaves = Leave::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')->groupBy('group_id')->get();
+        			$leaves = Leave::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
                 }
             }
 
@@ -473,7 +473,7 @@ class LeaveController extends Controller
                     'status' => 1
                 ]);
             $leaves = Leave::where('group_id', $group_id)
-                ->with('user:id,name,gender,user_type_id,branch_id','user.userType','user.branch', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType','approvedBy.branch')
+                ->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')
                 ->groupBy('group_id')
                 ->first();
             return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
