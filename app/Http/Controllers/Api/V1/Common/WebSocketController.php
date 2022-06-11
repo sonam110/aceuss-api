@@ -333,28 +333,26 @@ class WebSocketController implements MessageComponentInterface {
 
     private function getmessages($logged_in_user_id, $other_user_id, $from_date, $end_date)
     {
-        
         $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
             ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
             ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
 
         if (!empty($from_date) && !empty($end_date)) {
             $query->whereBetween('created_at', [$from_date.' 00:00:00', $end_date.' 23:59:59']);
+            $query = $query->orderBy('id', 'ASC')->get();
         } else {
             // last 7 days
             $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
-        }
-
-        $query = $query->orderBy('id', 'ASC')->get();
-
-        //if message count is less than 20 then load all messages
-        /*if ($query->count() < 20) {
-            $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+            $query = $query->orderBy('id', 'ASC')->get();
+            //if message count is less than 20 then load all messages
+            if ($query->count() < 20) {
+                $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
                 ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
                 ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
                 ->orderBy('id', 'ASC')
                 ->get();
-        }*/
+            } 
+        }
         return $query;
     }
 
