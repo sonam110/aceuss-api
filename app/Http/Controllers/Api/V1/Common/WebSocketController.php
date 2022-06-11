@@ -147,7 +147,7 @@ class WebSocketController implements MessageComponentInterface {
                                 'data'      => $getmessages,
                                 'from_date' => $from_date,
                                 'end_date'  => $end_date
-                                'per_page'  => $per_page
+                                'per_page'  => $per_page,
                                 'page'  => $page
                             ];
                             $conn->send(json_encode($returnData));
