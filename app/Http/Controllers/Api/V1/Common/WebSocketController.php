@@ -138,7 +138,7 @@ class WebSocketController implements MessageComponentInterface {
                         if ($userToken['user_id'] != $data->logged_in_user_id ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
-                            $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date);
+                            $getmessages = $this->getmessages($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date, $data->per_page);
                             $from_date = (!empty($data->from_date)) ? $data->from_date : (new Carbon)->subDays(7)->startOfDay()->toDateString();
                             $end_date = (!empty($data->end_date)) ? $data->end_date : (new Carbon)->now()->endOfDay()->toDateString();
                             $returnData = [
@@ -147,6 +147,7 @@ class WebSocketController implements MessageComponentInterface {
                                 'data'      => $getmessages,
                                 'from_date' => $from_date,
                                 'end_date'  => $end_date
+                                'per_page'  => $per_page
                             ];
                             $conn->send(json_encode($returnData));
                         }
