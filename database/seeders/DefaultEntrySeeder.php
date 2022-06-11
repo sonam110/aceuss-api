@@ -66,6 +66,7 @@ class DefaultEntrySeeder extends Seeder
         Module::create(['id' => '2','name'=>'Journal']);
         Module::create(['id' => '3','name'=>'Deviation']);
         Module::create(['id' => '4','name'=>'Schedule']);
+        Module::create(['id' => '5','name'=>'Stampling']);
 
         $UserType1 = UserType::create(['id' => '1','name' => 'Super Admin']);
         $UserType2 = UserType::create(['id' => '2','name' => 'Company']);
