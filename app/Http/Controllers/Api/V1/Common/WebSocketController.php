@@ -146,7 +146,7 @@ class WebSocketController implements MessageComponentInterface {
                                 'userId'    => $data->other_user_id,
                                 'data'      => $getmessages,
                                 'from_date' => $from_date,
-                                'end_date'  => $end_date
+                                'end_date'  => $end_date,
                                 'per_page'  => $per_page,
                                 'page'  => $page
                             ];
