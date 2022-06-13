@@ -98,6 +98,7 @@ class taskNotify extends Command
 
                 $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
                 $module = "task";
+                $event  =  "assigned";
                 $id = $task->id;
                 $screen = "detail";
                 $title = "";
@@ -119,7 +120,7 @@ class taskNotify extends Command
                            ];
                            $body = strReplaceAssoc($arrayVal, $body);
                        }
-                       actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+                       actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
                        
                        $update_is_notify = AssignTask::where('id',$assigne->id)->update(['is_notify'=>'1']);
                    } 

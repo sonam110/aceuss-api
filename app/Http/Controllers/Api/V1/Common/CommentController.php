@@ -52,6 +52,7 @@ class CommentController extends Controller
                 $activity = Activity::find($request->source_id);
                 $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
                 $module =  "comment";
+                $event  =  "created";
                 $data_id =  $addComment->id;
                 $screen =  "detail";
 
@@ -69,7 +70,7 @@ class CommentController extends Controller
                     ];
                     $body = strReplaceAssoc($arrayVal, $body);
                 }
-                actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
+                actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
             }
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$addComment, config('httpcodes.success'));
         }

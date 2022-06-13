@@ -31,6 +31,7 @@ class CreateNotificationsTable extends Migration
             $table->boolean('device_platform')->comment('1:android,2:ios')->nullable();
             $table->integer('user_type')->nullable();
             $table->string('module')->nullable();
+            $table->string('event')->nullable();
             $table->string('title')->nullable();
             $table->string('sub_title')->nullable();
             $table->text('message')->nullable();

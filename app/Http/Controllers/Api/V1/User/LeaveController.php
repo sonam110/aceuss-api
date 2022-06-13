@@ -335,6 +335,7 @@ class LeaveController extends Controller
         				$title = "";
         				$body = "";
         				$module =  "leave";
+                        $module =  "approved";
         				$id =  $request->group_id;
         				$screen =  "list";
         				
@@ -351,7 +352,7 @@ class LeaveController extends Controller
         					];
         					$body = strReplaceAssoc($arrayVal, $body);
         				}
-        				actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+        				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
                 	}
                 }
             }
@@ -393,6 +394,7 @@ class LeaveController extends Controller
         				$title = "";
         				$body = "";
         				$module =  "schedule";
+                        $event = "assignment"
         				$id =  $assignSchedule->id;
         				$screen =  "detail";
         				
@@ -413,7 +415,7 @@ class LeaveController extends Controller
         					];
         					$body = strReplaceAssoc($arrayVal, $body);
         				}
-        				actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+        				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
         			}
         			$update = $leave->update([
 						'is_approved' => '1',
@@ -427,6 +429,7 @@ class LeaveController extends Controller
 						$title = "";
 						$body = "";
 						$module =  "leave";
+                        $event = "approved";
 						$id =  $leave->group_id;
 						$screen =  "detail";
 						
@@ -443,7 +446,7 @@ class LeaveController extends Controller
 							];
 							$body = strReplaceAssoc($arrayVal, $body);
 						}
-						actionNotification($user,$title,$body,$module,$screen,$id,'info',1);
+						actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
 			        	
 			        }
         			$leaves = Leave::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();

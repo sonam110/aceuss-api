@@ -307,6 +307,7 @@ class DeviationController extends Controller
 
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
             $module =  "deviation";
+            $event  =  "created";
             $data_id =  $deviation->id;
             $screen =  "detail";
 
@@ -324,7 +325,7 @@ class DeviationController extends Controller
                 ];
                 $body = strReplaceAssoc($arrayVal, $body);
             }
-            actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
+            actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
 
             DB::commit();
 

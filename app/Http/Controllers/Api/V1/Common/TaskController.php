@@ -294,6 +294,7 @@ class TaskController extends Controller
 
                                             $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
                                             $module =  "task";
+                                            $event = "assignment"
                                             $data_id =  $task->id;
                                             $screen =  "detail";
 
@@ -312,7 +313,7 @@ class TaskController extends Controller
                                                 ];
                                                 $body = strReplaceAssoc($arrayVal, $body);
                                             }
-                                            actionNotification($userRec,$title,$body,$module,$screen,$data_id,'success',1);
+                                            actionNotification($event,$userRec,$title,$body,$module,$screen,$data_id,'success',1);
     						           }
                                     }
     						    }
@@ -335,6 +336,7 @@ class TaskController extends Controller
 
                                         $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
                                         $module =  "task";
+                                        $event = "created-assigned";
                                         $data_id =  $task->id;
                                         $screen =  "list";
 
@@ -351,7 +353,7 @@ class TaskController extends Controller
                                             ];
                                             $body = strReplaceAssoc($arrayVal, $body);
                                         }
-                                        actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
+                                        actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
                                     }
                                 }
                             }
@@ -740,6 +742,7 @@ class TaskController extends Controller
             $receivers_ids = array_filter(array_unique($receivers_ids));
 
             $module =  "task";
+            $event = "action";
             $data_id =  $task->id;
             $screen =  "detail";
 
@@ -770,7 +773,7 @@ class TaskController extends Controller
                     ];
                     $body = strReplaceAssoc($arrayVal, $body);
                 }
-                actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,1);
+                actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,1);
             }
             
             DB::commit();

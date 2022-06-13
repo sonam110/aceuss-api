@@ -101,6 +101,7 @@ class notifySend extends Command
 
                 $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
                 $module =  "activity";
+                $event  =  "assigned";
                 $id =  $activity->id;
                 $screen = "detail";
                 $title = "";
@@ -125,7 +126,7 @@ class notifySend extends Command
                             ];
                             $body = strReplaceAssoc($arrayVal, $body);
                         }
-                        actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+                        actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
                         
                         $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
                     }

@@ -335,7 +335,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,$save_to_database)
+function actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,$save_to_database)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {
@@ -381,6 +381,7 @@ function actionNotification($user,$title,$body,$module,$screen,$data_id,$status_
                 $notification->status_code      = $status_code;
                 $notification->user_type        = $user->user_type_id;
                 $notification->module           = $module;
+                $notification->event           = $event;
                 $notification->title            = $title;
                 $notification->sub_title        = null;
                 $notification->message          = $body;

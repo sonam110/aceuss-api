@@ -481,6 +481,7 @@ class ActivityController extends Controller
             								$title = "";
             								$body = "";
             								$module =  "activity";
+            								$event  =  "assigned";
             								$id =  $activity->id;
             								$screen =  "detail";
             								
@@ -504,7 +505,7 @@ class ActivityController extends Controller
             											];
             											$body = strReplaceAssoc($arrayVal, $body);
             										}
-            										actionNotification($user,$title,$body,$module,$screen,$id,'warning',1);
+            										actionNotification($event,$user,$title,$body,$module,$screen,$id,'warning',1);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
             										if($getMsg)
@@ -520,7 +521,7 @@ class ActivityController extends Controller
             											];
             											$body = strReplaceAssoc($arrayVal, $body);
             										}
-            										actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+            										actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
             									}
             								}
 
@@ -806,6 +807,7 @@ class ActivityController extends Controller
             								$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$user_type =  $getUser->user_type_id;
             								$module =  "activity";
+            								$event  =  "assigned";
             								$title = "";
             								$body = "";
             								$id =  $activity->id;
@@ -830,7 +832,7 @@ class ActivityController extends Controller
             											];
             											$body = strReplaceAssoc($arrayVal, $body);
             										}
-            										actionNotification($user,$title,$body,$module,$screen,$id,'warning',1);
+            										actionNotification($event,$user,$title,$body,$module,$screen,$id,'warning',1);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
             										if($getMsg)
@@ -846,7 +848,7 @@ class ActivityController extends Controller
             											];
             											$body = strReplaceAssoc($arrayVal, $body);
             										}
-            										actionNotification($getUser,$title,$body,$module,$screen,$id,'info',1);
+            										actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
             									}
             								}
             								
@@ -1001,6 +1003,7 @@ class ActivityController extends Controller
 
     		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$module =  "activity";
+    		$event  =  "assigned";
     		$data_id =  $checkId->id;
     		$screen =  "detail";
 
@@ -1022,7 +1025,7 @@ class ActivityController extends Controller
     			$body = strReplaceAssoc($arrayVal, $body);
     		}
 
-    		actionNotification($user,$title,$body,$module,$screen,$data_id,'info',1);
+    		actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
 
     		DB::commit();
 
@@ -1195,6 +1198,7 @@ class ActivityController extends Controller
     			$receivers_ids = array_filter(array_unique($receivers_ids));
 
     			$module =  "activity";
+    			$event  =  "action";
     			$data_id =  $activity->id;
     			$screen =  "detail";
 
@@ -1231,7 +1235,7 @@ class ActivityController extends Controller
     					];
     					$body = strReplaceAssoc($arrayVal, $body);
     				}
-    				actionNotification($user,$title,$body,$module,$screen,$data_id,$status_code,1);
+    				actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,1);
     			}
     			DB::commit();
 
@@ -1317,6 +1321,7 @@ class ActivityController extends Controller
 
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
             $module =  "activity";
+            $event  =  "not-applicable";
             $data_id =  $getActivity->id;
             $screen =  "detail";
 
@@ -1340,7 +1345,7 @@ class ActivityController extends Controller
 				$body = strReplaceAssoc($arrayVal, $body);
             }
 
-            actionNotification($user,$title,$body,$module,$screen,$data_id,'danger',1);
+            actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'danger',1);
 
     		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
     	}

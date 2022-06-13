@@ -182,6 +182,7 @@ class RequestApprovalController extends Controller
                                 /*-----------Send notification---------------------*/
 
                                 $module =  "request-approval";
+                                $event  =  "approved";
                                 $data_id =  $addRequest->id;
                                 $screen =  "detail";
 
@@ -203,7 +204,7 @@ class RequestApprovalController extends Controller
                                         ];
                                         $body = strReplaceAssoc($arrayVal, $body);
                                     }
-                                    actionNotification($userRec,$title,$body,$module,$screen,$data_id,'info',1);
+                                    actionNotification($event,$userRec,$title,$body,$module,$screen,$data_id,'info',1);
                                 }
                             }
                         }
