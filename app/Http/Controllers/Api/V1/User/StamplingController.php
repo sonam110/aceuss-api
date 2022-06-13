@@ -155,29 +155,28 @@ class StamplingController extends Controller
 				if(!empty($stampling->schedule_id))
 				{
 					$schedule = Schedule::find($stampling->schedule_id);
-					$scheduled_shift_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
-					$scheduled_hours = getHours($schedule->shift_start_time,$schedule->shift_end_time,0);
+					$scheduled_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
 				}
 				else
 				{
 					$scheduled_hours = "08";
 				}
-
 				$in_time = $stampling->in_time;
-				$out_time = date('Y-m-d H:i:s');
-				
+				$out_time = date('Y-m-d H:i:s');				
 				$worked_duration = getTimeDifference($in_time,$out_time);
-				$worked_hours = getHours($in_time,$out_time,0);
+
+				$worked_hours = getTimeINHours($worked_duration);
 				$extra_hours =  0;
-				if($worked_hours > $scheduled_hours)
+				if($worked_duration > $scheduled_duration)
 				{
-					$extra_hours =  $worked_hours - $scheduled_hours;
+					$extra_time =  ($worked_duration - $scheduled_duration);
+					$extra_hours = getTimeINHours($extra_time);
 				}
 
 				$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
 				if($ov)
 				{
-					$ov_start_time = ($ov->start_time);
+					$ov_start_time = $ov->start_time;
 					$ov_end_time = $ov->end_time;
 					$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
 				}
@@ -324,5 +323,19 @@ class StamplingController extends Controller
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
 		}
+	}
+
+	public function stampInData()
+	{
+		try {
+
+    		$query = Stampling::where('user_id', Auth::id())->where('out_time',null)->orderBy('created_at','desc')->get(['id','in_time','in_location','out_time']);
+
+    		return prepareResult(true,"Stampling list",$query,config('httpcodes.success'));
+    	}
+    	catch(Exception $exception) {
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+
+    	}
 	}
 }

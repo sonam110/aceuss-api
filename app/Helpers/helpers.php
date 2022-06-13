@@ -1002,23 +1002,26 @@ function getTimeDifference($time1,$time2)
         $time2 = $time2->modify('+1 day');
     }
     $timediff = $time1->diff($time2);
-    $time = $timediff->format('%h:%i');
+    $h = $timediff->format('%h');
+    $i = $timediff->format('%i');
+    $time = $h*60 + $i;
+    // $time = $timediff->format('%h:%i');
     return $time;
 }
 
-function getHours($time1,$time2,$add_day)
+function getTimeINHours($time)
 {
-    $time1 = new DateTime($time1);
-    $time2 = new DateTime($time2);
-
-    if($add_day == 1)
+    $hours = floor($time / 60);
+    $minutes = ($time % 60);
+    if($minutes >= 15)
     {
-        if($time2 < $time1)
-        {
-            $time2 = $time2->modify('+1 day');
-        }
+        $hours = $hours + 1;
     }
+    return $hours;
+}
 
+function getHours($time1,$time2)
+{
     $timediff = $time1->diff($time2);
     if($timediff->format('%i') >= 15)
     {
@@ -1045,29 +1048,24 @@ function getOVHours($time1, $time2, $ovtime1, $ovtime2)
 
     if($converted_ovtime2 < $converted_ovtime1)
     {
-
         $converted_ovtime2 = $converted_ovtime2->modify('+1 day');
     }
 
     if(($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 <= $converted_time2))
     {
-        $hours = getHours($ovtime1,$ovtime2,0);
-        return $hours.'between';
+        $hours = getHours($converted_ovtime1,$converted_ovtime2);
     }
     elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
     {
-        $hours = getHours($time1,$time2,0);
-        return $hours.'beyond';
+        $hours = getHours($converted_time1,$converted_time2);
     }
     elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 <= $converted_time2)) 
     {
-        $hours = getHours($time1,$ovtime2,0);
-        return $hours.'before';
+        $hours = getHours($converted_time1,$converted_ovtime2);
     }
     elseif (($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
     {
-        $hours = getHours($ovtime1,$time2,1);
-        return $hours.'after';
+        $hours = getHours($converted_ovtime1,$converted_time2);
     }
     return $hours;
 }
