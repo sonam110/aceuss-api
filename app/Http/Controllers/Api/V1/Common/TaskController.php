@@ -294,7 +294,7 @@ class TaskController extends Controller
 
                                             $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
                                             $module =  "task";
-                                            $event = "assignment"
+                                            $event = "assignment";
                                             $data_id =  $task->id;
                                             $screen =  "detail";
 

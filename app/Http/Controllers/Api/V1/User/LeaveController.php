@@ -394,7 +394,7 @@ class LeaveController extends Controller
         				$title = "";
         				$body = "";
         				$module =  "schedule";
-                        $event = "assignment"
+                        $event = "assignment";
         				$id =  $assignSchedule->id;
         				$screen =  "detail";
         				
