@@ -33,6 +33,9 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('employee_assigned_working_hour_id')->nullable();
+            $table->foreign('employee_assigned_working_hour_id')->references('id')->on('employee_assigned_working_hours')->onDelete('cascade');
+
             $table->string('shift_name')->nullable();
             $table->datetime('shift_start_time');
             $table->datetime('shift_end_time');

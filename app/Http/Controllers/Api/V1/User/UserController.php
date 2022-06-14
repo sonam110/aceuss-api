@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\LicenceKeyManagement;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\EmployeeAssignedWorkingHour;
 class UserController extends Controller
 {
 	protected $top_most_parent_id;
@@ -249,6 +250,10 @@ class UserController extends Controller
     			$role = $roleInfo;
     			$user->assignRole($role->name);
     		}
+
+
+
+                        
     		if($request->user_type_id == '6'){
     			$patientInfo = new PatientInformation;
     			$patientInfo->patient_id = $user->id;
@@ -414,6 +419,24 @@ class UserController extends Controller
     				}
     			}
     		}
+
+            if($request->user_type_id == '3')
+            {
+                $assWorking = $request->assigned_working_hour_per_week;
+                $workingPercent = $request->working_percent;
+
+                $actWorking = $assWorking * $workingPercent / 100;
+
+                $empAssWorkHour = new EmployeeAssignedWorkingHour;
+                $empAssWorkHour->emp_id = $user->id;
+                $empAssWorkHour->municipal_name = $request->municipal_name;
+                $empAssWorkHour->assigned_working_hour_per_week = $assWorking;
+                $empAssWorkHour->working_percent = $workingPercent;
+                $empAssWorkHour->actual_working_hour_per_week = $actWorking;
+                $empAssWorkHour->created_by = Auth::id();
+                $empAssWorkHour->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+                $empAssWorkHour->save();
+            }
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
     		return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$user, '200');

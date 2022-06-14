@@ -349,7 +349,7 @@ class TaskController extends Controller
                                             $title = $getMsg->mail_subject;
                                             $arrayVal = [
                                                 '{{name}}'              => $user->name,
-                                                '{{task_title}}'        => $task_title,
+                                                '{{task_title}}'        => $task->title,
                                             ];
                                             $body = strReplaceAssoc($arrayVal, $body);
                                         }

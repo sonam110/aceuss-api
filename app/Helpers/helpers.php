@@ -362,6 +362,7 @@ function actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$
                         'id'        => $data_id,
                         'user_type' => $user->user_type_id,
                         'module'    => $module,
+                        'event'     => $event,
                         'screen'    => $screen
                     ]                        
                 ])

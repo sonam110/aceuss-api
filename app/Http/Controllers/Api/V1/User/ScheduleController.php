@@ -49,11 +49,21 @@ class ScheduleController extends Controller
 			{
 			    $query->where('user_id' ,$request->user_id);
 			}
-			
+
 			if(!empty($request->shift_date))
 			{
-			    $query->where('shift_date' ,$request->shift_date);
+			    $query->where('shift_date',$request->shift_date);
 			}
+			
+			if(!empty($request->shift_start_date))
+			{
+			    $query->where('shift_date',">=" ,$request->shift_start_date);
+			}
+			if(!empty($request->shift_end_date))
+			{
+			    $query->where('shift_date',"<=" ,$request->shift_end_date);
+			}
+
 			if(!empty($request->shift_start_time))
 			{
 			    $query->where('shift_start_time',">=" ,$request->shift_start_time);
@@ -198,6 +208,7 @@ class ScheduleController extends Controller
 					$schedule->status 			= $request->status? $request->status :0;
 					$schedule->entry_mode 		=  $request->entry_mode ? $request->entry_mode :'Web';
 					$schedule->created_by 		= Auth::id();
+					$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
 					$schedule->save();
 					$schedule_ids[] = $schedule->id;
 				}
@@ -268,6 +279,7 @@ class ScheduleController extends Controller
 			$schedule->status 			= $request->status ? $request->status :0;
 			$schedule->entry_mode 		= $request->entry_mode ? $request->entry_mode :'Web';
 			$schedule->created_by 		= Auth::id();
+			$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
 			$schedule->save();
 
 			DB::commit();
