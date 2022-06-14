@@ -27,6 +27,24 @@ class OVHourController extends Controller
         try {
 
             $query = OVHour::orderBy('id', 'DESC');
+            if(!empty($request->date))
+            {
+                $query->where('date',$request->date);
+            }
+
+            if(!empty($request->title))
+            {
+                $query->where('title','like','%'.$request->title.'%');
+            }
+
+            if(!empty($request->start_time))
+            {
+                $query->where('start_time',">=" ,$request->start_time);
+            }
+            if(!empty($request->end_time))
+            {
+                $query->where('end_time',"<=" ,$request->end_time);
+            }
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

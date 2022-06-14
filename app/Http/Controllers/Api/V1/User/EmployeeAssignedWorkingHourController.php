@@ -77,6 +77,7 @@ class EmployeeAssignedWorkingHourController extends Controller
 
 	        $empAssWorkHour = new EmployeeAssignedWorkingHour;
 		 	$empAssWorkHour->emp_id = $request->emp_id;
+            $empAssWorkHour->municipal_name = $request->municipal_name;
             $empAssWorkHour->assigned_working_hour_per_week = $assWorking;
 		 	$empAssWorkHour->working_percent = $workingPercent;
             $empAssWorkHour->actual_working_hour_per_week = $actWorking;
@@ -136,6 +137,7 @@ class EmployeeAssignedWorkingHourController extends Controller
 
             $empAssWorkHour = EmployeeAssignedWorkingHour::find($id);
             $empAssWorkHour->emp_id = $request->emp_id;
+            $empAssWorkHour->municipal_name = $request->municipal_name;
             $empAssWorkHour->assigned_working_hour_per_week = $assWorking;
             $empAssWorkHour->working_percent = $workingPercent;
             $empAssWorkHour->actual_working_hour_per_week = $actWorking;

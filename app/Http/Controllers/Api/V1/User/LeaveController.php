@@ -335,7 +335,7 @@ class LeaveController extends Controller
         				$title = "";
         				$body = "";
         				$module =  "leave";
-                        $module =  "approved";
+                        $event = "approved";
         				$id =  $request->group_id;
         				$screen =  "list";
         				

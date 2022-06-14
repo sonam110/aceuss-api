@@ -49,14 +49,19 @@ class ScheduleController extends Controller
 			{
 			    $query->where('user_id' ,$request->user_id);
 			}
-			
-			if(!empty($request->schedule_start_date))
+
+			if(!empty($request->shift_date))
 			{
-			    $query->where('date',">=" ,$request->schedule_start_date);
+			    $query->where('shift_date',$request->shift_date);
 			}
-			if(!empty($request->schedule_end_date))
+			
+			if(!empty($request->shift_start_date))
 			{
-			    $query->where('date',"<=" ,$request->schedule_end_date);
+			    $query->where('shift_date',">=" ,$request->shift_start_date);
+			}
+			if(!empty($request->shift_end_date))
+			{
+			    $query->where('shift_date',"<=" ,$request->shift_end_date);
 			}
 
 			if(!empty($request->shift_start_time))

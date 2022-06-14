@@ -23,10 +23,10 @@ class CreateEmployeeAssignedWorkingHoursTable extends Migration
 
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
-
+            $table->string('municipal_name')->nullable(0);
             $table->string('assigned_working_hour_per_week')->nullable();
             $table->string('working_percent')->default(100)->nullable();
-            $table->string('actual_working_hour_per_week')->nullable(0);
+            $table->string('actual_working_hour_per_week')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
             $table->softDeletes();
