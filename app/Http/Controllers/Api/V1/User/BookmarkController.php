@@ -17,7 +17,7 @@ class BookMarkController extends Controller
     public function bookmarks(Request $request)
     {
         try {
-	        $user = getUser();
+            $user = getUser();
             $bookmarked = Bookmark::where('user_id', auth()->id())
                 ->with('bookmarkMaster')
                 ->orderBy('id','DESC')
@@ -29,7 +29,7 @@ class BookMarkController extends Controller
                 'bookmarklist' => $bookmarklist,
             ];
             return prepareResult(true,"Bookmark list",$returnObj,config('httpcodes.success')); 
-	    }
+        }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -39,7 +39,7 @@ class BookMarkController extends Controller
     {
         try 
         {
-	    	$user = getUser();
+            $user = getUser();
             $isBookmerked = Bookmark::where('user_id', auth()->id())->where('bookmark_master_id', $request->bookmark_master_id)->first();
             if($isBookmerked)
             {
@@ -54,11 +54,18 @@ class BookMarkController extends Controller
                 $bookmark->save();
                 $action = 'added';
             }
+            $user = getUser();
             $bookmarked = Bookmark::where('user_id', auth()->id())
                 ->with('bookmarkMaster')
                 ->orderBy('id','DESC')
                 ->get();
-			return prepareResult(true,'Bookmark '.$action.' successfully' ,$bookmarked, config('httpcodes.success'));
+            $bookmarklist = BookmarkMaster::orderBy('title','ASC')
+                ->get();
+            $returnObj = [
+                'bookmarked' => $bookmarked,
+                'bookmarklist' => $bookmarklist,
+            ];
+            return prepareResult(true,'Bookmark '.$action.' successfully' ,$returnObj, config('httpcodes.success'));
 
         }
         catch(Exception $exception) {
