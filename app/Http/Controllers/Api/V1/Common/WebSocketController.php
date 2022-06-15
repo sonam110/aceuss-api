@@ -97,18 +97,17 @@ class WebSocketController implements MessageComponentInterface {
                                 foreach ($this->userresources[$data->to] as $key => $resourceId) {
                                     if (isset($this->users[$resourceId])) {
                                         $this->users[$resourceId]->send(json_encode($req));
+                                        //Total unread message
+                                        $totalunreadmessage = $this->totalunreadmessage($data->to);
+                                        $returnData = [
+                                            'command'   => 'totalunreadmessage',
+                                            'userId'   => $data->to,
+                                            'data'      => $totalunreadmessage
+                                        ];
+                                        $conn->send(json_encode($returnData));
                                     }
                                 }
                                 $conn->send(json_encode($this->userresources[$data->to]));
-
-                                //Total unread message
-                                $totalunreadmessage = $this->totalunreadmessage($data->to);
-                                $returnData = [
-                                    'command'   => 'totalunreadmessage',
-                                    'userId'   => $data->to,
-                                    'data'      => $totalunreadmessage
-                                ];
-                                $conn->send(json_encode($returnData));
                             }
                             if (isset($this->userresources[$data->from])) {
                                 foreach ($this->userresources[$data->from] as $key => $resourceId) {
