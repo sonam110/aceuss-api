@@ -839,8 +839,11 @@ class UserController extends Controller
     		}
     		else
     		{
-    			Auth::user()->update(['license_status' => 0]);
-    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,'inactive', config('httpcodes.success'));
+                $companyStatus = User::find(auth()->user()->top_most_parent_id);
+                $companyStatus->license_status = 0;
+                $companyStatus->save();
+
+    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_inactive') ,'inactive', config('httpcodes.success'));
     		}
     	} catch (\Throwable $exception) {
     		\Log::error($exception);

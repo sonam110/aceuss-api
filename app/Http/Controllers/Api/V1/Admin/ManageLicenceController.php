@@ -257,7 +257,7 @@ class ManageLicenceController extends Controller
 
                 if(empty($licenceKeyData))
                 {
-                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_id') ,[], config('httpcodes.success'));
+                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,[], config('httpcodes.success'));
                 }
 
                 if($licenceKeyData->is_used == 1)
@@ -307,7 +307,10 @@ class ManageLicenceController extends Controller
                     }
                 }
 
-                User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status'=>1, 'license_key'=>$licenceKeyData->license_key,'license_end_date'=>$package_expire_at]);
+                User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status' => 1, 
+                    'license_key' => $licenceKeyData->license_key,
+                    'license_end_date'=> $package_expire_at
+                ]);
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {

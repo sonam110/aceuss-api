@@ -45,6 +45,12 @@ class LabelSeeder extends Seeder
             "LicenceKey" => [
                 "message_invalid_data" => "Invalid license Key, Please enter valid license key", 
                 "message_updated" => "License key updated and your license is now activated.", 
+                "message_status_active" => "License is activated.", 
+                "message_status_inactive" => "License key expired, please contact to admin for reactivate license.", 
+                "message_data_doesnt_exist" => "License key not exist, please contact to admin.", 
+                "message_already_assigned" => "License key is already assigned.", 
+                "message_create" => "License created.", 
+                "message_id_not_found" => "License not found.", 
             ], 
     		"ChangePassword" => [
     			"message_old_password" => "The old password field is required", 
