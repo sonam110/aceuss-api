@@ -244,6 +244,11 @@ class CompanyController extends Controller
 
                 LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('license_key',$request->licence_key)->where('is_used',0)->update(['is_used' => 1]);
 
+                $userLicUp = User::find($user_id);
+                $userLicUp->license_key = $request->licencse_key;
+                $userLicUp->license_end_date = $package_expire_at;
+                $userLicUp->license_status = 1;
+                $userLicUp->save()
 
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user_id;
