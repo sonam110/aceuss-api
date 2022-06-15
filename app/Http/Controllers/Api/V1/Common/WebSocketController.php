@@ -100,6 +100,15 @@ class WebSocketController implements MessageComponentInterface {
                                     }
                                 }
                                 $conn->send(json_encode($this->userresources[$data->to]));
+
+                                //Total unread message
+                                $totalunreadmessage = $this->totalunreadmessage($data->to);
+                                $returnData = [
+                                    'command'   => 'totalunreadmessage',
+                                    'userId'   => $data->to,
+                                    'data'      => $totalunreadmessage
+                                ];
+                                $conn->send(json_encode($returnData));
                             }
                             if (isset($this->userresources[$data->from])) {
                                 foreach ($this->userresources[$data->from] as $key => $resourceId) {
@@ -181,10 +190,10 @@ class WebSocketController implements MessageComponentInterface {
                         }
                         break;
                     case "totalunreadmessage":
-                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                        if ($userToken['user_id'] != $data->userId ) {
                             $conn->send(json_encode('user not matched'));
                         } else  {
-                            $totalunreadmessage = $this->totalunreadmessage($data->logged_in_user_id,$data->other_user_id);
+                            $totalunreadmessage = $this->totalunreadmessage($data->userId);
                             $returnData = [
                                 'command'   => 'totalunreadmessage',
                                 'userId'   => $data->userId,
@@ -218,6 +227,16 @@ class WebSocketController implements MessageComponentInterface {
                             ];
                             $client->send(json_encode($returnData));
                         }
+
+                        //Total unread message
+                        $totalunreadmessage = $this->totalunreadmessage($data->userId);
+                        $returnData = [
+                            'command'   => 'totalunreadmessage',
+                            'userId'   => $data->userId,
+                            'data'      => $totalunreadmessage
+                        ];
+                        $conn->send(json_encode($returnData));
+
                         //$conn->send(json_encode($this->users));
                         //$conn->send(json_encode($this->userresources));
                         break;
@@ -404,11 +423,7 @@ class WebSocketController implements MessageComponentInterface {
 
     private function totalunreadmessage($userId)
     {
-        $query = Message::where('sender_id', $other_user_id)
-            ->where('receiver_id', $logged_in_user_id)
-            ->update([
-                'read_at' => date('Y-m-d H:i:s')
-            ]);
+        $query = Message::where('receiver_id', $userId)->whereNull('read_at')->count();
         return $query;
     }
 }
