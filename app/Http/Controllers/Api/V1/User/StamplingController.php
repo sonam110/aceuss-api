@@ -159,7 +159,7 @@ class StamplingController extends Controller
 				}
 				else
 				{
-					$scheduled_hours = "08";
+					$scheduled_duration = "8*60";
 				}
 				$in_time = $stampling->in_time;
 				$out_time = date('Y-m-d H:i:s');				

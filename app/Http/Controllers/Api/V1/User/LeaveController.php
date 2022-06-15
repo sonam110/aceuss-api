@@ -150,6 +150,7 @@ class LeaveController extends Controller
     				$leave->schedule_id = $schedule_id;
     				$leave->group_id = $group_id;
     				$leave->date = $date;
+                    $leave->assign_status = 'vacant';
     				$leave->reason = $request->reason;
     				$leave->entry_mode = $request->entry_mode ? $request->entry_mode : 'web';
                     $leave->status = $request->status ? $request->status : 0;
@@ -189,6 +190,7 @@ class LeaveController extends Controller
     					$leave->schedule_id = $schedule_id;
                         $leave->group_id = $group_id;
     					$leave->date = $date;
+                        $leave->assign_status = 'vacant';
     					$leave->reason = $value['reason'];
     					$leave->entry_mode = $request->entry_mode?$request->entry_mode:'web';
     					$leave->save();
@@ -310,6 +312,7 @@ class LeaveController extends Controller
         {
             if(!empty($request->group_id))
             {
+                
             	$leave = Leave::where('group_id',$request->group_id)->first();
                 $update = Leave::where('group_id',$request->group_id)
     				->update([
@@ -317,7 +320,7 @@ class LeaveController extends Controller
     					'approved_by' => Auth::id(), 
     					'approved_date' => date('Y-m-d'), 
     					'approved_time' => date('H:i'), 
-    					'status' => 1
+    					'status' => 1 
     				]);
                 $dates = [];
                 $leaves = Leave::where('group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','approvedBy:id,name,branch_id,user_type_id','approvedBy.userType:id,name','approvedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
@@ -325,9 +328,12 @@ class LeaveController extends Controller
                 	$dates[] = $value->date;
                 }
                 $dates = implode(',', $dates);
-                $users = User::whereIn('employee_type',$request->employee_type)->get();
+                
                 if($request->notify_employees == true)
                 {
+                    $users = User::whereIn('employee_type',$request->employee_type)->get();
+                    $users_id = [];
+                    
                 	foreach ($users as $key => $user) 
                 	{
                 		//---------------------Notification------------------//
@@ -353,7 +359,12 @@ class LeaveController extends Controller
         					$body = strReplaceAssoc($arrayVal, $body);
         				}
         				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+                        $users_id[] = $user->id;
                 	}
+
+                    Leave::where('group_id',$request->group_id)
+                        ->update(['notified_to' => json_encode($users_id) 
+                    ]);
                 }
             }
             elseif(!empty($request->leaves))
@@ -422,7 +433,8 @@ class LeaveController extends Controller
 						'approved_by' => Auth::id(), 
 						'approved_date' => date('Y-m-d'), 
 						'approved_time' => date('H:i'), 
-						'status' => 1
+						'status' => 1,
+                        'assigned_to' => $user->id
 					]);
 			        if($request->notify_employees == true)
 			        {

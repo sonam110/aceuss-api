@@ -40,6 +40,7 @@ use App\Models\Journal;
 use App\Models\Deviation;
 use App\Models\Bookmark;
 use App\Models\ActivityAssigne;
+use App\Models\EmployeeAssignedWorkingHour;
 use App\Models\AssignTask;
 use App\Models\Language;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -110,7 +111,8 @@ class User extends Authenticatable
         'language_id',
         'contract_type',
         'contract_value',
-        'avatar'
+        'avatar',
+        'schedule_start_date'
     ];
 
     /**
@@ -377,6 +379,11 @@ class User extends Authenticatable
     public function childs()
     {
          return $this->hasMany(User::class,'top_most_parent_id','id');
+    }
+
+    public function assignedWork()
+    {
+        return $this->hasOne(EmployeeAssignedWorkingHour::class,'emp_id','id')->latest();
     }
 
 
