@@ -20,10 +20,10 @@ class CreateLicenceHistoriesTable extends Migration
             
             $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();           
 
-            $table->string('license_key', 50);
+            $table->string('licence_key', 50);
             $table->text('module_attached');
             $table->text('package_details');
-            $table->date('active_from')->nullable()->comment('license_key activation date');
+            $table->date('active_from')->nullable()->comment('licence_key activation date');
             $table->date('expire_at')->comment('expiry date');
             $table->timestamps();
             $table->softDeletes();

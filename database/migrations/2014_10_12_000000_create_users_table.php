@@ -51,9 +51,9 @@ class CreateUsersTable extends Migration
             $table->string('postal_area')->nullable();
             $table->string('zipcode')->nullable();
             $table->text('full_address')->nullable();
-            $table->string('license_key')->nullable();
-            $table->date('license_end_date')->nullable();
-            $table->boolean('license_status')->default('1')->comment('1:Active,0:Inactive');
+            $table->string('licence_key')->nullable();
+            $table->date('licence_end_date')->nullable();
+            $table->boolean('licence_status')->default('1')->comment('1:Active,0:Inactive');
             $table->enum('employee_type',['1','2','3','4'])->nullable()->comment('1:regular, 2:substitute, 3:seasonal, 4 extra');
 
             $table->date('joining_date')->nullable();

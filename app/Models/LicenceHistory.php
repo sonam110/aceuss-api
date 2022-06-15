@@ -21,7 +21,7 @@ class LicenceHistory extends Model
     protected $fillable =[
         'top_most_parent_id',
         'created_by',
-        'license_key',
+        'licence_key',
         'module_attached',
         'package_details',
         'active_from',

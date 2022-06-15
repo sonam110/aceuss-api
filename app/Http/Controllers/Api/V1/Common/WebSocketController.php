@@ -56,6 +56,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example getmessages              conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "per_page": 5, "page": 1, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example disconnect               conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
      * @example readmessages             conn.send(JSON.stringify({"command": "readmessages", "logged_in_user_id": "2", "other_user_id": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example totalunreadmessage             conn.send(JSON.stringify({"command": "totalunreadmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
@@ -177,6 +178,19 @@ class WebSocketController implements MessageComponentInterface {
                                     }
                                 }
                             }
+                        }
+                        break;
+                    case "totalunreadmessage":
+                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $totalunreadmessage = $this->totalunreadmessage($data->logged_in_user_id,$data->other_user_id);
+                            $returnData = [
+                                'command'   => 'totalunreadmessage',
+                                'userId'   => $data->userId,
+                                'data'      => $totalunreadmessage
+                            ];
+                            $conn->send(json_encode($returnData));
                         }
                         break;
                     case "register":
@@ -379,6 +393,16 @@ class WebSocketController implements MessageComponentInterface {
     }
 
     private function readmessages($logged_in_user_id, $other_user_id)
+    {
+        $query = Message::where('sender_id', $other_user_id)
+            ->where('receiver_id', $logged_in_user_id)
+            ->update([
+                'read_at' => date('Y-m-d H:i:s')
+            ]);
+        return $query;
+    }
+
+    private function totalunreadmessage($userId)
     {
         $query = Message::where('sender_id', $other_user_id)
             ->where('receiver_id', $logged_in_user_id)

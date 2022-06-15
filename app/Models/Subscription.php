@@ -21,7 +21,7 @@ class Subscription extends Model
         'user_id',
 		'package_id',
 		'package_details',
-		'license_key',
+		'licence_key',
 		'start_date',
 		'end_date',
 		'status',

@@ -32,7 +32,7 @@ class DashboardController extends Controller
                 $data['packageCount'] = Package::count();
                 $data['moduelCount'] = Module::count();
                 $data['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
-                $data['licenseCount'] = User::whereNotNull('license_key')->count();
+                $data['licenceCount'] = User::whereNotNull('licence_key')->count();
             }
             elseif($user->user_type_id == 2)
             {

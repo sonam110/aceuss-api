@@ -139,7 +139,7 @@ class ManageLicenceController extends Controller
                 $createLicHistory = new LicenceHistory;
                 $createLicHistory->top_most_parent_id = $request->user_id;
                 $createLicHistory->created_by = auth()->id();
-                $createLicHistory->license_key = $request->license_key;
+                $createLicHistory->licence_key = $request->licence_key;
                 $createLicHistory->active_from = date('Y-m-d');
                 $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : null;
@@ -150,7 +150,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt = new LicenceKeyManagement;
                 $keyMgmt->top_most_parent_id = $request->user_id;
                 $keyMgmt->created_by = auth()->id();
-                $keyMgmt->license_key = $request->license_key;
+                $keyMgmt->licence_key = $request->licence_key;
                 $keyMgmt->active_from = date('Y-m-d');
                 $keyMgmt->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : null;
@@ -217,7 +217,7 @@ class ManageLicenceController extends Controller
                 $createLicHistory = new LicenceHistory;
                 $createLicHistory->top_most_parent_id = $licenceKeyData->top_most_parent_id;
                 $createLicHistory->created_by = auth()->id();
-                $createLicHistory->license_key = $licenceKeyData->license_key;
+                $createLicHistory->licence_key = $licenceKeyData->licence_key;
                 $createLicHistory->active_from = date('Y-m-d');
                 $createLicHistory->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
@@ -228,7 +228,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt = LicenceKeyManagement::find($id);
                 $keyMgmt->top_most_parent_id = $licenceKeyData->top_most_parent_id;
                 $keyMgmt->created_by = auth()->id();
-                $keyMgmt->license_key = $licenceKeyData->license_key;
+                $keyMgmt->licence_key = $licenceKeyData->licence_key;
                 $keyMgmt->active_from = date('Y-m-d');
                 $keyMgmt->expire_at = ($request->expire_at) ? $request->expire_at : $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : $licenceKeyData->module_attached;
@@ -276,7 +276,7 @@ class ManageLicenceController extends Controller
                 $packageSubscribe->user_id = $licenceKeyData->top_most_parent_id;
                 $packageSubscribe->package_id = $package_details->id;
                 $packageSubscribe->package_details = $package_details;
-                $packageSubscribe->license_key = $licenceKeyData->license_key;
+                $packageSubscribe->licence_key = $licenceKeyData->licence_key;
                 $packageSubscribe->start_date = date('Y-m-d');
                 $packageSubscribe->end_date = $package_expire_at;
                 $packageSubscribe->status = 1;
@@ -307,9 +307,9 @@ class ManageLicenceController extends Controller
                     }
                 }
 
-                User::where('id',$licenceKeyData->top_most_parent_id)->update(['license_status' => 1, 
-                    'license_key' => $licenceKeyData->license_key,
-                    'license_end_date'=> $package_expire_at
+                User::where('id',$licenceKeyData->top_most_parent_id)->update(['licence_status' => 1, 
+                    'licence_key' => $licenceKeyData->licence_key,
+                    'licence_end_date'=> $package_expire_at
                 ]);
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$licenceKeyData, config('httpcodes.success'));

@@ -43,13 +43,13 @@ class CheckAndNotifyLicenceStatus extends Command
         $twoMonthAfter = date('Y-m-d', strtotime('2 month'));
         $threeMonthAfter = date('Y-m-d', strtotime('3 month'));
         $dates = [$fifteenDaysAfter, $oneMonthAfter, $twoMonthAfter, $threeMonthAfter];
-        $getCompanies = User::select('id','name','email','organization_number','license_end_date')
+        $getCompanies = User::select('id','name','email','organization_number','licence_end_date')
             ->where('user_type_id', '2')
-            ->whereIn('license_end_date', $dates)
+            ->whereIn('licence_end_date', $dates)
             ->get();
         foreach ($getCompanies as $key => $value) {
             $todayDate  = strtotime(date('Y-m-d'));
-            $licEndDate = strtotime($value->license_end_date);
+            $licEndDate = strtotime($value->licence_end_date);
             $daysLeft = (($licEndDate - $todayDate)/(60*60*24));
 
             //Notification send with days left

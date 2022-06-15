@@ -81,9 +81,9 @@ class CompanyAccountController extends Controller
                 $query->where('status', $request->status);
             }
 
-            if(!empty($request->license_end_date))
+            if(!empty($request->licence_end_date))
             {
-                $query->where('license_end_date', $request->license_end_date);
+                $query->where('licence_end_date', $request->licence_end_date);
             }
 
             if(!empty($request->perPage))
@@ -159,8 +159,8 @@ class CompanyAccountController extends Controller
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->license_key = $request->license_key;
-            $user->license_end_date = $package_expire_at;
+            $user->licence_key = $request->licence_key;
+            $user->licence_end_date = $package_expire_at;
             $user->joining_date = $request->joining_date;
             $user->establishment_year = $request->establishment_year;
             $user->user_color = $request->user_color;
@@ -197,7 +197,7 @@ class CompanyAccountController extends Controller
                 $createLicHistory = new LicenceHistory;
                 $createLicHistory->top_most_parent_id = $user->id;
                 $createLicHistory->created_by = auth()->id();
-                $createLicHistory->license_key = $request->license_key;
+                $createLicHistory->licence_key = $request->licence_key;
                 $createLicHistory->active_from = date('Y-m-d');
                 $createLicHistory->expire_at = $package_expire_at;
                 $createLicHistory->module_attached = ($request->modules) ? json_encode($request->modules) : null;
@@ -208,7 +208,7 @@ class CompanyAccountController extends Controller
                 $keyMgmt = new LicenceKeyManagement;
                 $keyMgmt->top_most_parent_id = $user->id;
                 $keyMgmt->created_by = auth()->id();
-                $keyMgmt->license_key = $request->license_key;
+                $keyMgmt->licence_key = $request->licence_key;
                 $keyMgmt->active_from = date('Y-m-d');
                 $keyMgmt->expire_at = $package_expire_at;
                 $keyMgmt->module_attached = ($request->modules) ? json_encode($request->modules) : null;
@@ -221,7 +221,7 @@ class CompanyAccountController extends Controller
                 $packageSubscribe->user_id = $user->id;
                 $packageSubscribe->package_id = $request->package_id;
                 $packageSubscribe->package_details = $package;
-                $packageSubscribe->license_key = $request->license_key;
+                $packageSubscribe->licence_key = $request->licence_key;
                 $packageSubscribe->start_date = date('Y-m-d');
                 $packageSubscribe->end_date = $package_expire_at;
                 $packageSubscribe->status = 1;

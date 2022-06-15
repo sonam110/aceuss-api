@@ -44,7 +44,7 @@ class LicenceCheckExpire extends Command
         {
             //update company id
             $licenceUpdate = User::find($getLicence->top_most_parent_id);
-            $licenceUpdate->license_status = 0;
+            $licenceUpdate->licence_status = 0;
             $licenceUpdate->save();
         }
 

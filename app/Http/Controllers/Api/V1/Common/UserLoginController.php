@@ -87,9 +87,9 @@ class UserLoginController extends Controller
                                 if(auth()->user()->top_most_parent_id!=1)
                                 {
                                     $checkLicence = User::find(auth()->user()->top_most_parent_id);
-                                    if($checkLicence->license_end_date<date('Y-m-d'))
+                                    if($checkLicence->licence_end_date<date('Y-m-d'))
                                     {
-                                        $checkLicence->license_status = 0;
+                                        $checkLicence->licence_status = 0;
                                         $checkLicence->save();
                                     }
                                 }
@@ -105,7 +105,7 @@ class UserLoginController extends Controller
 
                                 if(auth()->user()->top_most_parent_id!=1)
                                 {
-                                    $user['licence_status'] = User::find(auth()->user()->top_most_parent_id)->license_status;
+                                    $user['licence_status'] = User::find(auth()->user()->top_most_parent_id)->licence_status;
                                     $assigned_module = User::find(auth()->user()->top_most_parent_id);
                                     $user['assigned_module'] = $assigned_module->assignedModule()->select('id','user_id','module_id')->with('Module:id,name')->get();
 

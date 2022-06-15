@@ -234,7 +234,7 @@ class CompanyController extends Controller
         DB::beginTransaction();
         try {
                 $user_id = Auth::user()->top_most_parent_id;
-                $licenceKeyData = LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('license_key',$request->licence_key)->where('is_used',0)->first();
+                $licenceKeyData = LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('licence_key',$request->licence_key)->where('is_used',0)->first();
                 if(empty($licenceKeyData))
                 {
                     return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,[], config('httpcodes.success'));
@@ -242,19 +242,19 @@ class CompanyController extends Controller
                 $package_details =  json_decode($licenceKeyData->package_details);
                 $package_expire_at = date('Y-m-d', strtotime($package_details->validity_in_days.' days'));
 
-                LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('license_key',$request->licence_key)->where('is_used',0)->update(['is_used' => 1]);
+                LicenceKeyManagement::where('top_most_parent_id',$user_id)->where('licence_key',$request->licence_key)->where('is_used',0)->update(['is_used' => 1]);
 
                 $userLicUp = User::find($user_id);
-                $userLicUp->license_key = $request->licence_key;
-                $userLicUp->license_end_date = $package_expire_at;
-                $userLicUp->license_status = 1;
+                $userLicUp->licence_key = $request->licence_key;
+                $userLicUp->licence_end_date = $package_expire_at;
+                $userLicUp->licence_status = 1;
                 $userLicUp->save();
 
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user_id;
                 $packageSubscribe->package_id = $package_details->id;
                 $packageSubscribe->package_details = $package_details;
-                $packageSubscribe->license_key = $request->licencse_key;
+                $packageSubscribe->licence_key = $request->licencse_key;
                 $packageSubscribe->start_date = date('Y-m-d');
                 $packageSubscribe->end_date = $package_expire_at;
                 $packageSubscribe->status = 1;
@@ -279,7 +279,7 @@ class CompanyController extends Controller
                     }
                 }
 
-                User::where('id',$user_id)->update(['license_status' => 1]);
+                User::where('id',$user_id)->update(['licence_status' => 1]);
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_updated') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {

@@ -840,7 +840,7 @@ class UserController extends Controller
     		else
     		{
                 $companyStatus = User::find(auth()->user()->top_most_parent_id);
-                $companyStatus->license_status = 0;
+                $companyStatus->licence_status = 0;
                 $companyStatus->save();
 
     			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_inactive') ,'inactive', config('httpcodes.success'));
