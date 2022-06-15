@@ -41,7 +41,11 @@ class LabelSeeder extends Seeder
     			"message_password" => "The password field is required.", 
     			"message_confirm_password" => "Password  and confirm password does not match.", 
     			"message_success" => "Password reset successfully", 
-    		], 
+    		],
+            "LicenceKey" => [
+                "message_invalid_data" => "Invalid license Key, Please enter valid license key", 
+                "message_updated" => "License key updated and your license is now activated.", 
+            ], 
     		"ChangePassword" => [
     			"message_old_password" => "The old password field is required", 
     			"message_new_password" => "The  new password field is required", 
