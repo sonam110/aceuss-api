@@ -825,7 +825,7 @@ class UserController extends Controller
     {
     	try 
     	{
-    		$licenceKeyData = LicenceKeyManagement::where('top_most_parent_id',Auth::id())->where('is_used',1)->latest()->first();
+    		$licenceKeyData = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->latest()->first();
 
     		if(empty($licenceKeyData))
     		{
