@@ -61,7 +61,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
     			DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name');
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name','assignedWork');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
                 $query =  $query->where('id', '!=',$user->id);
@@ -429,7 +429,6 @@ class UserController extends Controller
 
                 $empAssWorkHour = new EmployeeAssignedWorkingHour;
                 $empAssWorkHour->emp_id = $user->id;
-                $empAssWorkHour->municipal_name = $request->municipal_name;
                 $empAssWorkHour->assigned_working_hour_per_week = $assWorking;
                 $empAssWorkHour->working_percent = $workingPercent;
                 $empAssWorkHour->actual_working_hour_per_week = $actWorking;
@@ -439,6 +438,7 @@ class UserController extends Controller
             }
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
+            $user['assignedWork'] = $user->assignedWork;
     		return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$user, '200');
     	}
     	catch(Exception $exception) {
@@ -457,7 +457,7 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
     		}
-    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number')->first();
+    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork')->first();
     		return prepareResult(true,'User View' ,$userShow, '200');
 
     	}
@@ -721,6 +721,7 @@ class UserController extends Controller
 
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
+            $user['assignedWork'] = $user->assignedWork;
     		return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, '200');
 
     	}

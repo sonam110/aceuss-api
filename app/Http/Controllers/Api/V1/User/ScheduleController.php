@@ -129,12 +129,11 @@ class ScheduleController extends Controller
 				if (!is_object($shift)) {
 					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 				}
-
 				$shift_name 		= $shift->shift_name;
 				$shift_color 		= $shift->shift_color;
 			}
-
 			
+
 			if($request->is_range == 1)
 			{
 				$start_date = $request->shift_dates[0];
@@ -181,34 +180,60 @@ class ScheduleController extends Controller
 			{
 				$dates = $request->shift_dates;
 			}
-
+			$start_time = $request->shift_start_time;
+			$end_time = $request->shift_end_time;
+			$emergency_start_time = $request->emergency_start_time;
+			$emergency_end_time = $request->emergency_end_time;
 			$shedule_ids = [];
 			foreach($request->user_id as $key=>$value)
 			{
+				$assignedWork_id = null;
+				$assignedWork = User::find($value)->assignedWork;
+				if(!empty($assignedWork))
+				{
+					$assignedWork_id = $assignedWork->id;
+				}
 				$group_id = generateRandomNumber();
 				foreach($dates as $key=>$shift_date)
 				{
+					$scheduled_work_time = getTimeDifference($start_time,$end_time);
+					$emergency_work_time = 0;
+					if($request->emergency == true)
+					{
+						$emergency_work_time = getTimeDifference($emergency_start_time,$emergency_end_time);
+					}
+
+					$scheduled_work_hour = getTimeINHours($scheduled_work_time - $emergency_work_time); 
+					$emergency_work_hour = getTimeINHours($emergency_work_time);
+
 					$date = date('Y-m-d',strtotime($shift_date));
 
-					$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
+					$startEndTime = getStartEndTime($start_time, $end_time, $date);
 
 					$schedule = new Schedule;
-					$schedule->shift_id 		= $request->shift_id;
-					$schedule->user_id 			= $value;
-					$schedule->parent_id 		= $request->parent_id;
+
+					$schedule->shift_id = $request->shift_id;
+					$schedule->user_id = $value;
+					$schedule->parent_id = $request->parent_id;
 					$schedule->shift_start_time = $startEndTime['start_time'];
-					$schedule->shift_end_time 	= $startEndTime['end_time'];
-					$schedule->patient_id 		= $request->patient_id;
-					$schedule->group_id 		= $group_id;
-					$schedule->shift_name 		= $shift_name;
-					$schedule->shift_color 		= $shift_color;
-					$schedule->shift_date 		= $date;
-					$schedule->leave_applied 	= $request->leave_applied? $request->leave_applied :0;
-					$schedule->leave_approved 	= $request->leave_approved? $request->leave_approved :0;
-					$schedule->status 			= $request->status? $request->status :0;
-					$schedule->entry_mode 		=  $request->entry_mode ? $request->entry_mode :'Web';
-					$schedule->created_by 		= Auth::id();
-					$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
+					$schedule->shift_end_time = $startEndTime['end_time'];
+					$schedule->patient_id = $request->patient_id;
+					$schedule->group_id = $group_id;
+					$schedule->shift_name = $shift_name;
+					$schedule->shift_color = $shift_color;
+					$schedule->shift_date = $date;
+					$schedule->leave_applied = $request->leave_applied?$request->leave_applied:0;
+					$schedule->leave_approved = $request->leave_approved?$request->leave_approved:0;
+					$schedule->status = $request->status? $request->status :0;
+					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+					$schedule->emergency = $request->emergency;
+					$schedule->emergency_start_time = $emergency_start_time;
+					$schedule->emergency_end_time = $emergency_end_time;
+					$schedule->scheduled_work_hour = $scheduled_work_hour;
+					$schedule->emergency_work_hour = $emergency_work_hour;
+					$schedule->schedule_type = $request->schedule_type;
+					$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+					$schedule->created_by = Auth::id();
 					$schedule->save();
 					$schedule_ids[] = $schedule->id;
 				}
@@ -223,7 +248,6 @@ class ScheduleController extends Controller
 			\Log::error($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 	}
 
@@ -337,5 +361,4 @@ class ScheduleController extends Controller
 
 		}
 	}
-
 }
