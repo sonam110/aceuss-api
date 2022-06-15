@@ -248,7 +248,7 @@ class CompanyController extends Controller
                 $userLicUp->license_key = $request->licencse_key;
                 $userLicUp->license_end_date = $package_expire_at;
                 $userLicUp->license_status = 1;
-                $userLicUp->save()
+                $userLicUp->save();
 
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user_id;
