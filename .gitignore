@@ -5,6 +5,7 @@
 /public/reports
 /public/export
 /storage/*.key
+/storage/framework/laravel-excel
 aceuss-api.zip
 /vendor
 .env
