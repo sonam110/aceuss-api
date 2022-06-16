@@ -19,7 +19,10 @@ class CreateAgencyWeeklyHoursTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('name')->nullable();
-            $table->double('weekly_hours_allocated')->default(0);
+            $table->decimal('assigned_hours',[10,2])->default(0);
+            $table->decimal('assigned_hours_per_day',[10,2])->default(0);
+            $table->decimal('assigned_hours_per_week',[10,2])->default(0);
+            $table->decimal('assigned_hours_per_month',[10,2])->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('entry_mode')->nullable();

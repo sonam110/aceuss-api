@@ -19,6 +19,7 @@ class CreateCompanyWorkShiftsTable extends Migration
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->enum('shift_type',['normal','emergency'])->default('normal')->nullable();
             $table->string('shift_name');
             $table->time('shift_start_time');
             $table->time('shift_end_time');

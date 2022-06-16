@@ -18,7 +18,8 @@ class CreateLicenceKeyManagementTable extends Migration
             
             $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
             
-            $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();            
+            $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();
+            $table->unsignedBigInteger('cancelled_by')->comment('User Table id')->nullable();            
 
             $table->string('licence_key', 50);
             $table->text('module_attached');
@@ -26,6 +27,8 @@ class CreateLicenceKeyManagementTable extends Migration
             $table->date('active_from')->nullable()->comment('licence_key activation date');
             $table->date('expire_at')->comment('expiry date');
             $table->boolean('is_used')->default(0);
+            $table->text('reason_for_cancellation')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

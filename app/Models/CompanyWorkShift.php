@@ -24,6 +24,7 @@ class CompanyWorkShift extends Model
 		'shift_color',
 		'status',
         'entry_mode',
+        'shift_type'
 
     ];
 

@@ -338,17 +338,17 @@
         </table>
         @endif
 
-        @if($journal->Patient->weeklyHours)
+        @if($journal->Patient->agencyHours)
         <table class="header table table-striped">
             <tr>
                 <td colspan="4" class="sub-title"><strong>Assigned Hours By Agency</strong></td>
             </tr>
-            @foreach($journal->Patient->weeklyHours as $hkey => $hour)
+            @foreach($journal->Patient->agencyHours as $hkey => $hour)
             <tr>
                 <td class="title" width="25%"><strong>#{{$hkey+1}}: Issuer</strong></td>
                 <td class="value" width="25%">{{$hour->name}}</td>
                 <td class="title" width="25%"><strong>Hours</strong></td>
-                <td class="value" width="25%">{{$hour->weekly_hours_allocated}}</td>
+                <td class="value" width="25%">{{$hour->assigned_hours}}</td>
             </tr>
             <tr>
                 <td class="title"><strong>Start Date</strong></td>

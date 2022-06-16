@@ -38,39 +38,39 @@ class ScheduleController extends Controller
 
 			if(!empty($request->shift_id))
 			{
-			    $query->where('shift_id' ,$request->shift_id);
+				$query->where('shift_id' ,$request->shift_id);
 			}
 
 			if(!empty($request->patient_id))
 			{
-			    $query->where('patient_id' ,$request->patient_id);
+				$query->where('patient_id' ,$request->patient_id);
 			}
 			if(!empty($request->user_id))
 			{
-			    $query->where('user_id' ,$request->user_id);
+				$query->where('user_id' ,$request->user_id);
 			}
 
 			if(!empty($request->shift_date))
 			{
-			    $query->where('shift_date',$request->shift_date);
+				$query->where('shift_date',$request->shift_date);
 			}
 			
 			if(!empty($request->shift_start_date))
 			{
-			    $query->where('shift_date',">=" ,$request->shift_start_date);
+				$query->where('shift_date',">=" ,$request->shift_start_date);
 			}
 			if(!empty($request->shift_end_date))
 			{
-			    $query->where('shift_date',"<=" ,$request->shift_end_date);
+				$query->where('shift_date',"<=" ,$request->shift_end_date);
 			}
 
 			if(!empty($request->shift_start_time))
 			{
-			    $query->where('shift_start_time',">=" ,$request->shift_start_time);
+				$query->where('shift_start_time',">=" ,$request->shift_start_time);
 			}
 			if(!empty($request->shift_end_time))
 			{
-			    $query->where('shift_end_time',"<=" ,$request->shift_end_time);
+				$query->where('shift_end_time',"<=" ,$request->shift_end_time);
 			}
 
 			if(!empty($request->perPage))
@@ -361,4 +361,7 @@ class ScheduleController extends Controller
 
 		}
 	}
+
+
+	
 }

@@ -319,4 +319,52 @@ class ManageLicenceController extends Controller
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
+
+
+    public function cancelLicenceKey(Request $request,$id)
+    {
+        DB::beginTransaction();
+        try {
+                $user = User::find($id);
+                if($user->licence_status == 0)
+                {
+                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,['already expired'], config('httpcodes.success'));
+                }
+
+                $licenceKeyData = LicenceKeyManagement::where('licence_key',$user->licence_key)->first();
+
+                if(empty($licenceKeyData))
+                {
+                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,[], config('httpcodes.success'));
+                }
+                $package_expire_at = date('Y-m-d', strtotime('-1 days'));
+
+                $expireLicenceKey = LicenceKeyManagement::where('id',$licenceKeyData->id)
+                ->update([
+                	'expire_at' => $package_expire_at,
+                	'cancelled_by' => Auth::id(), 
+                	'reason_for_cancellation' => $request->reason_for_cancellation
+                ]);
+
+                Subscription::where('user_id',$id)
+                ->where('status',1)
+                ->update([
+                	'status' => 0,
+                	'end_date' => $package_expire_at
+                ]);
+
+
+                $user->update([
+                	'licence_status' => 0,
+                    'licence_end_date'=> $package_expire_at
+                ]);
+                $user = User::find($id);
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_licence_expired') ,$user, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
 }

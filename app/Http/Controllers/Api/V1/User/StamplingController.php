@@ -173,7 +173,7 @@ class StamplingController extends Controller
 					$extra_hours = getTimeINHours($extra_time);
 				}
 
-				$ov = OVHour::where('date',$date)->orWhere('date','')->latest()->first();
+				$ov = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
 				if($ov)
 				{
 					$ov_start_time = $ov->start_time;

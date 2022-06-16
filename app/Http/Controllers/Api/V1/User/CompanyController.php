@@ -86,6 +86,7 @@ class CompanyController extends Controller
         	}
 	        $companyWorkShift = new CompanyWorkShift;
 		 	$companyWorkShift->shift_name = $request->shift_name;
+            $companyWorkShift->shift_type = $request->shift_type;
 		 	$companyWorkShift->shift_start_time = $request->shift_start_time;
 		 	$companyWorkShift->shift_end_time = $request->shift_end_time;
 		 	$companyWorkShift->shift_color = $request->shift_color;
@@ -150,6 +151,7 @@ class CompanyController extends Controller
         	}
 	        $companyWorkShift = CompanyWorkShift::find($id);
 		 	$companyWorkShift->shift_name = $request->shift_name;
+            $companyWorkShift->shift_type = $request->shift_type;
 		 	$companyWorkShift->shift_start_time = $request->shift_start_time;
 		 	$companyWorkShift->shift_end_time = $request->shift_end_time;
 		 	$companyWorkShift->shift_color = $request->shift_color;

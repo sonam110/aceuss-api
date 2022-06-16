@@ -167,5 +167,13 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{dates}},{{requested_by}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'schedule-slot-selected';
+        $smsTemplate->mail_subject = 'Schedule  Slot Selected';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Schedule slot for {{date}} is selected by {{selected_by}} and  dates {{vacant_dates}}  are still available to select.";
+        $smsTemplate->custom_attributes = "{{name}},{{vacant_dates}},{{selected_by}},{{date}}";
+        $smsTemplate->save();
+
     }
 }

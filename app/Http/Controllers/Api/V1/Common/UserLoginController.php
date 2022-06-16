@@ -495,7 +495,7 @@ class UserLoginController extends Controller
         try {
             
             $user = getUser();
-            $userDetail = User::where('id',$user->id)->where('top_most_parent_id',$user->top_most_parent_id)->with('UserType:id,name','TopMostParent:id,user_type_id,name,email','Parent:id,name','CategoryMaster:id,created_by,name','Department:id,name','weeklyHours')->first();
+            $userDetail = User::where('id',$user->id)->where('top_most_parent_id',$user->top_most_parent_id)->with('UserType:id,name','TopMostParent:id,user_type_id,name,email','Parent:id,name','CategoryMaster:id,created_by,name','Department:id,name','agencyHours')->first();
             return prepareResult(true,'User detail' ,$userDetail, config('httpcodes.success'));
                 
         } catch(Exception $exception) {

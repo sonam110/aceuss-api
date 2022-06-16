@@ -23,6 +23,8 @@ class NoAuthController extends Controller
     public function getLabels(Request $request)
     {
 
+        return Label::latest()->first();
+
         
         // $label = Label::all();
         // foreach ($label as $key => $value) {

@@ -1090,3 +1090,12 @@ function getLeaveDatesByUserId($user_id)
     }
     return $dates;
 }
+
+function getDays($date1,$date2)
+{
+    $date1 = new DateTime($date1);
+    $date2 = new DateTime($date2);
+    $days  = $date2->diff($date1)->format('%a');
+
+    return $days + 1;
+}

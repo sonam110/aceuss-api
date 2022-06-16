@@ -129,6 +129,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	     	Route::post('licence-keys', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'index']);
 			Route::apiResource('licence-key',Admin\ManageLicenceController::class)->only(['store','destroy','show', 'update']);
 			Route::post('assign-licence-key/{id}', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'assignLicenceKey']);
+			Route::post('cancel-licence-key/{user_id}', [App\Http\Controllers\Api\V1\Admin\ManageLicenceController::class, 'cancelLicenceKey']);
 
 		});
 
@@ -334,6 +335,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('user-leaves/{id}', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'getUserLeaves']);
 		Route::post('leaves-approve', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leavesApprove']);
 		Route::get('leaves-approve-by-group-id/{group_id}', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leavesApproveByGroupId']);
+		Route::post('leave-schedule-slot-selected', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaveScheduleSlotSelected']);
 
 		//-----------------------Stampling---------------------//
 		Route::post('stamplings', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplings']);

@@ -38,6 +38,7 @@ class CreateLeavesTable extends Migration
             $table->date('approved_date')->nullable();
             $table->string('approved_time')->nullable();
             $table->string('notified_to')->nullable();
+            $table->string('notified_group')->nullable();
             $table->boolean('status')->default(0)->comment('0 for not approved, 1 for approved');
             $table->string('entry_mode')->nullable();
             $table->timestamps();

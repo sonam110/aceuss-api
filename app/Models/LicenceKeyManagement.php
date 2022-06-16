@@ -27,7 +27,7 @@ class LicenceKeyManagement extends Model
         'package_details',
         'active_from',
         'expire_at',
-        'is_used',
+        'is_used','cancelled_by','reason_for_cancellation'
     ];
 
     public function TopMostParent()

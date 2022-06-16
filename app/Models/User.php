@@ -224,7 +224,7 @@ class User extends Authenticatable
          return $this->hasMany(AssigneModule::class,'user_id','id');
     }
 
-    public function weeklyHours()
+    public function agencyHours()
     {
          return $this->hasMany(AgencyWeeklyHour::class,'user_id','id');
     }
@@ -383,7 +383,7 @@ class User extends Authenticatable
 
     public function assignedWork()
     {
-        return $this->hasOne(EmployeeAssignedWorkingHour::class,'emp_id','id')->latest();
+        return $this->hasOne(EmployeeAssignedWorkingHour::class,'emp_id','id')->orderBy('id','desc');
     }
 
 

@@ -302,17 +302,17 @@
     </table>
     @endif
 
-    @if($deviation->Patient->weeklyHours)
+    @if($deviation->Patient->agencyHours)
     <table class="header table table-striped">
         <tr>
             <td colspan="4" class="sub-title"><strong>Assigned Hours By Agency</strong></td>
         </tr>
-        @foreach($deviation->Patient->weeklyHours as $hkey => $hour)
+        @foreach($deviation->Patient->agencyHours as $hkey => $hour)
         <tr>
             <td class="title"><strong>#{{$hkey+1}}: Issuer</strong></td>
             <td class="value">{{$hour->name}}</td>
             <td class="title"><strong>Hours</strong></td>
-            <td class="value">{{$hour->weekly_hours_allocated}}</td>
+            <td class="value">{{$hour->assigned_hours}}</td>
         </tr>
         <tr>
             <td class="title"><strong>Start Date</strong></td>

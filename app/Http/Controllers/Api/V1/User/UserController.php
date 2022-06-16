@@ -61,7 +61,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
     			DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','weeklyHours','PatientInformation','persons.Country','branch:id,name','assignedWork');
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
                 $query =  $query->where('id', '!=',$user->id);
@@ -298,17 +298,25 @@ class UserController extends Controller
     			Mail::to($user->email)->send(new WelcomeMail($content));
     		}
     		/*-------------patient weekly Hours-----------------------*/
-    		if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
+    		if(is_array($request->agency_hours) && sizeof($request->agency_hours) >0){
 
-    			foreach ($request->weekly_hours as $key => $weekly_hours) {
-    				if(!empty(@$weekly_hours['weekly_hours_allocated']))
+    			foreach ($request->agency_hours as $key => $agency_hours) {
+                    $days = getDays($agency_hours['end_date'],$agency_hours['start_date']);
+                    $assigned_hours = $agency_hours['assigned_hours'];
+                    $ass_work_per_day = $assigned_hours / $days;
+                    $ass_work_per_week = $ass_work_per_day * 7;
+                    $ass_work_per_month = $ass_work_per_day * 30;
+    				if(!empty(@$agency_hours['assigned_hours']))
     				{
     					$agencyWeeklyHour = new AgencyWeeklyHour;
     					$agencyWeeklyHour->user_id = $user->id;
-    					$agencyWeeklyHour->name = @$weekly_hours['name'];
-    					$agencyWeeklyHour->weekly_hours_allocated = @$weekly_hours['weekly_hours_allocated'];
-    					$agencyWeeklyHour->start_date = @$weekly_hours['start_date'];
-    					$agencyWeeklyHour->end_date = @$weekly_hours['end_date'];
+    					$agencyWeeklyHour->name = @$agency_hours['name'];
+    					$agencyWeeklyHour->assigned_hours = @$agency_hours['assigned_hours'];
+                        $agencyWeeklyHour->assigned_hours_per_day =$ass_work_per_day;
+                        $agencyWeeklyHour->assigned_hours_per_week = $ass_work_per_week;
+                        $agencyWeeklyHour->assigned_hours_per_month = $ass_work_per_month;
+    					$agencyWeeklyHour->start_date = @$agency_hours['start_date'];
+    					$agencyWeeklyHour->end_date = @$agency_hours['end_date'];
     					$agencyWeeklyHour->save();
     				}
     			}
@@ -457,7 +465,7 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
     		}
-    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','weeklyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork')->first();
+    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork')->first();
     		return prepareResult(true,'User View' ,$userShow, '200');
 
     	}
@@ -597,17 +605,25 @@ class UserController extends Controller
     		}
 
     		/*-------------patient weekly Hours-----------------------*/
-    		if(is_array($request->weekly_hours) && sizeof($request->weekly_hours) >0){
+    		if(is_array($request->agency_hours) && sizeof($request->agency_hours) >0){
     			$deleteOld = AgencyWeeklyHour::where('user_id',$user->id)->delete();
-    			foreach ($request->weekly_hours as $key => $weekly_hours) {
-    				if(!empty(@$weekly_hours['weekly_hours_allocated']))
+    			foreach ($request->agency_hours as $key => $agency_hours) {
+                    $days = getDays($agency_hours['end_date'],$agency_hours['start_date']);
+                    $assigned_hours = $agency_hours['assigned_hours'];
+                    $ass_work_per_day = $assigned_hours / $days;
+                    $ass_work_per_week = $ass_work_per_day * 7;
+                    $ass_work_per_month = $ass_work_per_day * 30;
+    				if(!empty(@$agency_hours['assigned_hours']))
     				{
     					$agencyWeeklyHour = new AgencyWeeklyHour;
     					$agencyWeeklyHour->user_id = $user->id;
-    					$agencyWeeklyHour->name = @$weekly_hours['name'];
-    					$agencyWeeklyHour->weekly_hours_allocated = @$weekly_hours['weekly_hours_allocated'];
-    					$agencyWeeklyHour->start_date = @$weekly_hours['start_date'];
-    					$agencyWeeklyHour->end_date = @$weekly_hours['end_date'];
+    					$agencyWeeklyHour->name = @$agency_hours['name'];
+    					$agencyWeeklyHour->assigned_hours = @$agency_hours['assigned_hours'];
+                        $agencyWeeklyHour->assigned_hours_per_day = $ass_work_per_day;
+                        $agencyWeeklyHour->assigned_hours_per_week = $ass_work_per_week;
+                        $agencyWeeklyHour->assigned_hours_per_month = $ass_work_per_month;
+    					$agencyWeeklyHour->start_date = @$agency_hours['start_date'];
+    					$agencyWeeklyHour->end_date = @$agency_hours['end_date'];
     					$agencyWeeklyHour->save();
     				}
     			}
@@ -826,7 +842,7 @@ class UserController extends Controller
     {
     	try 
     	{
-    		$licenceKeyData = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->latest()->first();
+    		$licenceKeyData = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->orderBy('id','desc')->first();
 
     		if(empty($licenceKeyData))
     		{

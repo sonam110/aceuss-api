@@ -14,7 +14,7 @@ class EmployeeAssignedWorkingHour extends Model
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
     
-    protected $fillable  = ['top_most_parent_id','emp_id','created_by','municipal_name','assigned_working_hour_per_week','working_percent','actual_working_hour_per_week','entry_mode'];
+    protected $fillable  = ['top_most_parent_id','emp_id','created_by','assigned_working_hour_per_week','working_percent','actual_working_hour_per_week','entry_mode'];
 
     public function topMostParent()
     {
