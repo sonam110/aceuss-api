@@ -43,6 +43,7 @@ class CreateStamplingsTable extends Migration
             $table->float('total_sum')->default(0)->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();
+            $table->enum('stampling_type',['scheduled','walkin'])->default('scheduled')->nullable();
             // $table->string('latitude')->nullable();
             // $table->string('longitude')->nullable();
             // $table->string('ip_address')->nullable();

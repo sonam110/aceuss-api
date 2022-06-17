@@ -36,6 +36,9 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('employee_assigned_working_hour_id')->nullable();
             $table->foreign('employee_assigned_working_hour_id')->references('id')->on('employee_assigned_working_hours')->onDelete('cascade');
 
+            $table->unsignedBigInteger('schedule_template_id')->nullable();
+            $table->foreign('schedule_template_id')->references('id')->on('schedule_templates')->onDelete('cascade');
+
             $table->enum('schedule_type',['basic','extra'])->nullable();
             $table->string('shift_name')->nullable();
             $table->datetime('shift_start_time');
@@ -45,6 +48,7 @@ class CreateSchedulesTable extends Migration
             $table->string('shift_date');
             $table->boolean('leave_applied')->default(0);
             $table->boolean('leave_approved')->default(0);
+            $table->enum('leave_type',['leave','vacation'])->default('leave')->nullable();
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();
             $table->boolean('emergency')->default(0);

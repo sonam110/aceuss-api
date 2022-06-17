@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateScheduleMastersTable extends Migration
+class CreateScheduleTemplatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateScheduleMastersTable extends Migration
      */
     public function up()
     {
-        Schema::create('schedule_masters', function (Blueprint $table) {
+        Schema::create('schedule_templates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
@@ -23,6 +23,7 @@ class CreateScheduleMastersTable extends Migration
             $table->date('to_date')->nullable();
             $table->string('shifts')->nullable();
             $table->string('entry_mode')->nullable();
+            $table->boolean('status')->default(1)->comment('0 for not active, 1 for active');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -35,6 +36,6 @@ class CreateScheduleMastersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('schedule_masters');
+        Schema::dropIfExists('schedule_templates');
     }
 }

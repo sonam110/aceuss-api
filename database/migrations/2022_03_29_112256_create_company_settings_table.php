@@ -30,6 +30,7 @@ class CreateCompanySettingsTable extends Migration
             $table->string('company_website')->nullable();
             $table->boolean('follow_up_reminder')->default('0')->comment('1:Yes,0:No');
             $table->integer('before_minute')->nullable();
+            $table->integer('relaxation_time')->default('15')->nullable();
             $table->float('extra_hour_rate')->nullable()->default(0);;
             $table->float('ov_hour_rate')->nullable()->default(0);;
             $table->timestamps();

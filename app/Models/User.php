@@ -112,7 +112,8 @@ class User extends Authenticatable
         'contract_type',
         'contract_value',
         'avatar',
-        'schedule_start_date'
+        'schedule_start_date',
+        'report_verify'
     ];
 
     /**

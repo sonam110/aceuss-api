@@ -18,6 +18,7 @@ use App\Models\Activity;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\CategoryMaster;
+use App\Models\CompanyWorkShift;
 use App\Models\OauthAccessTokens;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
@@ -1098,4 +1099,16 @@ function getDays($date1,$date2)
     $days  = $date2->diff($date1)->format('%a');
 
     return $days + 1;
+}
+
+function getRelaxationTime($shift_id)
+{
+    return CompanyWorkShift::find($shift_id)->relaxation_time;
+}
+
+
+function convertTimeInMinutes($time)
+{
+    $time = explode(':', $time);
+    return ($time[0]*60) + ($time[1]);
 }

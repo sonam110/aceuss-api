@@ -53,6 +53,7 @@ class SettingController extends Controller
             $user->before_minute = $request->before_minute;
             $user->extra_hour_rate = $request->extra_hour_rate;
             $user->ov_hour_rate = $request->ov_hour_rate;
+            $user->relaxation_time = $request->relaxation_time;
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
              DB::commit();

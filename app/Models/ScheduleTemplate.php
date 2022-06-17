@@ -10,10 +10,10 @@ use App\Models\CompanyWorkShift;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ScheduleMaster extends Model
+class ScheduleTemplate extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['top_most_parent_id','title','from_date','to_date','shifts','entry_mode'];
+    protected $fillable = ['top_most_parent_id','title','from_date','to_date','shifts','entry_mode','status'];
 }

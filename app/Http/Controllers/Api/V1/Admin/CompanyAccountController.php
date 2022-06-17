@@ -166,6 +166,7 @@ class CompanyAccountController extends Controller
             $user->user_color = $request->user_color;
             $user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
+            $user->report_verify = $request->report_verify;
             $user->contract_value = $request->contract_value;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
@@ -349,6 +350,7 @@ class CompanyAccountController extends Controller
             $user->user_color = $request->user_color;
             $user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
+            $user->report_verify = $request->report_verify;
             $user->contract_value = $request->contract_value;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->status = ($request->status) ? $request->status: 1 ;

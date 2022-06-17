@@ -103,16 +103,29 @@ class StamplingController extends Controller
 			if ($validator->fails()) {
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
-
 			$user = Auth::User();
+			$relaxation_time = User::find($user->top_most_parent_id)->relaxation_time;
 			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
 				$schedule_id = null;
+				$stampling_type = 'walkin';
+				$in_time = date('Y-m-d H:i:s');
 				if(!empty($request->schedule_id))
 				{
 					$schedule_id = $request->schedule_id;
+					$schedule = Schedule::find($schedule_id);
+					$stampling_type = 'scheduled';
+					$punch_in_time = convertTimeInMinutes(date('H:i'));
+					$schedule_start_time = convertTimeInMinutes($schedule->shift_start_time);
+					$time_diff = $schedule_start_time-$punch_in_time;
+					if($time_diff <= $relaxation_time || $time_diff >= $relaxation_time)
+					{
+						$in_time = $schedule_start_time;
+					}
+					return $time_diff;
 				}
+				return $in_time;
 
 				if(Stampling::where('date',$date)->where('user_id',Auth::id())->count() > 0)
 				{
@@ -126,7 +139,7 @@ class StamplingController extends Controller
 				$stampling->schedule_id 				= $schedule_id;
 				$stampling->user_id 					= Auth::id();
 				$stampling->date 						= date('Y-m-d');
-				$stampling->in_time 					= date('Y-m-d H:i:s');
+				$stampling->in_time 					= $in_time;
 				$stampling->reason_for_early_in 		= $request->reason_for_early_in;
 				$stampling->reason_for_late_in 			= $request->reason_for_late_in;
 				$stampling->out_time 					= null;

@@ -230,6 +230,7 @@ class UserController extends Controller
     		$user->created_by = $userInfo->id;
             $user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
+            $user->report_verify = $request->report_verify;
     		$user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required == true) ? 1:0;
     		$user->is_secret = ($request->is_secret == true) ? 1:0;
@@ -542,6 +543,7 @@ class UserController extends Controller
     		$user->disease_description = $request->disease_description;
     		$user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
+            $user->report_verify = $request->report_verify;
             $user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required) ? 1:0;
     		$user->is_secret = ($request->is_secret) ? 1:0;
