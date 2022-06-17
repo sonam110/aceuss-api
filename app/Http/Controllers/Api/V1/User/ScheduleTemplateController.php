@@ -78,6 +78,7 @@ class ScheduleTemplateController extends Controller
             $scheduleTemplate->from_date = $request->from_date;
             $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();
             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
@@ -111,6 +112,7 @@ class ScheduleTemplateController extends Controller
             $scheduleTemplate->from_date = $request->from_date;
             $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();
 		    DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_update') ,$scheduleTemplate, config('httpcodes.success'));
