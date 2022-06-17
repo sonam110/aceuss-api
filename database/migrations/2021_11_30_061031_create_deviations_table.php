@@ -38,6 +38,7 @@ class CreateDeviationsTable extends Migration
 
             $table->timestamp('date_time');
             $table->text('description');
+            $table->text('activity_note')->nullable();
             $table->text('immediate_action');
             $table->text('probable_cause_of_the_incident')->nullable();
             $table->text('suggestion_to_prevent_event_again')->nullable();
