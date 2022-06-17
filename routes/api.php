@@ -345,6 +345,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		//-----------------------Emp Assi Working Hour---------------------//
 		Route::post('employee-assigned-working-hours', [App\Http\Controllers\Api\V1\User\EmployeeAssignedWorkingHourController::class, 'employeeAssignedWorkingHours']);
 		Route::apiResource('employee-assigned-working-hour', User\EmployeeAssignedWorkingHourController::class)->only(['store','destroy','show', 'update']);
+
+		//-----------------------ScheduleMaster---------------------//
+		Route::post('schedule-masters', [App\Http\Controllers\Api\V1\User\ScheduleMasterController::class, 'scheduleMasters']);
+		Route::apiResource('schedule-master', User\ScheduleMasterController::class)->only(['store','destroy','show', 'update']);
 		
 	});
 
