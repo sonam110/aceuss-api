@@ -38,7 +38,7 @@ class WebSocketController implements MessageComponentInterface {
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
         $this->users[$conn->resourceId] = $conn;
-        $conn->send(json_encode('You have established the connection by bp. please fix other events.'));
+        $conn->send(json_encode('You have established a connection via websocket. Now you can start other operations.'));
     }
 
     /**
