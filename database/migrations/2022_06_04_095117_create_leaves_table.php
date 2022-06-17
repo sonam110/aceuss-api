@@ -29,7 +29,7 @@ class CreateLeavesTable extends Migration
 
             $table->unsignedBigInteger('assigned_to')->nullable();
             $table->foreign('assigned_to')->references('id')->on('users')->onDelete('cascade');
-
+            $table->enum('leave_type',['leave','vacation'])->default('leave')->nullable();
             $table->enum('assign_status',['vacant','assigned'])->nullable();
             $table->string('group_id')->nullable();
             $table->date('date');

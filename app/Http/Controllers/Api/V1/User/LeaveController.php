@@ -148,6 +148,7 @@ class LeaveController extends Controller
     				$leave = new Leave;
     				$leave->user_id = Auth::id();
     				$leave->schedule_id = $schedule_id;
+                    $leave->leave_type = $request->leave_type;
     				$leave->group_id = $group_id;
     				$leave->date = $date;
                     $leave->assign_status = 'vacant';
@@ -188,6 +189,7 @@ class LeaveController extends Controller
     					$leave = new Leave;
     					$leave->user_id = Auth::id();
     					$leave->schedule_id = $schedule_id;
+                        $leave->leave_type = $request->leave_type;
                         $leave->group_id = $group_id;
     					$leave->date = $date;
                         $leave->assign_status = 'vacant';

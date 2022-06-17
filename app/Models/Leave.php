@@ -18,7 +18,7 @@ class Leave extends Model
     protected static $logOnlyDirty = true;
 
     protected $fillable = [
-    	'top_most_parent_id','user_id','schedule_id','date','reason','status','entry_mode','is_approved','approved_by',"approved_date",'approved_time','group_id','assigned_to','assign_status','notified_to','notified_group'
+    	'top_most_parent_id','user_id','schedule_id','date','reason','status','entry_mode','is_approved','approved_by',"approved_date",'approved_time','group_id','assigned_to','assign_status','notified_to','notified_group','leave_type'
     ];
 
     public function topMostParent()
