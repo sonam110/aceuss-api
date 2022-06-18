@@ -21,6 +21,8 @@ class CreateStamplingsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->enum('stampling_type',['scheduled','walkin'])->default('scheduled')->nullable();
+
             $table->unsignedBigInteger('schedule_id')->nullable();
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
             $table->date('date');
@@ -28,25 +30,22 @@ class CreateStamplingsTable extends Migration
             $table->datetime('out_time')->nullable();
             $table->string('in_location');
             $table->string('out_location')->nullable();
-            $table->string('extra_hours');
+            $table->float('scheduled_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->float('extra_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->float('ob_hours_rate')->nullable()->comment('amount or salary / hr');
+
             $table->string('reason_for_early_in')->nullable();
             $table->string('reason_for_early_out')->nullable();
             $table->string('reason_for_late_in')->nullable();
             $table->string('reason_for_late_out')->nullable();
+
+            $table->string('total_schedule_hours');
+            $table->string('total_extra_hours');
+            $table->float('total_ob_hours')->default(0)->nullable();
+
             $table->boolean('is_extra_hours_approved')->default(0)->nullable();
-            $table->boolean('is_scheduled_hours_ov_hours')->default(0)->nullable();
-            $table->boolean('scheduled_hours_rate')->default(0)->nullable();
-            $table->boolean('is_extra_hours_ov_hours')->default(0)->nullable();
-            $table->boolean('extra_hours_rate')->default(0)->nullable();
-            $table->float('scheduled_hours_sum')->default(0)->nullable();
-            $table->float('extra_hours_sum')->default(0)->nullable();
-            $table->float('total_sum')->default(0)->nullable();
-            $table->boolean('status')->default(0)->nullable();
+
             $table->string('entry_mode')->nullable();
-            $table->enum('stampling_type',['scheduled','walkin'])->default('scheduled')->nullable();
-            // $table->string('latitude')->nullable();
-            // $table->string('longitude')->nullable();
-            // $table->string('ip_address')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

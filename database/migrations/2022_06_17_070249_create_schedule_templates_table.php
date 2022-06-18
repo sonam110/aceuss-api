@@ -22,8 +22,9 @@ class CreateScheduleTemplatesTable extends Migration
             $table->date('from_date')->nullable();
             $table->date('to_date')->nullable();
             $table->string('shifts')->nullable();
-            $table->string('entry_mode')->nullable();
             $table->boolean('status')->default(1)->comment('0 for not active, 1 for active');
+            $table->date('deactivation_date')->nullable();
+            $table->string('entry_mode')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
