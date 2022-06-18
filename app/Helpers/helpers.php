@@ -613,18 +613,15 @@ function monthDaysBetween($month_day, $start, $end,$every){
 }
 
 
-function weekDaysBetween($requiredDays, $start, $end,$every){
+function weekDaysBetween($requiredDays, $start, $end,$every)
+{
     $result = [];
     while ($start->lt($end)) {
         if(in_array($start->dayOfWeek, $requiredDays)){
             array_push($result, $start->copy()->format('Y-m-d'));
         }
-
         $start->addDays();
-        
-
     }
-    
     return $result;
 }
 

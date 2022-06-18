@@ -15,7 +15,7 @@ class Schedule extends Model
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
     
-    protected $fillable  = ['top_most_parent_id','user_id','shift_id','parent_id','shift_name','shift_start_time','shift_end_time','shift_color','shift_date','leave_applied','leave_approved','status','entry_mode','patient_id','group_id','employee_assigned_working_hour_id','emergency','emergency_start_time','emergency_end_time','scheduled_work_hour','emergency_work_hour','schedule_type','schedule_template_id'];
+    protected $fillable  = ['top_most_parent_id','user_id','patient_id','shift_id','parent_id','created_by','slot_assigned_to','employee_assigned_working_hour_id','schedule_template_id','schedule_type','group_id','shift_name','shift_date','shift_start_time','shift_end_time','shift_color','leave_applied','leave_group_id','leave_type','leave_reason','leave_approved','leave_approved_date_time','leave_notified_to','is_active','scheduled_work_duration','extra_work_duration','status','entry_mode','notified_group'];
 
     public function topMostParent()
     {

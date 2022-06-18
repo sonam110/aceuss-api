@@ -78,11 +78,11 @@ class CreateUsersTable extends Migration
             $table->integer('language_id')->default(1)->nullable();
             //for schedule module
             $table->enum('contract_type',['1','2'])->default(1)->comment('1:Hourly rate, 2: Fixed cost')->nullable();
-            $table->decimal('contract_value', 9, 2)->default(0)->nullable();
+            $table->decimal('contract_value',9,2)->default(0)->nullable();
 
             $table->string('avatar')->default('https://aceuss.3mad.in/uploads/no-image.png')->nullable();
             $table->date('schedule_start_date')->nullable();
-            $table->enum('report_verify'['yes','no'])->default('no')->nullable();
+            $table->enum('report_verify', ['yes','no'])->default('no')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

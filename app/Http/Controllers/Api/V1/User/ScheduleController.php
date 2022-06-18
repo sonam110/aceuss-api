@@ -109,11 +109,11 @@ class ScheduleController extends Controller
 		try 
 		{
 			$validator = Validator::make($request->all(),[   
-				// 'shift_id' => 'required|exists:company_work_shifts,id' ,
+				// 'schedule_template_id' => 'required|exists:schedule_templates,id' ,
 				'user_id' => 'required|exists:users,id'
 			],
 			[   
-				// 'shift_id' =>  getLangByLabelGroups('Schedule','message_shift_id'),
+				// 'schedule_template_id' =>  getLangByLabelGroups('Schedule','message_schedule_template_id'),
 				'user_id' =>  getLangByLabelGroups('Schedule','message_user_id'),
 			]);
 			if ($validator->fails()) {
@@ -139,7 +139,7 @@ class ScheduleController extends Controller
 				$start_date = $request->shift_dates[0];
 				$end_date = $request->shift_dates[1];
 				$is_repeat = 1;
-				$everyWeek = $request->every_week;
+				$every_week = $request->every_week;
 				$week_days = $request->week_days;
 
 				$from = \Carbon\Carbon::parse($start_date);
@@ -151,20 +151,7 @@ class ScheduleController extends Controller
 
 				if($request->is_repeat == 1)
 				{
-					for($w = $from; $w->lte($to); $w->addWeeks($everyWeek)) {
-						$date = \Carbon\Carbon::parse($w);
-						$startWeek = $w->startOfWeek()->format('Y-m-d');
-						$weekNumber = $date->weekNumberInMonth;
-						$start = \Carbon\Carbon::createFromFormat("Y-m-d", $startWeek);
-						$end = $start->copy()->endOfWeek()->format('Y-m-d');
-						for($p = $start; $p->lte($end); $p->addDays()) {
-							if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
-								if(in_array($p->dayOfWeek, $week_days)){
-									array_push($dates, $p->copy()->format('Y-m-d'));
-								}
-							}
-						}
-					}
+					$dates = calculateDates($start_date,$end_date,$every_week,$week_days);
 				}
 				else
 				{
@@ -185,58 +172,62 @@ class ScheduleController extends Controller
 			$emergency_start_time = $request->emergency_start_time;
 			$emergency_end_time = $request->emergency_end_time;
 			$shedule_ids = [];
-			foreach($request->user_id as $key=>$value)
+			$assignedWork_id = null;
+			$assignedWork = User::find($request->user_id)->assignedWork;
+			if(!empty($assignedWork))
 			{
-				$assignedWork_id = null;
-				$assignedWork = User::find($value)->assignedWork;
-				if(!empty($assignedWork))
+				$assignedWork_id = $assignedWork->id;
+			}
+			$group_id = generateRandomNumber();
+			$schedule_ids = [];
+			foreach($dates as $key=>$shift_date)
+			{
+				$scheduled_work_time = getTimeDifference($start_time,$end_time);
+				$emergency_work_time = 0;
+				if($request->emergency == true)
 				{
-					$assignedWork_id = $assignedWork->id;
+					$emergency_work_time = getTimeDifference($emergency_start_time,$emergency_end_time);
 				}
-				$group_id = generateRandomNumber();
-				foreach($dates as $key=>$shift_date)
-				{
-					$scheduled_work_time = getTimeDifference($start_time,$end_time);
-					$emergency_work_time = 0;
-					if($request->emergency == true)
-					{
-						$emergency_work_time = getTimeDifference($emergency_start_time,$emergency_end_time);
-					}
 
-					$scheduled_work_hour = getTimeINHours($scheduled_work_time - $emergency_work_time); 
-					$emergency_work_hour = getTimeINHours($emergency_work_time);
+				$scheduled_work_hour = getTimeINHours($scheduled_work_time - $emergency_work_time); 
+				$emergency_work_hour = getTimeINHours($emergency_work_time);
 
-					$date = date('Y-m-d',strtotime($shift_date));
+				$date = date('Y-m-d',strtotime($shift_date));
 
-					$startEndTime = getStartEndTime($start_time, $end_time, $date);
+				$startEndTime = getStartEndTime($start_time, $end_time, $date);
 
-					$schedule = new Schedule;
-
-					$schedule->shift_id = $request->shift_id;
-					$schedule->user_id = $value;
-					$schedule->parent_id = $request->parent_id;
-					$schedule->shift_start_time = $startEndTime['start_time'];
-					$schedule->shift_end_time = $startEndTime['end_time'];
-					$schedule->patient_id = $request->patient_id;
-					$schedule->group_id = $group_id;
-					$schedule->shift_name = $shift_name;
-					$schedule->shift_color = $shift_color;
-					$schedule->shift_date = $date;
-					$schedule->leave_applied = $request->leave_applied?$request->leave_applied:0;
-					$schedule->leave_approved = $request->leave_approved?$request->leave_approved:0;
-					$schedule->status = $request->status? $request->status :0;
-					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-					$schedule->emergency = $request->emergency;
-					$schedule->emergency_start_time = $emergency_start_time;
-					$schedule->emergency_end_time = $emergency_end_time;
-					$schedule->scheduled_work_hour = $scheduled_work_hour;
-					$schedule->emergency_work_hour = $emergency_work_hour;
-					$schedule->schedule_type = $request->schedule_type;
-					$schedule->employee_assigned_working_hour_id = $assignedWork_id;
-					$schedule->created_by = Auth::id();
-					$schedule->save();
-					$schedule_ids[] = $schedule->id;
-				}
+				$schedule = new Schedule;
+				$schedule->top_most_parent_id = $request->top_most_parent_id;
+				$schedule->user_id = $request->user_id;
+				$schedule->patient_id = $request->patient_id;
+				$schedule->shift_id = $request->shift_id;
+				$schedule->parent_id = $request->parent_id;
+				$schedule->created_by = Auth::id();
+				$schedule->slot_assigned_to = $request->slot_assigned_to;
+				$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+				$schedule->schedule_template_id = $request->schedule_template_id;
+				$schedule->schedule_type = $request->schedule_type;
+				$schedule->shift_date = $date;
+				$schedule->group_id = $group_id;
+				$schedule->shift_name = $shift_name;
+				$schedule->shift_color = $shift_color;
+				$schedule->shift_start_time = $startEndTime['start_time'];
+				$schedule->shift_end_time = $startEndTime['end_time'];
+				$schedule->leave_applied = 0;
+				$schedule->leave_group_id = null;
+				$schedule->leave_type = null;
+				$schedule->leave_reason = null;
+				$schedule->leave_approved = 0;
+				$schedule->leave_approved_date_time = null;
+				$schedule->leave_notified_to = null;
+				$schedule->notified_group = null;
+				$schedule->is_active = 1;
+				$schedule->scheduled_work_duration = $request->scheduled_work_duration;
+				$schedule->extra_work_duration = $request->extra_work_duration;
+				$schedule->status = $request->status ? $request->status :0;
+				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+				$schedule->save();
+				$schedule_ids[] = $schedule->id;
 			}
 
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
