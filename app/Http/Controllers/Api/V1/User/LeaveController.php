@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\API\V1\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Leave;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Models\EmailTemplate;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Str;
@@ -37,7 +35,7 @@ class LeaveController extends Controller
 				$child_ids[] = $value->id;
 			}
 
-			$query = Schedule::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->where('leave_applied',1);
+			$query = Schedule::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->where('leave_applied',1);
 
 			if(!empty($request->emp_id))
 			{
@@ -100,6 +98,10 @@ class LeaveController extends Controller
     	try 
     	{
     		$group_id = generateRandomNumber();
+    		if(ScheduleTemplate::where('status','1')->count()<=0)
+    		{
+    			return prepareResult(false,getLangByLabelGroups('Leave','message_template_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
+    		}
     		$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
     		if($request->is_repeat == 1)
     		{
@@ -245,7 +247,7 @@ class LeaveController extends Controller
     {
     	try 
     	{
-    		$checkId= Schedule::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType:id,name', 'leaves:id,group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->first();
+    		$checkId= Schedule::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType:id,name', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -347,7 +349,7 @@ class LeaveController extends Controller
     				'leave_approved_date_time' => date('Y-m-d H:i:s')
     			]);
     			$dates = [];
-    			$leaves = Schedule::where('leave_group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
+    			$leaves = Schedule::where('leave_group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
     			foreach ($leaves as $key => $value) {
     				$dates[] = $value->date;
     			}
@@ -470,7 +472,7 @@ class LeaveController extends Controller
     					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     				}
     			}
-    			$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('leave_group_id')->get();
+    			$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('leave_group_id')->get();
     		}
 
 
@@ -483,21 +485,20 @@ class LeaveController extends Controller
     	}
     }
 
-    public function leavesApproveByGroupId($group_id)
+    public function leavesApproveByGroupId($leave_group_id)
     {
     	try 
     	{
-    		$update = Schedule::where('group_id',$group_id)
+    		$update = Schedule::where('leave_group_id',$leave_group_id)
     		->update([
     			'is_approved' => '1',
     			'approved_by' => Auth::id(), 
-    			'approved_date' => date('Y-m-d'), 
-    			'approved_time' => date('H:i'), 
+    			'leave_approved_date_time' => date('Y-m-d'), 
     			'status' => 1
     		]);
-    		$leaves = Schedule::where('group_id', $group_id)
-    		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
-    		->groupBy('group_id')
+    		$leaves = Schedule::where('leave_group_id', $leave_group_id)
+    		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
+    		->groupBy('leave_group_id')
     		->first();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
@@ -560,6 +561,7 @@ class LeaveController extends Controller
     		$schedule->entry_mode       = $request->entry_mode ? $request->entry_mode :'Web';
     		$schedule->created_by       = Auth::id();
     		$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
+    		$assSchedule->is_active = 1;
     		$schedule->save();
 
             //-----------------notification---------------------------//
@@ -622,144 +624,157 @@ class LeaveController extends Controller
     }
 
 
-    public function store(Request $request)
+
+    public function companyLeave(Request $request)
     {
     	DB::beginTransaction();
     	try 
     	{
-    		$group_id = generateRandomNumber();
-    		$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
-    		if($request->is_repeat == 1)
+    		$schedule_id = [];
+    		$leave_group_id = generateRandomNumber();
+    		if(ScheduleTemplate::where('status','1')->count()<=0)
     		{
-    			$validation = \Validator::make($request->all(), [
-    				'start_date'    => 'required|date',
-    				'end_date'      => 'required|date',
-    			]);
+    			return prepareResult(false,getLangByLabelGroups('Leave','message_template_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
+    		}
+    		$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
+    		$notified_group = generateRandomNumber();
+    		$validation = \Validator::make($request->all(), [
+    			'leaves'      => 'required|array',
+    		]);
 
-    			if ($validation->fails()) {
-    				return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
-    			}
-    			$start_date = $request->start_date;
-    			$end_date = $request->end_date;
-    			$every_week = $request->every_week;
-    			$week_days = $request->week_days;
-
-    			if(empty($request->week_days) && (empty($request->every_week) || $request->every_week == 1) )
+    		if ($validation->fails()) 
+    		{
+    			return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+    		}
+    		foreach ($request->leaves as $key => $shift_date) 
+    		{
+    			$schedule = Schedule::where('shift_date',$shift_date)->where('user_id',Auth::id())->first();
+    			if(!empty($schedule))
     			{
-    				$date1 = strtotime($start_date);
-    				$date2 = strtotime($end_date);
-    				for ($curDate=$date1; $curDate<=$date2; $curDate += (86400)) 
-    				{                                   
-    					$dates[] = date('Y-m-d', $curDate);
-    				}
+    				$schedule_id[] = $schedule->id;
+    				$schedule->update([
+    					'leave_applied' => '1',
+    					'leave_type' => $request->leave_type,
+    					'leave_reason' => $request->reason,
+    					'leave_group_id' => $leave_group_id,
+    					'leave_approved' => '1',
+    					'leave_approved_by' => Auth::id(), 
+    					'leave_approved_date_time' => date('Y-m-d H:i:s')
+    				]);
     			}
     			else
     			{
-    				$dates = calculateDates($start_date,$end_date,$every_week,$week_days);
+    				$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $shift_date);
+    				$schedule = new Schedule;
+    				$schedule->schedule_template_id = $schedule_template_id;
+    				$schedule->shift_id = null;
+    				$schedule->user_id = Auth::id();
+    				$schedule->parent_id = null;
+    				$schedule->shift_start_time = $startEndTime['start_time'];
+    				$schedule->shift_end_time = $startEndTime['end_time'];
+    				$schedule->patient_id = null;
+    				$schedule->group_id = $leave_group_id;
+    				$schedule->shift_name = '';
+    				$schedule->shift_color = '';
+    				$schedule->shift_date = $shift_date;
+    				$schedule->leave_applied = 1;
+    				$schedule->leave_type = $request->leave_type;
+    				$schedule->leave_reason = $request->reason;
+    				$schedule->leave_group_id = $leave_group_id;
+    				$assSchedule->is_active = 1;
+    				$schedule->leave_approved_date_time = date('Y-m-d H:i:s');
+    				$schedule->leave_approved = 1;
+    				$schedule->status = 1;
+    				$schedule->schedule_type = 'basic';
+    				$schedule->created_by = Auth::id();
+    				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+    				$schedule->save();
+    				$schedule_id[] = $schedule->id;
     			}
 
-    			foreach ($dates as $key => $date) 
+    			if($request->notify_employee == true)
     			{
-    				$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+    				$users = User::whereIn('employee_type',$request->employee_type)->get();
+    				$users_id = [];
 
-    				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
+    				foreach ($users as $key => $user) 
     				{
-    					$schedule->update([
-    						'leave_applied' => '1',
-    						'leave_type' => $request->leave_type,
-    						'leave_reason' => $request->reason,
-    						'leave_group_id' => $group_id,
-    					]);
-    				}
-    				else
-    				{
-    					$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $date);
-    					$schedule = new Schedule;
-    					$schedule->schedule_template_id = $schedule_template_id;
-    					$schedule->shift_id = null;
-    					$schedule->user_id = Auth::id();
-    					$schedule->parent_id = null;
-    					$schedule->shift_start_time = $startEndTime['start_time'];
-    					$schedule->shift_end_time = $startEndTime['end_time'];
-    					$schedule->patient_id = null;
-    					$schedule->group_id = $group_id;
-    					$schedule->shift_name = '';
-    					$schedule->shift_color = '';
-    					$schedule->shift_date = $date;
-    					$schedule->leave_applied = 1;
-    					$schedule->leave_type = $request->leave_type;
-    					$schedule->leave_reason = $request->reason;
-    					$schedule->leave_group_id = $group_id;
-    					$schedule->leave_approved = 0;
-    					$schedule->status = 0;
-    					$schedule->schedule_type = 'basic';
-    					$schedule->created_by = Auth::id();
-    					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    					$schedule->save();
-    				}
-    			}        
-    		}
-    		else
-    		{
-    			$validation = \Validator::make($request->all(), [
-    				'leaves'      => 'required|array',
-    			]);
+    					$title = "";
+    					$body = "";
+    					$module =  "leave";
+    					$event = "leaveApproved";
+    					$id =  $request->group_id;
+    					$screen =  "list";
 
-    			if ($validation->fails()) {
-    				return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
+    					if($getMsg )
+    					{
+    						$body = $getMsg->notify_body;
+    						$title = $getMsg->mail_subject;
+
+    						$arrayVal = [
+    							'{{name}}'  		=> $user->name,
+    							'{{requested_by}}' 	=> Auth::User()->name,
+    							'{{dates}}'			=> $dates
+    						];
+    						$body = strReplaceAssoc($arrayVal, $body);
+    					}
+    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    					$users_id[] = $user->id;
+    				}
+
+    				Schedule::where('leave_group_id',$leave_group_id)
+    				->update([
+    					'leave_notified_to' => json_encode($users_id),
+    					'notified_group' => $notified_group
+    				]);
     			}
-    			foreach ($request->leaves as $key => $value) 
+    			else
     			{
-    				foreach ($value['dates'] as $key => $date) 
-    				{
-    					$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+    				$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
 
-    					if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
-    					{
-    						$schedule->update([
-    							'leave_applied' => '1',
-    							'leave_type' => $request->leave_type,
-    							'leave_reason' => $value['reason'],
-    							'leave_group_id' => $group_id,
-    						]);
-    					}
-    					else
-    					{
-    						$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $date);
-    						$schedule = new Schedule;
-    						$schedule->schedule_template_id = $schedule_template_id;
-    						$schedule->shift_id = null;
-    						$schedule->user_id = Auth::id();
-    						$schedule->parent_id = null;
-    						$schedule->shift_start_time = $startEndTime['start_time'];
-    						$schedule->shift_end_time = $startEndTime['end_time'];
-    						$schedule->patient_id = null;
-    						$schedule->group_id = $group_id;
-    						$schedule->shift_name = '';
-    						$schedule->shift_color = '';
-    						$schedule->shift_date = $date;
-    						$schedule->leave_applied = 1;
-    						$schedule->leave_type = $request->leave_type;
-    						$schedule->leave_reason = $value['reason'];
-    						$schedule->leave_group_id = $group_id;
-    						$schedule->leave_approved = 0;
-    						$schedule->status = 0;
-    						$schedule->schedule_type = 'basic';
-    						$schedule->created_by = Auth::id();
-    						$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    						$schedule->save();
-    					}
-    				}   
-    			}  
-    		}
-
-    		$data = Schedule::where('leave_group_id',$group_id)->get();
-    		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
-    	} catch (\Throwable $exception) {
-    		\Log::error($exception);
-    		DB::rollback();
-    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+    				$assSchedule = new Schedule;
+    				$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
+    				$assSchedule->user_id = $request->emp_id;
+    				$assSchedule->patient_id = $schedule->patient_id;
+    				$assSchedule->shift_id = $schedule->shift_id;
+    				$assSchedule->parent_id = $schedule->id;
+    				$assSchedule->created_by = Auth::id();
+    				$assSchedule->slot_assigned_to = null;
+    				$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
+    				$assSchedule->schedule_template_id = $schedule->schedule_template_id;
+    				$assSchedule->schedule_type = $schedule->schedule_type;
+    				$assSchedule->shift_date = $schedule->shift_date;
+    				$assSchedule->group_id = $schedule->group_id;
+    				$assSchedule->shift_name = $schedule->shift_name;
+    				$assSchedule->shift_color = $schedule->shift_color;
+    				$assSchedule->shift_start_time = $startEndTime['start_time'];
+    				$assSchedule->shift_end_time = $startEndTime['end_time'];
+    				$assSchedule->leave_applied = 0;
+    				$assSchedule->leave_group_id = null;
+    				$assSchedule->leave_type = null;
+    				$assSchedule->leave_reason = null;
+    				$assSchedule->leave_approved = 0;
+    				$assSchedule->leave_approved_date_time = null;
+    				$assSchedule->leave_notified_to = null;
+    				$assSchedule->notified_group = null;
+    				$assSchedule->is_active = 1;
+    				$assSchedule->scheduled_work_duration = $schedule->scheduled_work_duration;
+    				$assSchedule->extra_work_duration = $schedule->extra_work_duration;
+    				$assSchedule->status = $schedule->status;
+    				$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+    				$assSchedule->save();
+    			}
+    		} 
+    		$data = Schedule::where('leave_group_id',$leave_group_id)->get();
+    	DB::commit();
+    	return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success')); 
     	}
-    }
+    	catch (\Throwable $exception) 
+    	{
+	    	\Log::error($exception);
+	    	DB::rollback();
+	    	return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+	    }
+	}
 }

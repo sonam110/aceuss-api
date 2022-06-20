@@ -173,8 +173,8 @@ class ScheduleController extends Controller
 			$emergency_end_time = $request->emergency_end_time;
 			$shedule_ids = [];
 			$assignedWork_id = null;
-			$assignedWork = User::find($request->user_id)->assignedWork;
-			if(!empty($assignedWork))
+			// $assignedWork = User::find($request->user_id)->assignedWork;
+			if(!empty(User::find($request->user_id)->assignedWork))
 			{
 				$assignedWork_id = $assignedWork->id;
 			}
@@ -195,7 +195,6 @@ class ScheduleController extends Controller
 				$date = date('Y-m-d',strtotime($shift_date));
 
 				$startEndTime = getStartEndTime($start_time, $end_time, $date);
-
 				$schedule = new Schedule;
 				$schedule->top_most_parent_id = $request->top_most_parent_id;
 				$schedule->user_id = $request->user_id;
