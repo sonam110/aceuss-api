@@ -46,4 +46,14 @@ class Schedule extends Model
     {
         return $this->hasMany(self::class,'group_id','group_id');
     }
+
+    public function leaves()
+    {
+        return $this->hasMany(self::class,'leave_group_id','leave_group_id');
+    }
+
+    public function leaveApprovedBy()
+    {
+        return $this->belongsTo(User::class,'leave_approved_by','id');
+    }
 }
