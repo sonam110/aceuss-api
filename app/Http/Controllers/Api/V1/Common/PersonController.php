@@ -9,6 +9,7 @@ use Validator;
 use Auth;
 use Exception;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\User;
 
 class PersonController extends Controller
 {
