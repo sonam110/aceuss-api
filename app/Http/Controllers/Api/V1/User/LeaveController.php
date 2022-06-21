@@ -45,10 +45,14 @@ class LeaveController extends Controller
 			{
 				$query->groupBy('leave_group_id');
 			}
-			if(!empty($request->leave_approved))
+			if($request->leave_approved == 'yes')
 			{
-				$query->groupBy('leave_group_id');
+				$query->where('leave_approved', 1);
 			}
+            if($request->leave_approved == 'no')
+            {
+                $query->where('leave_approved', 0);
+            }
 			if(!empty($request->start_date))
 			{
 				$query->where('shift_date',">=" ,$request->start_date);
@@ -338,18 +342,18 @@ class LeaveController extends Controller
     	try 
     	{
     		$notified_group = generateRandomNumber();
-    		if(!empty($request->group_id))
+    		if(!empty($request->leave_group_id))
     		{
 
-    			$leave = Schedule::where('leave_group_id',$request->group_id)->first();
-    			$update = Schedule::where('leave_group_id',$request->group_id)
+    			$leave = Schedule::where('leave_group_id',$request->leave_group_id)->first();
+    			$update = Schedule::where('leave_group_id',$request->leave_group_id)
     			->update([
     				'leave_approved' => '1',
     				'leave_approved_by' => Auth::id(), 
     				'leave_approved_date_time' => date('Y-m-d H:i:s')
     			]);
     			$dates = [];
-    			$leaves = Schedule::where('leave_group_id',$request->group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
+    			$leaves = Schedule::where('leave_group_id',$request->leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
     			foreach ($leaves as $key => $value) {
     				$dates[] = $value->date;
     			}
@@ -368,7 +372,7 @@ class LeaveController extends Controller
     					$body = "";
     					$module =  "leave";
     					$event = "leaveApproved";
-    					$id =  $request->group_id;
+    					$id =  $request->leave_group_id;
     					$screen =  "list";
 
     					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
@@ -388,7 +392,7 @@ class LeaveController extends Controller
     					$users_id[] = $user->id;
     				}
 
-    				Schedule::where('leave_group_id',$request->group_id)
+    				Schedule::where('leave_group_id',$request->leave_group_id)
     				->update([
     					'notified_to' => json_encode($users_id),
     					'notified_group' => $notified_group
@@ -435,6 +439,7 @@ class LeaveController extends Controller
     				$schedule->leave_type = null;
     				$schedule->leave_reason = null;
     				$schedule->leave_approved = 0;
+    				$schedule->leave_approved_by = null;
     				$schedule->leave_approved_date_time = null;
     				$schedule->leave_notified_to = null;
     				$schedule->notified_group = null;
@@ -491,8 +496,8 @@ class LeaveController extends Controller
     	{
     		$update = Schedule::where('leave_group_id',$leave_group_id)
     		->update([
-    			'is_approved' => '1',
-    			'approved_by' => Auth::id(), 
+    			'leave_approved' => '1',
+    			'leave_approved_by' => Auth::id(), 
     			'leave_approved_date_time' => date('Y-m-d'), 
     			'status' => 1
     		]);
@@ -522,46 +527,55 @@ class LeaveController extends Controller
     	DB::beginTransaction();
     	try 
     	{
-    		$leave = Schedule::where('group_id',$request->group_id)->where('date',$request->date)->first();
+    		$leave = Schedule::where('leave_group_id',$request->leave_group_id)->where('shift_date',$request->date)->first();
 
-    		Schedule::where('group_id',$request->group_id)
-    		->where('date',$request->date)
+    		Schedule::where('leave_group_id',$request->leave_group_id)
+    		->where('shift_date',$request->date)
     		->update([
-    			'assigned_to' => Auth::id(),
-    			'assign_status' => 'assigned'
+    			'slot_assigned_to' => Auth::id()
     		]);
 
 
-    		$old_schedule = Schedule::find($leave->schedule_id);
-    		if (!is_object($old_schedule)) {
-    			return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), ['schedule not found'],config('httpcodes.not_found'));
-    		}
+    		$shift_name         = $leave->shift_name;
+    		$shift_color        = $leave->shift_color;
+    		$parent_id          = $leave->id;
 
-    		$shift_name         = $old_schedule->shift_name;
-    		$shift_color        = $old_schedule->shift_color;
-    		$parent_id          = $old_schedule->id;
+    		$date = $leave->shift_date;
 
-    		$date = $leave->date;
-
-    		$startEndTime = getStartEndTime($old_schedule->shift_start_time, $old_schedule->shift_end_time, $date);
+    		$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $date);
 
     		$schedule = new Schedule;
-    		$schedule->shift_id         = $request->shift_id;
-    		$schedule->user_id          = Auth::id();
-    		$schedule->parent_id        = $parent_id;
-    		$schedule->shift_name       = $shift_name;
-    		$schedule->shift_start_time = $startEndTime['start_time'];
-    		$schedule->shift_end_time   = $startEndTime['end_time'];
-    		$schedule->patient_id       = $old_schedule->patient_id;
-    		$schedule->shift_color      = $shift_color;
-    		$schedule->shift_date       = $date;
-    		$schedule->leave_applied    = $request->leave_applied ? $request->leave_applied :0;
-    		$schedule->leave_approved   = $request->leave_approved ? $request->leave_approved :0;
-    		$schedule->status           = $request->status ? $request->status :0;
-    		$schedule->entry_mode       = $request->entry_mode ? $request->entry_mode :'Web';
-    		$schedule->created_by       = Auth::id();
-    		$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
-    		$assSchedule->is_active = 1;
+			$schedule->top_most_parent_id = $leave->top_most_parent_id;
+			$schedule->user_id = Auth::id();
+			$schedule->patient_id = $leave->patient_id;
+			$schedule->shift_id = $leave->shift_id;
+			$schedule->parent_id = $leave->id;
+			$schedule->created_by = Auth::id();
+			$schedule->slot_assigned_to = null;
+			$schedule->employee_assigned_working_hour_id = $leave->assignedWork_id;
+			$schedule->schedule_template_id = $leave->schedule_template_id;
+			$schedule->schedule_type = $leave->schedule_type;
+			$schedule->shift_date = $leave->shift_date;
+			$schedule->group_id = $leave->group_id;
+			$schedule->shift_name = $leave->shift_name;
+			$schedule->shift_color = $leave->shift_color;
+			$schedule->shift_start_time = $startEndTime['start_time'];
+			$schedule->shift_end_time = $startEndTime['end_time'];
+			$schedule->leave_applied = 0;
+			$schedule->leave_group_id = null;
+			$schedule->leave_type = null;
+			$schedule->leave_reason = null;
+			$schedule->leave_approved = 0;
+			$schedule->leave_approved_by = null;
+			$schedule->leave_approved_date_time = null;
+			$schedule->leave_notified_to = null;
+			$schedule->notified_group = null;
+			$schedule->is_active = 1;
+			$schedule->scheduled_work_duration = $leave->scheduled_work_duration;
+			$schedule->extra_work_duration = $leave->extra_work_duration;
+			$schedule->status = $leave->status;
+			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+			$schedule->save();
     		$schedule->save();
 
             //-----------------notification---------------------------//

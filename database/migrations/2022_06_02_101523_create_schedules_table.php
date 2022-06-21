@@ -42,6 +42,9 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('schedule_template_id')->nullable()->comment('active schedule template');
             $table->foreign('schedule_template_id')->references('id')->on('schedule_templates')->onDelete('cascade');
 
+            $table->unsignedBigInteger('leave_approved_by')->nullable();
+            $table->foreign('leave_approved_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->enum('schedule_type',['basic','extra'])->nullable();
             $table->string('group_id')->nullable()->comment('only for schedule');
             $table->string('shift_name')->nullable();

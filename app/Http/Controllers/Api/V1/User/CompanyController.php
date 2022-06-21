@@ -30,6 +30,11 @@ class CompanyController extends Controller
             } else {
                 $query = CompanyWorkShift::orderBy('id', 'DESC');
             }
+
+            if(!empty($request->shift_type))
+            {
+                $query->where('shift_type' ,$request->shift_type);
+            }
 		    
             if(!empty($request->perPage))
             {

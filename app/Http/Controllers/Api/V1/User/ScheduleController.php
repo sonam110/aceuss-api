@@ -40,6 +40,10 @@ class ScheduleController extends Controller
 			{
 				$query->where('shift_id' ,$request->shift_id);
 			}
+			if(!empty($request->schedule_type))
+			{
+				$query->where('schedule_type' ,$request->schedule_type);
+			}
 
 			if(!empty($request->patient_id))
 			{
@@ -173,9 +177,10 @@ class ScheduleController extends Controller
 			$emergency_end_time = $request->emergency_end_time;
 			$shedule_ids = [];
 			$assignedWork_id = null;
-			// $assignedWork = User::find($request->user_id)->assignedWork;
+			$assignedWork = null;
 			if(!empty(User::find($request->user_id)->assignedWork))
 			{
+				$assignedWork = User::find($request->user_id)->assignedWork;
 				$assignedWork_id = $assignedWork->id;
 			}
 			$group_id = generateRandomNumber();
@@ -217,6 +222,7 @@ class ScheduleController extends Controller
 				$schedule->leave_type = null;
 				$schedule->leave_reason = null;
 				$schedule->leave_approved = 0;
+				$schedule->leave_approved_by = null;
 				$schedule->leave_approved_date_time = null;
 				$schedule->leave_notified_to = null;
 				$schedule->notified_group = null;
