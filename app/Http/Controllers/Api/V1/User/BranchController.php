@@ -78,11 +78,12 @@ class BranchController extends Controller
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->establishment_year = $request->establishment_year;
+            $user->establishment_year = User::find($top_most_parent_id)->establishment_year;
             $user->user_color = $request->user_color;
             $user->created_by = $userInfo->id;
             $user->is_file_required = ($request->is_file_required) ? 1 : 0;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->save();
 
             if($roleInfo)
@@ -168,11 +169,12 @@ class BranchController extends Controller
             $user->postal_area = $request->postal_area;
             $user->zipcode = $request->zipcode;
             $user->full_address = $request->full_address;
-            $user->establishment_year = $request->establishment_year;
+            $user->establishment_year = User::find($top_most_parent_id)->establishment_year;
             $user->user_color = $request->user_color;
             $user->is_file_required = ($request->is_file_required) ? 1 : 0;
             $user->status = ($request->status) ? $request->status : 1;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->save();
 
             DB::commit();

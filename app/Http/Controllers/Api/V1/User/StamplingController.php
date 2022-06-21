@@ -90,7 +90,8 @@ class StamplingController extends Controller
 
 	}
 
-	public function store(Request $request){
+	public function store(Request $request)
+	{
 		DB::beginTransaction();
 		try 
 		{
@@ -105,6 +106,10 @@ class StamplingController extends Controller
 			}
 			$user = Auth::User();
 			$relaxation_time = User::find($user->top_most_parent_id)->relaxation_time;
+			if(empty($relaxation_time))
+			{
+				$relaxation_time = 15;
+			}
 			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
@@ -118,44 +123,38 @@ class StamplingController extends Controller
 					$stampling_type = 'scheduled';
 					$punch_in_time = convertTimeInMinutes(date('H:i'));
 					$schedule_start_time = convertTimeInMinutes($schedule->shift_start_time);
-					$time_diff = $schedule_start_time-$punch_in_time;
-					if($time_diff <= $relaxation_time || $time_diff >= $relaxation_time)
+					$relaxation_start_time =  $schedule_start_time - $relaxation_time;
+					$relaxation_end_time =  $schedule_start_time + $relaxation_time;
+					if(($punch_in_time >= $relaxation_start_time) && ($punch_in_time <= $relaxation_end_time))
 					{
-						$in_time = $schedule_start_time;
+						$in_time = date('Y-m-d H:i:s',strtotime($schedule->shift_start_time));
 					}
-					return $time_diff;
-				}
-				return $in_time;
 
-				if(Stampling::where('date',$date)->where('user_id',Auth::id())->count() > 0)
-				{
-					$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
-				}
-				else
-				{
-					$stampling = new Stampling;
+					if(($punch_in_time < $relaxation_start_time) && ($request->punch_at_scheduled == true))
+					{
+						$in_time = date('Y-m-d H:i:s',strtotime($schedule->shift_start_time));
+					}
 				}
 
+				$stampling = new Stampling;
 				$stampling->schedule_id 				= $schedule_id;
 				$stampling->user_id 					= Auth::id();
 				$stampling->date 						= date('Y-m-d');
+				$stampling->stampling_type 				= $stampling_type;
 				$stampling->in_time 					= $in_time;
+				$stampling->in_location 				= json_encode($request->location);
 				$stampling->reason_for_early_in 		= $request->reason_for_early_in;
 				$stampling->reason_for_late_in 			= $request->reason_for_late_in;
 				$stampling->out_time 					= null;
-				$stampling->in_location 				= json_encode($request->location);
 				$stampling->out_location 				= null;
-				$stampling->extra_hours 				= 0;
 				$stampling->is_extra_hours_approved 	= 0;
-				$stampling->is_scheduled_hours_ov_hours = 0;
-				$stampling->is_extra_hours_ov_hours 	= 0;
 				$stampling->scheduled_hours_rate 		= 0;
 				$stampling->extra_hours_rate 			= 0;
-				$stampling->scheduled_hours_sum 		= 0;
-				$stampling->extra_hours_sum 			= 0;
-				$stampling->total_sum 					= 0;
+				$stampling->ob_hours_rate 				= 0;
+				$stampling->total_schedule_hours 		= 0;
+				$stampling->total_extra_hours 			= 0;
+				$stampling->total_ob_hours 				= 0;
 				$stampling->entry_mode 					= $request->entry_mode ? $request->entry_mode :'Web';
-				$stampling->status 						= $request->status ? $request->status : 0;
 				$stampling->save();
 			}
 			elseif($request->type == "OUT")

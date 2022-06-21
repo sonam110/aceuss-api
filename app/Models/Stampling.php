@@ -15,7 +15,27 @@ class Stampling extends Model
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
 
-    protected $fillable  = ['top_most_parent_id','user_id','in_time','out_time','in_location','out_location','extra_hours','reason_for_early_out','reason_for_early_in','reason_for_late_out','reason_for_late_in','is_extra_hours_approved','is_scheduled_hours_ov_hours','scheduled_hours_rate','is_extra_hours_ov_hours','extra_hours_rate','scheduled_hours_sum','extra_hours_sum','total_sum','status','entry_mode', 'date','stampling_type'];
+    protected $fillable  = [
+        'top_most_parent_id',
+        'user_id', 
+        'stampling_type',
+        'date',
+        'in_time',
+        'in_location',
+        'reason_for_early_in',
+        'reason_for_late_in',
+        'out_time',
+        'out_location',
+        'reason_for_early_out',
+        'reason_for_late_out',
+        'is_extra_hours_approved',
+        'scheduled_hours_rate',
+        'extra_hours_rate',
+        'ob_hours_rate',
+        'total_scheduled_hours',
+        'total_extra_hours',
+        'total_ob_hours','entry_mode'
+    ];
 
 
     public function user()
