@@ -695,7 +695,7 @@ class LeaveController extends Controller
     				$schedule->leave_type = $request->leave_type;
     				$schedule->leave_reason = $request->reason;
     				$schedule->leave_group_id = $leave_group_id;
-    				$assSchedule->is_active = 1;
+    				$schedule->is_active = 1;
     				$schedule->leave_approved_date_time = date('Y-m-d H:i:s');
     				$schedule->leave_approved = 1;
     				$schedule->status = 1;

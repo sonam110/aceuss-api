@@ -389,5 +389,17 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'patient_cashier-add', 'guard_name' => 'api','group_name'=>'patient_cashiers','se_name'=>'patient_cashier-add','belongs_to'=>'2']); 
 
 
+        //--------added group schedule-template---------------------//
+        Permission::create(['name' => 'schedule-template-read', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'schedule-template-add', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'schedule-template-edit', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'schedule-template-delete', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'schedule-template-browse', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-browse','belongs_to'=>'2']);
+
+
     }
 }
