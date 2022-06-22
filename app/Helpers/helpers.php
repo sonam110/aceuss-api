@@ -1109,3 +1109,189 @@ function convertTimeInMinutes($time)
     $time = explode(':', $time);
     return ($time[0]*60) + ($time[1]);
 }
+
+function basicScheduleTimeCalculation($scheduleStartTime, $scheduleEndTime, $relaxationTime, $punchIn, $punchOut, $obHoursFrom, $obHoursTo, $isStamplingOn)
+{
+    //Define IN/OUT relaxation time
+    $scheduleStartTimeWithRelaxationBefore = date('H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleStartTime)));
+    $scheduleStartTimeWithRelaxationAfter = date('H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleStartTime)));
+
+    $scheduleEndTimeWithRelaxationBefore = date('H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleEndTime)));
+    $scheduleEndTimeWithRelaxationAfter = date('H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleEndTime)));
+
+    $isInExtraHours = false;
+    $isOutExtraHours = false;
+    $punchInTimeLock = 0;
+    $punchOutTimeLock = 0;
+    $stamplingTimeDifference = 0;
+    $inLateOrExtraHours = 0;
+    $outBeforeOrExtraHours = 0;
+    $startOBHoursTime = "00:00";
+    $endOBHoursTime = "00:00";
+    $scheduleTimeDifferece = timeDifference($scheduleStartTime, $scheduleEndTime);
+    $obHoursTimeDifference = timeDifference($obHoursFrom, $obHoursTo);
+    if($isStamplingOn)
+    {
+        // check punch in time for lock
+        if(strtotime($punchIn) >= strtotime($scheduleStartTimeWithRelaxationBefore) && strtotime($punchIn) <= strtotime($scheduleStartTimeWithRelaxationAfter))
+        {
+            $punchInTimeLock = $scheduleStartTime;
+        }
+        else
+        {
+            $punchInTimeLock = $punchIn;
+            $isInExtraHours = true;
+        }
+
+        // check punch out time for lock
+        if(strtotime($punchOut) >= strtotime($scheduleEndTimeWithRelaxationBefore) && strtotime($punchOut) <= strtotime($scheduleEndTimeWithRelaxationAfter))
+        {
+            $punchOutTimeLock = $scheduleEndTime;
+        }
+        else
+        {
+            $punchOutTimeLock = $punchOut;
+            $isOutExtraHours = true;
+        }
+
+        // time cal if extra hours IN true
+        if($isInExtraHours)
+        {
+            $inLateOrExtraHours = strtotime($punchInTimeLock) - strtotime($scheduleStartTime);
+        }
+
+        // time cal if extra hours OUT true
+        if($isOutExtraHours)
+        {
+            $outBeforeOrExtraHours = strtotime($punchOutTimeLock) - strtotime($scheduleEndTime);
+        }
+
+        ////////////////////OB hours with stampling
+        if(strtotime($punchIn) <= strtotime($obHoursFrom) && strtotime($punchOut) >= strtotime($obHoursFrom))
+        {
+            $startOBHoursTime = $obHoursFrom;
+        }
+        elseif(strtotime($punchIn) >= strtotime($obHoursFrom))
+        {
+            $startOBHoursTime = $punchIn;
+            
+        }
+
+        if($startOBHoursTime!='00:00')
+        {
+            if(strtotime($punchOut) <= strtotime($obHoursTo))
+            {
+                $endOBHoursTime = $punchOut;
+            }
+            elseif(strtotime($punchOut) >= strtotime($obHoursTo))
+            {
+                $endOBHoursTime = $obHoursTo;
+                
+            }
+        }
+
+        if(($startOBHoursTime=='00:00' || $endOBHoursTime=='00:00') || strtotime($startOBHoursTime) >= strtotime($endOBHoursTime))
+        {
+            $startOBHoursTime = "00:00";
+            $endOBHoursTime = "00:00";
+        }
+
+        $stamplingTimeDifference = timeDifference($punchInTimeLock, $punchOutTimeLock);
+        $totalExtraTime = ($stamplingTimeDifference - $scheduleTimeDifferece);
+        $totalScheduleTime = ($stamplingTimeDifference - $totalExtraTime);
+        $workingPercentage = calculatePercentage($stamplingTimeDifference, $scheduleTimeDifferece);
+    }
+    else
+    {
+        //punch IN/OUT set null if module not active
+        $punchIn = null;
+        $punchOut = null;
+
+        ////////////////////OB hours with schedule
+        if(strtotime($scheduleStartTime) <= strtotime($obHoursFrom) && strtotime($scheduleEndTime) >= strtotime($obHoursFrom))
+        {
+            $startOBHoursTime = $obHoursFrom;
+        }
+        elseif(strtotime($scheduleStartTime) >= strtotime($obHoursFrom))
+        {
+            $startOBHoursTime = $scheduleStartTime;
+            
+        }
+
+        if($startOBHoursTime!='00:00')
+        {
+            if(strtotime($scheduleEndTime) <= strtotime($obHoursTo))
+            {
+                $endOBHoursTime = $scheduleEndTime;
+            }
+            elseif(strtotime($scheduleEndTime) >= strtotime($obHoursTo))
+            {
+                $endOBHoursTime = $obHoursTo;
+                
+            }
+        }
+
+        if(($startOBHoursTime=='00:00' || $endOBHoursTime=='00:00') || strtotime($startOBHoursTime) >= strtotime($endOBHoursTime))
+        {
+            $startOBHoursTime = "00:00";
+            $endOBHoursTime = "00:00";
+        }
+
+        $totalExtraTime = 0;
+        $totalScheduleTime =  ($scheduleTimeDifferece - $totalExtraTime);
+        $workingPercentage = calculatePercentage($totalScheduleTime, $totalScheduleTime);
+    }
+    
+    $totalOBHoursTime = ((strtotime($endOBHoursTime) - strtotime($startOBHoursTime))/60);
+    $totalScheduleTime = $totalScheduleTime - $totalOBHoursTime;
+    if($totalExtraTime < 0)
+    {
+        $totalScheduleTime = $stamplingTimeDifference - $totalOBHoursTime;
+        $totalExtraTime = 0;
+    }
+
+
+    return [
+        'scheduleStartTime' => $scheduleStartTime,
+        'scheduleEndTime' => $scheduleEndTime,
+        'relaxationTime' => $relaxationTime,
+        'punchInTime' => $punchIn,
+        'punchOutTime' => $punchOut,
+        'obHoursFrom' => $obHoursFrom,
+        'obHoursTo' => $obHoursTo,
+        'isStamplingOn' => $isStamplingOn,
+        'punchInTimeLock' => $punchInTimeLock,
+        'punchOutTimeLock' => $punchOutTimeLock,
+        'inLateOrExtraHours' => ($inLateOrExtraHours/60),
+        'outBeforeOrExtraHours' => ($outBeforeOrExtraHours/60),
+        'scheduleTimeDifferece' => $scheduleTimeDifferece,
+        'stamplingTimeDifference' => $stamplingTimeDifference,
+        'obHoursTimeDifference' => $obHoursTimeDifference,
+        'totalScheduleTime' => $totalScheduleTime,
+        'totalExtraTime' => $totalExtraTime,
+        'totalOBHoursTime' => $totalOBHoursTime,
+        'workingPercentage' => $workingPercentage,
+    ];
+}
+
+function timeDifference($punchIn, $punchOut)
+{
+    $punchOut = strtotime($punchOut);
+    $punchIn = strtotime($punchIn);
+    return ($punchOut - $punchIn)/60;
+}
+
+function hoursAndMins($time, $format = '%02d:%02d')
+{
+    if ($time < 1) {
+        return;
+    }
+    $hours = floor($time / 60);
+    $minutes = ($time % 60);
+    return sprintf($format, $hours, $minutes);
+}
+
+function calculatePercentage($v1, $v2)
+{
+    return ($v1 * 100) / $v2;
+}
