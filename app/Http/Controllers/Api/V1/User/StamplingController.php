@@ -113,6 +113,12 @@ class StamplingController extends Controller
 			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
+				$dates = [date('Y-m-d'),date('Y-m-d',strtotime('-1 day'))];
+				$curPunchInCounts = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->where('out_time',NULL)->count();
+				if ($curPunchInCounts > 0) 
+				{
+	                return prepareResult(false,getLangByLabelGroups('Stampling','message_already_logged_in'), ['Already Logged In, First Log Out'],config('httpcodes.bad_request'));
+	            }
 				$schedule_id = null;
 				$stampling_type = 'walkin';
 				$in_time = date('Y-m-d H:i:s');
@@ -159,31 +165,50 @@ class StamplingController extends Controller
 			}
 			elseif($request->type == "OUT")
 			{
-				$stampling = Stampling::where('date',$date)->where('user_id',Auth::id())->first();
+				$dates = [date('Y-m-d'),date('Y-m-d',strtotime('-1 day'))];
+				$stampling = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->orderBy('id','desc')->first();
 				if (!is_object($stampling)) 
 				{
 	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
 	            }
+	            $out_time = date('Y-m-d H:i:s');
 				if(!empty($stampling->schedule_id))
 				{
 					$schedule = Schedule::find($stampling->schedule_id);
-					$scheduled_duration = getTimeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+					$scheduled_duration = getMinuteDifference($schedule->shift_start_time,$schedule->shift_end_time);
+
+					$punch_out_time = convertTimeInMinutes(date('H:i'));
+					$schedule_end_time = convertTimeInMinutes($schedule->shift_end_time);
+					$relaxation_start_time =  $schedule_end_time - $relaxation_time;
+					$relaxation_end_time =  $schedule_end_time + $relaxation_time;
+					if(($punch_out_time >= $relaxation_start_time) && ($punch_out_time <= $relaxation_end_time))
+					{
+						$out_time = date('Y-m-d H:i:s',strtotime($schedule->shift_end_time));
+					}
+
+					if(($punch_out_time < $relaxation_end_time) && ($request->punch_at_scheduled == true))
+					{
+						$out_time = date('Y-m-d H:i:s',strtotime($schedule->shift_end_time));
+					}
 				}
 				else
 				{
 					$scheduled_duration = "8*60";
 				}
-				$in_time = $stampling->in_time;
-				$out_time = date('Y-m-d H:i:s');				
-				$worked_duration = getTimeDifference($in_time,$out_time);
 
-				$worked_hours = getTimeINHours($worked_duration);
-				$extra_hours =  0;
+				$in_time = $stampling->in_time;
+				$worked_duration = getMinuteDifference($in_time,$out_time);
+				$extra_durations =  0;
 				if($worked_duration > $scheduled_duration)
 				{
-					$extra_time =  ($worked_duration - $scheduled_duration);
-					$extra_hours = getTimeINHours($extra_time);
+					$extra_durations =  ($worked_duration - $scheduled_duration);
 				}
+
+				return $out_time;
+				$worked_hours = getTimeINHours($worked_duration);
+				$extra_hours = getTimeINHours($extra_durations);
+
+				return $worked_hours;
 
 				$ov = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
 				if($ov)

@@ -992,7 +992,7 @@ function getStartEndTime($from, $end, $date=null)
     return $return;
 }
 
-function getTimeDifference($time1,$time2)
+function getMinuteDifference($time1,$time2)
 {
     $time1 = new DateTime($time1);
     $time2 = new DateTime($time2);
@@ -1012,11 +1012,11 @@ function getTimeINHours($time)
 {
     $hours = floor($time / 60);
     $minutes = ($time % 60);
-    if($minutes >= 15)
-    {
-        $hours = $hours + 1;
-    }
-    return $hours;
+    // if($minutes >= 15)
+    // {
+    //     $hours = $hours + 1;
+    // }
+    return $hours.':'.$minutes;
 }
 
 function getHours($time1,$time2)
