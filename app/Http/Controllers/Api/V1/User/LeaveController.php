@@ -353,7 +353,7 @@ class LeaveController extends Controller
     				'leave_approved_date_time' => date('Y-m-d H:i:s')
     			]);
     			$dates = [];
-    			$leaves = Schedule::where('leave_group_id',$request->leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
+    			$leaves = Schedule::where('leave_group_id',$request->leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('group_id')->get();
     			foreach ($leaves as $key => $value) {
     				$dates[] = $value->date;
     			}
@@ -394,7 +394,7 @@ class LeaveController extends Controller
 
     				Schedule::where('leave_group_id',$request->leave_group_id)
     				->update([
-    					'notified_to' => json_encode($users_id),
+    					'leave_notified_to' => json_encode($users_id),
     					'notified_group' => $notified_group
     				]);
     			}
@@ -502,7 +502,7 @@ class LeaveController extends Controller
     			'status' => 1
     		]);
     		$leaves = Schedule::where('leave_group_id', $leave_group_id)
-    		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
+    		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
     		->groupBy('leave_group_id')
     		->first();
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
@@ -588,7 +588,7 @@ class LeaveController extends Controller
     		{
     			$dates = implode(',', $dates);
 
-    			$users = User::whereIn('id',json_decode($leave->notified_to))
+    			$users = User::whereIn('id',json_decode($leave->leave_notified_to))
     			->where('id','!=',Auth::id())
     			->get();
 
@@ -623,7 +623,7 @@ class LeaveController extends Controller
 
     			Schedule::where('group_id',$request->group_id)
     			->update([
-    				'notified_to' => json_encode($users_id),
+    				'leave_notified_to' => json_encode($users_id),
     				'notified_group' => $leave->notified_group
     			]);
     		}

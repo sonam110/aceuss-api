@@ -19,9 +19,9 @@ class CreateScheduleTemplatesTable extends Migration
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('title')->nullable();
-            $table->date('from_date')->nullable();
-            $table->date('to_date')->nullable();
-            $table->string('shifts')->nullable();
+            // $table->date('from_date')->nullable();
+            // $table->date('to_date')->nullable();
+            // $table->string('shifts')->nullable();
             $table->boolean('status')->default(1)->comment('0 for not active, 1 for active');
             $table->date('deactivation_date')->nullable();
             $table->string('entry_mode')->nullable();

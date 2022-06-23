@@ -30,21 +30,24 @@ class CreateStamplingsTable extends Migration
             $table->datetime('out_time')->nullable();
             $table->string('in_location');
             $table->string('out_location')->nullable();
-            $table->float('scheduled_hours_rate')->nullable()->comment('amount or salary / hr');
-            $table->float('extra_hours_rate')->nullable()->comment('amount or salary / hr');
-            $table->float('ob_hours_rate')->nullable()->comment('amount or salary / hr');
 
             $table->string('reason_for_early_in')->nullable();
             $table->string('reason_for_early_out')->nullable();
             $table->string('reason_for_late_in')->nullable();
             $table->string('reason_for_late_out')->nullable();
 
-            $table->string('total_schedule_hours');
-            $table->string('total_extra_hours');
+            $table->float('scheduled_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->float('extra_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->float('ob_hours_rate')->nullable()->comment('amount or salary / hr');
+
+            $table->string('total_schedule_hours')->default(0)->nullable();
+            $table->string('total_extra_hours')->default(0)->nullable();
             $table->float('total_ob_hours')->default(0)->nullable();
+            
+            $table->string('working_percent')->default(0)->nullable();
 
-            $table->boolean('is_extra_hours_approved')->default(0)->nullable();
-
+            $table->enum('is_extra_hours_approved',[0,1,2])->default(1)->nullable()->comment('0 for pending,1 for approved,2 for rejected');
+            $table->string('reason_for_rejection')->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();
             $table->softDeletes();

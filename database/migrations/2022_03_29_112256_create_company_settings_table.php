@@ -32,7 +32,7 @@ class CreateCompanySettingsTable extends Migration
             $table->integer('before_minute')->nullable();
             $table->integer('relaxation_time')->default('15')->nullable();
             $table->float('extra_hour_rate')->nullable()->default(0);;
-            $table->float('ov_hour_rate')->nullable()->default(0);;
+            $table->float('ob_hour_rate')->nullable()->default(0);;
             $table->timestamps();
         });
     }

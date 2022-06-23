@@ -187,16 +187,6 @@ class ScheduleController extends Controller
 			$schedule_ids = [];
 			foreach($dates as $key=>$shift_date)
 			{
-				$scheduled_work_time = getTimeDifference($start_time,$end_time);
-				$emergency_work_time = 0;
-				if($request->emergency == true)
-				{
-					$emergency_work_time = getTimeDifference($emergency_start_time,$emergency_end_time);
-				}
-
-				$scheduled_work_hour = getTimeINHours($scheduled_work_time - $emergency_work_time); 
-				$emergency_work_hour = getTimeINHours($emergency_work_time);
-
 				$date = date('Y-m-d',strtotime($shift_date));
 
 				$startEndTime = getStartEndTime($start_time, $end_time, $date);

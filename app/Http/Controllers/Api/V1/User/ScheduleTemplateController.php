@@ -65,8 +65,7 @@ class ScheduleTemplateController extends Controller
         DB::beginTransaction();
         try {
 	    	$user = getUser();
-	    	$validator = Validator::make($request->all(),[   
-                'shifts' => 'required',  
+	    	$validator = Validator::make($request->all(),[ 
         		'title' => 'required', 
             ]);
 	        if ($validator->fails()) {
@@ -74,9 +73,9 @@ class ScheduleTemplateController extends Controller
         	}
 	        $scheduleTemplate = new ScheduleTemplate;
 		 	$scheduleTemplate->title = $request->title;
-		 	$scheduleTemplate->shifts = json_encode($request->shifts);
-            $scheduleTemplate->from_date = $request->from_date;
-            $scheduleTemplate->to_date = $request->to_date;
+		 	// $scheduleTemplate->shifts = json_encode($request->shifts);
+    //         $scheduleTemplate->from_date = $request->from_date;
+    //         $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();
@@ -94,8 +93,7 @@ class ScheduleTemplateController extends Controller
         DB::beginTransaction();
         try 
         {
-	    	$validator = Validator::make($request->all(),[   
-                'shifts' => 'required',  
+	    	$validator = Validator::make($request->all(),[ 
                 'title' => 'required', 
             ]);
 	        if ($validator->fails()) {
@@ -108,9 +106,9 @@ class ScheduleTemplateController extends Controller
             }
         	$scheduleTemplate = ScheduleTemplate::where('id',$id)->first();
             $scheduleTemplate->title = $request->title;
-            $scheduleTemplate->shifts = json_encode($request->shifts);
-            $scheduleTemplate->from_date = $request->from_date;
-            $scheduleTemplate->to_date = $request->to_date;
+            // $scheduleTemplate->shifts = json_encode($request->shifts);
+            // $scheduleTemplate->from_date = $request->from_date;
+            // $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();

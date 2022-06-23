@@ -32,9 +32,12 @@ class Stampling extends Model
         'scheduled_hours_rate',
         'extra_hours_rate',
         'ob_hours_rate',
-        'total_scheduled_hours',
+        'total_schedule_hours',
         'total_extra_hours',
-        'total_ob_hours','entry_mode'
+        'total_ob_hours',
+        'entry_mode',
+        'working_percent',
+        'reason_for_rejection'
     ];
 
 

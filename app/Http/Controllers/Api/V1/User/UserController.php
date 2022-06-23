@@ -52,7 +52,7 @@ class UserController extends Controller
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
-    		$query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','is_password_change','status','step_one','step_two','step_three','step_four','step_five', 
+    		$query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','employee_type','is_password_change','status','step_one','step_two','step_three','step_four','step_five', 
     			DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1) ipCount"), 
     			DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), 
     			DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id  AND is_latest_entry = 1) patientActivityCount"), 
@@ -61,7 +61,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
     			DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork');
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','onVacations:id,shift_date,user_id');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
                 $query =  $query->where('id', '!=',$user->id);
@@ -466,7 +466,7 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
     		}
-    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork')->first();
+    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','onVacations:id,shift_date,user_id')->first();
     		return prepareResult(true,'User View' ,$userShow, '200');
 
     	}

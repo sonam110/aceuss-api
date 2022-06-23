@@ -15,5 +15,14 @@ class ScheduleTemplate extends Model
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['top_most_parent_id','title','from_date','to_date','shifts','entry_mode','status'];
+    protected $fillable = [
+    	'top_most_parent_id',
+    	'title',
+    	// 'from_date',
+    	// 'to_date',
+    	// 'shifts',
+    	'entry_mode',
+    	'status',
+    	'deactivation_date'
+    ];
 }

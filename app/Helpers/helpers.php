@@ -495,7 +495,8 @@ function companySetting($company_id){
             "follow_up_reminder" => $user->follow_up_reminder,
             "before_minute" => $user->before_minute,
             "extra_hour_rate" => $user->extra_hour_rate,
-            "ov_hour_rate" => $user->ov_hour_rate,
+            "ob_hour_rate" => $user->ob_hour_rate,
+            "relaxation_time" => $user->relaxation_time,
         ];
         return  $settingDetail;
 
@@ -992,82 +993,7 @@ function getStartEndTime($from, $end, $date=null)
     return $return;
 }
 
-function getMinuteDifference($time1,$time2)
-{
-    $time1 = new DateTime($time1);
-    $time2 = new DateTime($time2);
-    if($time2 < $time1)
-    {
-        $time2 = $time2->modify('+1 day');
-    }
-    $timediff = $time1->diff($time2);
-    $h = $timediff->format('%h');
-    $i = $timediff->format('%i');
-    $time = $h*60 + $i;
-    // $time = $timediff->format('%h:%i');
-    return $time;
-}
 
-function getTimeINHours($time)
-{
-    $hours = floor($time / 60);
-    $minutes = ($time % 60);
-    // if($minutes >= 15)
-    // {
-    //     $hours = $hours + 1;
-    // }
-    return $hours.':'.$minutes;
-}
-
-function getHours($time1,$time2)
-{
-    $timediff = $time1->diff($time2);
-    if($timediff->format('%i') >= 15)
-    {
-        $hours = $timediff->format('%h') +1;
-    }
-    else
-    {
-        $hours = $timediff->format('%h');
-    }
-    return $hours;
-}
-
-function getOVHours($time1, $time2, $ovtime1, $ovtime2)
-{
-    $converted_time1 = new DateTime($time1);
-    $converted_time2 = new DateTime($time2);
-    if($converted_time2 < $converted_time1)
-    {
-        $converted_time2 = $converted_time2->modify('+1 day');
-    }
-
-    $converted_ovtime1 = new DateTime($ovtime1);
-    $converted_ovtime2 = new DateTime($ovtime2);
-
-    if($converted_ovtime2 < $converted_ovtime1)
-    {
-        $converted_ovtime2 = $converted_ovtime2->modify('+1 day');
-    }
-
-    if(($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 <= $converted_time2))
-    {
-        $hours = getHours($converted_ovtime1,$converted_ovtime2);
-    }
-    elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
-    {
-        $hours = getHours($converted_time1,$converted_time2);
-    }
-    elseif (($converted_ovtime1 <= $converted_time1) && ($converted_ovtime2 <= $converted_time2)) 
-    {
-        $hours = getHours($converted_time1,$converted_ovtime2);
-    }
-    elseif (($converted_ovtime1 >= $converted_time1) && ($converted_ovtime2 >= $converted_time2)) 
-    {
-        $hours = getHours($converted_ovtime1,$converted_time2);
-    }
-    return $hours;
-}
 
 function getLeaveDatesByGroupId($group_id)
 {
@@ -1098,26 +1024,16 @@ function getDays($date1,$date2)
     return $days + 1;
 }
 
-function getRelaxationTime($shift_id)
-{
-    return CompanyWorkShift::find($shift_id)->relaxation_time;
-}
 
-
-function convertTimeInMinutes($time)
-{
-    $time = explode(':', $time);
-    return ($time[0]*60) + ($time[1]);
-}
 
 function basicScheduleTimeCalculation($scheduleStartTime, $scheduleEndTime, $relaxationTime, $punchIn, $punchOut, $obHoursFrom, $obHoursTo, $isStamplingOn)
 {
     //Define IN/OUT relaxation time
-    $scheduleStartTimeWithRelaxationBefore = date('H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleStartTime)));
-    $scheduleStartTimeWithRelaxationAfter = date('H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleStartTime)));
+    $scheduleStartTimeWithRelaxationBefore = date('Y-m-d H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleStartTime)));
+    $scheduleStartTimeWithRelaxationAfter = date('Y-m-d H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleStartTime)));
 
-    $scheduleEndTimeWithRelaxationBefore = date('H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleEndTime)));
-    $scheduleEndTimeWithRelaxationAfter = date('H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleEndTime)));
+    $scheduleEndTimeWithRelaxationBefore = date('Y-m-d H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduleEndTime)));
+    $scheduleEndTimeWithRelaxationAfter = date('Y-m-d H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduleEndTime)));
 
     $isInExtraHours = false;
     $isOutExtraHours = false;
@@ -1167,6 +1083,10 @@ function basicScheduleTimeCalculation($scheduleStartTime, $scheduleEndTime, $rel
         }
 
         ////////////////////OB hours with stampling
+        if(strtotime($obHoursFrom) > strtotime($obHoursTo))
+        {
+        	$obHoursTo = date('Y-m-d H:i',strtotime('+1 day',strtotime($obHoursTo)));
+        }
         if(strtotime($punchIn) <= strtotime($obHoursFrom) && strtotime($punchOut) >= strtotime($obHoursFrom))
         {
             $startOBHoursTime = $obHoursFrom;
@@ -1274,13 +1194,6 @@ function basicScheduleTimeCalculation($scheduleStartTime, $scheduleEndTime, $rel
     ];
 }
 
-function timeDifference($punchIn, $punchOut)
-{
-    $punchOut = strtotime($punchOut);
-    $punchIn = strtotime($punchIn);
-    return ($punchOut - $punchIn)/60;
-}
-
 function hoursAndMins($time, $format = '%02d:%02d')
 {
     if ($time < 1) {
@@ -1293,5 +1206,55 @@ function hoursAndMins($time, $format = '%02d:%02d')
 
 function calculatePercentage($v1, $v2)
 {
-    return ($v1 * 100) / $v2;
+    return number_format((($v1 * 100) / $v2),2) ;
+}
+
+function timeDifference($time1, $time2)
+{
+    $time2 = strtotime($time2);
+    $time1 = strtotime($time1);
+    return ($time2 - $time1)/60;
+}
+
+
+function timeWithRelaxation($scheduled_time,$relaxationTime)
+{
+	$time['before'] = strtotime(date('Y-m-d H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduled_time))));
+    $time['after'] = strtotime(date('Y-m-d H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduled_time))));
+    return $time;
+}
+
+function getObDuration($time1, $time2, $obtime1, $obtime2)
+{
+    $time1 = strtotime($time1);
+    $time2 = strtotime($time2);
+
+    $obtime1 = strtotime($obtime1);
+    $obtime2 = strtotime($obtime2);
+
+    if(($obtime1 <= $time1) && ($obtime2 <= $time1))
+    {
+    	$duration = 0;
+    }
+    elseif(($obtime1 >= $time2) && ($obtime2 <= $time2))
+    {
+    	$duration = 0;
+    }
+    elseif(($obtime1 >= $time1) && ($obtime2 <= $time2))
+    {
+        $duration = ($obtime2 - $obtime1)/60;
+    }
+    elseif (($obtime1 <= $time1) && ($obtime2 >= $time2)) 
+    {
+        $duration = ($time2 - $time1)/60;
+    }
+    elseif (($obtime1 <= $time1) && ($obtime2 <= $time2)) 
+    {
+        $duration = ($obtime2 - $time1)/60;
+    }
+    elseif (($obtime1 >= $time1) && ($obtime2 >= $time2)) 
+    {
+        $duration = ($time2 - $obtime1)/60;
+    }
+    return $duration;
 }

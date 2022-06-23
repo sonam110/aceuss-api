@@ -45,6 +45,7 @@ use App\Models\AssignTask;
 use App\Models\Language;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
+use App\Models\Schedule;
 
 class User extends Authenticatable
 {
@@ -386,6 +387,12 @@ class User extends Authenticatable
     {
         return $this->hasOne(EmployeeAssignedWorkingHour::class,'emp_id','id')->orderBy('id','desc');
     }
+
+    public function onVacations()
+    {
+         return $this->hasMany(Schedule::class,'user_id','id');
+    }
+
 
 
     

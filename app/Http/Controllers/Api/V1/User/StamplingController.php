@@ -105,15 +105,15 @@ class StamplingController extends Controller
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
 			$user = Auth::User();
-			$relaxation_time = User::find($user->top_most_parent_id)->relaxation_time;
+			$relaxation_time = companySetting($user->top_most_parent_id)['relaxation_time'];
 			if(empty($relaxation_time))
 			{
 				$relaxation_time = 15;
 			}
+			$dates = [date('Y-m-d'),date('Y-m-d',strtotime('-1 day'))];
 			$date = date('Y-m-d');
 			if($request->type == "IN")
 			{
-				$dates = [date('Y-m-d'),date('Y-m-d',strtotime('-1 day'))];
 				$curPunchInCounts = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->where('out_time',NULL)->count();
 				if ($curPunchInCounts > 0) 
 				{
@@ -127,20 +127,24 @@ class StamplingController extends Controller
 					$schedule_id = $request->schedule_id;
 					$schedule = Schedule::find($schedule_id);
 					$stampling_type = 'scheduled';
-					$punch_in_time = convertTimeInMinutes(date('H:i'));
-					$schedule_start_time = convertTimeInMinutes($schedule->shift_start_time);
-					$relaxation_start_time =  $schedule_start_time - $relaxation_time;
-					$relaxation_end_time =  $schedule_start_time + $relaxation_time;
-					if(($punch_in_time >= $relaxation_start_time) && ($punch_in_time <= $relaxation_end_time))
+					$punch_in_time = strtotime($in_time);
+					$timeWithRelaxation = timeWithRelaxation($schedule->shift_start_time,$relaxation_time);
+
+					if(($punch_in_time >= $timeWithRelaxation['before']) && ($punch_in_time <= $timeWithRelaxation['after']))
 					{
-						$in_time = date('Y-m-d H:i:s',strtotime($schedule->shift_start_time));
+						$in_time = $schedule->shift_start_time;
 					}
 
-					if(($punch_in_time < $relaxation_start_time) && ($request->punch_at_scheduled == true))
+					if(($punch_in_time < $timeWithRelaxation['before']) && ($request->punch_at_scheduled == true))
 					{
-						$in_time = date('Y-m-d H:i:s',strtotime($schedule->shift_start_time));
+						$in_time = $schedule->shift_start_time;
 					}
 				}
+
+				$scheduled_hours_rate = $user->contract_value;
+				$companySetting = companySetting($user->top_most_parent_id);
+				$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
+				$ov_hours_rate = $companySetting ? $companySetting['ob_hour_rate'] : 0;
 
 				$stampling = new Stampling;
 				$stampling->schedule_id 				= $schedule_id;
@@ -154,9 +158,9 @@ class StamplingController extends Controller
 				$stampling->out_time 					= null;
 				$stampling->out_location 				= null;
 				$stampling->is_extra_hours_approved 	= 0;
-				$stampling->scheduled_hours_rate 		= 0;
-				$stampling->extra_hours_rate 			= 0;
-				$stampling->ob_hours_rate 				= 0;
+				$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
+				$stampling->extra_hours_rate 			= $extra_hours_rate;
+				$stampling->ob_hours_rate 				= $ob_hours_rate;
 				$stampling->total_schedule_hours 		= 0;
 				$stampling->total_extra_hours 			= 0;
 				$stampling->total_ob_hours 				= 0;
@@ -165,96 +169,115 @@ class StamplingController extends Controller
 			}
 			elseif($request->type == "OUT")
 			{
-				$dates = [date('Y-m-d'),date('Y-m-d',strtotime('-1 day'))];
 				$stampling = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->orderBy('id','desc')->first();
 				if (!is_object($stampling)) 
 				{
 	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
 	            }
+	            $in_time = $stampling->in_time;
 	            $out_time = date('Y-m-d H:i:s');
-				if(!empty($stampling->schedule_id))
+	            if($stampling->stampling_type == 'walkin')
+	            {
+	            	$schedule = new Schedule;
+	            	$schedule->top_most_parent_id = $user->top_most_parent_id;
+	            	$schedule->user_id = Auth::id();
+	            	$schedule->patient_id = NULL;
+	            	$schedule->shift_id = NULL;
+	            	$schedule->parent_id = NULL;
+	            	$schedule->created_by = Auth::id();
+	            	$schedule->slot_assigned_to = NULL;
+	            	$schedule->employee_assigned_working_hour_id = NULL;
+	            	$schedule->schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
+	            	$schedule->schedule_type = 'extra';
+	            	$schedule->shift_date = $stampling->date;
+	            	$schedule->group_id = generateRandomNumber();
+	            	$schedule->shift_name = NULL;
+	            	$schedule->shift_color = NULL;
+	            	$schedule->shift_start_time = $stampling->in_time;
+	            	$schedule->shift_end_time = $out_time;
+	            	$schedule->leave_applied = 0;
+	            	$schedule->leave_group_id = NULL;
+	            	$schedule->leave_type = NULL;
+	            	$schedule->leave_reason = NULL;
+	            	$schedule->leave_approved = 0;
+	            	$schedule->leave_approved_by = NULL;
+	            	$schedule->leave_approved_date_time = NULL;
+	            	$schedule->leave_notified_to = NULL;
+	            	$schedule->notified_group = NULL;
+	            	$schedule->is_active = 1;
+	            	$schedule->scheduled_work_duration = NULL;
+	            	$schedule->extra_work_duration = NULL;
+	            	$schedule->status = $request->status ? $request->status :0;
+	            	$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+	            	$schedule->save();
+	            }
+	            else
+	            {
+	            	$schedule = Schedule::find($stampling->schedule_id);
+	            }
+
+				$punch_out_time = strtotime($out_time);
+				$timeWithRelaxation = timeWithRelaxation($schedule->shift_end_time,$relaxation_time);
+
+				if(($punch_out_time >= $timeWithRelaxation['before']) && ($punch_out_time <= $timeWithRelaxation['after']))
 				{
-					$schedule = Schedule::find($stampling->schedule_id);
-					$scheduled_duration = getMinuteDifference($schedule->shift_start_time,$schedule->shift_end_time);
+					$out_time = $schedule->shift_end_time;
+				}
 
-					$punch_out_time = convertTimeInMinutes(date('H:i'));
-					$schedule_end_time = convertTimeInMinutes($schedule->shift_end_time);
-					$relaxation_start_time =  $schedule_end_time - $relaxation_time;
-					$relaxation_end_time =  $schedule_end_time + $relaxation_time;
-					if(($punch_out_time >= $relaxation_start_time) && ($punch_out_time <= $relaxation_end_time))
-					{
-						$out_time = date('Y-m-d H:i:s',strtotime($schedule->shift_end_time));
-					}
+				if(($punch_out_time > $timeWithRelaxation['after']) && ($request->punch_at_scheduled == true))
+				{
+					$out_time = $schedule->shift_end_time;
+				}
 
-					if(($punch_out_time < $relaxation_end_time) && ($request->punch_at_scheduled == true))
-					{
-						$out_time = date('Y-m-d H:i:s',strtotime($schedule->shift_end_time));
-					}
+
+	            $ob = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
+				if($ob)
+				{
+					$ob_start_time = $stampling->date.' '.$ob->start_time;
+					$ob_end_time = $stampling->date.' '.$ob->end_time;
+					$ob_duration = getObDuration($in_time,$out_time,$ob_start_time,$ob_end_time);
 				}
 				else
 				{
-					$scheduled_duration = "8*60";
+					$ob_start_time = null;
+					$ob_end_time = null;
+					$ob_duration = 0;
 				}
 
-				$in_time = $stampling->in_time;
-				$worked_duration = getMinuteDifference($in_time,$out_time);
-				$extra_durations =  0;
-				if($worked_duration > $scheduled_duration)
+				// return getOVHours('2022-06-22 19:30:00','2022-06-23 08:10:00','2022-06-22 20:30','2022-06-23 05:30');
+
+				// $data = basicScheduleTimeCalculation($schedule->shift_start_time,$schedule->shift_end_time,$relaxation_time,$in_time,$out_time, $ob_start_time, $ob_end_time, false);
+
+				// $data = basicScheduleTimeCalculation('2022-06-22 22:20:00','2022-06-23 06:50:00',$relaxation_time,'2022-06-22 19:30:00','2022-06-23 08:10:00', '2022-06-22 11:30', '2022-06-23 05:30', true);
+				// return $data;
+				
+
+				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+				$total_worked_duration = timeDifference($in_time,$out_time);
+				$countable_scheduled_duration = $total_worked_duration - $ob_duration;
+				$extra_duration =  0;
+				if($countable_scheduled_duration > $scheduled_duration)
 				{
-					$extra_durations =  ($worked_duration - $scheduled_duration);
+					$extra_duration =  $countable_scheduled_duration - $scheduled_duration;
 				}
 
-				return $out_time;
-				$worked_hours = getTimeINHours($worked_duration);
-				$extra_hours = getTimeINHours($extra_durations);
+				$total_schedule_hours = $countable_scheduled_duration/60;
+				$total_ob_hours = $ob_duration/60;
+				$total_extra_hours = $extra_duration/60;
 
-				return $worked_hours;
+				$working_percent = calculatePercentage($total_worked_duration, $scheduled_duration);
 
-				$ov = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
-				if($ov)
-				{
-					$ov_start_time = $ov->start_time;
-					$ov_end_time = $ov->end_time;
-					$ov_hours = getOVHours($in_time,$out_time,$ov_start_time,$ov_end_time);
-				}
-				else
-				{
-					$ov_hours = 0;
-				}
-
-				$is_scheduled_hours_ov_hours = 0;
-				$is_extra_hours_ov_hours = 0;
-				$scheduled_hours_rate = $user->contract_value;
-				$companySetting = companySetting($user->top_most_parent_id);
-				$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
-				if($is_scheduled_hours_ov_hours == 1)
-				{
-					$scheduled_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-				}
-				if($is_extra_hours_ov_hours == 1)
-				{
-					$extra_hours_rate = $companySetting ? $companySetting['ov_hour_rate'] : 0;
-				}
-
-				$scheduled_hours_sum = $scheduled_hours_rate * $worked_hours;
-				$extra_hours_sum = $extra_hours_rate * $extra_hours;
-				$total_sum = $scheduled_hours_sum + $extra_hours_sum;
-
-				$stampling->out_time 					= $out_time;
-				$stampling->out_location 				= json_encode($request->location);
-				$stampling->extra_hours 				= $extra_hours;
-				$stampling->reason_for_early_out 		= $request->reason_for_early_out;
-				$stampling->reason_for_late_out 		= $request->reason_for_late_out;
-				$stampling->is_extra_hours_approved 	= 0;
-				$stampling->is_scheduled_hours_ov_hours = $is_scheduled_hours_ov_hours;
-				$stampling->is_extra_hours_ov_hours 	= $is_extra_hours_ov_hours;
-				$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
-				$stampling->extra_hours_rate 			= $extra_hours_rate;
-				$stampling->scheduled_hours_sum 		= $scheduled_hours_sum;
-				$stampling->extra_hours_sum 			= $extra_hours_sum;
-				$stampling->total_sum 					= $total_sum;
-				$stampling->entry_mode 					= (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-				$stampling->status 						= $request->status ? $request->status : 0;
+				$stampling->schedule_id 			= $schedule->id;
+				$stampling->out_time 				= $out_time;
+				$stampling->out_location 			= json_encode($request->location);
+				$stampling->reason_for_early_out 	= $request->reason_for_early_out;
+				$stampling->reason_for_late_out 	= $request->reason_for_late_out;
+				$stampling->is_extra_hours_approved = 0;
+				$stampling->total_schedule_hours 	= $total_schedule_hours;
+				$stampling->total_extra_hours		= $total_extra_hours;
+				$stampling->total_ob_hours 			= $total_ob_hours;
+				$stampling->working_percent 		= $working_percent;
+				$stampling->entry_mode 				= $request->entry_mode ? $request->entry_mode : 'Web';
 				$stampling->save();
 
 				$stampling = Stampling::where('id',$stampling->id)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
@@ -277,58 +300,6 @@ class StamplingController extends Controller
 		}
 	}
 
-	public function update(Request $request,$id)
-	{
-		DB::beginTransaction();
-		try 
-		{
-			$validator = Validator::make($request->all(),[   
-				'shift_id' => 'required|exists:company_work_shifts,id' 
-			],
-			[   
-				'shift_id' =>  getLangByLabelGroups('Stampling','message_shift_id')
-			]);
-			if ($validator->fails()) {
-				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-			}
-
-			$stampling = Stampling::find($id);
-			if (!is_object($stampling)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['stampling not found'],config('httpcodes.not_found'));
-			}
-
-			$shift = CompanyWorkShift::find($request->shift_id);
-			if (!is_object($shift)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ["shift not found"],config('httpcodes.not_found'));
-			}
-
-			$date = date('Y-m-d',strtotime($request->shift_date));
-
-			$stampling->shift_id 		= $request->shift_id;
-			$stampling->user_id 			= $request->user_id ? $request->user_id : $stampling->user_id;
-			$stampling->parent_id 		= $request->parent_id;
-			$stampling->shift_name 		= $shift->shift_name;
-			$stampling->shift_in_time	= $shift->shift_in_time;
-			$stampling->shift_end_time 	= $shift->shift_end_time;
-			$stampling->shift_color 		= $shift->shift_color;
-			$stampling->shift_date 		= $request->shift_date ? $date : $stampling->shift_date;
-			$stampling->leave_applied 	= ($request->leave_applied)? $request->leave_applied :0;
-			$stampling->leave_approved 	= ($request->leave_approved)? $request->leave_approved :0;
-			$stampling->status 			= ($request->status)? $request->status :0;
-			$stampling->entry_mode 		=  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-			$stampling->created_by 		= Auth::id();
-			$stampling->save();
-
-			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Stampling','message_update') ,$stampling, config('httpcodes.success'));
-		}
-		catch(Exception $exception) {
-			\Log::error($exception);
-			DB::rollback();
-			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
-		}
-	}
 
 	public function destroy($id)
 	{

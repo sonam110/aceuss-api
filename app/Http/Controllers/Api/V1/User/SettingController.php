@@ -52,7 +52,7 @@ class SettingController extends Controller
             $user->company_website = $request->company_website;
             $user->before_minute = $request->before_minute;
             $user->extra_hour_rate = $request->extra_hour_rate;
-            $user->ov_hour_rate = $request->ov_hour_rate;
+            $user->ob_hour_rate = $request->ob_hour_rate;
             $user->relaxation_time = $request->relaxation_time;
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
