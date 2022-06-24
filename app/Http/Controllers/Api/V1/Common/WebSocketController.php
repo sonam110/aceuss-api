@@ -378,9 +378,10 @@ class WebSocketController implements MessageComponentInterface {
 
         if(!empty($perPage))
         {
+            $perPage = $perPage;
             $page = !empty($page) ? $page : 1;
             $total = $query->count();
-            $result = $query->offset($total - ($perPage * $page))->limit($perPage)->orderBy('id', 'ASC')->get();
+            $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->orderBy('id', 'DESC')->get()->reverse()->values();
 
             $pagination =  [
                 'data' => $result,
