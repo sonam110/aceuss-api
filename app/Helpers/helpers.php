@@ -1232,6 +1232,11 @@ function getObDuration($time1, $time2, $obtime1, $obtime2)
     $obtime1 = strtotime($obtime1);
     $obtime2 = strtotime($obtime2);
 
+    if($obtime1 > $obtime2)
+    {
+        $obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($obtime2))));
+    }
+
     if(($obtime1 <= $time1) && ($obtime2 <= $time1))
     {
     	$duration = 0;

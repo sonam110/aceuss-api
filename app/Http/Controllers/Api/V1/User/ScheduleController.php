@@ -348,6 +348,70 @@ class ScheduleController extends Controller
 		}
 	}
 
+	public function scheduleClones(Request $request)
+	{
+		$validator = Validator::make($request->all(),[   
+			'old_template_id' => 'required|exists:schedule_templates,id',
+			'new_template_id' => 'required|exists:schedule_templates,id',
+		]);
+		if ($validator->fails()) {
+			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+		}
+		DB::beginTransaction();
+		try 
+		{
+			$schedules = Schedule::where('schedule_template_id',$request->old_template_id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
+			$group_id = generateRandomNumber();
+			$schedule_ids = [];
+			$messages = [];
+			foreach ($schedules as $key => $schedule) {
+				$check = Schedule::where('user_id',$schedule->user_id)
+				->where('shift_date',$schedule->shift_date)
+				->where('id',"!=",$schedule->id)
+				->where(function($query) use($schedule) {
+					$query->where(function($query) use ($schedule) {
+						$query->where('shift_start_time',">=",$schedule->shift_start_time)
+						->where('shift_start_time',"<=",$schedule->shift_end_time);
+					})
+					->orWhere(function($query) use ($schedule) {
+						$query->where('shift_end_time',">=",$schedule->shift_start_time)
+						->where('shift_end_time',"<=",$schedule->shift_end_time);
+					});
+				})
+				->first();
+				if(!empty($check))
+				{
+					$messages[] = "schedule Id - ".$schedule->id." / User Id - ".$schedule->user_id." / start-end-time : ".$schedule->shift_start_time."-".$schedule->shift_start_time;
+				}
+				if(empty($messages))
+				{
+					foreach ($schedules as $key => $schedule) {
+						$newSchedule = $schedule->replicate();
+						$newSchedule->schedule_template_id = $request->new_template_id;
+						$newSchedule->group_id = $group_id;
+						$newSchedule->entry_mode = $request->entry_mode ? $request->entry_mode : 'Web';
+						$newSchedule->save();
+
+						if($request->replace_data == "yes")
+						{
+							$schedule->delete();
+						}
+						$schedule_ids[] = $newSchedule->id;
+					}
+				}
+			}
+			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
+
+			DB::commit();
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,[$data,$messages], config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			\Log::error($exception);
+			DB::rollback();
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
+	}
+
 
 	
 }

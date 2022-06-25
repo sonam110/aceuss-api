@@ -158,19 +158,19 @@ class StamplingController extends Controller
 				$stampling->reason_for_late_in 			= $request->reason_for_late_in;
 				$stampling->out_time 					= null;
 				$stampling->out_location 				= null;
-				$stampling->is_extra_hours_approved 	= 0;
+				$stampling->is_extra_hours_approved 	= "0";
 				$stampling->scheduled_hours_rate 		= $scheduled_hours_rate;
 				$stampling->extra_hours_rate 			= $extra_hours_rate;
 				$stampling->ob_hours_rate 				= $ob_hours_rate;
-				$stampling->total_schedule_hours 		= 0;
-				$stampling->total_extra_hours 			= 0;
-				$stampling->total_ob_hours 				= 0;
+				$stampling->total_schedule_hours 		= "0";
+				$stampling->total_extra_hours 			= "0";
+				$stampling->total_ob_hours 				= "0";
 				$stampling->entry_mode 					= $request->entry_mode ? $request->entry_mode :'Web';
 				$stampling->save();
 			}
 			elseif($request->type == "OUT")
 			{
-				$stampling = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->orderBy('id','desc')->first();
+				$stampling = Stampling::whereIn('date',$dates)->where('user_id',Auth::id())->orderBy('id','desc')->where('out_time',null)->first();
 				if (!is_object($stampling)) 
 				{
 	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
@@ -200,7 +200,7 @@ class StamplingController extends Controller
 	            	$schedule->leave_group_id = NULL;
 	            	$schedule->leave_type = NULL;
 	            	$schedule->leave_reason = NULL;
-	            	$schedule->leave_approved = 0;
+	            	$schedule->leave_approved = "0";
 	            	$schedule->leave_approved_by = NULL;
 	            	$schedule->leave_approved_date_time = NULL;
 	            	$schedule->leave_notified_to = NULL;
@@ -273,7 +273,7 @@ class StamplingController extends Controller
 				$stampling->out_location 			= json_encode($request->location);
 				$stampling->reason_for_early_out 	= $request->reason_for_early_out;
 				$stampling->reason_for_late_out 	= $request->reason_for_late_out;
-				$stampling->is_extra_hours_approved = 0;
+				$stampling->is_extra_hours_approved = "0";
 				$stampling->total_schedule_hours 	= $total_schedule_hours;
 				$stampling->total_extra_hours		= $total_extra_hours;
 				$stampling->total_ob_hours 			= $total_ob_hours;
