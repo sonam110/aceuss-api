@@ -53,6 +53,7 @@ class CreateSchedulesTable extends Migration
             $table->datetime('shift_end_time')->nullable();
             $table->string('shift_color')->nullable();
             //--------------for-leave-management-------------------//
+            $table->boolean('only_leave')->default(0)->nullable();
             $table->boolean('leave_applied')->default(0);
             $table->string('leave_group_id')->nullable()->comment('only for leave');
             $table->enum('leave_type',['leave','vacation','extra'])->nullable();

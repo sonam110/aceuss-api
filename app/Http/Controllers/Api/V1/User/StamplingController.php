@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use App\Models\OVHour;
 use App\Models\Stampling;
 use App\Models\EmailTemplate;
+use App\Models\ScheduleTemplate;
 use App\Models\CompanyWorkShift;
 use Exception;
 use PDF;
@@ -144,7 +145,7 @@ class StamplingController extends Controller
 				$scheduled_hours_rate = $user->contract_value;
 				$companySetting = companySetting($user->top_most_parent_id);
 				$extra_hours_rate = $companySetting ? $companySetting['extra_hour_rate'] : 0;
-				$ov_hours_rate = $companySetting ? $companySetting['ob_hour_rate'] : 0;
+				$ob_hours_rate = $companySetting ? $companySetting['ob_hour_rate'] : 0;
 
 				$stampling = new Stampling;
 				$stampling->schedule_id 				= $schedule_id;

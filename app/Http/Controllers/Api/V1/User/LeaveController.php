@@ -413,7 +413,7 @@ class LeaveController extends Controller
     					'leave_approved_by' => Auth::id(), 
     					'leave_approved_date_time' => date('Y-m-d H:i:s'), 
     					'status' => 1,
-    					'assigned_to' => $user->id
+    					'slot_assigned_to' => $user->id
     				]);
     				$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $leave->shift_date);
 
@@ -651,7 +651,6 @@ class LeaveController extends Controller
     			return prepareResult(false,getLangByLabelGroups('Leave','message_template_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
     		}
     		$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
-    		$notified_group = generateRandomNumber();
     		$validation = \Validator::make($request->all(), [
     			'leaves'      => 'required|array',
     		]);
@@ -660,65 +659,67 @@ class LeaveController extends Controller
     		{
     			return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
     		}
-    		foreach ($request->leaves as $key => $shift_date) 
+    		foreach ($request->leaves as $key => $leave) 
     		{
-    			$schedule = Schedule::where('shift_date',$shift_date)->where('user_id',Auth::id())->first();
-    			if(!empty($schedule))
+    			foreach ($leave['dates'] as $key => $shift_date) 
     			{
-    				$schedule_id[] = $schedule->id;
-    				$schedule->update([
-    					'leave_applied' => '1',
-    					'leave_type' => $request->leave_type,
-    					'leave_reason' => $request->reason,
-    					'leave_group_id' => $leave_group_id,
-    					'leave_approved' => '1',
-    					'leave_approved_by' => Auth::id(), 
-    					'leave_approved_date_time' => date('Y-m-d H:i:s')
-    				]);
-    			}
-    			else
-    			{
-    				$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $shift_date);
-    				$schedule = new Schedule;
-    				$schedule->schedule_template_id = $schedule_template_id;
-    				$schedule->shift_id = null;
-    				$schedule->user_id = Auth::id();
-    				$schedule->parent_id = null;
-    				$schedule->shift_start_time = $startEndTime['start_time'];
-    				$schedule->shift_end_time = $startEndTime['end_time'];
-    				$schedule->patient_id = null;
-    				$schedule->group_id = $leave_group_id;
-    				$schedule->shift_name = '';
-    				$schedule->shift_color = '';
-    				$schedule->shift_date = $shift_date;
-    				$schedule->leave_applied = 1;
-    				$schedule->leave_type = $request->leave_type;
-    				$schedule->leave_reason = $request->reason;
-    				$schedule->leave_group_id = $leave_group_id;
-    				$schedule->is_active = 1;
-    				$schedule->leave_approved_date_time = date('Y-m-d H:i:s');
-    				$schedule->leave_approved = 1;
-    				$schedule->status = 1;
-    				$schedule->schedule_type = 'basic';
-    				$schedule->created_by = Auth::id();
-    				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    				$schedule->save();
-    				$schedule_id[] = $schedule->id;
-    			}
-
-    			if($request->notify_employee == true)
-    			{
-    				$users = User::whereIn('employee_type',$request->employee_type)->get();
-    				$users_id = [];
-
-    				foreach ($users as $key => $user) 
+    				$schedule = Schedule::where('shift_date',$shift_date)->where('user_id',$request->emp_id)->first();
+    				if(!empty($schedule))
     				{
+    					$schedule_id[] = $schedule->id;
+    					$schedule->update([
+    						'leave_applied' => '1',
+    						'leave_type' => $request->leave_type,
+    						'leave_reason' => $request->reason,
+    						'leave_group_id' => $leave_group_id,
+    						'leave_approved' => '1',
+    						'leave_approved_by' => Auth::id(), 
+    						'leave_approved_date_time' => date('Y-m-d H:i:s'),
+    						'slot_assigned_to' => $leave['assign_emp']
+    					]);
+
+    					$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
+
+    					$assSchedule = new Schedule;
+    					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
+    					$assSchedule->user_id = $leave['assign_emp'];
+    					$assSchedule->patient_id = $schedule->patient_id;
+    					$assSchedule->shift_id = $schedule->shift_id;
+    					$assSchedule->parent_id = $schedule->id;
+    					$assSchedule->created_by = Auth::id();
+    					$assSchedule->slot_assigned_to = null;
+    					$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
+    					$assSchedule->schedule_template_id = $schedule->schedule_template_id;
+    					$assSchedule->schedule_type = $schedule->schedule_type;
+    					$assSchedule->shift_date = $schedule->shift_date;
+    					$assSchedule->group_id = $schedule->group_id;
+    					$assSchedule->shift_name = $schedule->shift_name;
+    					$assSchedule->shift_color = $schedule->shift_color;
+    					$assSchedule->shift_start_time = $startEndTime['start_time'];
+    					$assSchedule->shift_end_time = $startEndTime['end_time'];
+    					$assSchedule->leave_applied = 0;
+    					$assSchedule->leave_group_id = null;
+    					$assSchedule->leave_type = null;
+    					$assSchedule->leave_reason = null;
+    					$assSchedule->leave_approved = 0;
+    					$assSchedule->leave_approved_date_time = null;
+    					$assSchedule->leave_notified_to = null;
+    					$assSchedule->notified_group = null;
+    					$assSchedule->is_active = 1;
+    					$assSchedule->scheduled_work_duration = $schedule->scheduled_work_duration;
+    					$assSchedule->extra_work_duration = $schedule->extra_work_duration;
+    					$assSchedule->status = $schedule->status;
+    					$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+    					$assSchedule->save();
+
+    					//-----------------notification----------------------//
+    					$user = User::find($leave['assign_emp']);
     					$title = "";
     					$body = "";
-    					$module =  "leave";
-    					$event = "leaveApproved";
-    					$id =  $request->group_id;
-    					$screen =  "list";
+    					$module =  "schedule";
+    					$event = "schedule-assigned";
+    					$id =  $assSchedule->id;
+    					$screen =  "detail";
 
     					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
     					if($getMsg )
@@ -729,55 +730,43 @@ class LeaveController extends Controller
     						$arrayVal = [
     							'{{name}}'  		=> $user->name,
     							'{{requested_by}}' 	=> Auth::User()->name,
-    							'{{dates}}'			=> $dates
+    							'{{dates}}'			=> $assSchedule->shift_date
     						];
     						$body = strReplaceAssoc($arrayVal, $body);
     					}
     					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
-    					$users_id[] = $user->id;
     				}
-
-    				Schedule::where('leave_group_id',$leave_group_id)
-    				->update([
-    					'leave_notified_to' => json_encode($users_id),
-    					'notified_group' => $notified_group
-    				]);
-    			}
-    			else
-    			{
-    				$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
-
-    				$assSchedule = new Schedule;
-    				$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
-    				$assSchedule->user_id = $request->emp_id;
-    				$assSchedule->patient_id = $schedule->patient_id;
-    				$assSchedule->shift_id = $schedule->shift_id;
-    				$assSchedule->parent_id = $schedule->id;
-    				$assSchedule->created_by = Auth::id();
-    				$assSchedule->slot_assigned_to = null;
-    				$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
-    				$assSchedule->schedule_template_id = $schedule->schedule_template_id;
-    				$assSchedule->schedule_type = $schedule->schedule_type;
-    				$assSchedule->shift_date = $schedule->shift_date;
-    				$assSchedule->group_id = $schedule->group_id;
-    				$assSchedule->shift_name = $schedule->shift_name;
-    				$assSchedule->shift_color = $schedule->shift_color;
-    				$assSchedule->shift_start_time = $startEndTime['start_time'];
-    				$assSchedule->shift_end_time = $startEndTime['end_time'];
-    				$assSchedule->leave_applied = 0;
-    				$assSchedule->leave_group_id = null;
-    				$assSchedule->leave_type = null;
-    				$assSchedule->leave_reason = null;
-    				$assSchedule->leave_approved = 0;
-    				$assSchedule->leave_approved_date_time = null;
-    				$assSchedule->leave_notified_to = null;
-    				$assSchedule->notified_group = null;
-    				$assSchedule->is_active = 1;
-    				$assSchedule->scheduled_work_duration = $schedule->scheduled_work_duration;
-    				$assSchedule->extra_work_duration = $schedule->extra_work_duration;
-    				$assSchedule->status = $schedule->status;
-    				$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    				$assSchedule->save();
+    				else
+    				{
+    					$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $shift_date);
+    					$schedule = new Schedule;
+    					$schedule->schedule_template_id = $schedule_template_id;
+    					$schedule->shift_id = null;
+    					$schedule->user_id = $request->emp_id;
+    					$schedule->parent_id = null;
+    					$schedule->shift_start_time = $startEndTime['start_time'];
+    					$schedule->shift_end_time = $startEndTime['end_time'];
+    					$schedule->patient_id = null;
+    					$schedule->group_id = $leave_group_id;
+    					$schedule->shift_name = '';
+    					$schedule->shift_color = '';
+    					$schedule->shift_date = $shift_date;
+    					$schedule->leave_applied = 1;
+    					$schedule->leave_type = $request->leave_type;
+    					$schedule->leave_reason = $request->reason;
+    					$schedule->leave_group_id = $leave_group_id;
+    					$schedule->is_active = 1;
+    					$schedule->leave_approved_date_time = date('Y-m-d H:i:s');
+    					$schedule->leave_approved = 1;
+    					$schedule->leave_approved_by = Auth::id();
+    					$schedule->only_leave = 1;
+    					$schedule->status = 1;
+    					$schedule->schedule_type = 'basic';
+    					$schedule->created_by = Auth::id();
+    					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+    					$schedule->save();
+    					$schedule_id[] = $schedule->id;
+    				}
     			}
     		} 
     		$data = Schedule::where('leave_group_id',$leave_group_id)->get();

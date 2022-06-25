@@ -59,7 +59,7 @@ class User extends Authenticatable
      */
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
-    protected $appends = ['company_types','patient_types'];
+    protected $appends = ['company_types','patient_types','on_vacation'];
     protected $fillable = [
         'unique_id',
         'custom_unique_id',
@@ -390,7 +390,16 @@ class User extends Authenticatable
 
     public function onVacations()
     {
-         return $this->hasMany(Schedule::class,'user_id','id');
+         return $this->hasMany(Schedule::class,'user_id','id')->where('leave_applied',1)->where('shift_date',date('Y-m-d'));
+    }
+
+    public function getOnVacationAttribute()
+    {
+        if($this->onVacations->count() > 0)
+        {
+            return true;
+        }
+        return false;
     }
 
 
