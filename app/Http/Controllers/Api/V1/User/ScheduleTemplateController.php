@@ -158,8 +158,12 @@ class ScheduleTemplateController extends Controller
 			$scheduleTemplate->status = 1;
 			$scheduleTemplate->save();
 
-			$schedules = Schedule::where('schedule_template_id',$id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
 			$messages = [];
+			if(!empty($request->replacing__template_id))
+			{
+				Schedule::where('schedule_template_id',$request->replacing__template_id)->update(['is_active' => 0]);
+			}
+			$schedules = Schedule::where('schedule_template_id',$id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
 			foreach ($schedules as $key => $schedule) {
 				$check = Schedule::where('user_id',$schedule->user_id)
 				->where('shift_date',$schedule->shift_date)

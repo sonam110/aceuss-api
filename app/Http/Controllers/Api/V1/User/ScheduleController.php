@@ -365,7 +365,7 @@ class ScheduleController extends Controller
 				$scheduleTemplate = new ScheduleTemplate;
 				$scheduleTemplate->title = $request->new_template_name;
 				$scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-				$scheduleTemplate->status = 0;
+				$scheduleTemplate->status = $request->status ? $request->status:0;
 				$scheduleTemplate->save();
 
 				$new_template_id = $scheduleTemplate->id;
@@ -382,7 +382,7 @@ class ScheduleController extends Controller
 				$newSchedule = $schedule->replicate();
 				$newSchedule->schedule_template_id = $new_template_id;
 				$newSchedule->group_id = $group_id;
-				$newSchedule->is_active = 0;
+				$newSchedule->is_active = $request->status ? $request->status:0;
 				$newSchedule->entry_mode = $request->entry_mode ? $request->entry_mode : 'Web';
 				$newSchedule->save();
 
