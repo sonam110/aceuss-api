@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use App\Models\ScheduleTemplate;
 use Validator;
 use Auth;
 use DB;
@@ -352,7 +353,7 @@ class ScheduleController extends Controller
 	{
 		$validator = Validator::make($request->all(),[   
 			'old_template_id' => 'required|exists:schedule_templates,id',
-			'new_template_id' => 'required|exists:schedule_templates,id',
+			// 'new_template_id' => 'required|exists:schedule_templates,id',
 		]);
 		if ($validator->fails()) {
 			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -360,6 +361,21 @@ class ScheduleController extends Controller
 		DB::beginTransaction();
 		try 
 		{
+			if(!empty($request->new_template_name))
+			{
+		        $scheduleTemplate = new ScheduleTemplate;
+			 	$scheduleTemplate->title = $request->new_template_name;
+	            $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+	            $scheduleTemplate->status =  $request->status ? $request->status : 0;
+			 	$scheduleTemplate->save();
+
+			 	$new_template_id = $scheduleTemplate->id;
+			}
+			else
+			{
+				$new_template_id = $request->new_template_id;
+			}
+
 			$schedules = Schedule::where('schedule_template_id',$request->old_template_id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
 			$group_id = generateRandomNumber();
 			$schedule_ids = [];
@@ -381,29 +397,31 @@ class ScheduleController extends Controller
 				->first();
 				if(!empty($check))
 				{
-					$messages[] = "schedule Id - ".$schedule->id." / User Id - ".$schedule->user_id." / start-end-time : ".$schedule->shift_start_time."-".$schedule->shift_start_time;
-				}
-				if(empty($messages))
-				{
-					foreach ($schedules as $key => $schedule) {
-						$newSchedule = $schedule->replicate();
-						$newSchedule->schedule_template_id = $request->new_template_id;
-						$newSchedule->group_id = $group_id;
-						$newSchedule->entry_mode = $request->entry_mode ? $request->entry_mode : 'Web';
-						$newSchedule->save();
-
-						if($request->replace_data == "yes")
-						{
-							$schedule->delete();
-						}
-						$schedule_ids[] = $newSchedule->id;
-					}
+					$messages[] = "schedule Id - ".$check->id." / User Id - ".$check->user_id." / start-end-time : ".$check->shift_start_time."-".$check->shift_end_time;
 				}
 			}
-			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
+			if(empty($messages))
+			{
+				foreach ($schedules as $key => $schedule) {
+					$newSchedule = $schedule->replicate();
+					$newSchedule->schedule_template_id = $new_template_id;
+					$newSchedule->group_id = $group_id;
+					$newSchedule->entry_mode = $request->entry_mode ? $request->entry_mode : 'Web';
+					$newSchedule->save();
 
+					if($request->replace_data == "yes")
+					{
+						$schedule->delete();
+					}
+					$schedule_ids[] = $newSchedule->id;
+				}
+				$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
+				DB::commit();
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
+			}
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,[$data,$messages], config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$messages, config('httpcodes.success'));
+
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);
@@ -411,7 +429,5 @@ class ScheduleController extends Controller
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
-
-
 	
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ScheduleTemplate;
+use App\Models\Schedule;
 use Validator;
 use Auth;
 use DB;
@@ -73,9 +74,6 @@ class ScheduleTemplateController extends Controller
         	}
 	        $scheduleTemplate = new ScheduleTemplate;
 		 	$scheduleTemplate->title = $request->title;
-		 	// $scheduleTemplate->shifts = json_encode($request->shifts);
-    //         $scheduleTemplate->from_date = $request->from_date;
-    //         $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();
@@ -106,9 +104,6 @@ class ScheduleTemplateController extends Controller
             }
         	$scheduleTemplate = ScheduleTemplate::where('id',$id)->first();
             $scheduleTemplate->title = $request->title;
-            // $scheduleTemplate->shifts = json_encode($request->shifts);
-            // $scheduleTemplate->from_date = $request->from_date;
-            // $scheduleTemplate->to_date = $request->to_date;
             $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $scheduleTemplate->status =  $request->status;
 		 	$scheduleTemplate->save();
@@ -151,6 +146,32 @@ class ScheduleTemplateController extends Controller
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
+        }
+    }
+
+    public function changeStatus(Request $request,$id){
+        DB::beginTransaction();
+        try 
+        {
+            $validator = Validator::make($request->all(),[ 
+                'status' => 'required', 
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+            }
+            $scheduleTemplate = ScheduleTemplate::find($id);
+            $scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $scheduleTemplate->status = $request->status;
+            $scheduleTemplate->save();
+
+            $schedule = Schedule::where('schedule_template_id',$id)->update(['is_active' => $request->status]);
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 }
