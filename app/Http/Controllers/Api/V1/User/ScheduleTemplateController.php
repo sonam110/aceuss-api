@@ -149,48 +149,59 @@ class ScheduleTemplateController extends Controller
 		}
 	}
 
-	public function activate(Request $request,$id)
+	public function changeStatus(Request $request,$id)
 	{
 		DB::beginTransaction();
 		try 
 		{
 			$scheduleTemplate = ScheduleTemplate::find($id);
-			$scheduleTemplate->status = 1;
+			$scheduleTemplate->status = $request->status;
 			$scheduleTemplate->save();
 
 			$messages = [];
-			if(!empty($request->replacing__template_id))
+
+			if(!empty($request->replacing_template_id))
 			{
-				Schedule::where('schedule_template_id',$request->replacing__template_id)->update(['is_active' => 0]);
-			}
-			$schedules = Schedule::where('schedule_template_id',$id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
-			foreach ($schedules as $key => $schedule) {
-				$check = Schedule::where('user_id',$schedule->user_id)
-				->where('shift_date',$schedule->shift_date)
-				->where('is_active',1)
-				->where('id',"!=",$schedule->id)
-				->where(function($query) use($schedule) {
-					$query->where(function($query) use ($schedule) {
-						$query->where('shift_start_time',">=",$schedule->shift_start_time)
-						->where('shift_start_time',"<=",$schedule->shift_end_time);
+				Schedule::where('schedule_template_id',$request->replacing_template_id)->update(['is_active' => 0]);
+			}  
+
+			if($request->status == 1)
+			{
+				$schedules = Schedule::where('schedule_template_id',$id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
+
+				foreach ($schedules as $key => $schedule) {
+					$check = Schedule::where('user_id',$schedule->user_id)
+					->where('shift_date',$schedule->shift_date)
+					->where('is_active',1)
+					->where('id',"!=",$schedule->id)
+					->where(function($query) use($schedule) {
+						$query->where(function($query) use ($schedule) {
+							$query->where('shift_start_time',">=",$schedule->shift_start_time)
+							->where('shift_start_time',"<=",$schedule->shift_end_time);
+						})
+						->orWhere(function($query) use ($schedule) {
+							$query->where('shift_end_time',">=",$schedule->shift_start_time)
+							->where('shift_end_time',"<=",$schedule->shift_end_time);
+						});
 					})
-					->orWhere(function($query) use ($schedule) {
-						$query->where('shift_end_time',">=",$schedule->shift_start_time)
-						->where('shift_end_time',"<=",$schedule->shift_end_time);
-					});
-				})
-				->first();
-				if(!empty($check))
-				{
-					$messages[] = "schedule Id - ".$check->id." / User Id - ".$check->user_id." / start-end-time : ".$check->shift_start_time."-".$check->shift_end_time;
+					->first();
+					if(!empty($check))
+					{
+						$messages[] = "schedule Id - ".$check->id." / User Id - ".$check->user_id." / start-end-time : ".$check->shift_start_time."-".$check->shift_end_time;
+					}
 				}
-				else
+				if(!empty($messages))
 				{
-					Schedule::where('id',$schedule->id)->update(['is_active' => 1]); 
+					return prepareResult(false,$messages,[], config('httpcodes.bad_request'));
 				}
+				Schedule::where('schedule_template_id',$id)->update(['is_active' => $request->status]);
+			}
+			else
+			{
+				Schedule::where('schedule_template_id',$id)->update(['is_active' => $request->status]);
 			}
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,[$scheduleTemplate,$messages], config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);
@@ -198,24 +209,4 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
-
-	public function deactivate(Request $request,$id){
-        DB::beginTransaction();
-        try 
-        {
-            $scheduleTemplate = ScheduleTemplate::find($id);
-            $scheduleTemplate->status = 0;
-            $scheduleTemplate->deactivation_date = date('Y-m-d');
-            $scheduleTemplate->save();
-
-            $schedule = Schedule::where('schedule_template_id',$id)->update(['is_active' => 0]);
-            DB::commit();
-            return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
-        }
-        catch(Exception $exception) {
-            \Log::error($exception);
-            DB::rollback();
-            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-        }
-    }
 }
