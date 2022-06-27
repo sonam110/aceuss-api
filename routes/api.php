@@ -352,7 +352,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		//-----------------------ScheduleMaster---------------------//
 		Route::post('schedule-templates', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'scheduleTemplates']);
 		Route::apiResource('schedule-template', User\ScheduleTemplateController::class)->only(['store','destroy','show', 'update']);
-		Route::post('schedule-template-change-status/{id}', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'changeStatus']);
+		Route::post('schedule-template-activate/{id}', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'activate']);
+		Route::post('schedule-template-deactivate/{id}', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'deactivate']);
 		
 	});
 
