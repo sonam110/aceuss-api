@@ -34,6 +34,18 @@ class ScheduleTemplateController extends Controller
 		{
 			$user = getUser();
 			$query = ScheduleTemplate::orderBy('id', 'DESC');
+			if(!empty($request->title))
+			{
+				$query->where('title','like', '%'.$request->title.'%');
+			}
+			if($request->status == 'active')
+			{
+				$query->where('status', 1);
+			}
+            if($request->status == 'inactive')
+            {
+                $query->where('status', 0);
+            }
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
