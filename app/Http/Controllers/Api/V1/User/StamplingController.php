@@ -282,7 +282,7 @@ class StamplingController extends Controller
 				$stampling->total_extra_hours		= $total_extra_hours;
 				$stampling->total_ob_hours 			= $total_ob_hours;
 				$stampling->working_percent 		= $working_percent;
-            	$stampling->logout_by               	= 'system';
+            	$stampling->logout_by               = 'self';
 				$stampling->entry_mode 				= $request->entry_mode ? $request->entry_mode : 'Web';
 				$stampling->save();
 

@@ -35,11 +35,15 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id');
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->where('is_active',1)->groupBy('group_id');
 
 			if(!empty($request->shift_id))
 			{
 				$query->where('shift_id' ,$request->shift_id);
+			}
+			if(!empty($request->schedule_template_id))
+			{
+				$query->where('schedule_template_id' ,$request->schedule_template_id);
 			}
 			if(!empty($request->schedule_type))
 			{

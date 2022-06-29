@@ -37,7 +37,8 @@ class Stampling extends Model
         'total_ob_hours',
         'entry_mode',
         'working_percent',
-        'reason_for_rejection'
+        'reason_for_rejection',
+        'logout_by'
     ];
 
 

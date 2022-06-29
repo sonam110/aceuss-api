@@ -22,10 +22,6 @@ class NoAuthController extends Controller
 
     public function getLabels(Request $request)
     {
-
-        return Label::latest()->first();
-
-        
         // $label = Label::all();
         // foreach ($label as $key => $value) {
         //    $label_name = 'message_'.$value->label_name;
@@ -35,8 +31,14 @@ class NoAuthController extends Controller
             $query = Label::select('label_name','label_value')->orderBy('created_at','asc');
             if(!empty($request->language_id))
             {
-                $query = $query->where('language_id',$request->language_id);
+                $language = Language::find($request->language_id);
+                
             }
+            else
+            {
+                $language = Language::first();
+            }
+            $query = $query->where('language_id',$language->id);
             if(!empty($request->label_name))
             {
                 $query = $query->where('label_name','like', '%'.$request->label_name.'%');
@@ -45,6 +47,7 @@ class NoAuthController extends Controller
             $query = $query->get();
 
             $data = [];
+            $data['mobile_language_obj'] = $language;
             foreach ($query as $key => $q) {
                 $data[$q->label_name] = $q->label_value;
             }
