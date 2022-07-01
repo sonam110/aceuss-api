@@ -141,6 +141,7 @@ class StamplingController extends Controller
 					}
 
 					$stampling_type = 'walkin';
+					$result = scheduleWorkCalculation($date,$in_time,$request->expected_out_time,'extra');
 
 					$schedule = new Schedule;
 					$schedule->top_most_parent_id = $user->top_most_parent_id;
@@ -149,28 +150,30 @@ class StamplingController extends Controller
 					$schedule->shift_id = NULL;
 					$schedule->parent_id = NULL;
 					$schedule->created_by = Auth::id();
-					$schedule->slot_assigned_to = NULL;
+					$schedule->slot_assigned_to = null;
 					$schedule->employee_assigned_working_hour_id = NULL;
 					$schedule->schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 					$schedule->schedule_type = 'extra';
 					$schedule->shift_date = $date;
 					$schedule->group_id = generateRandomNumber();
-					$schedule->shift_name = NULL;
-					$schedule->shift_color = NULL;
+					$schedule->shift_name = null;
+					$schedule->shift_color = null;
 					$schedule->shift_start_time = $in_time;
 					$schedule->shift_end_time = $request->expected_out_time;
 					$schedule->leave_applied = 0;
-					$schedule->leave_group_id = NULL;
-					$schedule->leave_type = NULL;
-					$schedule->leave_reason = NULL;
-					$schedule->leave_approved = "0";
-					$schedule->leave_approved_by = NULL;
-					$schedule->leave_approved_date_time = NULL;
-					$schedule->leave_notified_to = NULL;
-					$schedule->notified_group = NULL;
+					$schedule->leave_group_id = null;
+					$schedule->leave_type = null;
+					$schedule->leave_reason = null;
+					$schedule->leave_approved = 0;
+					$schedule->leave_approved_by = null;
+					$schedule->leave_approved_date_time = null;
+					$schedule->leave_notified_to = null;
+					$schedule->notified_group = null;
 					$schedule->is_active = 1;
-					$schedule->scheduled_work_duration = NULL;
-					$schedule->extra_work_duration = NULL;
+					$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+					$schedule->extra_work_duration = $result['extra_work_duration'];
+					$schedule->ob_work_duration = $result['ob_work_duration'];
+					$schedule->ob_type = $result['ob_type'];
 					$schedule->status = $request->status ? $request->status :0;
 					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();
@@ -236,19 +239,7 @@ class StamplingController extends Controller
 				}
 
 
-	            $ob = OVHour::where('date',$stampling->date)->orWhere('date','')->orderBy('id','desc')->first();
-				if($ob)
-				{
-					$ob_start_time = $stampling->date.' '.$ob->start_time;
-					$ob_end_time = $stampling->date.' '.$ob->end_time;
-					$ob_duration = getObDuration($in_time,$out_time,$ob_start_time,$ob_end_time);
-				}
-				else
-				{
-					$ob_start_time = null;
-					$ob_end_time = null;
-					$ob_duration = 0;
-				}
+	            
 
 				// return getOVHours('2022-06-22 19:30:00','2022-06-23 08:10:00','2022-06-22 20:30','2022-06-23 05:30');
 
@@ -256,7 +247,8 @@ class StamplingController extends Controller
 
 				// $data = basicScheduleTimeCalculation('2022-06-22 22:20:00','2022-06-23 06:50:00',$relaxation_time,'2022-06-22 19:30:00','2022-06-23 08:10:00', '2022-06-22 11:30', '2022-06-23 05:30', true);
 				// return $data;
-				
+				$ob = getObDuration($date,$in_time,$out_time);
+				$ob_duration = $ob['ob_duration'];
 
 				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
 				$total_worked_duration = timeDifference($in_time,$out_time);
@@ -281,6 +273,7 @@ class StamplingController extends Controller
 				$stampling->total_schedule_hours 	= $total_schedule_hours;
 				$stampling->total_extra_hours		= $total_extra_hours;
 				$stampling->total_ob_hours 			= $total_ob_hours;
+				$stampling->ob_type 				= $ob['ob_type'];
 				$stampling->working_percent 		= $working_percent;
             	$stampling->logout_by               = 'self';
 				$stampling->entry_mode 				= $request->entry_mode ? $request->entry_mode : 'Web';

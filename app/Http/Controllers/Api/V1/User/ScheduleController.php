@@ -12,7 +12,7 @@ use DB;
 use App\Models\User;
 use App\Models\CompanyWorkShift;
 use Exception;
-use App\Models\Activity;
+use App\Models\OVHour;
 use PDF;
 use App\Models\EmailTemplate;
 use Str;
@@ -176,11 +176,9 @@ class ScheduleController extends Controller
 			{
 				$dates = $request->shift_dates;
 			}
-			$start_time = $request->shift_start_time;
-			$end_time = $request->shift_end_time;
-			$emergency_start_time = $request->emergency_start_time;
-			$emergency_end_time = $request->emergency_end_time;
+
 			$shedule_ids = [];
+			$group_id = generateRandomNumber();
 			$assignedWork_id = null;
 			$assignedWork = null;
 			if(!empty(User::find($request->user_id)->assignedWork))
@@ -188,13 +186,15 @@ class ScheduleController extends Controller
 				$assignedWork = User::find($request->user_id)->assignedWork;
 				$assignedWork_id = $assignedWork->id;
 			}
-			$group_id = generateRandomNumber();
-			$schedule_ids = [];
 			foreach($dates as $key=>$shift_date)
 			{
 				$date = date('Y-m-d',strtotime($shift_date));
+				$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
+				$shift_start_time = $startEndTime['start_time'];
+				$shift_end_time = $startEndTime['end_time'];
 
-				$startEndTime = getStartEndTime($start_time, $end_time, $date);
+				$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$request->schedule_type);
+
 				$schedule = new Schedule;
 				$schedule->top_most_parent_id = $request->top_most_parent_id;
 				$schedule->user_id = $request->user_id;
@@ -210,8 +210,8 @@ class ScheduleController extends Controller
 				$schedule->group_id = $group_id;
 				$schedule->shift_name = $shift_name;
 				$schedule->shift_color = $shift_color;
-				$schedule->shift_start_time = $startEndTime['start_time'];
-				$schedule->shift_end_time = $startEndTime['end_time'];
+				$schedule->shift_start_time = $shift_start_time;
+				$schedule->shift_end_time = $shift_end_time;
 				$schedule->leave_applied = 0;
 				$schedule->leave_group_id = null;
 				$schedule->leave_type = null;
@@ -222,8 +222,10 @@ class ScheduleController extends Controller
 				$schedule->leave_notified_to = null;
 				$schedule->notified_group = null;
 				$schedule->is_active = 1;
-				$schedule->scheduled_work_duration = $request->scheduled_work_duration;
-				$schedule->extra_work_duration = $request->extra_work_duration;
+				$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+				$schedule->extra_work_duration = $result['extra_work_duration'];
+				$schedule->ob_work_duration = $result['ob_work_duration'];
+				$schedule->ob_type = $result['ob_type'];
 				$schedule->status = $request->status ? $request->status :0;
 				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 				$schedule->save();
@@ -246,15 +248,6 @@ class ScheduleController extends Controller
 		DB::beginTransaction();
 		try 
 		{
-			// $validator = Validator::make($request->all(),[   
-			// 	'shift_id' => 'required|exists:company_work_shifts,id' 
-			// ],
-			// [   
-			// 	'shift_id' =>  getLangByLabelGroups('Schedule','message_shift_id')
-			// ]);
-			// if ($validator->fails()) {
-			// 	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-			// }
 
 			$schedule = Schedule::find($id);
 			if (!is_object($schedule)) {
@@ -279,24 +272,51 @@ class ScheduleController extends Controller
 			$date = !empty($request->shift_date) ? $shift_date : $schedule->shift_date;
 			
 			$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
+			$shift_start_time = $startEndTime['start_time'];
+			$shift_end_time = $startEndTime['end_time'];
+			$assignedWork_id = null;
+			$assignedWork = null;
+			if(!empty(User::find($schedule->user_id)->assignedWork))
+			{
+				$assignedWork = User::find($schedule->user_id)->assignedWork;
+				$assignedWork_id = $assignedWork->id;
+			}
 
-			$schedule->shift_id 		= $request->shift_id;
-			$schedule->user_id 			= $request->user_id ? $request->user_id : $schedule->user_id;
-			$schedule->parent_id 		= $request->parent_id;
-			$schedule->shift_name 		= $shift_name;
-			$schedule->shift_start_time = $startEndTime['start_time'];
-			$schedule->shift_end_time 	= $startEndTime['end_time'];
-			$schedule->patient_id 		= $request->patient_id;
-			$schedule->shift_color 		= $shift_color;
-			$schedule->shift_date 		= $date;
-			$schedule->leave_applied 	= $request->leave_applied ? $request->leave_applied :0;
-			$schedule->leave_approved 	= $request->leave_approved ? $request->leave_approved :0;
-			$schedule->status 			= $request->status ? $request->status :0;
-			$schedule->entry_mode 		= $request->entry_mode ? $request->entry_mode :'Web';
-			$schedule->created_by 		= Auth::id();
-			$schedule->employee_assigned_working_hour_id = $request->employee_assigned_working_hour_id;
+			$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$request->schedule_type);
+
+			$schedule->top_most_parent_id = $request->top_most_parent_id;
+			$schedule->user_id = $schedule->user_id;
+			$schedule->patient_id = $request->patient_id;
+			$schedule->shift_id = $request->shift_id;
+			$schedule->parent_id = $request->parent_id;
+			$schedule->created_by = Auth::id();
+			$schedule->slot_assigned_to = $request->slot_assigned_to;
+			$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+			$schedule->schedule_template_id = $request->schedule_template_id;
+			$schedule->schedule_type = $request->schedule_type;
+			$schedule->shift_date = $date;
+			$schedule->group_id = $schedule->group_id;
+			$schedule->shift_name = $shift_name;
+			$schedule->shift_color = $shift_color;
+			$schedule->shift_start_time = $shift_start_time;
+			$schedule->shift_end_time = $shift_end_time;
+			$schedule->leave_applied = 0;
+			$schedule->leave_group_id = null;
+			$schedule->leave_type = null;
+			$schedule->leave_reason = null;
+			$schedule->leave_approved = 0;
+			$schedule->leave_approved_by = null;
+			$schedule->leave_approved_date_time = null;
+			$schedule->leave_notified_to = null;
+			$schedule->notified_group = null;
+			$schedule->is_active = 1;
+			$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+			$schedule->extra_work_duration = $result['extra_work_duration'];
+			$schedule->ob_work_duration = $result['ob_work_duration'];
+			$schedule->ob_type = $result['ob_type'];
+			$schedule->status = $request->status ? $request->status :0;
+			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 			$schedule->save();
-
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_update') ,$schedule, config('httpcodes.success'));
 		}

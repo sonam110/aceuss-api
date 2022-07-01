@@ -38,7 +38,8 @@ class Stampling extends Model
         'entry_mode',
         'working_percent',
         'reason_for_rejection',
-        'logout_by'
+        'logout_by',
+        'ob_type'
     ];
 
 

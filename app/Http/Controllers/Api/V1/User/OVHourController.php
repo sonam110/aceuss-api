@@ -158,6 +158,7 @@ class OVHourController extends Controller
                 $ovHour = new OVHour;
                 $ovHour->title = $request->title;
                 $ovHour->date = $date;
+                $ovHour->ob_type = $request->ob_type;
                 $ovHour->start_time = $request->start_time;
                 $ovHour->end_time = $request->end_time;
                 $ovHour->entry_mode = $request->entry_mode;
@@ -234,6 +235,7 @@ class OVHourController extends Controller
             $ovHour = OVHour::find($id);
             $ovHour->title = $request->title;
             $ovHour->date = $request->date;
+            $ovHour->ob_type = $request->ob_type;
             $ovHour->start_time = $request->start_time;
             $ovHour->end_time = $request->end_time;
             $ovHour->entry_mode = $request->entry_mode;

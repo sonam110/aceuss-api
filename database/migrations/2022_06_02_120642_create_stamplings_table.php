@@ -39,8 +39,9 @@ class CreateStamplingsTable extends Migration
             $table->float('scheduled_hours_rate')->nullable()->comment('amount or salary / hr');
             $table->float('extra_hours_rate')->nullable()->comment('amount or salary / hr');
             $table->float('ob_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->string('ob_type')->nullable();
 
-            $table->string('total_schedule_hours')->default(0)->nullable();
+            $table->string('total_schedule_hours')->default(0)->nullable()->comment('total worked - ob worked - extra worked');
             $table->string('total_extra_hours')->default(0)->nullable();
             $table->float('total_ob_hours')->default(0)->nullable();
             

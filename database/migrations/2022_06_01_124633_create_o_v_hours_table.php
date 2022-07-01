@@ -21,6 +21,7 @@ class CreateOVHoursTable extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->date('date')->nullable();
+            $table->string('ob_type')->nullable();
             $table->string('entry_mode', 25);
             $table->timestamps();
             $table->softDeletes();

@@ -64,8 +64,10 @@ class CreateSchedulesTable extends Migration
             $table->string('notified_group')->nullable();
             //-----------------------------------------------------//
             $table->boolean('is_active')->default(0);
-            $table->string('scheduled_work_duration')->default(0)->nullable();
-            $table->string('extra_work_duration')->default(0)->nullable();
+            $table->string('scheduled_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type basic');
+            $table->string('extra_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type extra');
+            $table->string('ob_work_duration')->default(0)->nullable();
+            $table->string('ob_type')->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();

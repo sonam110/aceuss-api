@@ -89,13 +89,6 @@ class LeaveController extends Controller
 		}
 	}
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-
     public function store(Request $request)
     {
     	DB::beginTransaction();
@@ -159,16 +152,26 @@ class LeaveController extends Controller
     					$schedule->parent_id = null;
     					$schedule->shift_start_time = $startEndTime['start_time'];
     					$schedule->shift_end_time = $startEndTime['end_time'];
-    					$schedule->patient_id = null;
+    					$schedule->patient_id = NULL;
     					$schedule->group_id = $group_id;
     					$schedule->shift_name = '';
     					$schedule->shift_color = '';
     					$schedule->shift_date = $date;
     					$schedule->leave_applied = 1;
+                        $schedule->only_leave = 1;
     					$schedule->leave_type = $request->leave_type;
     					$schedule->leave_reason = $request->reason;
     					$schedule->leave_group_id = $group_id;
     					$schedule->leave_approved = 0;
+                        $schedule->leave_approved_by = NULL;
+                        $schedule->leave_approved_date_time = NULL;
+                        $schedule->leave_notified_to = NULL;
+                        $schedule->notified_group = NULL;
+                        $schedule->is_active = 1;
+                        $schedule->scheduled_work_duration = NULL;
+                        $schedule->extra_work_duration = NULL;
+                        $schedule->ob_work_duration = NULL;
+                        $schedule->ob_type = NULL;
     					$schedule->status = 0;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
@@ -206,21 +209,31 @@ class LeaveController extends Controller
     						$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $date);
     						$schedule = new Schedule;
     						$schedule->schedule_template_id = $schedule_template_id;
-    						$schedule->shift_id = null;
+    						$schedule->shift_id = NULL;
     						$schedule->user_id = Auth::id();
-    						$schedule->parent_id = null;
+    						$schedule->parent_id = NULL;
     						$schedule->shift_start_time = $startEndTime['start_time'];
     						$schedule->shift_end_time = $startEndTime['end_time'];
-    						$schedule->patient_id = null;
+    						$schedule->patient_id = NULL;
     						$schedule->group_id = $group_id;
     						$schedule->shift_name = '';
     						$schedule->shift_color = '';
     						$schedule->shift_date = $date;
     						$schedule->leave_applied = 1;
+    						$schedule->only_leave = 1;
     						$schedule->leave_type = $request->leave_type;
     						$schedule->leave_reason = $value['reason'];
     						$schedule->leave_group_id = $group_id;
     						$schedule->leave_approved = 0;
+                            $schedule->leave_approved_by = NULL;
+                            $schedule->leave_approved_date_time = NULL;
+                            $schedule->leave_notified_to = NULL;
+                            $schedule->notified_group = NULL;
+                            $schedule->is_active = 1;
+                            $schedule->scheduled_work_duration = NULL;
+                            $schedule->extra_work_duration = NULL;
+                            $schedule->ob_work_duration = NULL;
+                            $schedule->ob_type = NULL;
     						$schedule->status = 0;
     						$schedule->schedule_type = 'basic';
     						$schedule->created_by = Auth::id();
@@ -241,12 +254,6 @@ class LeaveController extends Controller
     	}
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Leave  $leave
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
     	try 
@@ -262,14 +269,6 @@ class LeaveController extends Controller
     	}
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Leave  $leave
-     * @return \Illuminate\Http\Response
-     */
-    
     public function update(Request $request,$id)
     {
     	$validation = \Validator::make($request->all(), [
@@ -294,14 +293,7 @@ class LeaveController extends Controller
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \App\Leave $leave
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
-     */
+    
 
     public function destroy($id)
     {
@@ -342,9 +334,9 @@ class LeaveController extends Controller
     	try 
     	{
     		$notified_group = generateRandomNumber();
+            $group_id = generateRandomNumber();
     		if(!empty($request->leave_group_id))
     		{
-
     			$leave = Schedule::where('leave_group_id',$request->leave_group_id)->first();
     			$update = Schedule::where('leave_group_id',$request->leave_group_id)
     			->update([
@@ -416,39 +408,47 @@ class LeaveController extends Controller
     					'slot_assigned_to' => $user->id
     				]);
     				$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $leave->shift_date);
+                    $shift_start_time = $startEndTime['start_time'];
+                    $shift_end_time = $startEndTime['end_time'];
 
-    				$schedule = new Schedule;
-    				$schedule->top_most_parent_id = $leave->top_most_parent_id;
-    				$schedule->user_id = $user->id;
-    				$schedule->patient_id = $leave->patient_id;
-    				$schedule->shift_id = $leave->shift_id;
-    				$schedule->parent_id = $leave->id;
-    				$schedule->created_by = Auth::id();
-    				$schedule->slot_assigned_to = null;
-    				$schedule->employee_assigned_working_hour_id = $leave->assignedWork_id;
-    				$schedule->schedule_template_id = $leave->schedule_template_id;
-    				$schedule->schedule_type = $leave->schedule_type;
-    				$schedule->shift_date = $leave->shift_date;
-    				$schedule->group_id = $leave->group_id;
-    				$schedule->shift_name = $leave->shift_name;
-    				$schedule->shift_color = $leave->shift_color;
-    				$schedule->shift_start_time = $startEndTime['start_time'];
-    				$schedule->shift_end_time = $startEndTime['end_time'];
-    				$schedule->leave_applied = 0;
-    				$schedule->leave_group_id = null;
-    				$schedule->leave_type = null;
-    				$schedule->leave_reason = null;
-    				$schedule->leave_approved = 0;
-    				$schedule->leave_approved_by = null;
-    				$schedule->leave_approved_date_time = null;
-    				$schedule->leave_notified_to = null;
-    				$schedule->notified_group = null;
-    				$schedule->is_active = 1;
-    				$schedule->scheduled_work_duration = $leave->scheduled_work_duration;
-    				$schedule->extra_work_duration = $leave->extra_work_duration;
-    				$schedule->status = $leave->status;
-    				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    				$schedule->save();
+                    $result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra');
+
+                    $schedule = new Schedule;
+                    $schedule->top_most_parent_id = $leave->top_most_parent_id;
+                    $schedule->user_id = $user->id;
+                    $schedule->patient_id = $leave->patient_id;
+                    $schedule->shift_id = $leave->shift_id;
+                    $schedule->parent_id = $leave->parent_id;
+                    $schedule->created_by = Auth::id();
+                    $schedule->slot_assigned_to = $leave->slot_assigned_to;
+                    $schedule->employee_assigned_working_hour_id = $leave->assignedWork_id;
+                    $schedule->schedule_template_id = $leave->schedule_template_id;
+                    $schedule->schedule_type = $leave->schedule_type;
+                    $schedule->shift_date = $leave->shift_date;
+                    $schedule->group_id = $group_id;
+                    $schedule->shift_name = $leve->shift_name;
+                    $schedule->shift_color = $leave->shift_color;
+                    $schedule->shift_start_time = $shift_start_time;
+                    $schedule->shift_end_time = $shift_end_time;
+                    $schedule->leave_applied = 0;
+                    $schedule->leave_group_id = null;
+                    $schedule->leave_type = null;
+                    $schedule->leave_reason = null;
+                    $schedule->leave_approved = 0;
+                    $schedule->leave_approved_by = null;
+                    $schedule->leave_approved_date_time = null;
+                    $schedule->leave_notified_to = null;
+                    $schedule->notified_group = null;
+                    $schedule->is_active = 1;
+                    $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                    $schedule->extra_work_duration = $result['extra_work_duration'];
+                    $schedule->ob_work_duration = $result['ob_work_duration'];
+                    $schedule->ob_type = $result['ob_type'];
+                    $schedule->status = $request->status ? $request->status :0;
+                    $schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+                    $schedule->save();
+
+
 
     				//---------------notification--------------//
 
@@ -458,7 +458,7 @@ class LeaveController extends Controller
     					$body = "";
     					$module =  "leave";
     					$event = "leaveApproved";
-    					$id =  $leave->group_id;
+    					$id =  $leave->leave_group_id;
     					$screen =  "detail";
 
     					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
@@ -515,15 +515,6 @@ class LeaveController extends Controller
 
     public function leaveScheduleSlotSelected(Request $request)
     {
-        // $validation = \Validator::make($request->all(), [
-        //          'date'      => 'required',
-        //      ]);
-
-     //     if ($validation->fails()) {
-     //        return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
-     //     }
-
-
     	DB::beginTransaction();
     	try 
     	{
@@ -543,6 +534,10 @@ class LeaveController extends Controller
     		$date = $leave->shift_date;
 
     		$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $date);
+            $shift_start_time = $startEndTime['start_time'];
+            $shift_end_time = $startEndTime['end_time'];
+
+            $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra');
 
     		$schedule = new Schedule;
 			$schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -571,8 +566,10 @@ class LeaveController extends Controller
 			$schedule->leave_notified_to = null;
 			$schedule->notified_group = null;
 			$schedule->is_active = 1;
-			$schedule->scheduled_work_duration = $leave->scheduled_work_duration;
-			$schedule->extra_work_duration = $leave->extra_work_duration;
+			$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+            $schedule->extra_work_duration = $result['extra_work_duration'];
+            $schedule->ob_work_duration = $result['ob_work_duration'];
+            $schedule->ob_type = $result['ob_type'];
 			$schedule->status = $leave->status;
 			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 			$schedule->save();
@@ -679,6 +676,10 @@ class LeaveController extends Controller
     					]);
 
     					$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
+                        $shift_start_time = $startEndTime['start_time'];
+                        $shift_end_time = $startEndTime['end_time'];
+
+                        $result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra');
 
     					$assSchedule = new Schedule;
     					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
@@ -706,8 +707,10 @@ class LeaveController extends Controller
     					$assSchedule->leave_notified_to = null;
     					$assSchedule->notified_group = null;
     					$assSchedule->is_active = 1;
-    					$assSchedule->scheduled_work_duration = $schedule->scheduled_work_duration;
-    					$assSchedule->extra_work_duration = $schedule->extra_work_duration;
+    					$assSchedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                        $assSchedule->extra_work_duration = $result['extra_work_duration'];
+                        $assSchedule->ob_work_duration = $result['ob_work_duration'];
+                        $assSchedule->ob_type = $result['ob_type'];
     					$assSchedule->status = $schedule->status;
     					$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
     					$assSchedule->save();
@@ -769,7 +772,7 @@ class LeaveController extends Controller
     				}
     			}
     		} 
-    		$data = Schedule::where('leave_group_id',$leave_group_id)->get();
+    		$data = Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->get();
     	DB::commit();
     	return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success')); 
     	}

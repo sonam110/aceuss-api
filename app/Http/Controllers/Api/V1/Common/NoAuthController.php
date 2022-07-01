@@ -47,9 +47,9 @@ class NoAuthController extends Controller
             $query = $query->get();
 
             $data = [];
-            $data['mobile_language_obj'] = $language;
+            $data['language'] = $language;
             foreach ($query as $key => $q) {
-                $data[$q->label_name] = $q->label_value;
+                $data['labels'][$q->label_name] = $q->label_value;
             }
 
             return prepareResult(true,"Label list",$data,config('httpcodes.success'));

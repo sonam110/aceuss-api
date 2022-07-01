@@ -19,6 +19,7 @@ use App\Models\MobileBankIdLoginLog;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\CategoryMaster;
 use App\Models\CompanyWorkShift;
+use App\Models\OVHour;
 use App\Models\OauthAccessTokens;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
@@ -1224,42 +1225,129 @@ function timeWithRelaxation($scheduled_time,$relaxationTime)
     return $time;
 }
 
-function getObDuration($time1, $time2, $obtime1, $obtime2)
+function getObDuration($date,$time1, $time2)
 {
-    $time1 = strtotime($time1);
-    $time2 = strtotime($time2);
+    $ob = [];
+    $data = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
+    if(!empty($data))
+    {
+        $ob['type'] = $data->ob_type;
+        $time1 = strtotime($time1);
+        $time2 = strtotime($time2);
 
-    $obtime1 = strtotime($obtime1);
-    $obtime2 = strtotime($obtime2);
+        $obtime1 = strtotime($date.' '.$data->start_time);
+        $obtime2 = strtotime($date.' '.$data->end_time);
 
-    if($obtime1 > $obtime2)
+        if($obtime1 > $obtime2)
+        {
+            $obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($obtime2))));
+        }
+
+        if(($obtime1 <= $time1) && ($obtime2 <= $time1))
+        {
+            $ob['duration'] = 0;
+        }
+        elseif(($obtime1 >= $time2) && ($obtime2 <= $time2))
+        {
+            $ob['duration'] = 0;
+        }
+        elseif(($obtime1 >= $time1) && ($obtime2 <= $time2))
+        {
+            $ob['duration'] = ($obtime2 - $obtime1)/60;
+        }
+        elseif (($obtime1 <= $time1) && ($obtime2 >= $time2)) 
+        {
+            $ob['duration'] = ($time2 - $time1)/60;
+        }
+        elseif (($obtime1 <= $time1) && ($obtime2 <= $time2)) 
+        {
+            $ob['duration'] = ($obtime2 - $time1)/60;
+        }
+        elseif (($obtime1 >= $time1) && ($obtime2 >= $time2)) 
+        {
+            $ob['duration'] = ($time2 - $obtime1)/60;
+        }
+    }
+    else
     {
-        $obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($obtime2))));
+        $ob['duration'] = 0;
+        $ob['type']= null;
+    }
+    return $ob;
+}
+
+
+function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type)
+{
+    $result = [];
+    $ob = getObDuration($date,$start_time,$end_time);
+    $ob_duration = $ob['duration'];
+
+    if($schedule_type == 'basic')
+    {
+        $scheduled_duration = timeDifference($start_time,$end_time);
+        $extra_duration =  0;
+        $countable_scheduled_duration = $scheduled_duration - $ob_duration;
+        $countable_extra_duration = 0;
+    }
+    else
+    {
+        $scheduled_duration = 0;
+        $extra_duration =  timeDifference($start_time,$end_time);
+        $countable_scheduled_duration = 0;
+        $countable_extra_duration = $extra_duration - $ob_duration;
     }
 
-    if(($obtime1 <= $time1) && ($obtime2 <= $time1))
-    {
-    	$duration = 0;
-    }
-    elseif(($obtime1 >= $time2) && ($obtime2 <= $time2))
-    {
-    	$duration = 0;
-    }
-    elseif(($obtime1 >= $time1) && ($obtime2 <= $time2))
-    {
-        $duration = ($obtime2 - $obtime1)/60;
-    }
-    elseif (($obtime1 <= $time1) && ($obtime2 >= $time2)) 
-    {
-        $duration = ($time2 - $time1)/60;
-    }
-    elseif (($obtime1 <= $time1) && ($obtime2 <= $time2)) 
-    {
-        $duration = ($obtime2 - $time1)/60;
-    }
-    elseif (($obtime1 >= $time1) && ($obtime2 >= $time2)) 
-    {
-        $duration = ($time2 - $obtime1)/60;
-    }
-    return $duration;
+    $result['ob_type'] = $ob['type'];
+    $result['scheduled_work_duration'] = $countable_scheduled_duration/60;
+    $result['ob_work_duration'] = $ob_duration/60;
+    $result['extra_work_duration'] = $countable_extra_duration/60;
+    return $result;
+}
+
+function schedule($user_id,$top_most_parent_id,$date,$shift_start_time,$shift_end_time,$schedule_type,$patient_id,$assignedWork_id,$schedule_template_id,$status,$entry_mode,$group_id,$schedule_id,$shift_id,$shift_name,$shift_color)
+{
+    $date = date('Y-m-d',strtotime($date));
+    $startEndTime = getStartEndTime($shift_start_time, $shift_end_time, $date);
+    $shift_start_time = $startEndTime['start_time'];
+    $shift_end_time = $startEndTime['end_time'];
+
+    $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$request->schedule_type);
+
+    $schedule = new Schedule;
+    $schedule->top_most_parent_id = $top_most_parent_id;
+    $schedule->user_id = $user_id;
+    $schedule->patient_id = $patient_id;
+    $schedule->shift_id = $shift_id;
+    $schedule->parent_id = $parent_id;
+    $schedule->created_by = Auth::id();
+    $schedule->slot_assigned_to = null;
+    $schedule->employee_assigned_working_hour_id = $assignedWork_id;
+    $schedule->schedule_template_id = $schedule_template_id;
+    $schedule->schedule_type = $schedule_type;
+    $schedule->shift_date = $date;
+    $schedule->group_id = $group_id;
+    $schedule->shift_name = $shift_name;
+    $schedule->shift_color = $shift_color;
+    $schedule->shift_start_time = $shift_start_time;
+    $schedule->shift_end_time = $shift_end_time;
+    $schedule->leave_applied = 0;
+    $schedule->leave_group_id = null;
+    $schedule->leave_type = null;
+    $schedule->leave_reason = null;
+    $schedule->leave_approved = 0;
+    $schedule->leave_approved_by = null;
+    $schedule->leave_approved_date_time = null;
+    $schedule->leave_notified_to = null;
+    $schedule->notified_group = null;
+    $schedule->is_active = 1;
+    $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+    $schedule->extra_work_duration = $result['extra_work_duration'];
+    $schedule->ob_work_duration = $result['ob_work_duration'];
+    $schedule->ob_type = $result['ob_type'];
+    $schedule->status = $status ? $status :0;
+    $schedule->entry_mode = $entry_mode?$entry_mode:'Web';
+    $schedule->save();
+
+    return $schedule;
 }
