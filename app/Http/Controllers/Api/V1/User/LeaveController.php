@@ -178,6 +178,30 @@ class LeaveController extends Controller
     					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
     					$schedule->save();
     				}
+
+    				//-----------------notification----------------------//
+    				$user = User::find(Auth::user()->top_most_parent_id);
+    				$title = "";
+    				$body = "";
+    				$module =  "leave";
+    				$event = "leave-applied";
+    				$id =  $schedule->id;
+    				$screen =  "detail";
+
+    				$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
+    				if($getMsg )
+    				{
+    					$body = $getMsg->notify_body;
+    					$title = $getMsg->mail_subject;
+
+    					$arrayVal = [
+    						'{{requested_by}}' 	=> Auth::User()->name,
+    						'{{date}}'			=> $schedule->shift_date,
+    						'{{reason}}' 		=> $request->reason
+    					];
+    					$body = strReplaceAssoc($arrayVal, $body);
+    				}
+    				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     			}        
     		}
     		else
@@ -240,6 +264,30 @@ class LeaveController extends Controller
     						$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
     						$schedule->save();
     					}
+
+    					//-----------------notification----------------------//
+    					$user = User::find(Auth::user()->top_most_parent_id);
+    					$title = "";
+    					$body = "";
+    					$module =  "leave";
+    					$event = "leave-applied";
+    					$id =  $schedule->id;
+    					$screen =  "detail";
+
+    					$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
+    					if($getMsg)
+    					{
+    						$body = $getMsg->notify_body;
+    						$title = $getMsg->mail_subject;
+
+    						$arrayVal = [
+    							'{{requested_by}}' 	=> Auth::User()->name,
+    							'{{date}}'			=> $schedule->shift_date,
+    							'{{reason}}' 		=> $request->reason
+    						];
+    						$body = strReplaceAssoc($arrayVal, $body);
+    					}
+    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     				}   
     			}  
     		}
@@ -363,7 +411,7 @@ class LeaveController extends Controller
     					$title = "";
     					$body = "";
     					$module =  "leave";
-    					$event = "leaveApproved";
+    					$event = "schedule-request";
     					$id =  $request->leave_group_id;
     					$screen =  "list";
 
@@ -390,6 +438,29 @@ class LeaveController extends Controller
     					'notified_group' => $notified_group
     				]);
     			}
+
+    			$user = User::find($leave->user_id);
+    			$title = "";
+    			$body = "";
+    			$module =  "leave";
+    			$event = "leave-approved";
+    			$id =  $request->leave_group_id;
+    			$screen =  "list";
+
+    			$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+    			if($getMsg )
+    			{
+    				$body = $getMsg->notify_body;
+    				$title = $getMsg->mail_subject;
+
+    				$arrayVal = [
+    					'{{name}}' 	=> $user->name,
+    					'{{dates}}'	=> $dates,
+    					'{{approved_by}}'=> Auth::user()->name
+    				];
+    				$body = strReplaceAssoc($arrayVal, $body);
+    			}
+    			actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     		}
     		elseif(!empty($request->leaves))
     		{
@@ -398,7 +469,7 @@ class LeaveController extends Controller
     			{
     				$leave_ids[] = $value['schedule_id']; 
     				$leave = Schedule::find($value['schedule_id']);
-    				$user = User::find($leave['user_id']);
+    				$user = User::find($value['employee_id']);
     				$update = Schedule::find($value['schedule_id'])
     				->update([
     					'leave_approved' => '1',
@@ -448,34 +519,57 @@ class LeaveController extends Controller
                     $schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
                     $schedule->save();
 
-
-
     				//---------------notification--------------//
 
-    				if($request->notify_employees == true)
-    				{
-    					$title = "";
-    					$body = "";
-    					$module =  "leave";
-    					$event = "leaveApproved";
-    					$id =  $leave->leave_group_id;
-    					$screen =  "detail";
+    				$title = "";
+					$body = "";
+					$module =  "leave";
+					$event = "schedule-assignment";
+					$id =  $schedule->id;
+					$screen =  "detail";
 
-    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
-    					if($getMsg )
-    					{
-    						$body = $getMsg->notify_body;
-    						$title = $getMsg->mail_subject;
+					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+					if($getMsg )
+					{
+						$body = $getMsg->notify_body;
+						$title = $getMsg->mail_subject;
 
-    						$arrayVal = [
-    							'{{name}}'  		=> $user->name,
-    							'{{requested_by}}' 	=> Auth::User()->name,
-    							'{{dates}}'			=> $leave->shift_date
-    						];
-    						$body = strReplaceAssoc($arrayVal, $body);
-    					}
-    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
-    				}
+						$arrayVal = [
+							'{{name}}'  		=> $user->name,
+							'{{schedule_title}}'=> $assSchedule->title,
+							'{{date}}' 			=> $assSchedule->shift_date,
+							'{{start_time}}'	=> $assSchedule->shift_start_time,
+							'{{end_time}}'      => $assSchedule->shift_end_time,
+							'{{assigned_by}}'   => Auth::User()->name
+						];
+						$body = strReplaceAssoc($arrayVal, $body);
+					}
+					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+
+
+
+					$rec_user = User::find($leave->user_id);
+					$title = "";
+					$body = "";
+					$module =  "leave";
+					$event = "leave-approved";
+					$id =  $leave->id;
+					$screen =  "detail";
+
+					$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+					if($getMsg )
+					{
+						$body = $getMsg->notify_body;
+						$title = $getMsg->mail_subject;
+
+						$arrayVal = [
+							'{{name}}' 	=> $user->name,
+							'{{dates}}'	=> $leave->shift_date,
+							'{{approved_by}}'=> Auth::user()->name
+						];
+						$body = strReplaceAssoc($arrayVal, $body);
+					}
+					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     			}
     			$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('leave_group_id')->get();
     		}
@@ -634,8 +728,6 @@ class LeaveController extends Controller
     	}
     }
 
-
-
     public function companyLeave(Request $request)
     {
     	DB::beginTransaction();
@@ -656,10 +748,12 @@ class LeaveController extends Controller
     		{
     			return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
     		}
+    		$dates = [];
     		foreach ($request->leaves as $key => $leave) 
     		{
     			foreach ($leave['dates'] as $key => $shift_date) 
     			{
+    				$dates[] = $shift_date;
     				$schedule = Schedule::where('shift_date',$shift_date)->where('user_id',$request->emp_id)->first();
     				if(!empty($schedule))
     				{
@@ -719,12 +813,12 @@ class LeaveController extends Controller
     					$user = User::find($leave['assign_emp']);
     					$title = "";
     					$body = "";
-    					$module =  "schedule";
-    					$event = "schedule-assigned";
+    					$module =  "leave";
+    					$event = "schedule-assignment";
     					$id =  $assSchedule->id;
     					$screen =  "detail";
 
-    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
+    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
     					if($getMsg )
     					{
     						$body = $getMsg->notify_body;
@@ -732,8 +826,11 @@ class LeaveController extends Controller
 
     						$arrayVal = [
     							'{{name}}'  		=> $user->name,
-    							'{{requested_by}}' 	=> Auth::User()->name,
-    							'{{dates}}'			=> $assSchedule->shift_date
+    							'{{schedule_title}}'=> $assSchedule->title,
+    							'{{date}}' 			=> $assSchedule->shift_date,
+    							'{{start_time}}'	=> $assSchedule->shift_start_time,
+    							'{{end_time}}'      => $assSchedule->shift_end_time,
+    							'{{assigned_by}}'   => Auth::User()->name
     						];
     						$body = strReplaceAssoc($arrayVal, $body);
     					}
@@ -771,7 +868,32 @@ class LeaveController extends Controller
     					$schedule_id[] = $schedule->id;
     				}
     			}
-    		} 
+    		}
+
+    		//-----------------notification----------------------//
+    		$user = User::find($request->emp_id);
+    		$title = "";
+    		$body = "";
+    		$module =  "leave";
+    		$event = "leave-approved";
+    		$id =  $leave_group_id;
+    		$screen =  "detail";
+
+    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+    		if($getMsg )
+    		{
+    			$body = $getMsg->notify_body;
+    			$title = $getMsg->mail_subject;
+
+    			$arrayVal = [
+    				'{{name}}' 	=> $user->name,
+    				'{{dates}}'	=> implode(',', $dates),
+    				'{{approved_by}}'=> Auth::user()->name
+    			];
+    			$body = strReplaceAssoc($arrayVal, $body);
+    		}
+    		actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+
     		$data = Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->get();
     	DB::commit();
     	return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success')); 

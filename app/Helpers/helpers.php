@@ -96,10 +96,8 @@ function buildTree(array $elements, $parentId = null, $level =1) {
             }
             //$element['level'] = $level;
             $branch[] = $element;
-            
         }
     }
-
     return $branch;
 }
 

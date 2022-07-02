@@ -13,7 +13,7 @@ class MailSmsTemplateSeeder extends Seeder
      */
     public function run()
     {
-         EmailTemplate::truncate();
+        EmailTemplate::truncate();
          //Mail Template
         $mailTemplate = new EmailTemplate;
         $mailTemplate->mail_sms_for = 'forgot-password';
@@ -156,12 +156,12 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->mail_subject = 'New scheduled Assigned';
         $smsTemplate->sms_body = "";
         $smsTemplate->notify_body = "Dear {{name}}, New Schedule {{schedule_title}} on {{date}} starts at    {{start_time}} ends at {{end_time}}  is assigned to you  by {{assigned_by}}";
-        $smsTemplate->custom_attributes = "{{name}}, {{schedule_title}},{{date}},{{start_time}},{{assigned_by}},{end_time}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{schedule_title}},{{date}},{{start_time}},{{assigned_by}},{{end_time}}";
         $smsTemplate->save();
 
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'schedule-request';
-        $smsTemplate->mail_subject = 'New schedule  Request';
+        $smsTemplate->mail_subject = 'New schedule Request';
         $smsTemplate->sms_body = "";
         $smsTemplate->notify_body = "Dear {{name}}, New Schedule for dates {{dates}}  requested to you  by {{requested_by}}";
         $smsTemplate->custom_attributes = "{{name}},{{dates}},{{requested_by}}";
@@ -173,6 +173,22 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->sms_body = "";
         $smsTemplate->notify_body = "Dear {{name}}, Schedule slot for {{date}} is selected by {{selected_by}} and  dates {{vacant_dates}}  are still available to select.";
         $smsTemplate->custom_attributes = "{{name}},{{vacant_dates}},{{selected_by}},{{date}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'leave-applied';
+        $smsTemplate->mail_subject = 'New Leave Request';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Leave  on {{date}} requested  by {{requested_by}} beacause of {{reason}}";
+        $smsTemplate->custom_attributes = "{{date}},{{requested_by}},{{reason}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'leave-approved';
+        $smsTemplate->mail_subject = 'Leave Approved';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your leave request for {{dates}} is approved   by {{approved_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
         $smsTemplate->save();
 
     }
