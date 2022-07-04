@@ -47,19 +47,22 @@ class SystemLogout extends Command
             $in_time = $value->in_time;
             $out_time = $schedule->shift_end_time;
 
-            $ob = OVHour::where('date',$value->date)->orWhere('date','')->orderBy('id','desc')->first();
-            if($ob)
-            {
-                $ob_start_time = $value->date.' '.$ob->start_time;
-                $ob_end_time = $value->date.' '.$ob->end_time;
-                $ob_duration = getObDuration($in_time,$out_time,$ob_start_time,$ob_end_time);
-            }
-            else
-            {
-                $ob_start_time = null;
-                $ob_end_time = null;
-                $ob_duration = 0;
-            }
+            $ob = getObDuration($date,$in_time,$out_time);
+            $ob_duration = $ob['duration'];
+
+            // $ob = OVHour::where('date',$value->date)->orWhere('date','')->orderBy('id','desc')->first();
+            // if($ob)
+            // {
+            //     $ob_start_time = $value->date.' '.$ob->start_time;
+            //     $ob_end_time = $value->date.' '.$ob->end_time;
+            //     $ob_duration = getObDuration($in_time,$out_time,$ob_start_time,$ob_end_time);
+            // }
+            // else
+            // {
+            //     $ob_start_time = null;
+            //     $ob_end_time = null;
+            //     $ob_duration = 0;
+            // }
 
 
             $scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
@@ -85,6 +88,7 @@ class SystemLogout extends Command
             $value->total_schedule_hours    = $total_schedule_hours;
             $value->total_extra_hours       = $total_extra_hours;
             $value->total_ob_hours          = $total_ob_hours;
+            $value->ob_type                 = $ob['type'];
             $value->working_percent         = $working_percent;
             $value->logout_by               = 'system';
             $value->entry_mode              = 'Web';

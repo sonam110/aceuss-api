@@ -248,7 +248,7 @@ class StamplingController extends Controller
 				// $data = basicScheduleTimeCalculation('2022-06-22 22:20:00','2022-06-23 06:50:00',$relaxation_time,'2022-06-22 19:30:00','2022-06-23 08:10:00', '2022-06-22 11:30', '2022-06-23 05:30', true);
 				// return $data;
 				$ob = getObDuration($date,$in_time,$out_time);
-				$ob_duration = $ob['ob_duration'];
+				$ob_duration = $ob['duration'];
 
 				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
 				$total_worked_duration = timeDifference($in_time,$out_time);
@@ -273,7 +273,7 @@ class StamplingController extends Controller
 				$stampling->total_schedule_hours 	= $total_schedule_hours;
 				$stampling->total_extra_hours		= $total_extra_hours;
 				$stampling->total_ob_hours 			= $total_ob_hours;
-				$stampling->ob_type 				= $ob['ob_type'];
+				$stampling->ob_type 				= $ob['type'];
 				$stampling->working_percent 		= $working_percent;
             	$stampling->logout_by               = 'self';
 				$stampling->entry_mode 				= $request->entry_mode ? $request->entry_mode : 'Web';

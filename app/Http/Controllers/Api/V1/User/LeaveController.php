@@ -497,7 +497,7 @@ class LeaveController extends Controller
                     $schedule->schedule_type = $leave->schedule_type;
                     $schedule->shift_date = $leave->shift_date;
                     $schedule->group_id = $group_id;
-                    $schedule->shift_name = $leve->shift_name;
+                    $schedule->shift_name = $leave->shift_name;
                     $schedule->shift_color = $leave->shift_color;
                     $schedule->shift_start_time = $shift_start_time;
                     $schedule->shift_end_time = $shift_end_time;
@@ -536,10 +536,10 @@ class LeaveController extends Controller
 
 						$arrayVal = [
 							'{{name}}'  		=> $user->name,
-							'{{schedule_title}}'=> $assSchedule->title,
-							'{{date}}' 			=> $assSchedule->shift_date,
-							'{{start_time}}'	=> $assSchedule->shift_start_time,
-							'{{end_time}}'      => $assSchedule->shift_end_time,
+							'{{schedule_title}}'=> $schedule->title,
+							'{{date}}' 			=> $schedule->shift_date,
+							'{{start_time}}'	=> $schedule->shift_start_time,
+							'{{end_time}}'      => $schedule->shift_end_time,
 							'{{assigned_by}}'   => Auth::User()->name
 						];
 						$body = strReplaceAssoc($arrayVal, $body);
@@ -599,6 +599,30 @@ class LeaveController extends Controller
     		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
     		->groupBy('leave_group_id')
     		->first();
+
+    		//-----------------notification----------------------//
+    		// $user = User::find($leaves->user_id);
+    		// $title = "";
+    		// $body = "";
+    		// $module =  "leave";
+    		// $event = "leave-approved";
+    		// $id =  $leave_group_id;
+    		// $screen =  "list";
+
+    		// $getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+    		// if($getMsg )
+    		// {
+    		// 	$body = $getMsg->notify_body;
+    		// 	$title = $getMsg->mail_subject;
+
+    		// 	$arrayVal = [
+    		// 		'{{name}}' 	=> $user->name,
+    		// 		'{{dates}}'	=> implode(',', $dates),
+    		// 		'{{approved_by}}'=> Auth::user()->name
+    		// 	];
+    		// 	$body = strReplaceAssoc($arrayVal, $body);
+    		// }
+    		// actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
