@@ -330,6 +330,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('user-schedules/{id}', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getUserSchedules']);
 
 		Route::post('schedule-clones', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleClones']);
+		Route::post('schedule-reports', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleReports']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);

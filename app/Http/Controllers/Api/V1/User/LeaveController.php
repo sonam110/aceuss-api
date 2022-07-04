@@ -599,30 +599,34 @@ class LeaveController extends Controller
     		->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')
     		->groupBy('leave_group_id')
     		->first();
+    		$dates = [];
+    		foreach ($leaves->leaves as $key => $value) {
+    			$dates[] = $value->shift_date;
+    		}
 
     		//-----------------notification----------------------//
-    		// $user = User::find($leaves->user_id);
-    		// $title = "";
-    		// $body = "";
-    		// $module =  "leave";
-    		// $event = "leave-approved";
-    		// $id =  $leave_group_id;
-    		// $screen =  "list";
+    		$user = User::find($leaves->user_id);
+    		$title = "";
+    		$body = "";
+    		$module =  "leave";
+    		$event = "leave-approved";
+    		$id =  $leave_group_id;
+    		$screen =  "list";
 
-    		// $getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
-    		// if($getMsg )
-    		// {
-    		// 	$body = $getMsg->notify_body;
-    		// 	$title = $getMsg->mail_subject;
+    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+    		if($getMsg )
+    		{
+    			$body = $getMsg->notify_body;
+    			$title = $getMsg->mail_subject;
 
-    		// 	$arrayVal = [
-    		// 		'{{name}}' 	=> $user->name,
-    		// 		'{{dates}}'	=> implode(',', $dates),
-    		// 		'{{approved_by}}'=> Auth::user()->name
-    		// 	];
-    		// 	$body = strReplaceAssoc($arrayVal, $body);
-    		// }
-    		// actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    			$arrayVal = [
+    				'{{name}}' 	=> $user->name,
+    				'{{dates}}'	=> implode(',', $dates),
+    				'{{approved_by}}'=> Auth::user()->name
+    			];
+    			$body = strReplaceAssoc($arrayVal, $body);
+    		}
+    		actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
