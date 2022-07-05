@@ -191,5 +191,13 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'leave-applied-approved';
+        $smsTemplate->mail_subject = 'Leave Applied And Approved';
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
     }
 }

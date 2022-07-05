@@ -903,11 +903,11 @@ class LeaveController extends Controller
     		$title = "";
     		$body = "";
     		$module =  "leave";
-    		$event = "leave-approved";
+    		$event = "leave-applied-approved";
     		$id =  $leave_group_id;
-    		$screen =  "detail";
+    		$screen =  "list";
 
-    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
     		if($getMsg )
     		{
     			$body = $getMsg->notify_body;
