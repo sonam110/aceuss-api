@@ -176,7 +176,7 @@ function getLangByLabelGroups($groupName,$label_name)
 }
 
 
-function getTemplate($mail_for, $obj, $otp=null,$user)
+function getTemplate($mail_for, $obj, $user, $otp=null)
 {
     $mail_subject = false;
     $mail_body = false;

@@ -34,7 +34,7 @@ class WelcomeMail extends Mailable
         $userInfo = $this->userInfo ;
         $companyObj = companySetting($userInfo['company_id']);
         $template = 'welcome-mail';
-        $getTemplate = getTemplate($template,$companyObj, null,$userInfo);
+        $getTemplate = getTemplate($template,$companyObj,$userInfo, null);
      
         $mailObj = [
             'company'       => $companyObj,
