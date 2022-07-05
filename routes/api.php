@@ -200,6 +200,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		 /*-------------User Managment ------------------------*/
 	   	Route::post('users', [App\Http\Controllers\Api\V1\User\UserController::class, 'users']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
+		Route::post('user-email-update', [App\Http\Controllers\Api\V1\User\UserController::class, 'emailUpdate']);
 
 	   	Route::get('get-licence-status', [App\Http\Controllers\Api\V1\User\UserController::class, 'getLicenceStatus']);
 

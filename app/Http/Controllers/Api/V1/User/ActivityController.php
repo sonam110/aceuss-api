@@ -32,12 +32,12 @@ class ActivityController extends Controller
 		$this->middleware('permission:activity-edit', ['only' => ['update']]);
 		$this->middleware('permission:activity-read', ['only' => ['show']]);
 		$this->middleware('permission:activity-delete', ['only' => ['destroy','activityMultiDelete']]);
-
 	}
 
 	public function activities(Request $request)
 	{
-		try {
+		try 
+		{
 			$user = getUser();
             if(!empty($user->branch_id)) {
                 $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
@@ -72,6 +72,20 @@ class ActivityController extends Controller
 			if(!empty($request->title))
 			{
 				$query->where('title', $request->title);
+			}
+
+			if(!empty($request->start_date))
+			{
+				$query->where('start_date',">=" ,$request->start_date);
+			}
+			if(!empty($request->end_date))
+			{
+				$query->where('start_date',"<=" ,$request->end_date);
+			}
+
+			if(!empty($request->patient))
+			{
+				$query->where('patient_id', $request->patient);
 			}
 
 			if($whereRaw != '') { 
@@ -729,9 +743,12 @@ class ActivityController extends Controller
             			foreach ($request->how_many_time_array as $key2 => $time) {
             				if(!empty($time['start']))
             				{
-            					Activity::where('id',$id)->update(['is_latest_entry'=>0]);
+            					// Activity::where('id',$id)->update(['is_latest_entry'=>0]);
+            					$activity = Activity::find($id);
 
-            					$activity = new Activity;
+            					$activityLog = $activity->replicate();
+
+            					// $activity = new Activity;
             					$activity->ip_id = $request->ip_id;
             					$activity->parent_id = $parent_id;
             					$activity->group_id = $checkId->group_id;

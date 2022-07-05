@@ -85,6 +85,10 @@ class UserController extends Controller
     		} else {
     			$query = $query->orderBy('id', 'DESC');
     		}
+            if(!empty($request->employee_type))
+            {
+                $query->orderBy('employee_type', $request->employee_type);
+            }
     		if(!empty($request->perPage))
     		{
     			$perPage = $request->perPage;
@@ -868,6 +872,38 @@ class UserController extends Controller
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
+    }
+
+    public function emailUpdate(Request $request,User $user)
+    {
+        DB::beginTransaction();
+        try {
+            $userInfo = getUser();
+            $validator = Validator::make($request->all(),[
+                'email' => 'required|unique:users', 
+            ]);
+            if ($validator->fails()) {
+                return prepareResult(false,$validator->errors()->first(),[], '422'); 
+            }
+
+            
+            if($userInfo->is_fake == 1)
+            {
+                Auth::User()->update(['email'=>$request->email,'is_fake'=>0]);
+            }
+            else
+            {
+                return prepareResult(false,['cant update, is_fake = 0'],[], config('httpcodes.bad_request')); 
+            }
+            DB::commit();
+            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$userInfo, '200');
+
+        }
+        catch(Exception $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[],'500');
+        }
     }
 
 

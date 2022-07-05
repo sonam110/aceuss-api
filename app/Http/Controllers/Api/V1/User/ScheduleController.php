@@ -113,68 +113,22 @@ class ScheduleController extends Controller
 
 	}
 
-	public function store(Request $request){
+	public function store(Request $request)
+	{
 		DB::beginTransaction();
 		try 
 		{
 			$validator = Validator::make($request->all(),[   
-				// 'schedule_template_id' => 'required|exists:schedule_templates,id' ,
+				'schedule_template_id' => 'required|exists:schedule_templates,id' ,
 				'user_id' => 'required|exists:users,id'
 			],
 			[   
-				// 'schedule_template_id' =>  getLangByLabelGroups('Schedule','message_schedule_template_id'),
+				'schedule_template_id' =>  getLangByLabelGroups('Schedule','message_schedule_template_id'),
 				'user_id' =>  getLangByLabelGroups('Schedule','message_user_id'),
 			]);
-			if ($validator->fails()) {
+			if ($validator->fails()) 
+			{
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-			}
-
-			$shift_name 		= null;
-			$shift_color 		= null;
-
-			if(!empty($request->shift_id))
-			{
-				$shift = CompanyWorkShift::find($request->shift_id);
-				if (!is_object($shift)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
-				}
-				$shift_name 		= $shift->shift_name;
-				$shift_color 		= $shift->shift_color;
-			}
-			
-
-			if($request->is_range == 1)
-			{
-				$start_date = $request->shift_dates[0];
-				$end_date = $request->shift_dates[1];
-				$is_repeat = 1;
-				$every_week = $request->every_week;
-				$week_days = $request->week_days;
-
-				$from = \Carbon\Carbon::parse($start_date);
-				$to =   (!empty($end_date)) ? \Carbon\Carbon::parse($end_date) : \Carbon\Carbon::parse($start_date);
-				$start_from = $from->format('Y-m-d');
-				$end_to = $to->format('Y-m-d');
-
-				$dates = [];
-
-				if($request->is_repeat == 1)
-				{
-					$dates = calculateDates($start_date,$end_date,$every_week,$week_days);
-				}
-				else
-				{
-					$date1 = strtotime($start_date);
-					$date2 = strtotime($end_date);
-					for ($currentDate=$date1; $currentDate<=$date2; $currentDate += (86400)) 
-					{                                   
-						$dates[] = date('Y-m-d', $currentDate);
-					}
-				}         
-			}
-			else
-			{
-				$dates = $request->shift_dates;
 			}
 
 			$shedule_ids = [];
@@ -186,54 +140,69 @@ class ScheduleController extends Controller
 				$assignedWork = User::find($request->user_id)->assignedWork;
 				$assignedWork_id = $assignedWork->id;
 			}
-			foreach($dates as $key=>$shift_date)
+			foreach ($request->schedules as $key => $value) 
 			{
-				$date = date('Y-m-d',strtotime($shift_date));
-				$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
-				$shift_start_time = $startEndTime['start_time'];
-				$shift_end_time = $startEndTime['end_time'];
 
-				$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$request->schedule_type);
+				$date = date('Y-m-d',strtotime($value['date']));
+				foreach($value['shifts'] as $key=>$shift)
+				{
+					$shift_name 		= null;
+					$shift_color 		= null;
+					if(!empty($shift['shift_id']))
+					{
+						$shift = CompanyWorkShift::find($shift['shift_id']);
+						if (!is_object($shift)) {
+							return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+						}
+						$shift_name 		= $shift->shift_name;
+						$shift_color 		= $shift->shift_color;
 
-				$schedule = new Schedule;
-				$schedule->top_most_parent_id = $request->top_most_parent_id;
-				$schedule->user_id = $request->user_id;
-				$schedule->patient_id = $request->patient_id;
-				$schedule->shift_id = $request->shift_id;
-				$schedule->parent_id = $request->parent_id;
-				$schedule->created_by = Auth::id();
-				$schedule->slot_assigned_to = $request->slot_assigned_to;
-				$schedule->employee_assigned_working_hour_id = $assignedWork_id;
-				$schedule->schedule_template_id = $request->schedule_template_id;
-				$schedule->schedule_type = $request->schedule_type;
-				$schedule->shift_date = $date;
-				$schedule->group_id = $group_id;
-				$schedule->shift_name = $shift_name;
-				$schedule->shift_color = $shift_color;
-				$schedule->shift_start_time = $shift_start_time;
-				$schedule->shift_end_time = $shift_end_time;
-				$schedule->leave_applied = 0;
-				$schedule->leave_group_id = null;
-				$schedule->leave_type = null;
-				$schedule->leave_reason = null;
-				$schedule->leave_approved = 0;
-				$schedule->leave_approved_by = null;
-				$schedule->leave_approved_date_time = null;
-				$schedule->leave_notified_to = null;
-				$schedule->notified_group = null;
-				$schedule->is_active = 1;
-				$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-				$schedule->extra_work_duration = $result['extra_work_duration'];
-				$schedule->ob_work_duration = $result['ob_work_duration'];
-				$schedule->ob_type = $result['ob_type'];
-				$schedule->status = $request->status ? $request->status :0;
-				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-				$schedule->save();
-				$schedule_ids[] = $schedule->id;
+					}
+
+					$startEndTime = getStartEndTime($shift['shift_start_time'], $shift['shift_end_time'], $date);
+					$shift_start_time = $startEndTime['start_time'];
+					$shift_end_time = $startEndTime['end_time'];
+
+					$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type']);
+
+					$schedule = new Schedule;
+					$schedule->user_id = $request->user_id;
+					$schedule->patient_id = $request->patient_id;
+					$schedule->shift_id = $shift['shift_id'];
+					$schedule->parent_id = $request->parent_id;
+					$schedule->created_by = Auth::id();
+					$schedule->slot_assigned_to = null;
+					$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+					$schedule->schedule_template_id = $request->schedule_template_id;
+					$schedule->schedule_type = $shift['schedule_type'];
+					$schedule->shift_date = $date;
+					$schedule->group_id = $group_id;
+					$schedule->shift_name = $shift_name;
+					$schedule->shift_color = $shift_color;
+					$schedule->shift_start_time = $shift_start_time;
+					$schedule->shift_end_time = $shift_end_time;
+					$schedule->leave_applied = 0;
+					$schedule->leave_group_id = null;
+					$schedule->leave_type = null;
+					$schedule->leave_reason = null;
+					$schedule->leave_approved = 0;
+					$schedule->leave_approved_by = null;
+					$schedule->leave_approved_date_time = null;
+					$schedule->leave_notified_to = null;
+					$schedule->notified_group = null;
+					$schedule->is_active = 1;
+					$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+					$schedule->extra_work_duration = $result['extra_work_duration'];
+					$schedule->ob_work_duration = $result['ob_work_duration'];
+					$schedule->ob_type = $result['ob_type'];
+					$schedule->status = $request->status ? $request->status :0;
+					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+					$schedule->save();
+					$schedule_ids[] = $schedule->id;
+				}
 			}
 
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
-
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
 		}
@@ -356,7 +325,6 @@ class ScheduleController extends Controller
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 	}
 
@@ -369,7 +337,6 @@ class ScheduleController extends Controller
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 	}
 
