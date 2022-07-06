@@ -146,6 +146,7 @@ class ScheduleController extends Controller
 				$date = date('Y-m-d',strtotime($value['date']));
 				foreach($value['shifts'] as $key=>$shift)
 				{
+					// return $shift['shift_id'];
 					$shift_name 		= null;
 					$shift_color 		= null;
 					if(!empty($shift['shift_id']))
@@ -201,9 +202,10 @@ class ScheduleController extends Controller
 					$schedule_ids[] = $schedule->id;
 				}
 			}
+			DB::commit();
 
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
-			DB::commit();
+			
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {

@@ -87,7 +87,7 @@ class UserController extends Controller
     		}
             if(!empty($request->employee_type))
             {
-                $query->orderBy('employee_type', $request->employee_type);
+                $query->where('employee_type', $request->employee_type);
             }
     		if(!empty($request->perPage))
     		{
