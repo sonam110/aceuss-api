@@ -527,7 +527,7 @@ class UserController extends Controller
     		$user->user_type_id = $request->user_type_id;
     		$user->role_id = $roleInfo->id;
     		$user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
-    		$user->branch_id = $request->branch_id;
+    		$user->branch_id = $request->branch_id ? $request->branch_id : $userInfo->top_most_parent_id;
     		$user->govt_id = $request->govt_id;
     		$user->dept_id = $request->dept_id;
     		$user->country_id = $request->country_id;
@@ -560,6 +560,7 @@ class UserController extends Controller
     		$user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
     		$user->contact_person_name = $request->contact_person_name;
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+            $user->company_type_id = (!empty($request->company_type_id)) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
     		$user->save();
 
     		if($roleInfo)

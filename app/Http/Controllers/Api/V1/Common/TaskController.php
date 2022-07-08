@@ -70,11 +70,6 @@ class TaskController extends Controller
                 $query = $query->orderBy('id', 'DESC');
             }
 
-            // $orderItems = OrderItem::select('order_items.*')
-            // ->join('products_services_books', function ($join) {
-            //     $join->on('order_items.products_services_book_id', '=', 'products_services_books.id');
-            // })
-
             if(!empty($request->activity_id))
             {
                 $query->where('type_id',1)->where('resource_id', $request->activity_id);

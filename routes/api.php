@@ -332,6 +332,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('schedule-clones', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleClones']);
 		Route::post('schedule-reports', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleReports']);
+		Route::post('schedules-dates', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedulesDates']);
+		Route::post('schedule-filter', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleFilter']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);

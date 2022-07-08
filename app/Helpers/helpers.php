@@ -1275,7 +1275,7 @@ function getObDuration($date,$time1, $time2)
 }
 
 
-function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type)
+function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null)
 {
     $result = [];
     $ob = getObDuration($date,$start_time,$end_time);
@@ -1285,19 +1285,32 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type)
     {
         $scheduled_duration = timeDifference($start_time,$end_time);
         $extra_duration =  0;
+        $countable_emergency_duration = 0;
         $countable_scheduled_duration = $scheduled_duration - $ob_duration;
         $countable_extra_duration = 0;
+        if($shift_type == 'emergency')
+        {
+            $countable_emergency_duration = $countable_scheduled_duration;
+            $countable_scheduled_duration = 0;
+        }
     }
     else
     {
         $scheduled_duration = 0;
+        $countable_emergency_duration = 0;
         $extra_duration =  timeDifference($start_time,$end_time);
         $countable_scheduled_duration = 0;
         $countable_extra_duration = $extra_duration - $ob_duration;
+        if($shift_type == 'emergency')
+        {
+            $countable_emergency_duration = $countable_extra_duration;
+            $countable_extra_duration = 0;
+        }
     }
 
     $result['ob_type'] = $ob['type'];
     $result['scheduled_work_duration'] = $countable_scheduled_duration/60;
+    $result['emergency_work_duration'] = $countable_emergency_duration/60;
     $result['ob_work_duration'] = $ob_duration/60;
     $result['extra_work_duration'] = $countable_extra_duration/60;
     return $result;

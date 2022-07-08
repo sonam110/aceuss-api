@@ -12,6 +12,7 @@ use Str;
 use DB;
 use Auth;
 use App\Models\ScheduleTemplate;
+use App\Models\CompanyWorkShift;
 
 class LeaveController extends Controller
 {
@@ -135,23 +136,37 @@ class LeaveController extends Controller
 
     				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
     				{
+                        $vacation_duration = 0;
+                        if($request->leave_type=='vacation')
+                        {
+                            $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                        }
     					$schedule->update([
     						'leave_applied' => '1',
     						'leave_type' => $request->leave_type,
     						'leave_reason' => $request->reason,
     						'leave_group_id' => $group_id,
+                            'vacation_duration' => $vacation_duration,
     					]);
     				}
     				else
     				{
-    					$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $date);
+                        $shift_start_time = $date.' 00:00:00';
+                        $shift_end_time = $date.' 23:59:59';
+
+                        $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'basic');
+                        $vacation_duration = 0;
+                        if($request->leave_type=='vacation')
+                        {
+                            $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
+                        }
     					$schedule = new Schedule;
     					$schedule->schedule_template_id = $schedule_template_id;
     					$schedule->shift_id = null;
     					$schedule->user_id = Auth::id();
     					$schedule->parent_id = null;
-    					$schedule->shift_start_time = $startEndTime['start_time'];
-    					$schedule->shift_end_time = $startEndTime['end_time'];
+    					$schedule->shift_start_time = $shift_start_time;
+    					$schedule->shift_end_time = $shift_end_time;
     					$schedule->patient_id = NULL;
     					$schedule->group_id = $group_id;
     					$schedule->shift_name = '';
@@ -168,10 +183,12 @@ class LeaveController extends Controller
                         $schedule->leave_notified_to = NULL;
                         $schedule->notified_group = NULL;
                         $schedule->is_active = 1;
-                        $schedule->scheduled_work_duration = NULL;
-                        $schedule->extra_work_duration = NULL;
-                        $schedule->ob_work_duration = NULL;
-                        $schedule->ob_type = NULL;
+                        $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                        $schedule->extra_work_duration = $result['extra_work_duration'];
+                        $schedule->emergency_work_duration = $result['emergency_work_duration'];
+                        $schedule->ob_work_duration = $result['ob_work_duration'];
+                        $schedule->ob_type = $result['ob_type'];
+                        $schedule->vacation_duration = $vacation_duration;
     					$schedule->status = 0;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
@@ -221,23 +238,39 @@ class LeaveController extends Controller
 
     					if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
     					{
+                            $vacation_duration = 0;
+                            if($request->leave_type=='vacation')
+                            {
+                                $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                            }
+
     						$schedule->update([
     							'leave_applied' => '1',
     							'leave_type' => $request->leave_type,
     							'leave_reason' => $value['reason'],
     							'leave_group_id' => $group_id,
+                                'vacation_duration' => $vacation_duration,
     						]);
     					}
     					else
     					{
-    						$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $date);
+    						$shift_start_time = $date.' 00:00:00';
+                            $shift_end_time = $date.' 23:59:59';
+
+                            $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'basic');
+                            $vacation_duration = 0;
+                            if($request->leave_type=='vacation')
+                            {
+                                $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
+                            }
+
     						$schedule = new Schedule;
     						$schedule->schedule_template_id = $schedule_template_id;
     						$schedule->shift_id = NULL;
     						$schedule->user_id = Auth::id();
     						$schedule->parent_id = NULL;
-    						$schedule->shift_start_time = $startEndTime['start_time'];
-    						$schedule->shift_end_time = $startEndTime['end_time'];
+    						$schedule->shift_start_time = $shift_start_time;
+    						$schedule->shift_end_time = $shift_end_time;
     						$schedule->patient_id = NULL;
     						$schedule->group_id = $group_id;
     						$schedule->shift_name = '';
@@ -254,10 +287,12 @@ class LeaveController extends Controller
                             $schedule->leave_notified_to = NULL;
                             $schedule->notified_group = NULL;
                             $schedule->is_active = 1;
-                            $schedule->scheduled_work_duration = NULL;
-                            $schedule->extra_work_duration = NULL;
-                            $schedule->ob_work_duration = NULL;
-                            $schedule->ob_type = NULL;
+                            $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                            $schedule->extra_work_duration = $result['extra_work_duration'];
+                            $schedule->emergency_work_duration = $result['emergency_work_duration'];
+                            $schedule->ob_work_duration = $result['ob_work_duration'];
+                            $schedule->ob_type = $result['ob_type'];
+                            $schedule->vacation_duration = $vacation_duration;
     						$schedule->status = 0;
     						$schedule->schedule_type = 'basic';
     						$schedule->created_by = Auth::id();
@@ -478,11 +513,16 @@ class LeaveController extends Controller
     					'status' => 1,
     					'slot_assigned_to' => $user->id
     				]);
-    				$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $leave->shift_date);
-                    $shift_start_time = $startEndTime['start_time'];
-                    $shift_end_time = $startEndTime['end_time'];
+                    $shift_start_time = $leave->shift_start_time;
+                    $shift_end_time = $leave->shift_end_time;
 
-                    $result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra');
+                    $shift_type = null;
+                    if(!empty($leave->shift_id))
+                    {
+                        $shift_type = CompanyWorkShift::find($leave->shift_id)->shift_type;
+                    }
+
+                    $result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
 
                     $schedule = new Schedule;
                     $schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -513,6 +553,7 @@ class LeaveController extends Controller
                     $schedule->is_active = 1;
                     $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
                     $schedule->extra_work_duration = $result['extra_work_duration'];
+                    $schedule->emergency_work_duration = $result['emergency_work_duration'];
                     $schedule->ob_work_duration = $result['ob_work_duration'];
                     $schedule->ob_type = $result['ob_type'];
                     $schedule->status = $request->status ? $request->status :0;
@@ -655,11 +696,16 @@ class LeaveController extends Controller
 
     		$date = $leave->shift_date;
 
-    		$startEndTime = getStartEndTime($leave->shift_start_time, $leave->shift_end_time, $date);
-            $shift_start_time = $startEndTime['start_time'];
-            $shift_end_time = $startEndTime['end_time'];
+            $shift_start_time = $leave->shift_start_time;
+            $shift_end_time = $leave->shift_end_time;
 
-            $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra');
+            $shift_type = null;
+            if(!empty($leave->shift_id))
+            {
+                $shift_type = CompanyWorkShift::find($leave->shift_id)->shift_type;
+            }
+
+            $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra',$shift_type);
 
     		$schedule = new Schedule;
 			$schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -676,8 +722,8 @@ class LeaveController extends Controller
 			$schedule->group_id = $leave->group_id;
 			$schedule->shift_name = $leave->shift_name;
 			$schedule->shift_color = $leave->shift_color;
-			$schedule->shift_start_time = $startEndTime['start_time'];
-			$schedule->shift_end_time = $startEndTime['end_time'];
+			$schedule->shift_start_time = $shift_start_time;
+			$schedule->shift_end_time = $shift_end_time;
 			$schedule->leave_applied = 0;
 			$schedule->leave_group_id = null;
 			$schedule->leave_type = null;
@@ -690,6 +736,7 @@ class LeaveController extends Controller
 			$schedule->is_active = 1;
 			$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
             $schedule->extra_work_duration = $result['extra_work_duration'];
+            $schedule->emergency_work_duration = $result['emergency_work_duration'];
             $schedule->ob_work_duration = $result['ob_work_duration'];
             $schedule->ob_type = $result['ob_type'];
 			$schedule->status = $leave->status;
@@ -786,6 +833,11 @@ class LeaveController extends Controller
     				if(!empty($schedule))
     				{
     					$schedule_id[] = $schedule->id;
+                        $vacation_duration = 0;
+                        if($request->leave_type=='vacation')
+                        {
+                            $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                        }
     					$schedule->update([
     						'leave_applied' => '1',
     						'leave_type' => $request->leave_type,
@@ -794,14 +846,20 @@ class LeaveController extends Controller
     						'leave_approved' => '1',
     						'leave_approved_by' => Auth::id(), 
     						'leave_approved_date_time' => date('Y-m-d H:i:s'),
-    						'slot_assigned_to' => $leave['assign_emp']
+    						'slot_assigned_to' => $leave['assign_emp'],
+                            'vacation_duration' => $vacation_duration,
     					]);
 
     					$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
-                        $shift_start_time = $startEndTime['start_time'];
-                        $shift_end_time = $startEndTime['end_time'];
+                        $shift_start_time = $schedule->shift_start_time;
+                        $shift_end_time = $schedule->shift_end_time;
+                        $shift_type = null;
+                        if(!empty($schedule->shift_id))
+                        {
+                            $shift_type = CompanyWorkShift::find($schdule->shift_id)->shift_type;
+                        }
 
-                        $result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra');
+                        $result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
 
     					$assSchedule = new Schedule;
     					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
@@ -818,8 +876,8 @@ class LeaveController extends Controller
     					$assSchedule->group_id = $schedule->group_id;
     					$assSchedule->shift_name = $schedule->shift_name;
     					$assSchedule->shift_color = $schedule->shift_color;
-    					$assSchedule->shift_start_time = $startEndTime['start_time'];
-    					$assSchedule->shift_end_time = $startEndTime['end_time'];
+    					$assSchedule->shift_start_time = $shift_start_time;
+    					$assSchedule->shift_end_time = $shift_end_time;
     					$assSchedule->leave_applied = 0;
     					$assSchedule->leave_group_id = null;
     					$assSchedule->leave_type = null;
@@ -831,6 +889,7 @@ class LeaveController extends Controller
     					$assSchedule->is_active = 1;
     					$assSchedule->scheduled_work_duration = $result['scheduled_work_duration'];
                         $assSchedule->extra_work_duration = $result['extra_work_duration'];
+                        $assSchedule->emergency_work_duration = $result['emergency_work_duration'];
                         $assSchedule->ob_work_duration = $result['ob_work_duration'];
                         $assSchedule->ob_type = $result['ob_type'];
     					$assSchedule->status = $schedule->status;
@@ -866,14 +925,22 @@ class LeaveController extends Controller
     				}
     				else
     				{
-    					$startEndTime = getStartEndTime(date('00:00:00'), date('23:59:59'), $shift_date);
+    					$shift_start_time = $shift_date.' 00:00:00';
+                        $shift_end_time = $shift_date.' 23:59:59';
+
+                        $result = scheduleWorkCalculation($shift_date,$shift_start_time,$shift_end_time,'basic');
+                        $vacation_duration = 0;
+                        if($request->leave_type=='vacation')
+                        {
+                            $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
+                        }
     					$schedule = new Schedule;
     					$schedule->schedule_template_id = $schedule_template_id;
     					$schedule->shift_id = null;
     					$schedule->user_id = $request->emp_id;
     					$schedule->parent_id = null;
-    					$schedule->shift_start_time = $startEndTime['start_time'];
-    					$schedule->shift_end_time = $startEndTime['end_time'];
+    					$schedule->shift_start_time = $shift_start_time;
+    					$schedule->shift_end_time = $shift_end_time;
     					$schedule->patient_id = null;
     					$schedule->group_id = $leave_group_id;
     					$schedule->shift_name = '';
@@ -889,6 +956,12 @@ class LeaveController extends Controller
     					$schedule->leave_approved_by = Auth::id();
     					$schedule->only_leave = 1;
     					$schedule->status = 1;
+                        $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                        $schedule->extra_work_duration = $result['extra_work_duration'];
+                        $schedule->emergency_work_duration = $result['emergency_work_duration'];
+                        $schedule->ob_work_duration = $result['ob_work_duration'];
+                        $schedule->ob_type = $result['ob_type'];
+                        $schedule->vacation_duration = $vacation_duration;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
     					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';

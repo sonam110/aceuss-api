@@ -18,6 +18,9 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('branch_id');
+            $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
@@ -45,7 +48,7 @@ class CreateSchedulesTable extends Migration
             $table->unsignedBigInteger('leave_approved_by')->nullable();
             $table->foreign('leave_approved_by')->references('id')->on('users')->onDelete('cascade');
 
-            $table->enum('schedule_type',['basic','extra'])->nullable();
+            $table->enum('schedule_type',['basic','extra','emergency'])->nullable();
             $table->string('group_id')->nullable()->comment('only for schedule');
             $table->string('shift_name')->nullable();
             $table->string('shift_date');
@@ -66,7 +69,9 @@ class CreateSchedulesTable extends Migration
             $table->boolean('is_active')->default(0);
             $table->string('scheduled_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type basic');
             $table->string('extra_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type extra');
+            $table->string('emergency_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type emergency');
             $table->string('ob_work_duration')->default(0)->nullable();
+            $table->string('vacation_duration')->default(0)->nullable();
             $table->string('ob_type')->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();

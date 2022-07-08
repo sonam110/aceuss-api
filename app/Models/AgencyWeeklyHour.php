@@ -13,7 +13,7 @@ class AgencyWeeklyHour extends Model
     protected static $logOnlyDirty = true;
     
     protected $fillable = [
-        'user_id','name','assigned_hours','start_date','end_date','assigned_hours_per_day','assigned_hours_per_week','assigned_hours_per_month'
+        'user_id','name','assigned_hours','start_date','end_date','assigned_hours_per_day','assigned_hours_per_week','assigned_hours_per_month','planning_done_hours','planning_remaining_hours','work_done_hours','work_remaining_hours','approved_by_patient'
     ];
 
     public function setStartDateAndTimeAttribute($value) {

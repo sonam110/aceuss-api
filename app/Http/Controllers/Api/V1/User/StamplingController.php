@@ -172,6 +172,7 @@ class StamplingController extends Controller
 					$schedule->is_active = 1;
 					$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
 					$schedule->extra_work_duration = $result['extra_work_duration'];
+					$schedule->emergency_work_duration = $result['emergency_work_duration'];
 					$schedule->ob_work_duration = $result['ob_work_duration'];
 					$schedule->ob_type = $result['ob_type'];
 					$schedule->status = $request->status ? $request->status :0;
