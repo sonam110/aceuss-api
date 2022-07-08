@@ -23,13 +23,12 @@ class CreateAgencyWeeklyHoursTable extends Migration
             $table->decimal('assigned_hours_per_day',[10,2])->default(0);
             $table->decimal('assigned_hours_per_week',[10,2])->default(0);
             $table->decimal('assigned_hours_per_month',[10,2])->default(0);
-
-            $table->decimal('planning_done_hours',[10,2])->default(0);
-            $table->decimal('planning_remaining_hours',[10,2])->default(0);
-            $table->decimal('work_done_hours',[10,2])->default(0);
-            $table->decimal('work_remaining_hours',[10,2])->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+
+            $table->decimal('scheduled_hours',[10,2])->default(0);
+            $table->decimal('completed_hours',[10,2])->default(0);
+            $table->decimal('remaining_hours',[10,2])->default(0);
             $table->string('entry_mode')->nullable();
             $table->boolean('approved_by_patient')->default(0)->nullable()->comment('1 for approved,0 for not approved')
             $table->timestamps();

@@ -11,6 +11,7 @@ use Auth;
 use DB;
 use App\Models\User;
 use App\Models\CompanyWorkShift;
+use App\Models\AgencyWeeklyHour;
 use Exception;
 use App\Models\OVHour;
 use PDF;
@@ -35,8 +36,6 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			// $query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->where('is_active',1);
-
 			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender')->where('is_active',1);
 
 			if(!empty($request->shift_id))
@@ -119,7 +118,6 @@ class ScheduleController extends Controller
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 
 	}
@@ -212,6 +210,21 @@ class ScheduleController extends Controller
 					$schedule->status = $request->status ? $request->status :0;
 					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();
+
+					if(!empty($request->patient_id))
+					{
+						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)
+						->where('start_date','>=' ,$schedule->shift_date)
+						->where('end_date','<=',$schedule->shift_date)
+						->orderBy('id','desc')->first();
+						if(empty($patientAssignedHours))
+						{
+							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
+						}
+						$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+						$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
+
+					}
 					$schedule_ids[] = $schedule->id;
 				}
 			}
@@ -417,6 +430,7 @@ class ScheduleController extends Controller
             {
                 $query->whereIn('user_id', $request->user_ids);
             }
+            if(!empty())
             $query = $query->get();
             $data = [];
 
@@ -426,9 +440,9 @@ class ScheduleController extends Controller
 				$obe = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('ob_work_duration');
 				$emergency = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('emergency_work_duration');
 				$vacation = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('vacation_duration');
-				$emergency = 0;
+
 				$data['labels'][] = $value->user->name;
-				$data['total_hours'][] = $schduled + $extra + $obe;
+				$data['total_hours'][] = $schduled + $extra + $obe + $emergency;
 				$data['regular_hours'][] = $schduled;
 				$data['extra_hours'][] = $extra;
 				$data['obe_hours'][] = $obe;

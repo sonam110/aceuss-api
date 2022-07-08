@@ -154,12 +154,12 @@ class LeaveController extends Controller
                         $shift_start_time = $date.' 00:00:00';
                         $shift_end_time = $date.' 23:59:59';
 
-                        $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'basic');
-                        $vacation_duration = 0;
-                        if($request->leave_type=='vacation')
-                        {
-                            $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
-                        }
+                        // $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'basic');
+                        // $vacation_duration = 0;
+                        // if($request->leave_type=='vacation')
+                        // {
+                        //     $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
+                        // }
     					$schedule = new Schedule;
     					$schedule->schedule_template_id = $schedule_template_id;
     					$schedule->shift_id = null;
@@ -183,12 +183,18 @@ class LeaveController extends Controller
                         $schedule->leave_notified_to = NULL;
                         $schedule->notified_group = NULL;
                         $schedule->is_active = 1;
-                        $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-                        $schedule->extra_work_duration = $result['extra_work_duration'];
-                        $schedule->emergency_work_duration = $result['emergency_work_duration'];
-                        $schedule->ob_work_duration = $result['ob_work_duration'];
-                        $schedule->ob_type = $result['ob_type'];
-                        $schedule->vacation_duration = $vacation_duration;
+                        // $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                        // $schedule->extra_work_duration = $result['extra_work_duration'];
+                        // $schedule->emergency_work_duration = $result['emergency_work_duration'];
+                        // $schedule->ob_work_duration = $result['ob_work_duration'];
+                        // $schedule->ob_type = $result['ob_type'];
+                        // $schedule->vacation_duration = $vacation_duration;
+                        $schedule->scheduled_work_duration = 0;
+                        $schedule->extra_work_duration = 0;
+                        $schedule->emergency_work_duration = 0;
+                        $schedule->ob_work_duration = 0;
+                        $schedule->ob_type = null;
+                        $schedule->vacation_duration = 24;
     					$schedule->status = 0;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
@@ -200,7 +206,7 @@ class LeaveController extends Controller
     				$user = User::find(Auth::user()->top_most_parent_id);
     				$title = "";
     				$body = "";
-    				$module =  "leave";
+    				$module =  "schedule";
     				$event = "leave-applied";
     				$id =  $schedule->id;
     				$screen =  "detail";
@@ -256,14 +262,6 @@ class LeaveController extends Controller
     					{
     						$shift_start_time = $date.' 00:00:00';
                             $shift_end_time = $date.' 23:59:59';
-
-                            $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'basic');
-                            $vacation_duration = 0;
-                            if($request->leave_type=='vacation')
-                            {
-                                $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
-                            }
-
     						$schedule = new Schedule;
     						$schedule->schedule_template_id = $schedule_template_id;
     						$schedule->shift_id = NULL;
@@ -287,12 +285,12 @@ class LeaveController extends Controller
                             $schedule->leave_notified_to = NULL;
                             $schedule->notified_group = NULL;
                             $schedule->is_active = 1;
-                            $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-                            $schedule->extra_work_duration = $result['extra_work_duration'];
-                            $schedule->emergency_work_duration = $result['emergency_work_duration'];
-                            $schedule->ob_work_duration = $result['ob_work_duration'];
-                            $schedule->ob_type = $result['ob_type'];
-                            $schedule->vacation_duration = $vacation_duration;
+                            $schedule->scheduled_work_duration = 0;
+                            $schedule->extra_work_duration = 0;
+                            $schedule->emergency_work_duration = 0;
+                            $schedule->ob_work_duration = 0;
+                            $schedule->ob_type = null;
+                            $schedule->vacation_duration = 24;
     						$schedule->status = 0;
     						$schedule->schedule_type = 'basic';
     						$schedule->created_by = Auth::id();
@@ -304,7 +302,7 @@ class LeaveController extends Controller
     					$user = User::find(Auth::user()->top_most_parent_id);
     					$title = "";
     					$body = "";
-    					$module =  "leave";
+    					$module =  "schedule";
     					$event = "leave-applied";
     					$id =  $schedule->id;
     					$screen =  "detail";
@@ -445,7 +443,7 @@ class LeaveController extends Controller
 
     					$title = "";
     					$body = "";
-    					$module =  "leave";
+    					$module =  "schedule";
     					$event = "schedule-request";
     					$id =  $request->leave_group_id;
     					$screen =  "list";
@@ -477,7 +475,7 @@ class LeaveController extends Controller
     			$user = User::find($leave->user_id);
     			$title = "";
     			$body = "";
-    			$module =  "leave";
+    			$module =  "schedule";
     			$event = "leave-approved";
     			$id =  $request->leave_group_id;
     			$screen =  "list";
@@ -564,7 +562,7 @@ class LeaveController extends Controller
 
     				$title = "";
 					$body = "";
-					$module =  "leave";
+					$module =  "schedule";
 					$event = "schedule-assignment";
 					$id =  $schedule->id;
 					$screen =  "detail";
@@ -585,14 +583,14 @@ class LeaveController extends Controller
 						];
 						$body = strReplaceAssoc($arrayVal, $body);
 					}
-					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+					actionNotification($event,$user,$title,$body,$schedule,$screen,$id,'info',1);
 
 
 
 					$rec_user = User::find($leave->user_id);
 					$title = "";
 					$body = "";
-					$module =  "leave";
+					$module =  "schedule";
 					$event = "leave-approved";
 					$id =  $leave->id;
 					$screen =  "detail";
@@ -649,7 +647,7 @@ class LeaveController extends Controller
     		$user = User::find($leaves->user_id);
     		$title = "";
     		$body = "";
-    		$module =  "leave";
+    		$module =  "schedule";
     		$event = "leave-approved";
     		$id =  $leave_group_id;
     		$screen =  "list";
@@ -764,7 +762,7 @@ class LeaveController extends Controller
     			{
     				$title = "";
     				$body = "";
-    				$module =  "leave";
+    				$module =  "schedule";
     				$event = "scheduleSlotSelected";
     				$id =  $leave->group_id;
     				$screen =  "list";
@@ -900,7 +898,7 @@ class LeaveController extends Controller
     					$user = User::find($leave['assign_emp']);
     					$title = "";
     					$body = "";
-    					$module =  "leave";
+    					$module =  "schedule";
     					$event = "schedule-assignment";
     					$id =  $assSchedule->id;
     					$screen =  "detail";
@@ -927,13 +925,6 @@ class LeaveController extends Controller
     				{
     					$shift_start_time = $shift_date.' 00:00:00';
                         $shift_end_time = $shift_date.' 23:59:59';
-
-                        $result = scheduleWorkCalculation($shift_date,$shift_start_time,$shift_end_time,'basic');
-                        $vacation_duration = 0;
-                        if($request->leave_type=='vacation')
-                        {
-                            $vacation_duration = $result['scheduled_work_duration'] + $result['extra_work_duration'] + $result['emergency_work_duration'] + $result['ob_work_duration'];
-                        }
     					$schedule = new Schedule;
     					$schedule->schedule_template_id = $schedule_template_id;
     					$schedule->shift_id = null;
@@ -956,12 +947,12 @@ class LeaveController extends Controller
     					$schedule->leave_approved_by = Auth::id();
     					$schedule->only_leave = 1;
     					$schedule->status = 1;
-                        $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-                        $schedule->extra_work_duration = $result['extra_work_duration'];
-                        $schedule->emergency_work_duration = $result['emergency_work_duration'];
-                        $schedule->ob_work_duration = $result['ob_work_duration'];
-                        $schedule->ob_type = $result['ob_type'];
-                        $schedule->vacation_duration = $vacation_duration;
+                        $schedule->scheduled_work_duration = 0;
+                        $schedule->extra_work_duration = 0;
+                        $schedule->emergency_work_duration = 0;
+                        $schedule->ob_work_duration = 0;
+                        $schedule->ob_type = null;
+                        $schedule->vacation_duration = 24;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
     					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
@@ -975,7 +966,7 @@ class LeaveController extends Controller
     		$user = User::find($request->emp_id);
     		$title = "";
     		$body = "";
-    		$module =  "leave";
+    		$module =  "schedule";
     		$event = "leave-applied-approved";
     		$id =  $leave_group_id;
     		$screen =  "list";
