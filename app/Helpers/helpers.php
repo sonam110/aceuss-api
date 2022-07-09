@@ -1082,7 +1082,7 @@ function basicScheduleTimeCalculation($scheduleStartTime, $scheduleEndTime, $rel
         ////////////////////OB hours with stampling
         if(strtotime($obHoursFrom) > strtotime($obHoursTo))
         {
-        	$obHoursTo = date('Y-m-d H:i',strtotime('+1 day',strtotime($obHoursTo)));
+            $obHoursTo = date('Y-m-d H:i',strtotime('+1 day',strtotime($obHoursTo)));
         }
         if(strtotime($punchIn) <= strtotime($obHoursFrom) && strtotime($punchOut) >= strtotime($obHoursFrom))
         {
@@ -1216,7 +1216,7 @@ function timeDifference($time1, $time2)
 
 function timeWithRelaxation($scheduled_time,$relaxationTime)
 {
-	$time['before'] = strtotime(date('Y-m-d H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduled_time))));
+    $time['before'] = strtotime(date('Y-m-d H:i', strtotime('-'.$relaxationTime. ' minutes', strtotime($scheduled_time))));
     $time['after'] = strtotime(date('Y-m-d H:i', strtotime($relaxationTime. ' minutes', strtotime($scheduled_time))));
     return $time;
 }
