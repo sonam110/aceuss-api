@@ -73,6 +73,8 @@ class CreateSchedulesTable extends Migration
             $table->string('ob_work_duration')->default(0)->nullable();
             $table->string('vacation_duration')->default(0)->nullable();
             $table->string('ob_type')->nullable();
+            $table->string('ob_start_time')->nullable();
+            $table->string('ob_end_time')->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();

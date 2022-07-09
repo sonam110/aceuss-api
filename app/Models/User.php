@@ -388,14 +388,15 @@ class User extends Authenticatable
         return $this->hasOne(EmployeeAssignedWorkingHour::class,'emp_id','id')->orderBy('id','desc');
     }
 
-    public function onVacations()
-    {
-         return $this->hasMany(Schedule::class,'user_id','id')->where('leave_applied',1)->where('shift_date',date('Y-m-d'));
-    }
+    // public function onVacations()
+    // {
+    //      return $this->hasMany(Schedule::class,'user_id','id')->where('leave_applied',1)->where('shift_date',date('Y-m-d'));
+    // }
 
     public function getOnVacationAttribute()
     {
-        if($this->onVacations->count() > 0)
+        $data = Schedule::where('user_id',$this->id)->where('leave_applied',1)->where('shift_date',date('Y-m-d'));
+        if($data->count() > 0)
         {
             return true;
         }

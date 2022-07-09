@@ -1230,6 +1230,8 @@ function getObDuration($date,$time1, $time2)
     if(!empty($data))
     {
         $ob['type'] = $data->ob_type;
+        $ob['start_time'] = $data->start_time;
+        $ob['end_time'] = $data->end_time;
         $time1 = strtotime($time1);
         $time2 = strtotime($time2);
 
@@ -1270,6 +1272,8 @@ function getObDuration($date,$time1, $time2)
     {
         $ob['duration'] = 0;
         $ob['type']= null;
+        $ob['start_time'] = null;
+        $ob['end_time'] = null;
     }
     return $ob;
 }
@@ -1309,6 +1313,8 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     }
 
     $result['ob_type'] = $ob['type'];
+    $result['ob_start_time'] = $ob['start_time'];
+    $result['ob_end_time'] = $ob['end_time'];
     $result['scheduled_work_duration'] = $countable_scheduled_duration/60;
     $result['emergency_work_duration'] = $countable_emergency_duration/60;
     $result['ob_work_duration'] = $ob_duration/60;

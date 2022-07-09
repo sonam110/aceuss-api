@@ -194,6 +194,8 @@ class LeaveController extends Controller
                         $schedule->emergency_work_duration = 0;
                         $schedule->ob_work_duration = 0;
                         $schedule->ob_type = null;
+                        $schedule->ob_start_time = null;
+						$schedule->ob_end_time = null;
                         $schedule->vacation_duration = 24;
     					$schedule->status = 0;
     					$schedule->schedule_type = 'basic';
@@ -290,6 +292,8 @@ class LeaveController extends Controller
                             $schedule->emergency_work_duration = 0;
                             $schedule->ob_work_duration = 0;
                             $schedule->ob_type = null;
+                            $schedule->ob_start_time = null;
+							$schedule->ob_end_time = null;
                             $schedule->vacation_duration = 24;
     						$schedule->status = 0;
     						$schedule->schedule_type = 'basic';
@@ -554,6 +558,8 @@ class LeaveController extends Controller
                     $schedule->emergency_work_duration = $result['emergency_work_duration'];
                     $schedule->ob_work_duration = $result['ob_work_duration'];
                     $schedule->ob_type = $result['ob_type'];
+                    $schedule->ob_start_time = $result['ob_start_time'];
+					$schedule->ob_end_time = $result['ob_end_time'];
                     $schedule->status = $request->status ? $request->status :0;
                     $schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
                     $schedule->save();
@@ -737,6 +743,8 @@ class LeaveController extends Controller
             $schedule->emergency_work_duration = $result['emergency_work_duration'];
             $schedule->ob_work_duration = $result['ob_work_duration'];
             $schedule->ob_type = $result['ob_type'];
+            $schedule->ob_start_time = $result['ob_start_time'];
+            $schedule->ob_end_time = $result['ob_end_time'];
 			$schedule->status = $leave->status;
 			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 			$schedule->save();
@@ -890,6 +898,8 @@ class LeaveController extends Controller
                         $assSchedule->emergency_work_duration = $result['emergency_work_duration'];
                         $assSchedule->ob_work_duration = $result['ob_work_duration'];
                         $assSchedule->ob_type = $result['ob_type'];
+                        $assSchedule->ob_start_time = $result['ob_start_time'];
+						$assSchedule->ob_end_time = $result['ob_end_time'];
     					$assSchedule->status = $schedule->status;
     					$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
     					$assSchedule->save();
@@ -952,6 +962,8 @@ class LeaveController extends Controller
                         $schedule->emergency_work_duration = 0;
                         $schedule->ob_work_duration = 0;
                         $schedule->ob_type = null;
+                        $schedule->ob_start_time = null;
+						$schedule->ob_end_time = null;
                         $schedule->vacation_duration = 24;
     					$schedule->schedule_type = 'basic';
     					$schedule->created_by = Auth::id();
