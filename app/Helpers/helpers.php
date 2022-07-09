@@ -873,13 +873,11 @@ function getJournals($ids)
 
 function dateDifference($start_date, $end_date, $differenceFormat = '%d' )
 {
-    $datetime1 = date_create($end_date);
-    $datetime2 = date_create($start_date);
+    $start = strtotime($start_date);
+    $end = strtotime($end_date);
 
-    $interval = date_diff($datetime1, $datetime2);
-
-    return $interval->format($differenceFormat);
-
+    $days_between = ceil(abs($end - $start) / 86400);
+    return $days_between;
 }
 
 function getTopMostParent()
