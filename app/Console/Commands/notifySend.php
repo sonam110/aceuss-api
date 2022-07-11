@@ -100,33 +100,21 @@ class notifySend extends Command
                 }
 
                 $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-                $module =  "activity";
-                $event  =  "assigned";
-                $id =  $activity->id;
-                $screen = "detail";
-                $title = "";
-                $body = "";
-
+                $data_id =  $activity->id;
 
                 if($getUser)
                 {
                     if(($is_push_notify == true) && ($currentDateTime ==  $dateTime))
                     {
-                        $getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
-                        if($getMsg)
-                        {
-                            $body = $getMsg->notify_body;
-                            $title = $getMsg->mail_subject;
-                            $arrayVal = [
-                                '{{name}}'              => $getUser->name,
-                                '{{assigned_by}}'       => Auth::User()->name,
-                                '{{activity_title}}'    => $activity->title,
-                                '{{start_date}}'        => $activity->start_date,
-                                '{{start_time}}'        => $activity->start_time
-                            ];
-                            $body = strReplaceAssoc($arrayVal, $body);
-                        }
-                        actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
+                        $notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+                        $variable_data = [
+                            '{{name}}'              => $getUser->name,
+                            '{{assigned_by}}'       => Auth::User()->name,
+                            '{{activity_title}}'    => $activity->title,
+                            '{{start_date}}'        => $activity->start_date,
+                            '{{start_time}}'        => $activity->start_time
+                        ];
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data);
                         
                         $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
                     }

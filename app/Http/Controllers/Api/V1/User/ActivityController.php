@@ -492,50 +492,31 @@ class ActivityController extends Controller
             								$activityAssigne->save();
             								/*-----------Send notification---------------------*/
             								$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
-            								$title = "";
-            								$body = "";
-            								$module =  "activity";
-            								$event  =  "assigned";
-            								$id =  $activity->id;
-            								$screen =  "detail";
-            								
-            								$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+            								$data_id =  $activity->id;
+            								$notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
 
             								if($key1 == 0 && $key2 == 0)
             								{
             									if($request->is_compulsory == true && $key == 0){
-            										if($getMsg )
-            										{
-            											$user = User::find($getUser->top_most_parent_id);
-            											$body = $getMsg->notify_body;
-            											$title = $getMsg->mail_subject;
-
-            											$arrayVal = [
-            												'{{name}}'  			=> $user->name,
-            												'{{assigned_by}}' 		=> Auth::User()->name,
-            												'{{activity_title}}'	=> $activity->title,
-            												'{{start_date}}' 		=> $activity->start_date,
-            												'{{start_time}}' 		=> $activity->start_time
-            											];
-            											$body = strReplaceAssoc($arrayVal, $body);
-            										}
-            										actionNotification($event,$user,$title,$body,$module,$screen,$id,'warning',1);
+            										$user = User::find($getUser->top_most_parent_id);
+        											$variable_data = [
+        												'{{name}}' => $user->name,
+        												'{{assigned_by}}' => Auth::User()->name,
+        												'{{activity_title}}' => $activity->title,
+        												'{{start_date}}' => $activity->start_date,
+        												'{{start_time}}' => $activity->start_time
+        											];
+        										 	actionNotification($user,$data_id,$notification_template,$variable_data);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            										if($getMsg)
-            										{
-            											$body = $getMsg->notify_body;
-            											$title = $getMsg->mail_subject;
-            											$arrayVal = [
-            												'{{name}}'  			=> $getUser->name,
-            												'{{assigned_by}}' 		=> Auth::User()->name,
-            												'{{activity_title}}'	=> $activity->title,
-            												'{{start_date}}' 		=> $activity->start_date,
-            												'{{start_time}}' 		=> $activity->start_time
-            											];
-            											$body = strReplaceAssoc($arrayVal, $body);
-            										}
-            										actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
+            										$variable_data = [
+        												'{{name}}'=> $getUser->name,
+        												'{{assigned_by}}'=> Auth::User()->name,
+        												'{{activity_title}}'=> $activity->title,
+        												'{{start_date}}'=> $activity->start_date,
+        												'{{start_time}}'=> $activity->start_time
+        											];
+            										actionNotification($getUser,$data_id,$notification_template,$variable_data);
             									}
             								}
 
@@ -823,49 +804,31 @@ class ActivityController extends Controller
             								/*-----------Send notification---------------------*/
             								$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
             								$user_type =  $getUser->user_type_id;
-            								$module =  "activity";
-            								$event  =  "assigned";
-            								$title = "";
-            								$body = "";
-            								$id =  $activity->id;
-            								$screen =  "detail";
-            								$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+            								$data_id =  $activity->id;
+            								$notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
 
             								if($key1 == 0 && $key2 == 0)
             								{
             									if($request->is_compulsory == true && $key == 0){
-            										if($getMsg )
-            										{
-            											$user = User::find($getUser->top_most_parent_id);
-            											$body = $getMsg->notify_body;
-            											$title = $getMsg->mail_subject;
-
-            											$arrayVal = [
-            												'{{name}}'  			=> $user->name,
-            												'{{assigned_by}}' 		=> Auth::User()->name,
-            												'{{activity_title}}'	=> $activity->title,
-            												'{{start_date}}' 		=> $activity->start_date,
-            												'{{start_time}}' 		=> $activity->start_time
-            											];
-            											$body = strReplaceAssoc($arrayVal, $body);
-            										}
-            										actionNotification($event,$user,$title,$body,$module,$screen,$id,'warning',1);
+            										$user = User::find($getUser->top_most_parent_id);
+        											$variable_data = [
+        												'{{name}}' => $user->name,
+        												'{{assigned_by}}' => Auth::User()->name,
+        												'{{activity_title}}' => $activity->title,
+        												'{{start_date}}' => $activity->start_date,
+        												'{{start_time}}' => $activity->start_time
+        											];
+        										 	actionNotification($user,$data_id,$notification_template,$variable_data);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            										if($getMsg)
-            										{
-            											$body = $getMsg->notify_body;
-            											$title = $getMsg->mail_subject;
-            											$arrayVal = [
-            												'{{name}}'  			=> $getUser->name,
-            												'{{assigned_by}}' 		=> Auth::User()->name,
-            												'{{activity_title}}'	=> $activity->title,
-            												'{{start_date}}' 		=> $activity->start_date,
-            												'{{start_time}}' 		=> $activity->start_time
-            											];
-            											$body = strReplaceAssoc($arrayVal, $body);
-            										}
-            										actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
+            										$variable_data = [
+        												'{{name}}'=> $getUser->name,
+        												'{{assigned_by}}'=> Auth::User()->name,
+        												'{{activity_title}}'=> $activity->title,
+        												'{{start_date}}'=> $activity->start_date,
+        												'{{start_time}}'=> $activity->start_time
+        											];
+            										actionNotification($getUser,$data_id,$notification_template,$variable_data);
             									}
             								}
             								
@@ -1019,33 +982,17 @@ class ActivityController extends Controller
     		/*-----------Send notification---------------------*/
 
     		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
-    		$module =  "activity";
-    		$event  =  "assigned";
     		$data_id =  $checkId->id;
-    		$screen =  "detail";
-
-    		$title 	= false;
-    		$body 	= false;
-    		$getMsg = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
-
-    		if($getMsg)
-    		{
-    			$body = $getMsg->notify_body;
-    			$title = $getMsg->mail_subject;
-    			$arrayVal = [
-    				'{{name}}'  			=> $user->name,
-    				'{{assigned_by}}' 		=> Auth::User()->name,
-    				'{{activity_title}}'	=> $checkId->title,
-    				'{{start_date}}' 		=> $checkId->start_date,
-    				'{{start_time}}' 		=> $checkId->start_time
-    			];
-    			$body = strReplaceAssoc($arrayVal, $body);
-    		}
-
-    		actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
-
+    		$notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+			$variable_data = [
+				'{{name}}'  			=> $user->name,
+				'{{assigned_by}}' 		=> Auth::User()->name,
+				'{{activity_title}}'	=> $checkId->title,
+				'{{start_date}}' 		=> $checkId->start_date,
+				'{{start_time}}' 		=> $checkId->start_time
+			];
+    		actionNotification($user,$data_id,$notification_template,$variable_data);
     		DB::commit();
-
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
     		return prepareResult(true,getLangByLabelGroups('Activity','message_assigne') ,$activityAssigne, config('httpcodes.success'));
     	}
@@ -1213,46 +1160,29 @@ class ActivityController extends Controller
     			/*-----------Send notification---------------------*/
 
     			$receivers_ids = array_filter(array_unique($receivers_ids));
-
-    			$module =  "activity";
-    			$event  =  "action";
     			$data_id =  $activity->id;
-    			$screen =  "detail";
-
-    			$title  = false;
-    			$body   = false;
-    			$getMsg = EmailTemplate::where('mail_sms_for', 'activity-action')->first();
+    			
 
     			if($request->status == 1) {
-    				$action = "Marked as Done";
-    				$status_code = 'info';
+    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-done')->first();
     			}
     			elseif ($request->status == 2) {
-    				$action = "Marked as Not Done";
-    				$status_code = 'warning';
+    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-done')->first();
     			}
     			elseif ($request->status == 3) {
-    				$action = "Marked as Not applicable";
-    				$status_code = 'danger';
+    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
     			}
 
     			foreach ($receivers_ids as $key => $value) {
-    				if($getMsg)
-    				{
-    					$body = $getMsg->notify_body;
-    					$title = $getMsg->mail_subject;
-    					$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
-    					$arrayVal = [
-    						'{{name}}'              => $user->name,
-    						'{{action_by}}'         => Auth::User()->name,
-    						'{{action}}'            => $action,
-    						'{{activity_title}}'    => $activity->title,
-    						'{{start_date}}'        => $activity->start_date,
-    						'{{start_time}}'        => $activity->start_time
-    					];
-    					$body = strReplaceAssoc($arrayVal, $body);
-    				}
-    				actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,1);
+    				$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+					$variable_data = [
+						'{{name}}'              => $user->name,
+						'{{action_by}}'         => Auth::User()->name,
+						'{{activity_title}}'    => $activity->title,
+						'{{start_date}}'        => $activity->start_date,
+						'{{start_time}}'        => $activity->start_time
+					];
+    				actionNotification($user,$data_id,$notification_template,$variable_data);
     			}
     			DB::commit();
 
@@ -1337,32 +1267,18 @@ class ActivityController extends Controller
             /*-----------Send notification---------------------*/
 
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
-            $module =  "activity";
-            $event  =  "not-applicable";
             $data_id =  $getActivity->id;
-            $screen =  "detail";
-
-            $title 	= false;
-            $body 	= false;
-            $getMsg = EmailTemplate::where('mail_sms_for', 'activity-action')->first();
+            $notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
             $companyObj = companySetting($user->top_most_parent_id);
+			$variable_data = [
+				'{{name}}'              => $user->name,
+				'{{action_by}}'         => Auth::User()->name,
+				'{{activity_title}}'    => $getActivity->title,
+				'{{start_date}}'        => $getActivity->start_date,
+				'{{start_time}}'        => $getActivity->start_time
+			];
 
-            if($getMsg)
-            {
-            	$body = $getMsg->notify_body;
-				$title = $getMsg->mail_subject;
-				$arrayVal = [
-					'{{name}}'              => $user->name,
-					'{{action_by}}'         => Auth::User()->name,
-					'{{action}}'            => 'Marked as Not Applicable',
-					'{{activity_title}}'    => $getActivity->title,
-					'{{start_date}}'        => $getActivity->start_date,
-					'{{start_time}}'        => $getActivity->start_time
-				];
-				$body = strReplaceAssoc($arrayVal, $body);
-            }
-
-            actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'danger',1);
+            actionNotification($user,$data_id,$notification_template,$variable_data);
 
     		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
     	}

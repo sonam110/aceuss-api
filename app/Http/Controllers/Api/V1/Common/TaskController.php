@@ -285,30 +285,18 @@ class TaskController extends Controller
         						            $taskAssign->assigned_by = $user->id;
         						            $taskAssign->save();
 
-                                            /*-----------Send notification---------------------*/
+                                            /*----notify-emp-task-assigned---*/
 
                                             $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
-                                            $module =  "task";
-                                            $event = "assignment";
                                             $data_id =  $task->id;
-                                            $screen =  "detail";
+                                            $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
 
-                                            $title  = false;
-                                            $body   = false;
-                                            $getMsg = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
-
-                                            if($getMsg && $userRec)
-                                            {
-                                                $body = $getMsg->notify_body;
-                                                $title = $getMsg->mail_subject;
-                                                $arrayVal = [
-                                                    '{{name}}'              => $userRec->name,
-                                                    '{{assigned_by}}'       => Auth::User()->name,
-                                                    '{{task_title}}'    => $task->title
-                                                ];
-                                                $body = strReplaceAssoc($arrayVal, $body);
-                                            }
-                                            actionNotification($event,$userRec,$title,$body,$module,$screen,$data_id,'success',1);
+                                            $variable_data = [
+                                                '{{name}}' => $userRec->name,
+                                                '{{assigned_by}}' => Auth::User()->name,
+                                                '{{task_title}}' => $task->title
+                                            ];
+                                            actionNotification($userRec,$data_id,$notification_template,$variable_data);
     						           }
                                     }
     						    }
@@ -327,28 +315,16 @@ class TaskController extends Controller
                                         $taskAssign->save();
 
 
-                                        /*-----------Send notification---------------------*/
+                                        /*---notify-employee-task-assigned----*/
 
                                         $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
-                                        $module =  "task";
-                                        $event = "created-assigned";
                                         $data_id =  $task->id;
-                                        $screen =  "list";
-
-                                        $title  = false;
-                                        $body   = false;
-                                        $getMsg = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
-                                        if($getMsg)
-                                        {
-                                            $body = $getMsg->notify_body;
-                                            $title = $getMsg->mail_subject;
-                                            $arrayVal = [
-                                                '{{name}}'              => $user->name,
-                                                '{{task_title}}'        => $task->title,
-                                            ];
-                                            $body = strReplaceAssoc($arrayVal, $body);
-                                        }
-                                        actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
+                                        $notification_template = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
+                                        $variable_data = [
+                                            '{{name}}' => $user->name,
+                                            '{{task_title}}' => $task->title,
+                                        ];
+                                        actionNotification($user,$data_id,$notification_template,$variable_data);
                                     }
                                 }
                             }
@@ -735,40 +711,27 @@ class TaskController extends Controller
             /*-----------Send notification---------------------*/
 
             $receivers_ids = array_filter(array_unique($receivers_ids));
-
-            $module =  "task";
-            $event = "action";
             $data_id =  $task->id;
-            $screen =  "detail";
 
-            $title  = false;
-            $body   = false;
-            $getMsg = EmailTemplate::where('mail_sms_for', 'task-action')->first();
-
-            if($request->status == 0) {
-                $action = "Marked as Done";
-                $status_code = 'warning';
+            if($request->status == 1) {
+                // $action = "Marked as Done";
+                $notification_template = EmailTemplate::where('mail_sms_for', 'task-done')->first();
             }
-            elseif ($request->status == 1) {
-                $action = "Marked as Not Done";
-                $status_code = 'success';
+            else
+            {
+                // $action = "Marked as Not Done";
+                $notification_template = EmailTemplate::where('mail_sms_for', 'task-not-done')->first();
             }
 
             foreach ($receivers_ids as $key => $value) {
-                if($getMsg)
-                {
-                    $body = $getMsg->notify_body;
-                    $title = $getMsg->mail_subject;
-                    $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
-                    $arrayVal = [
-                        '{{name}}'              => $user->name,
-                        '{{action_by}}'         => Auth::User()->name,
-                        '{{action}}'            => $action,
-                        '{{task_title}}'    => $task->title
-                    ];
-                    $body = strReplaceAssoc($arrayVal, $body);
-                }
-                actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,1);
+                $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+                $variable_data = [
+                    '{{name}}'      => $user->name,
+                    '{{action_by}}' => Auth::User()->name,
+                    // '{{action}}'    => $action,
+                    '{{task_title}}'=> $task->title
+                ];
+                actionNotification($user,$data_id,$notification_template,$variable_data);
             }
             
             DB::commit();

@@ -335,6 +335,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('schedules-dates', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedulesDates']);
 		Route::post('schedule-filter', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleFilter']);
 		Route::post('schedule-stats', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleStats']);
+		Route::post('patient-completed-hours', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'patientCompletedHours']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);

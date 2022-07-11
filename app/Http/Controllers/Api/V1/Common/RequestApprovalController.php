@@ -181,30 +181,17 @@ class RequestApprovalController extends Controller
                             
                                 /*-----------Send notification---------------------*/
 
-                                $module =  "request-approval";
-                                $event  =  "approved";
                                 $data_id =  $addRequest->id;
-                                $screen =  "detail";
-
-                                $title  = false;
-                                $body   = false;
-                                $getMsg = EmailTemplate::where('mail_sms_for', 'request-approval')->first();
+                                $notification_template = EmailTemplate::where('mail_sms_for', 'request-approval')->first();
 
                                 foreach ($request->requested_to as $key => $value) {
                                     $userRec = User::find($value);
-                                    // return $value;
-                                    if($getMsg)
-                                    {
-                                        $body = $getMsg->notify_body;
-                                        $title = $getMsg->mail_subject;
-                                        $arrayVal = [
-                                            '{{name}}'              => $userRec->name,
-                                            '{{requested_by}}'      => Auth::User()->name,
-                                            '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
-                                        ];
-                                        $body = strReplaceAssoc($arrayVal, $body);
-                                    }
-                                    actionNotification($event,$userRec,$title,$body,$module,$screen,$data_id,'info',1);
+                                    $variable_data = [
+                                        '{{name}}'              => $userRec->name,
+                                        '{{requested_by}}'      => Auth::User()->name,
+                                        '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
+                                    ];
+                                    actionNotification($userRec,$data_id,$notification_template,$variable_data);
                                 }
                             }
                         }

@@ -21,6 +21,9 @@ class CreateUserScheduledDatesTable extends Migration
             $table->unsignedBigInteger('emp_id')->nullable();
             $table->foreign('emp_id')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('schedule_template_id')->nullable();
+            $table->foreign('schedule_template_id')->references('id')->on('schedule_templates')->onDelete('cascade');
+
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('entry_mode')->nullable();

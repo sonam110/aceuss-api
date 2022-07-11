@@ -9,6 +9,6 @@ class EmailTemplate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'mail_sms_for','mail_subject','mail_body','sms_body','notify_body','custom_attributes'
+        'mail_sms_for','mail_subject','mail_body','sms_body','notify_body','custom_attributes','module','type','event'
     ];
 }

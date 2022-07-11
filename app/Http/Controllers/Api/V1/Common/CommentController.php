@@ -51,26 +51,14 @@ class CommentController extends Controller
 
                 $activity = Activity::find($request->source_id);
                 $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
-                $module =  "comment";
-                $event  =  "created";
                 $data_id =  $addComment->id;
-                $screen =  "detail";
-
-                $title  = false;
-                $body   = false;
-                $getMsg = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
-                if($getMsg)
-                {
-                    $body = $getMsg->notify_body;
-                    $title = $getMsg->mail_subject;
-                    $arrayVal = [
-                        '{{name}}'              => $user->name,
-                        '{{comment_by}}'        => Auth::User()->name,
-                        '{{activity_title}}'    => $activity->title
-                    ];
-                    $body = strReplaceAssoc($arrayVal, $body);
-                }
-                actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
+                $notification_template = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
+                $variable_data = [
+                    '{{name}}'              => $user->name,
+                    '{{comment_by}}'        => Auth::User()->name,
+                    '{{activity_title}}'    => $activity->title
+                ];
+                actionNotification($user,$data_id,$notification_template,$variable_data);
             }
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$addComment, config('httpcodes.success'));
         }

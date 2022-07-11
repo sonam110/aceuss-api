@@ -51,6 +51,7 @@ class CreateSchedulesTable extends Migration
             $table->enum('schedule_type',['basic','extra','emergency'])->nullable();
             $table->string('group_id')->nullable()->comment('only for schedule');
             $table->string('shift_name')->nullable();
+            $table->string('shift_type')->nullable();
             $table->string('shift_date');
             $table->datetime('shift_start_time')->nullable();
             $table->datetime('shift_end_time')->nullable();

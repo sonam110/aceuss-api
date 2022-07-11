@@ -335,12 +335,36 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$status_code,$save_to_database)
+function actionNotification($user,$data_id,$notification_template,$variable_data)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {
+        
         if(!empty($user))
         {
+            if(!empty($notification_template))
+            {
+                $title = $notification_template->mail_subject;
+                $body = strReplaceAssoc($variable_data,$notification_template->notify_body);
+                $module = $notification_template->module;
+                $type = $notification_template->type;
+                $event = $notification_template->event;
+                $screen = $notification_template->screen;
+                $status_code = $notification_template->status_code;
+                $save_to_database = $notification_template->save_to_database;
+            }
+            else
+            {
+            	$title = '';
+            	$body = '';
+            	$module = '';
+            	$type = '';
+            	$event = '';
+            	$screen = '';
+            	$status_code = '';
+            	$save_to_database = '';
+            }
+
             $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)
                 ->whereNotNull('device_token')
                 ->whereIn('login_via',['1','2'])
@@ -396,8 +420,7 @@ function actionNotification($event,$user,$title,$body,$module,$screen,$data_id,$
             }    
         }
     }
-    
-        return true;
+    return true;
 }
 
 function strReplaceAssoc(array $replace, $subject) 
@@ -1313,10 +1336,10 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     $result['ob_type'] = $ob['type'];
     $result['ob_start_time'] = $ob['start_time'];
     $result['ob_end_time'] = $ob['end_time'];
-    $result['scheduled_work_duration'] = $countable_scheduled_duration/60;
-    $result['emergency_work_duration'] = $countable_emergency_duration/60;
-    $result['ob_work_duration'] = $ob_duration/60;
-    $result['extra_work_duration'] = $countable_extra_duration/60;
+    $result['scheduled_work_duration'] = number_format($countable_scheduled_duration/60,2);
+    $result['emergency_work_duration'] = number_format($countable_emergency_duration/60,2);
+    $result['ob_work_duration'] = number_format($ob_duration/60,2);
+    $result['extra_work_duration'] = number_format($countable_extra_duration/60,2);
     return $result;
 }
 

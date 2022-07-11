@@ -303,30 +303,16 @@ class DeviationController extends Controller
             $deviation->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $deviation->save();
 
-            /*-----------Send notification---------------------*/
-
+            /*--------notify-emp-deviation-created------------*/
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
-            $module =  "deviation";
-            $event  =  "created";
             $data_id =  $deviation->id;
-            $screen =  "detail";
-
-            $title  = false;
-            $body   = false;
-            $getMsg = EmailTemplate::where('mail_sms_for', 'deviation')->first();
-
-            if($getMsg)
-            {
-                $body = $getMsg->notify_body;
-                $title = $getMsg->mail_subject;
-                $arrayVal = [
-                    '{{name}}'              => $user->name,
-                    '{{created_by}}'        => Auth::User()->name,
-                ];
-                $body = strReplaceAssoc($arrayVal, $body);
-            }
-            actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
-
+            $notification_template = EmailTemplate::where('mail_sms_for', 'deviation')->first();
+            $variable_data = [
+                '{{name}}'              => $user->name,
+                '{{created_by}}'        => Auth::User()->name,
+            ];
+            actionNotification($user,$data_id,$notification_template,$variable_data);
+            //------------------------------------------------//
             DB::commit();
 
             $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')

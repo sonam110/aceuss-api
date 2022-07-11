@@ -273,29 +273,16 @@ class JournalController extends Controller
             $journal->edit_date = date('Y-m-d H:i:s');
 		 	$journal->save();
 
-            /*-----------Send notification---------------------*/
-
+            /*-----------notify-user-journal-created--------------------*/
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
-            $module =  "journal";
-            $event  =  "created";
             $data_id =  $journal->id;
-            $screen =  "detail";
-
-            $title  = false;
-            $body   = false;
-            $getMsg = EmailTemplate::where('mail_sms_for', 'journal')->first();
-
-            if($getMsg)
-            {
-                $body = $getMsg->notify_body;
-                $title = $getMsg->mail_subject;
-                $arrayVal = [
-                    '{{name}}'              => $user->name,
-                    '{{created_by}}'        => Auth::User()->name,
-                ];
-                $body = strReplaceAssoc($arrayVal, $body);
-            }
-            actionNotification($event,$user,$title,$body,$module,$screen,$data_id,'info',1);
+            $notification_template = EmailTemplate::where('mail_sms_for', 'journal')->first();
+            $variable_data = [
+                '{{name}}'              => $user->name,
+                '{{created_by}}'        => Auth::User()->name,
+            ];
+            actionNotification($user,$data_id,$notification_template,$variable_data);
+            //-----------------------------------------------//
 
             DB::commit();
 

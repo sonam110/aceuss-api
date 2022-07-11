@@ -97,30 +97,19 @@ class taskNotify extends Command
                 }
 
                 $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-                $module = "task";
-                $event  =  "assigned";
-                $id = $task->id;
-                $screen = "detail";
-                $title = "";
-                $body = "";
+                $data_id = $task->id;
 
                 if($getUser)
                 {
                    if(($is_push_notify = true) && ($currentDateTime  =  $dateTime))
                    {
-                       $getMsg = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
-                       if($getMsg)
-                       {
-                           $body = $getMsg->notify_body;
-                           $title = $getMsg->mail_subject;
-                           $arrayVal = [
-                               '{{name}}'              => $getUser->name,
-                               '{{assigned_by}}'       => "Auth::User()->name",
-                               '{{task_title}}'        => $task->title
-                           ];
-                           $body = strReplaceAssoc($arrayVal, $body);
-                       }
-                       actionNotification($event,$getUser,$title,$body,$module,$screen,$id,'info',1);
+                       $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
+                       $variable_data = [
+                           '{{name}}'              => $getUser->name,
+                           '{{assigned_by}}'       => "Auth::User()->name",
+                           '{{task_title}}'        => $task->title
+                       ];
+                       actionNotification($getUser,$data_id,$notification_template,$variable_data);
                        
                        $update_is_notify = AssignTask::where('id',$assigne->id)->update(['is_notify'=>'1']);
                    } 

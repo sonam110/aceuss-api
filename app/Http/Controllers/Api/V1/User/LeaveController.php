@@ -132,22 +132,24 @@ class LeaveController extends Controller
 
     			foreach ($dates as $key => $date) 
     			{
-    				$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+    				$schedules = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->get();
 
     				if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
     				{
-                        $vacation_duration = 0;
-                        if($request->leave_type=='vacation')
-                        {
-                            $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                        foreach ($schedules as $key => $schedule) {
+                            $vacation_duration = 0;
+                            if($request->leave_type=='vacation')
+                            {
+                                $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                            }
+                            $schedule->update([
+                                'leave_applied' => '1',
+                                'leave_type' => $request->leave_type,
+                                'leave_reason' => $request->reason,
+                                'leave_group_id' => $group_id,
+                                'vacation_duration' => $vacation_duration,
+                            ]);
                         }
-    					$schedule->update([
-    						'leave_applied' => '1',
-    						'leave_type' => $request->leave_type,
-    						'leave_reason' => $request->reason,
-    						'leave_group_id' => $group_id,
-                            'vacation_duration' => $vacation_duration,
-    					]);
     				}
     				else
     				{
@@ -204,29 +206,17 @@ class LeaveController extends Controller
     					$schedule->save();
     				}
 
-    				//-----------------notification----------------------//
+    				//--notify-top-most-company-for-new-leave-application--//
     				$user = User::find(Auth::user()->top_most_parent_id);
-    				$title = "";
-    				$body = "";
-    				$module =  "schedule";
-    				$event = "leave-applied";
-    				$id =  $schedule->id;
-    				$screen =  "detail";
+    				$data_id =  $schedule->id;
 
-    				$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
-    				if($getMsg )
-    				{
-    					$body = $getMsg->notify_body;
-    					$title = $getMsg->mail_subject;
-
-    					$arrayVal = [
-    						'{{requested_by}}' 	=> Auth::User()->name,
-    						'{{date}}'			=> $schedule->shift_date,
-    						'{{reason}}' 		=> $request->reason
-    					];
-    					$body = strReplaceAssoc($arrayVal, $body);
-    				}
-    				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    				$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
+                    $variable_data = [
+                        '{{requested_by}}'  => Auth::User()->name,
+                        '{{date}}'          => $schedule->shift_date,
+                        '{{reason}}'        => $request->reason
+                    ];
+    				actionNotification($user,$data_id,$notification_template,$variable_data);
     			}        
     		}
     		else
@@ -242,24 +232,25 @@ class LeaveController extends Controller
     			{
     				foreach ($value['dates'] as $key => $date) 
     				{
-    					$schedule = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->first();
+                        $schedules = Schedule::where('shift_date',$date)->where('user_id',Auth::id())->get();
 
-    					if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
-    					{
-                            $vacation_duration = 0;
-                            if($request->leave_type=='vacation')
-                            {
-                                $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                        if(Schedule::where('shift_date',$date)->where('user_id',Auth::id())->count() > 0)
+                        {
+                            foreach ($schedules as $key => $schedule) {
+                                $vacation_duration = 0;
+                                if($request->leave_type=='vacation')
+                                {
+                                    $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                                }
+                                $schedule->update([
+                                    'leave_applied' => '1',
+                                    'leave_type' => $request->leave_type,
+                                    'leave_reason' => $value['reason'],
+                                    'leave_group_id' => $group_id,
+                                    'vacation_duration' => $vacation_duration,
+                                ]);
                             }
-
-    						$schedule->update([
-    							'leave_applied' => '1',
-    							'leave_type' => $request->leave_type,
-    							'leave_reason' => $value['reason'],
-    							'leave_group_id' => $group_id,
-                                'vacation_duration' => $vacation_duration,
-    						]);
-    					}
+                        }
     					else
     					{
     						$shift_start_time = $date.' 00:00:00';
@@ -302,30 +293,18 @@ class LeaveController extends Controller
     						$schedule->save();
     					}
 
-    					//-----------------notification----------------------//
-    					$user = User::find(Auth::user()->top_most_parent_id);
-    					$title = "";
-    					$body = "";
-    					$module =  "schedule";
-    					$event = "leave-applied";
-    					$id =  $schedule->id;
-    					$screen =  "detail";
+                        //--notify-top-most-company-for-new-leave-application--//
+                        $user = User::find(Auth::user()->top_most_parent_id);
+                        $data_id =  $schedule->id;
 
-    					$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
-    					if($getMsg)
-    					{
-    						$body = $getMsg->notify_body;
-    						$title = $getMsg->mail_subject;
-
-    						$arrayVal = [
-    							'{{requested_by}}' 	=> Auth::User()->name,
-    							'{{date}}'			=> $schedule->shift_date,
-    							'{{reason}}' 		=> $request->reason
-    						];
-    						$body = strReplaceAssoc($arrayVal, $body);
-    					}
-    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
-    				}   
+                        $notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
+                        $variable_data = [
+                            '{{requested_by}}'  => Auth::User()->name,
+                            '{{date}}'          => $schedule->shift_date,
+                            '{{reason}}'        => $value['reason']
+                        ];
+                        actionNotification($user,$data_id,$notification_template,$variable_data);
+    				}
     			}  
     		}
 
@@ -443,29 +422,16 @@ class LeaveController extends Controller
 
     				foreach ($users as $key => $user) 
     				{
-                		//---------------------Notification------------------//
-
-    					$title = "";
-    					$body = "";
-    					$module =  "schedule";
-    					$event = "schedule-request";
-    					$id =  $request->leave_group_id;
-    					$screen =  "list";
-
-    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
-    					if($getMsg )
-    					{
-    						$body = $getMsg->notify_body;
-    						$title = $getMsg->mail_subject;
-
-    						$arrayVal = [
-    							'{{name}}'  		=> $user->name,
-    							'{{requested_by}}' 	=> Auth::User()->name,
-    							'{{dates}}'			=> $dates
-    						];
-    						$body = strReplaceAssoc($arrayVal, $body);
-    					}
-    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+                		//----notify-selected-employees-to-accept-work----//
+    					$data_id =  $request->leave_group_id;
+    					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
+                        $variable_data = [
+                            '{{name}}'          => $user->name,
+                            '{{requested_by}}'  => Auth::User()->name,
+                            '{{dates}}'         => $dates
+                        ];
+    					actionNotification($user,$data_id,$notification_template,$variable_data);
+                        //----------------------------------------------//
     					$users_id[] = $user->id;
     				}
 
@@ -476,28 +442,19 @@ class LeaveController extends Controller
     				]);
     			}
 
+                //----notify-employee-leave-approved----//
     			$user = User::find($leave->user_id);
-    			$title = "";
-    			$body = "";
-    			$module =  "schedule";
-    			$event = "leave-approved";
-    			$id =  $request->leave_group_id;
+    			$data_id =  $request->leave_group_id;
     			$screen =  "list";
 
-    			$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
-    			if($getMsg )
-    			{
-    				$body = $getMsg->notify_body;
-    				$title = $getMsg->mail_subject;
-
-    				$arrayVal = [
-    					'{{name}}' 	=> $user->name,
-    					'{{dates}}'	=> $dates,
-    					'{{approved_by}}'=> Auth::user()->name
-    				];
-    				$body = strReplaceAssoc($arrayVal, $body);
-    			}
-    			actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
+    			$variable_data = [
+                    '{{name}}'  => $user->name,
+                    '{{dates}}' => $dates,
+                    '{{approved_by}}'=> Auth::user()->name
+                ];
+    			actionNotification($user,$data_id,$notification_template,$variable_data);
+                //--------------------------------------//
     		}
     		elseif(!empty($request->leaves))
     		{
@@ -518,12 +475,7 @@ class LeaveController extends Controller
                     $shift_start_time = $leave->shift_start_time;
                     $shift_end_time = $leave->shift_end_time;
 
-                    $shift_type = null;
-                    if(!empty($leave->shift_id))
-                    {
-                        $shift_type = CompanyWorkShift::find($leave->shift_id)->shift_type;
-                    }
-
+                    $shift_type = $leave->shift_type;
                     $result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
 
                     $schedule = new Schedule;
@@ -540,6 +492,7 @@ class LeaveController extends Controller
                     $schedule->shift_date = $leave->shift_date;
                     $schedule->group_id = $group_id;
                     $schedule->shift_name = $leave->shift_name;
+                    $schedule->shift_type = $leave->shift_type;
                     $schedule->shift_color = $leave->shift_color;
                     $schedule->shift_start_time = $shift_start_time;
                     $schedule->shift_end_time = $shift_end_time;
@@ -564,57 +517,33 @@ class LeaveController extends Controller
                     $schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
                     $schedule->save();
 
-    				//---------------notification--------------//
+    				//----notify-emp-for-schedule-assigned---//
 
-    				$title = "";
-					$body = "";
-					$module =  "schedule";
-					$event = "schedule-assignment";
-					$id =  $schedule->id;
-					$screen =  "detail";
+					$data_id =  $schedule->id;
+					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+					$variable_data = [
+                        '{{name}}'          => $user->name,
+                        '{{schedule_title}}'=> $schedule->title,
+                        '{{date}}'          => $schedule->shift_date,
+                        '{{start_time}}'    => $schedule->shift_start_time,
+                        '{{end_time}}'      => $schedule->shift_end_time,
+                        '{{assigned_by}}'   => Auth::User()->name
+                    ];
+					actionNotification($user,$data_id,$notification_template,$variable_data);
+                    //----------------------------------------//
 
-					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-					if($getMsg )
-					{
-						$body = $getMsg->notify_body;
-						$title = $getMsg->mail_subject;
+                    //----notify-employee-leave-approved---//
+					$leave_approved_user = User::find($leave->user_id);
+					$data_id =  $leave->id;
 
-						$arrayVal = [
-							'{{name}}'  		=> $user->name,
-							'{{schedule_title}}'=> $schedule->title,
-							'{{date}}' 			=> $schedule->shift_date,
-							'{{start_time}}'	=> $schedule->shift_start_time,
-							'{{end_time}}'      => $schedule->shift_end_time,
-							'{{assigned_by}}'   => Auth::User()->name
-						];
-						$body = strReplaceAssoc($arrayVal, $body);
-					}
-					actionNotification($event,$user,$title,$body,$schedule,$screen,$id,'info',1);
-
-
-
-					$rec_user = User::find($leave->user_id);
-					$title = "";
-					$body = "";
-					$module =  "schedule";
-					$event = "leave-approved";
-					$id =  $leave->id;
-					$screen =  "detail";
-
-					$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
-					if($getMsg )
-					{
-						$body = $getMsg->notify_body;
-						$title = $getMsg->mail_subject;
-
-						$arrayVal = [
-							'{{name}}' 	=> $user->name,
-							'{{dates}}'	=> $leave->shift_date,
-							'{{approved_by}}'=> Auth::user()->name
-						];
-						$body = strReplaceAssoc($arrayVal, $body);
-					}
-					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+					$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
+					$variable_data = [
+                        '{{name}}'  => $user->name,
+                        '{{date}}' => $leave->shift_date,
+                        '{{approved_by}}'=> Auth::user()->name
+                    ];
+					actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data);
+                    //----------------------------------------//
     			}
     			$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('leave_group_id')->get();
     		}
@@ -649,29 +578,18 @@ class LeaveController extends Controller
     			$dates[] = $value->shift_date;
     		}
 
-    		//-----------------notification----------------------//
+    		//-------notify-employee-leave-approved--------//
     		$user = User::find($leaves->user_id);
-    		$title = "";
-    		$body = "";
-    		$module =  "schedule";
-    		$event = "leave-approved";
-    		$id =  $leave_group_id;
-    		$screen =  "list";
+    		$data_id =  $leave_group_id;
+    		$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
+    		$variable_data = [
+                '{{name}}'  => $user->name,
+                '{{dates}}' => implode(',', $dates),
+                '{{approved_by}}'=> Auth::user()->name
+            ];
+    		actionNotification($user,$data_id,$notification_template,$variable_data);
+            //----------------------------------------------//
 
-    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
-    		if($getMsg )
-    		{
-    			$body = $getMsg->notify_body;
-    			$title = $getMsg->mail_subject;
-
-    			$arrayVal = [
-    				'{{name}}' 	=> $user->name,
-    				'{{dates}}'	=> implode(',', $dates),
-    				'{{approved_by}}'=> Auth::user()->name
-    			];
-    			$body = strReplaceAssoc($arrayVal, $body);
-    		}
-    		actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
@@ -703,12 +621,7 @@ class LeaveController extends Controller
             $shift_start_time = $leave->shift_start_time;
             $shift_end_time = $leave->shift_end_time;
 
-            $shift_type = null;
-            if(!empty($leave->shift_id))
-            {
-                $shift_type = CompanyWorkShift::find($leave->shift_id)->shift_type;
-            }
-
+            $shift_type = $leave->shift_type;
             $result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra',$shift_type);
 
     		$schedule = new Schedule;
@@ -725,6 +638,7 @@ class LeaveController extends Controller
 			$schedule->shift_date = $leave->shift_date;
 			$schedule->group_id = $leave->group_id;
 			$schedule->shift_name = $leave->shift_name;
+            $schedule->shift_type = $leave->shift_type;
 			$schedule->shift_color = $leave->shift_color;
 			$schedule->shift_start_time = $shift_start_time;
 			$schedule->shift_end_time = $shift_end_time;
@@ -749,8 +663,7 @@ class LeaveController extends Controller
 			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 			$schedule->save();
     		$schedule->save();
-
-            //-----------------notification---------------------------//
+            
     		$dates = [];
     		$leaves = Schedule::where('notified_group',$leave->notified_group)->where('assign_status','vacant')->get();
     		foreach ($leaves as $key => $value) {
@@ -768,28 +681,17 @@ class LeaveController extends Controller
 
     			foreach ($users as $key => $user) 
     			{
-    				$title = "";
-    				$body = "";
-    				$module =  "schedule";
-    				$event = "scheduleSlotSelected";
-    				$id =  $leave->group_id;
-    				$screen =  "list";
-
-    				$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-slot-selected')->first();
-    				if($getMsg )
-    				{
-    					$body = $getMsg->notify_body;
-    					$title = $getMsg->mail_subject;
-
-    					$arrayVal = [
-    						'{{name}}'          => $user->name,
-    						'{{selected_by}}'   => Auth::User()->name,
-    						'{{vacant_dates}}'  => $dates,
-    						'{{selected_date}}' => $leave->date
-    					];
-    					$body = strReplaceAssoc($arrayVal, $body);
-    				}
-    				actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    				//--notify-emp-request-schedule-slot-selected--//
+    				$data_id =  $leave->group_id;
+    				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-slot-selected')->first();
+    				$variable_data = [
+						'{{name}}'          => $user->name,
+						'{{selected_by}}'   => Auth::User()->name,
+						'{{vacant_dates}}'  => $dates,
+						'{{selected_date}}' => $leave->date
+					];
+    				actionNotification($user,$data_id,$notification_template,$variable_data);
+    				//-------------------------------------------//
     				$users_id[] = $user->id;
     			}
 
@@ -835,101 +737,87 @@ class LeaveController extends Controller
     			foreach ($leave['dates'] as $key => $shift_date) 
     			{
     				$dates[] = $shift_date;
-    				$schedule = Schedule::where('shift_date',$shift_date)->where('user_id',$request->emp_id)->first();
-    				if(!empty($schedule))
+    				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->emp_id)->get();
+    				if(!empty($schedules))
     				{
-    					$schedule_id[] = $schedule->id;
-                        $vacation_duration = 0;
-                        if($request->leave_type=='vacation')
-                        {
-                            $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                        foreach ($schedules as $key => $schedule) {
+                            $schedule_id[] = $schedule->id;
+                            $vacation_duration = 0;
+                            if($request->leave_type=='vacation')
+                            {
+                                $vacation_duration = $schedule->scheduled_work_duration + $schedule->extra_work_duration + $schedule->ob_work_duration + $schedule->emergency_work_duration;
+                            }
+                            $schedule->update([
+                                'leave_applied' => '1',
+                                'leave_type' => $request->leave_type,
+                                'leave_reason' => $request->reason,
+                                'leave_group_id' => $leave_group_id,
+                                'leave_approved' => '1',
+                                'leave_approved_by' => Auth::id(), 
+                                'leave_approved_date_time' => date('Y-m-d H:i:s'),
+                                'slot_assigned_to' => $leave['assign_emp'],
+                                'vacation_duration' => $vacation_duration,
+                            ]);
+                            
+                            $shift_start_time = $schedule->shift_start_time;
+                            $shift_end_time = $schedule->shift_end_time;
+                            $shift_type = $schedule->shift_type;
+                            $result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
+
+                            $assSchedule = new Schedule;
+                            $assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
+                            $assSchedule->user_id = $leave['assign_emp'];
+                            $assSchedule->patient_id = $schedule->patient_id;
+                            $assSchedule->shift_id = $schedule->shift_id;
+                            $assSchedule->parent_id = $schedule->id;
+                            $assSchedule->created_by = Auth::id();
+                            $assSchedule->slot_assigned_to = null;
+                            $assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
+                            $assSchedule->schedule_template_id = $schedule->schedule_template_id;
+                            $assSchedule->schedule_type = $schedule->schedule_type;
+                            $assSchedule->shift_date = $schedule->shift_date;
+                            $assSchedule->group_id = $schedule->group_id;
+                            $assSchedule->shift_name = $schedule->shift_name;
+                            $assSchedule->shift_type = $schedule->shift_type;
+                            $assSchedule->shift_color = $schedule->shift_color;
+                            $assSchedule->shift_start_time = $shift_start_time;
+                            $assSchedule->shift_end_time = $shift_end_time;
+                            $assSchedule->leave_applied = 0;
+                            $assSchedule->leave_group_id = null;
+                            $assSchedule->leave_type = null;
+                            $assSchedule->leave_reason = null;
+                            $assSchedule->leave_approved = 0;
+                            $assSchedule->leave_approved_date_time = null;
+                            $assSchedule->leave_notified_to = null;
+                            $assSchedule->notified_group = null;
+                            $assSchedule->is_active = 1;
+                            $assSchedule->scheduled_work_duration = $result['scheduled_work_duration'];
+                            $assSchedule->extra_work_duration = $result['extra_work_duration'];
+                            $assSchedule->emergency_work_duration = $result['emergency_work_duration'];
+                            $assSchedule->ob_work_duration = $result['ob_work_duration'];
+                            $assSchedule->ob_type = $result['ob_type'];
+                            $assSchedule->ob_start_time = $result['ob_start_time'];
+                            $assSchedule->ob_end_time = $result['ob_end_time'];
+                            $assSchedule->status = $schedule->status;
+                            $assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+                            $assSchedule->save();
+
+                            //-------notify-employee-schedule-assigned-----------//
+                            $user = User::find($leave['assign_emp']);
+                            $data_id =  $assSchedule->id;
+
+                            $notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+                            $variable_data = [
+                                '{{name}}'          => $user->name,
+                                '{{schedule_title}}'=> $assSchedule->title,
+                                '{{date}}'          => $assSchedule->shift_date,
+                                '{{start_time}}'    => $assSchedule->shift_start_time,
+                                '{{end_time}}'      => $assSchedule->shift_end_time,
+                                '{{assigned_by}}'   => Auth::User()->name
+                            ];
+                            actionNotification($user,$data_id,$notification_template,$variable_data);
+                            //------------------------------------------//
                         }
-    					$schedule->update([
-    						'leave_applied' => '1',
-    						'leave_type' => $request->leave_type,
-    						'leave_reason' => $request->reason,
-    						'leave_group_id' => $leave_group_id,
-    						'leave_approved' => '1',
-    						'leave_approved_by' => Auth::id(), 
-    						'leave_approved_date_time' => date('Y-m-d H:i:s'),
-    						'slot_assigned_to' => $leave['assign_emp'],
-                            'vacation_duration' => $vacation_duration,
-    					]);
-
-    					$startEndTime = getStartEndTime($schedule->shift_start_time, $schedule->shift_end_time, $schedule->shift_date);
-                        $shift_start_time = $schedule->shift_start_time;
-                        $shift_end_time = $schedule->shift_end_time;
-                        $shift_type = null;
-                        if(!empty($schedule->shift_id))
-                        {
-                            $shift_type = CompanyWorkShift::find($schdule->shift_id)->shift_type;
-                        }
-
-                        $result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
-
-    					$assSchedule = new Schedule;
-    					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
-    					$assSchedule->user_id = $leave['assign_emp'];
-    					$assSchedule->patient_id = $schedule->patient_id;
-    					$assSchedule->shift_id = $schedule->shift_id;
-    					$assSchedule->parent_id = $schedule->id;
-    					$assSchedule->created_by = Auth::id();
-    					$assSchedule->slot_assigned_to = null;
-    					$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
-    					$assSchedule->schedule_template_id = $schedule->schedule_template_id;
-    					$assSchedule->schedule_type = $schedule->schedule_type;
-    					$assSchedule->shift_date = $schedule->shift_date;
-    					$assSchedule->group_id = $schedule->group_id;
-    					$assSchedule->shift_name = $schedule->shift_name;
-    					$assSchedule->shift_color = $schedule->shift_color;
-    					$assSchedule->shift_start_time = $shift_start_time;
-    					$assSchedule->shift_end_time = $shift_end_time;
-    					$assSchedule->leave_applied = 0;
-    					$assSchedule->leave_group_id = null;
-    					$assSchedule->leave_type = null;
-    					$assSchedule->leave_reason = null;
-    					$assSchedule->leave_approved = 0;
-    					$assSchedule->leave_approved_date_time = null;
-    					$assSchedule->leave_notified_to = null;
-    					$assSchedule->notified_group = null;
-    					$assSchedule->is_active = 1;
-    					$assSchedule->scheduled_work_duration = $result['scheduled_work_duration'];
-                        $assSchedule->extra_work_duration = $result['extra_work_duration'];
-                        $assSchedule->emergency_work_duration = $result['emergency_work_duration'];
-                        $assSchedule->ob_work_duration = $result['ob_work_duration'];
-                        $assSchedule->ob_type = $result['ob_type'];
-                        $assSchedule->ob_start_time = $result['ob_start_time'];
-						$assSchedule->ob_end_time = $result['ob_end_time'];
-    					$assSchedule->status = $schedule->status;
-    					$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-    					$assSchedule->save();
-
-    					//-----------------notification----------------------//
-    					$user = User::find($leave['assign_emp']);
-    					$title = "";
-    					$body = "";
-    					$module =  "schedule";
-    					$event = "schedule-assignment";
-    					$id =  $assSchedule->id;
-    					$screen =  "detail";
-
-    					$getMsg = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-    					if($getMsg )
-    					{
-    						$body = $getMsg->notify_body;
-    						$title = $getMsg->mail_subject;
-
-    						$arrayVal = [
-    							'{{name}}'  		=> $user->name,
-    							'{{schedule_title}}'=> $assSchedule->title,
-    							'{{date}}' 			=> $assSchedule->shift_date,
-    							'{{start_time}}'	=> $assSchedule->shift_start_time,
-    							'{{end_time}}'      => $assSchedule->shift_end_time,
-    							'{{assigned_by}}'   => Auth::User()->name
-    						];
-    						$body = strReplaceAssoc($arrayVal, $body);
-    					}
-    					actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
     				}
     				else
     				{
@@ -974,29 +862,18 @@ class LeaveController extends Controller
     			}
     		}
 
-    		//-----------------notification----------------------//
+    		//--notify-emp-leave-applied-approved-by-company-----//
     		$user = User::find($request->emp_id);
-    		$title = "";
-    		$body = "";
-    		$module =  "schedule";
-    		$event = "leave-applied-approved";
-    		$id =  $leave_group_id;
-    		$screen =  "list";
+    		$data_id =  $leave_group_id;
 
-    		$getMsg = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
-    		if($getMsg )
-    		{
-    			$body = $getMsg->notify_body;
-    			$title = $getMsg->mail_subject;
-
-    			$arrayVal = [
-    				'{{name}}' 	=> $user->name,
-    				'{{dates}}'	=> implode(',', $dates),
-    				'{{approved_by}}'=> Auth::user()->name
-    			];
-    			$body = strReplaceAssoc($arrayVal, $body);
-    		}
-    		actionNotification($event,$user,$title,$body,$module,$screen,$id,'info',1);
+    		$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
+    		$variable_data = [
+				'{{name}}' 	=> $user->name,
+				'{{dates}}'	=> implode(',', $dates),
+				'{{approved_by}}'=> Auth::user()->name
+			];
+    		actionNotification($user,$data_id,$notification_template,$variable_data);
+    		//-----------------------------------------------------//
 
     		$data = Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->get();
     	DB::commit();
