@@ -24,7 +24,7 @@ class CreateEmailTemplatesTable extends Migration
             $table->string('type')->nullable();
             $table->string('event')->nullable();
             $table->string('screen')->nullable();
-            $table->string('status')->nullable()->comment('success,info,warning,danger');
+            $table->string('status_code')->nullable()->comment('success,info,warning,danger');
             $table->boolean('save_to_database')->default(0)->nullable();
             $table->text('custom_attributes')->nullable();
             $table->timestamps();

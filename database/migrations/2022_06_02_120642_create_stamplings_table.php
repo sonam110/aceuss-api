@@ -50,7 +50,7 @@ class CreateStamplingsTable extends Migration
             $table->enum('is_extra_hours_approved',[0,1,2])->default(1)->nullable()->comment('0 for pending,1 for approved,2 for rejected');
             $table->string('reason_for_rejection')->nullable();
             $table->string('entry_mode')->nullable();
-            $table->enum('logout_by',['self','system'])->default(1)->nullable();
+            $table->enum('logout_by',['self','system'])->default('self')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

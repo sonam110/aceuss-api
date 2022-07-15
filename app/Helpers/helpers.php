@@ -335,7 +335,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($user,$data_id,$notification_template,$variable_data)
+function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param=null)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {

@@ -336,6 +336,9 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('schedule-filter', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleFilter']);
 		Route::post('schedule-stats', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleStats']);
 		Route::post('patient-completed-hours', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'patientCompletedHours']);
+		Route::post('schedule-approve', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleApprove']);
+		Route::post('schedule-verify', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleVerify']);
+		Route::post('employee-datewise-work', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'employeeDatewiseWork']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);

@@ -10,6 +10,7 @@ use App\Console\Commands\notifySend;
 use App\Console\Commands\taskNotify;
 use App\Console\Commands\SystemLogout;
 use App\Console\Commands\DatabaseBackUp;
+use App\Console\Commands\NotifyBirthday;
 
 class Kernel extends ConsoleKernel
 {
@@ -19,6 +20,7 @@ class Kernel extends ConsoleKernel
         Commands\notifySend::class,
         Commands\taskNotify::class,
         Commands\DatabaseBackUp::class,
+        Commands\NotifyBirthday::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -31,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('websockets:clean')->daily();
         $schedule->command('database:backup')->dailyAt('00:01');
         $schedule->command('system:logout')->sundays('06:00');
+        $schedule->command('notify:birthday')->dailyAt('09:00');
     }
 
     protected function commands()

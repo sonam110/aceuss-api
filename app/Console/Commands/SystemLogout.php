@@ -50,21 +50,6 @@ class SystemLogout extends Command
             $ob = getObDuration($date,$in_time,$out_time);
             $ob_duration = $ob['duration'];
 
-            // $ob = OVHour::where('date',$value->date)->orWhere('date','')->orderBy('id','desc')->first();
-            // if($ob)
-            // {
-            //     $ob_start_time = $value->date.' '.$ob->start_time;
-            //     $ob_end_time = $value->date.' '.$ob->end_time;
-            //     $ob_duration = getObDuration($in_time,$out_time,$ob_start_time,$ob_end_time);
-            // }
-            // else
-            // {
-            //     $ob_start_time = null;
-            //     $ob_end_time = null;
-            //     $ob_duration = 0;
-            // }
-
-
             $scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
             $total_worked_duration = timeDifference($in_time,$out_time);
             $countable_scheduled_duration = $total_worked_duration - $ob_duration;

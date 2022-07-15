@@ -400,6 +400,16 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'schedule-template-browse', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-browse','belongs_to'=>'2']);
 
+        //--------added group hours-approval---------------------//
+        Permission::create(['name' => 'hours-approval-read', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'hours-approval-add', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'hours-approval-edit', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'hours-approval-delete', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'hours-approval-browse', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-browse','belongs_to'=>'2']);
 
     }
 }

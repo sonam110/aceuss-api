@@ -39,7 +39,7 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "Dear {{name}}, New Activity {{title}} is assigne to you  for patient id {{patient_id}} Activity start at {{start_date}}
-		{{start_time}}.";
+        {{start_time}}.";
         $smsTemplate->notify_body = "Dear {{name}}, New Activity {{title}} is assigned to yout  for patient id {{patient_id}} Activity start at {{start_date}} {{start_time}}.";
         $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
         $smsTemplate->save();
@@ -61,7 +61,7 @@ class MailSmsTemplateSeeder extends Seeder
 
 
 
-                
+
         $smsTemplate = new EmailTemplate;//Template for notification
         $smsTemplate->mail_sms_for = 'activity';
         $smsTemplate->mail_subject = 'Activity Notification';
@@ -354,5 +354,192 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
         $smsTemplate->save();
 
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'schedule-approved';
+        $smsTemplate->mail_subject = 'Scheduled Approved';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'schedule';
+        $smsTemplate->event = 'schedule-approved';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Your Schedule {{schedule_title}} on {{date}} starts at    {{start_time}} ends at {{end_time}}  is approved by {{approved_by}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{schedule_title}},{{date}},{{start_time}},{{approved_by}},{{end_time}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'schedule-verified';
+        $smsTemplate->mail_subject = 'Scheduled Verified';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'schedule';
+        $smsTemplate->event = 'schedule-verified';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Your Schedule {{schedule_title}} on {{date}} starts at    {{start_time}} ends at {{end_time}}  is verified by {{verified_by}}";
+        $smsTemplate->custom_attributes = "{{name}}, {{schedule_title}},{{date}},{{start_time}},{{verified_by}},{{end_time}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'birthday-wish';
+        $smsTemplate->mail_subject = 'Birthday Wishes';
+        $smsTemplate->module = 'user';
+        $smsTemplate->type = 'user';
+        $smsTemplate->event = 'birthday';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 0;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, Happy And Blessed Birthday. Wishing You A Great Year Ahead.";
+        $smsTemplate->custom_attributes = "{{name}}";
+        $smsTemplate->save();
+
+        //----------------------vivek-----------------------------------//
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'employee-created';
+        $smsTemplate->mail_subject = 'Employee has Created';
+        $smsTemplate->module = 'user';
+        $smsTemplate->type = 'employee';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, new employee {{user_name}} has been added.";
+        $smsTemplate->custom_attributes = "{{name}},{{user_name}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'patient-created';
+        $smsTemplate->mail_subject = 'Patient has Created';
+        $smsTemplate->module = 'user';
+        $smsTemplate->type = 'patient';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, new patient {{user_name}} has been added.";
+        $smsTemplate->custom_attributes = "{{name}},{{user_name}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'branch-created';
+        $smsTemplate->mail_subject = 'Branch has Created';
+        $smsTemplate->module = 'user';
+        $smsTemplate->type = 'branch';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, new branch {{user_name}} has been added.";
+        $smsTemplate->custom_attributes = "{{name}},{{user_name}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'followup-created';
+        $smsTemplate->mail_subject = 'Followup Created';
+        $smsTemplate->module = 'plan';
+        $smsTemplate->type = 'followup';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'ip-created';
+        $smsTemplate->mail_subject = 'IP Created';
+        $smsTemplate->module = 'plan';
+        $smsTemplate->type = 'ip';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'ip-assigned';
+        $smsTemplate->mail_subject = 'IP Assigned';
+        $smsTemplate->module = 'plan';
+        $smsTemplate->type = 'ip';
+        $smsTemplate->event = 'assigned';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'ov-created';
+        $smsTemplate->mail_subject = 'OV Created';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'ov';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'workshift-created';
+        $smsTemplate->mail_subject = 'workshift has Created';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'workshift';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'trashed-activity-created';
+        $smsTemplate->mail_subject = 'Trashed Activity has Created';
+        $smsTemplate->module = 'activity';
+        $smsTemplate->type = 'trashed-activity';
+        $smsTemplate->event = 'created';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
+
+        
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'file-uploaded';
+        $smsTemplate->mail_subject = 'New File has Uploaded';
+        $smsTemplate->module = 'setting';
+        $smsTemplate->type = 'manage-file';
+        $smsTemplate->event = 'uploaded';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->save();
     }
 }

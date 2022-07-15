@@ -445,7 +445,6 @@ class LeaveController extends Controller
                 //----notify-employee-leave-approved----//
     			$user = User::find($leave->user_id);
     			$data_id =  $request->leave_group_id;
-    			$screen =  "list";
 
     			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
     			$variable_data = [

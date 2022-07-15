@@ -17,6 +17,7 @@ use App\Models\OVHour;
 use PDF;
 use App\Models\EmailTemplate;
 use Str;
+use App\Models\UserScheduledDate;
 
 class ScheduleController extends Controller
 {
@@ -88,8 +89,8 @@ class ScheduleController extends Controller
 			}
 			if (!empty($request->month)) 
 			{
-			   $month = $request->month;
-			   $query->whereRaw('MONTH(shift_date) = '.$month);
+				$month = $request->month;
+				$query->whereRaw('MONTH(shift_date) = '.$month);
 			}
 
 			if(!empty($request->perPage))
@@ -139,18 +140,22 @@ class ScheduleController extends Controller
 			{
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
-
+			$user = User::find($request->user_id);
 			$shedule_ids = [];
 			$group_id = generateRandomNumber();
 			$assignedWork_id = null;
 			$assignedWork = null;
-			if(!empty(User::find($request->user_id)->assignedWork))
+			if(!empty($user->assignedWork))
 			{
-				$assignedWork = User::find($request->user_id)->assignedWork;
+				$assignedWork = $user->assignedWork;
 				$assignedWork_id = $assignedWork->id;
 			}
 			foreach ($request->schedules as $key => $value) 
 			{
+				if($key == 0)
+				{
+					$start_date = $value['date'];
+				}
 
 				$date = date('Y-m-d',strtotime($value['date']));
 				foreach($value['shifts'] as $key=>$shift)
@@ -176,7 +181,7 @@ class ScheduleController extends Controller
 					$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
 
 					$schedule = new Schedule;
-					$schedule->user_id = $request->user_id;
+					$schedule->user_id = $user->id;
 					$schedule->patient_id = $request->patient_id;
 					$schedule->branch_id = $request->branch_id;
 					$schedule->shift_id = $shift['shift_id'];
@@ -214,6 +219,21 @@ class ScheduleController extends Controller
 					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();
 
+    				//----notify-emp-for-schedule-assigned---//
+
+					$data_id =  $schedule->id;
+					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+					$variable_data = [
+                        '{{name}}'          => $user->name,
+                        '{{schedule_title}}'=> $schedule->title,
+                        '{{date}}'          => $schedule->shift_date,
+                        '{{start_time}}'    => $schedule->shift_start_time,
+                        '{{end_time}}'      => $schedule->shift_end_time,
+                        '{{assigned_by}}'   => Auth::User()->name
+                    ];
+					actionNotification($user,$data_id,$notification_template,$variable_data);
+                    //----------------------------------------//
+
 					if(!empty($request->patient_id))
 					{
 						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)
@@ -231,8 +251,23 @@ class ScheduleController extends Controller
 					$schedule_ids[] = $schedule->id;
 				}
 			}
-			DB::commit();
+			$datesData = UserScheduledDate::where('emp_id',$request->user_id)
+			->where('schedule_template_id',$request->schedule_template_id)
+			->where('start_date',"<=" ,$start_date)
+			->where('end_date',">=" ,$start_date)
+			->first();
+			if(empty($datesData))
+			{
+				$datesData = new UserScheduledDate;
+				$datesData->schedule_template_id = $request->schedule_template_id;
+				$datesData->emp_id = $request->user_id;
+				$datesData->start_date = $start_date;
+				$datesData->end_date = date('Y-m-d', strtotime('+27 days',strtotime($start_date)));
+				$datesData->save();
 
+				$userUpdate = User::find($request->user_id)->update(['schedule_start_date'=>$start_date]);
+			}
+			DB::commit();
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
 			
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
@@ -248,7 +283,6 @@ class ScheduleController extends Controller
 		DB::beginTransaction();
 		try 
 		{
-
 			$schedule = Schedule::find($id);
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), ['schedule not found'],config('httpcodes.not_found'));
@@ -267,7 +301,6 @@ class ScheduleController extends Controller
 				$shift_name 		= $shift->shift_name;
 				$shift_color 		= $shift->shift_color;
 			}
-
 			$shift_date = date('Y-m-d', strtotime($request->shift_date));
 			$date = !empty($request->shift_date) ? $shift_date : $schedule->shift_date;
 			
@@ -408,6 +441,22 @@ class ScheduleController extends Controller
 				$newSchedule->is_active = 0;
 				$newSchedule->entry_mode = $request->entry_mode ? $request->entry_mode : 'Web';
 				$newSchedule->save();
+
+				//----notify-emp-for-schedule-assigned---//
+				$user = User::find($schedule->user_id);
+				$data_id =  $schedule->id;
+				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+				$variable_data = [
+                    '{{name}}'          => $user->name,
+                    '{{schedule_title}}'=> $schedule->title,
+                    '{{date}}'          => $schedule->shift_date,
+                    '{{start_time}}'    => $schedule->shift_start_time,
+                    '{{end_time}}'      => $schedule->shift_end_time,
+                    '{{assigned_by}}'   => Auth::User()->name
+                ];
+				actionNotification($user,$data_id,$notification_template,$variable_data);
+                //----------------------------------------//
+
 				
 				$schedule_ids[] = $newSchedule->id;
 			}
@@ -430,12 +479,12 @@ class ScheduleController extends Controller
 			$query = Schedule::orderBy('created_at', 'DESC')->where('is_active',1)->groupBy('user_id');
 
 			if(!empty($request->user_ids))
-            {
-                $query->whereIn('user_id', $request->user_ids);
-            }
+			{
+				$query->whereIn('user_id', $request->user_ids);
+			}
             // if(!empty())
-            $query = $query->get();
-            $data = [];
+			$query = $query->get();
+			$data = [];
 
 			foreach ($query as $key => $value) {
 				$schduled = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('scheduled_work_duration');
@@ -516,8 +565,8 @@ class ScheduleController extends Controller
 			}
 			if (!empty($request->month)) 
 			{
-			   $month = $request->month;
-			   $query->whereRaw('MONTH(shift_date) = '.$month);
+				$month = $request->month;
+				$query->whereRaw('MONTH(shift_date) = '.$month);
 			}
 			$query = $query->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','user_id','shift_date','shift_start_time','shift_end_time','group_id']);
 			$data = [];
@@ -644,67 +693,67 @@ class ScheduleController extends Controller
 		{
 			$date1 = strtotime($request->start_date);
 			$date2 = strtotime($request->end_date);
-		    for($curDate=$date1; $curDate<=$date2; $curDate += (86400))
-		    {
-		        $date = date('Y-m-d', $curDate);
-		        $datelabels[] = $date;
-		        
-		        $query = Schedule::select([
-		            \DB::raw('SUM(scheduled_work_duration) as regular_hours'),
-		            \DB::raw('SUM(extra_work_duration) as extra_hours'),
-		            \DB::raw('SUM(ob_work_duration) as obe_hours'),
-		            \DB::raw('SUM(emergency_work_duration) as emergency_hours'),
-		            \DB::raw('SUM(vacation_duration) as vacation_hours')
-		        ]);
-		        $query->whereDate('shift_date', $date); 
-		        $query->where('is_active', 1); 
-		        $query->where('user_id', $request->user_id);        
-		        $result = $query->first();
-		        
-		        $total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
-		        
-		        $total_hours[] = $total;
+			for($curDate=$date1; $curDate<=$date2; $curDate += (86400))
+			{
+				$date = date('Y-m-d', $curDate);
+				$datelabels[] = $date;
+
+				$query = Schedule::select([
+					\DB::raw('SUM(scheduled_work_duration) as regular_hours'),
+					\DB::raw('SUM(extra_work_duration) as extra_hours'),
+					\DB::raw('SUM(ob_work_duration) as obe_hours'),
+					\DB::raw('SUM(emergency_work_duration) as emergency_hours'),
+					\DB::raw('SUM(vacation_duration) as vacation_hours')
+				]);
+				$query->whereDate('shift_date', $date); 
+				$query->where('status', 1); 
+				$query->where('user_id', $request->user_id);        
+				$result = $query->first();
+
+				$total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
+
+				$total_hours[] = $total;
 				$regular_hours[] = $result->regular_hours;
 				$extra_hours[] = $result->extra_hours;
 				$obe_hours[] = $result->obe_hours;
 				$emergency_hours[] = $result->emergency_hours;
 				$vacation_hours[] = $result->vacation_hours;
-		    }
+			}
 		}
 		else
 		{
-		    for($i = $request_for; $i>=1; $i--)
-		    {
-		        $date = date('Y-m-d',strtotime('-'.($i-1).' days'));
-		        $datelabels[] = $date;
-		        
-		        $query = Schedule::select([
-		            \DB::raw('SUM(scheduled_work_duration) as regular_hours'),
-		            \DB::raw('SUM(extra_work_duration) as extra_hours'),
-		            \DB::raw('SUM(ob_work_duration) as obe_hours'),
-		            \DB::raw('SUM(emergency_work_duration) as emergency_hours'),
-		            \DB::raw('SUM(vacation_duration) as vacation_hours')
-		        ]);
-		        $query->whereDate('shift_date', $date); 
-		        $query->where('is_active', 1); 
-		        $query->where('user_id', $request->user_id);        
-		        $result = $query->first();
+			for($i = $request_for; $i>=1; $i--)
+			{
+				$date = date('Y-m-d',strtotime('-'.($i-1).' days'));
+				$datelabels[] = $date;
 
-		        $total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
-		        
-		        $total_hours[] = $total;
+				$query = Schedule::select([
+					\DB::raw('SUM(scheduled_work_duration) as regular_hours'),
+					\DB::raw('SUM(extra_work_duration) as extra_hours'),
+					\DB::raw('SUM(ob_work_duration) as obe_hours'),
+					\DB::raw('SUM(emergency_work_duration) as emergency_hours'),
+					\DB::raw('SUM(vacation_duration) as vacation_hours')
+				]);
+				$query->whereDate('shift_date', $date); 
+				$query->where('status', 1); 
+				$query->where('user_id', $request->user_id);        
+				$result = $query->first();
+
+				$total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
+
+				$total_hours[] = $total;
 				$regular_hours[] = $result->regular_hours;
 				$extra_hours[] = $result->extra_hours;
 				$obe_hours[] = $result->obe_hours;
 				$emergency_hours[] = $result->emergency_hours;
 				$vacation_hours[] = $result->vacation_hours;
-		    }
+			}
 		}
 
 
 		$returnObj = [
-		    'labels' => $datelabels,
-		    'total_hours' => $total_hours,
+			'labels' => $datelabels,
+			'total_hours' => $total_hours,
 			'regular_hours' => $regular_hours,
 			'extra_hours' => $extra_hours,
 			'obe_hours' => $obe_hours,
@@ -714,300 +763,215 @@ class ScheduleController extends Controller
 		return prepareResult(true,"Schedule",$returnObj,config('httpcodes.success'));
 	}
 
-
-
-
-    public function patientCompletedHours(Request $request)
-    {
-    	        EmailTemplate::truncate();
-    	         //Mail Template
-    	        $mailTemplate = new EmailTemplate;
-    	        $mailTemplate->mail_sms_for = 'forgot-password';
-    	        $mailTemplate->mail_subject = "Forgot Password";
-    	        $mailTemplate->mail_body = "This email is to confirm a recent password reset request for your account. To confirm this request and reset your password, {{message}}:";
-    	        $mailTemplate->custom_attributes = "{{name}}, {{email}},{{token}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}{{message}}";
-    	        $mailTemplate->save();
-
-    	        $mailTemplate = new EmailTemplate;
-    	        $mailTemplate->mail_sms_for = 'welcome-mail';
-    	        $mailTemplate->mail_subject = "Welcome to Aceuss System";
-    	        $mailTemplate->mail_body = "Dear {{name}}, welocome to {{company_email}} Please change your password into website/App for your future safety.";
-    	        $mailTemplate->custom_attributes = "{{name}}, {{email}},{{contact_number}},{{city}},{{address}},{{zipcode}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
-    	        $mailTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'activity';
-    	        $smsTemplate->type = 'activity';
-    	        $smsTemplate->event = 'assigned';
-    	        $smsTemplate->mail_sms_for = 'activity';
-    	        $smsTemplate->mail_subject = 'New Activity Assigned';
-    	        $smsTemplate->sms_body = "Dear {{name}}, New Activity {{title}} is assigne to you  for patient id
-    			{{patient_id}} Activity start at
-    			{{start_date}}
-    			{{start_time}}.";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Activity {{title}} is assigned to yout  for patient id
-    			{{patient_id}} Activity start at
-    			{{start_date}}
-    			{{start_time}}.";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'task';
-    	        $smsTemplate->type = 'task';
-    	        $smsTemplate->event = 'assigned';
-    	        $smsTemplate->mail_sms_for = 'task';
-    	        $smsTemplate->mail_subject = 'New Task Assigned';
-    	        $smsTemplate->sms_body = "Dear {{name}}, New task {{title}} is assigned to you. start at
-    			{{start_date}}
-    			{{start_time}}.";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New task {{title}} is assigned to you. start at
-    			{{start_date}}
-    			{{start_time}}.";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{title}},{{patient_id}},{{start_date}},{{start_time}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
-    	        $smsTemplate->save();
-
-
-
-
-    	                
-    	        $smsTemplate = new EmailTemplate;//Template for notification
-    	        $smsTemplate->module = 'activity';
-    	        $smsTemplate->type = 'activity';
-    	        $smsTemplate->event = 'created';
-    	        $smsTemplate->mail_sms_for = 'activity';
-    	        $smsTemplate->mail_subject = 'Activity Notification';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Activity Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
-    	        $smsTemplate->custom_attributes = "";
-    	        $smsTemplate->save();
-
-    	        // $smsTemplate = new EmailTemplate;
-    	        // $smsTemplate->mail_sms_for = 'Request approval';
-    	        // $smsTemplate->mail_subject = 'Request for approval Notification';
-    	        // $smsTemplate->sms_body = "";
-    	        // $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
-    	        // $smsTemplate->custom_attributes = "";
-    	        // $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'request-approval';
-    	        $smsTemplate->type = 'request-approval';
-    	        $smsTemplate->event = 'request-approval';
-    	        $smsTemplate->mail_sms_for = 'request-approval';
-    	        $smsTemplate->mail_subject = 'New Approval Request';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Request for approval Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s";
-    	        $smsTemplate->custom_attributes = "";
-    	        $smsTemplate->save();
-
-
-    	        /*-------------------------Added by khushboo------------------------*/
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'activity';
-    	        $smsTemplate->type = 'activity';
-    	        $smsTemplate->event = 'assigned';
-    	        $smsTemplate->mail_sms_for = 'activity-assignment';
-    	        $smsTemplate->mail_subject = 'New Activity Assigned';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Activity {{activity_title}} starts at {{start_date}}   {{start_time}}  is assigned to you  by {{assigned_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}},{{assigned_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'activity';
-    	        $smsTemplate->type = 'activity';
-    	        $smsTemplate->event = 'activity-action';
-    	        $smsTemplate->mail_sms_for = 'activity-action';
-    	        $smsTemplate->mail_subject = 'Activity Action Performed';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, Action {{action}} is performed on Activity {{activity_title}}   starts at {{start_date}} {{start_time}} by {{action_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{start_date}}, {{start_time}}, {{action_by}}, {{activity_title}}, {{action}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'activity';
-    	        $smsTemplate->type = 'activity';
-    	        $smsTemplate->event = 'activity-comment';
-    	        $smsTemplate->mail_sms_for = 'activity-comment';
-    	        $smsTemplate->mail_subject = 'Activity comment posted';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, comment is posted on Activity {{activity_title}} by {{comment_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}},{{activity_title}}},{{comment_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'journal';
-    	        $smsTemplate->type = 'journal';
-    	        $smsTemplate->event = 'created';
-    	        $smsTemplate->mail_sms_for = 'journal';
-    	        $smsTemplate->mail_subject = 'Journal Created';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Journal is created by {{created_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}},{{created_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'deviation';
-    	        $smsTemplate->type = 'deviation';
-    	        $smsTemplate->event = 'created';
-    	        $smsTemplate->mail_sms_for = 'deviation';
-    	        $smsTemplate->mail_subject = 'Deviation Created';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Deviation is created by {{created_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{created_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'task';
-    	        $smsTemplate->type = 'task';
-    	        $smsTemplate->event = 'created-assigned';
-    	        $smsTemplate->mail_sms_for = 'task-created-assigned';
-    	        $smsTemplate->mail_subject = 'Task Created And Assigned';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Tasks {{task_title}} is  created and assigned successfully.";
-    	        $smsTemplate->custom_attributes = "{{name}},{{task_title}}";
-    	        $smsTemplate->save();
-
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'task';
-    	        $smsTemplate->type = 'task';
-    	        $smsTemplate->event = 'assigned';
-    	        $smsTemplate->mail_sms_for = 'task-assignment';
-    	        $smsTemplate->mail_subject = 'New Task Assigned';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Tasks {{task_title}} is  assigned to by {{assigned_by}}.";
-    	        $smsTemplate->custom_attributes = "{{name}},{{task_title}},{{assigned_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'task';
-    	        $smsTemplate->type = 'task';
-    	        $smsTemplate->event = 'action';
-    	        $smsTemplate->mail_sms_for = 'task-action';
-    	        $smsTemplate->mail_subject = 'Task Action Performed';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, Action {{action}} is performed on {{task_title}} by {{action_by}}.";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{task_title}},{{action_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'schedule';
-    	        $smsTemplate->event = 'assigned';
-    	        $smsTemplate->mail_sms_for = 'schedule-assignment';
-    	        $smsTemplate->mail_subject = 'New scheduled Assigned';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Schedule {{schedule_title}} on {{date}} starts at    {{start_time}} ends at {{end_time}}  is assigned to you  by {{assigned_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}}, {{schedule_title}},{{date}},{{start_time}},{{assigned_by}},{{end_time}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'schedule';
-    	        $smsTemplate->event = 'requested';
-    	        $smsTemplate->mail_sms_for = 'schedule-request';
-    	        $smsTemplate->mail_subject = 'New schedule Request';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, New Schedule for dates {{dates}}  requested to you  by {{requested_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{requested_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'schedule';
-    	        $smsTemplate->event = 'schedule-slot-selected';
-    	        $smsTemplate->mail_sms_for = 'schedule-slot-selected';
-    	        $smsTemplate->mail_subject = 'Schedule  Slot Selected';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, Schedule slot for {{date}} is selected by {{selected_by}} and  dates {{vacant_dates}}  are still available to select.";
-    	        $smsTemplate->custom_attributes = "{{name}},{{vacant_dates}},{{selected_by}},{{date}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'leave';
-    	        $smsTemplate->event = 'leave-applied';
-    	        $smsTemplate->mail_sms_for = 'leave-applied';
-    	        $smsTemplate->mail_subject = 'New Leave Request';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Leave  on {{date}} requested  by {{requested_by}} beacause of {{reason}}";
-    	        $smsTemplate->custom_attributes = "{{date}},{{requested_by}},{{reason}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'leave';
-    	        $smsTemplate->event = 'leave-approved';
-    	        $smsTemplate->mail_sms_for = 'leave-approved';
-    	        $smsTemplate->mail_subject = 'Leave Approved';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, your leave request for {{dates}} is approved   by {{approved_by}}";
-    	        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
-    	        $smsTemplate->save();
-    	        
-    	        $smsTemplate = new EmailTemplate;
-    	        $smsTemplate->module = 'schedule';
-    	        $smsTemplate->type = 'leave';
-    	        $smsTemplate->event = 'leave-applied-approved';
-    	        $smsTemplate->mail_sms_for = 'leave-applied-approved';
-    	        $smsTemplate->mail_subject = 'Leave Applied And Approved';
-    	        $smsTemplate->sms_body = "";
-    	        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-    	        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
-    	        $smsTemplate->save();
-    	try 
-    	{
-    		$dates = [];
-    		$data = [];
-    		if(!empty($request->start_date) && !empty($request->end_date))
-    		{
-    			$date1 = strtotime($request->start_date);
+	public function patientCompletedHours(Request $request)
+	{
+		try 
+		{
+			$dates = [];
+			$data = [];
+			if(!empty($request->start_date) && !empty($request->end_date))
+			{
+				$date1 = strtotime($request->start_date);
 				$date2 = strtotime($request->end_date);
 				for($curDate=$date1; $curDate<=$date2; $curDate += (86400))
-		    	{
-		        	$dates[] = date('Y-m-d', $curDate);
-		    	}
-    		}
-    		elseif(!empty($request->dates))
-    		{
-    			$dates = $request->dates;
-    		}
-    		else
-    		{
-    			$schedules = Schedule::where('patient_id',$request->patient_id)->get(['shift_date']);
-    			foreach ($schedules as $key => $value) {
-    				$dates[] = $value->shift_date;
-    			}
-    		}
+				{
+					$dates[] = date('Y-m-d', $curDate);
+				}
+			}
+			elseif(!empty($request->dates))
+			{
+				$dates = $request->dates;
+			}
+			else
+			{
+				$schedules = Schedule::where('patient_id',$request->patient_id)->get(['shift_date']);
+				foreach ($schedules as $key => $value) {
+					$dates[] = $value->shift_date;
+				}
+			}
 
-    		foreach ($dates as $key => $shift_date) 
-    		{
-    			if(Schedule::where('patient_id',$request->patient_id)->where('shift_date',$shift_date)->count() > 0)
-    			{
-    				$query = Schedule::select([
-    				    \DB::raw('SUM(scheduled_work_duration) as regular_hours'),
-    				    \DB::raw('SUM(extra_work_duration) as extra_hours'),
-    				    \DB::raw('SUM(ob_work_duration) as obe_hours'),
-    				    \DB::raw('SUM(emergency_work_duration) as emergency_hours'),
-    				    \DB::raw('SUM(vacation_duration) as vacation_hours')
-    				]);
-    				$query->whereDate('shift_date', $shift_date);
-    				$query->where('patient_id', $request->patient_id);        
-    				$result = $query->first();
-    				if(!empty($result))
-    				{
-    					$total_hours = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
-    					$data['date'][] = ["date" => $shift_date,"hours" => $total_hours];
-    				}
-    			}
-    		}
-    		return prepareResult(true, 'Patient Hours.' ,$data, config('httpcodes.success'));
-    	}
-    	catch(Exception $exception) {
-    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-    	}
-    }
+			foreach ($dates as $key => $shift_date) 
+			{
+				if(Schedule::where('patient_id',$request->patient_id)->where('shift_date',$shift_date)->count() > 0)
+				{
+					$query = Schedule::select([
+						\DB::raw('SUM(scheduled_work_duration) as regular_hours'),
+						\DB::raw('SUM(extra_work_duration) as extra_hours'),
+						\DB::raw('SUM(ob_work_duration) as obe_hours'),
+						\DB::raw('SUM(emergency_work_duration) as emergency_hours'),
+						\DB::raw('SUM(vacation_duration) as vacation_hours')
+					]);
+					$query->whereDate('shift_date', $shift_date);
+					$query->where('patient_id', $request->patient_id); 
+					$query->where('status', 1);        
+					$result = $query->first();
+					if(!empty($result))
+					{
+						$total_hours = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
+						$data['date'][] = ["date" => $shift_date,"hours" => $total_hours];
+					}
+				}
+			}
+			return prepareResult(true, 'Patient Hours.' ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
+	}
+
+	public function employeeDatewiseWork(Request $request)
+	{
+		try 
+		{
+			$dates = [];
+			$data = [];
+			if(!empty($request->start_date) && !empty($request->end_date))
+			{
+				$date1 = strtotime($request->start_date);
+				$date2 = strtotime($request->end_date);
+				for($curDate=$date1; $curDate<=$date2; $curDate += (86400))
+				{
+					$dates[] = date('Y-m-d', $curDate);
+				}
+			}
+			elseif(!empty($request->dates))
+			{
+				$dates = $request->dates;
+			}
+			else
+			{
+				$schedules = Schedule::where('user_id',$request->user_id)->where('is_active',1)->get(['shift_date']);
+				foreach ($schedules as $key => $value) {
+					$dates[] = $value->shift_date;
+				}
+			}
+
+			foreach ($dates as $key => $shift_date) 
+			{
+				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration',]);
+
+				foreach ($schedules as $key => $value) {
+					$value->hours = $value->scheduled_work_duration + $value->emergency_work_duration + $value->ob_work_duration + $value->extra_work_duration;
+				}
+
+				$data[] = ["date" => $shift_date,"schedules" => $schedules];
+			}
+			return prepareResult(true, 'Employee Hours.' ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
+	}
+
+	public function scheduleApprove(Request $request)
+	{
+		DB::beginTransaction();
+		try 
+		{
+			$ids = $request->schedule_ids;
+			foreach ($ids as $key => $id) {
+				$schedule= Schedule::find($id);
+				if (!is_object($schedule)) {
+					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+				}
+				$user = User::find($schedule->user_id);
+				if($user->report_verify == 'yes')
+				{
+		            //----notify-employee-schedule-approved----//
+					$data_id =  $id;
+					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-approved')->first();
+					$variable_data = [
+						'{{name}}'  => $user->name,
+						'{{schedule_title}}'=>$schedule->title,
+						'{{date}}' => $schedule->shift_date,
+						'{{start_time}}'=> $schedule->shift_start_time,
+						'{{end_time}}'=> $schedule->shift_end_time,
+						'{{approved_by}}'=> Auth::user()->name
+					];
+					actionNotification($user,$data_id,$notification_template,$variable_data);
+		            //--------------------------------------//
+					$schedule->update(['approved_by_company'=>1]);
+				}
+				else
+				{
+					if(!empty($schedule->patient_id))
+					{
+						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
+						->where('start_date','>=' ,$schedule->shift_date)
+						->where('end_date','<=',$schedule->shift_date)
+						->orderBy('id','desc')->first();
+						if(empty($patientAssignedHours))
+						{
+							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
+						}
+						$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+						$completedHours = $patientAssignedHours->completed_hours + $workedHours;
+						$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+						$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+					}
+					$schedule->update(['status'=>1,'approved_by_company'=>1,'verified_by_employee'=>1]);
+				}
+			}
+			
+			$data = Schedule::whereIn('id',$ids)->get();
+			DB::commit();
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_delete') ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
+	}
+
+
+	public function scheduleVerify(Request $request)
+	{
+		DB::beginTransaction();
+		try 
+		{
+			$ids = $request->schedule_ids;
+			foreach ($ids as $key => $id) {
+				$schedule= Schedule::find($id);
+				if (!is_object($schedule)) {
+					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+				}
+
+				if(!empty($schedule->patient_id))
+				{
+					$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
+					->where('start_date','>=' ,$schedule->shift_date)
+					->where('end_date','<=',$schedule->shift_date)
+					->orderBy('id','desc')->first();
+					if(empty($patientAssignedHours))
+					{
+						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
+					}
+					$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+					$completedHours = $patientAssignedHours->completed_hours + $workedHours;
+					$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+					$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+				}
+				$schedule->update(['status'=>1,'verified_by_employee'=>1]);
+				$user = User::find(Auth::user()->top_most_parent_id);
+				//----notify-company-schedule-verified----//
+				$data_id =  $id;
+				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
+				$variable_data = [
+					'{{name}}'  => $user->name,
+					'{{schedule_title}}'=>$schedule->title,
+					'{{date}}' => $schedule->shift_date,
+					'{{start_time}}'=> $schedule->shift_start_time,
+					'{{end_time}}'=> $schedule->shift_end_time,
+					'{{verified_by}}'=> Auth::user()->name
+				];
+				actionNotification($user,$data_id,$notification_template,$variable_data);
+	            //--------------------------------------//
+			}
+			$data = Schedule::whereIn('id',$ids)->get();
+			DB::commit();
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_delete') ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
+	}
 }
