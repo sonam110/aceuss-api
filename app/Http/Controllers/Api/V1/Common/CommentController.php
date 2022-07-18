@@ -48,8 +48,8 @@ class CommentController extends Controller
             if($request->source_name == 'Activity')
             {
                 /*-----------Send notification---------------------*/
-
                 $activity = Activity::find($request->source_id);
+                $extra_param = ['status'=>$activity->status];
                 $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
                 $data_id =  $addComment->id;
                 $notification_template = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
@@ -58,7 +58,7 @@ class CommentController extends Controller
                     '{{comment_by}}'        => Auth::User()->name,
                     '{{activity_title}}'    => $activity->title
                 ];
-                actionNotification($user,$data_id,$notification_template,$variable_data);
+                actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
             }
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$addComment, config('httpcodes.success'));
         }

@@ -411,5 +411,27 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'hours-approval-browse', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-browse','belongs_to'=>'2']);
 
+        //------------------group-leave-added----------------//
+        Permission::create(['name' => 'leave-read', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'leave-add', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-create','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'leave-edit', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-edit','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'leave-delete', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-delete','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'leave-browse', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-browse','belongs_to'=>'2']);
+
+        //------------------group-Log-added----------------//
+        Permission::create(['name' => 'smsLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'smsLog-browse','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'bankIdLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'bankIdLog-browse','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'activityLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'activityLog-browse','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'activityLog-read', 'guard_name' => 'api','group_name'=>'log','se_name'=>'activityLog-read','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'fileLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'fileLog-browse','belongs_to'=>'2']);
+
     }
 }

@@ -17,7 +17,9 @@ use App\Models\OVHour;
 use PDF;
 use App\Models\EmailTemplate;
 use Str;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\UserScheduledDate;
+use App\Exports\EmployeeWorkingHourExport;
 
 class ScheduleController extends Controller
 {
@@ -568,7 +570,7 @@ class ScheduleController extends Controller
 				$month = $request->month;
 				$query->whereRaw('MONTH(shift_date) = '.$month);
 			}
-			$query = $query->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','user_id','shift_date','shift_start_time','shift_end_time','group_id']);
+			$query = $query->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','user_id','shift_date','shift_start_time','shift_end_time','group_id','approved_by_company','verified_by_employee']);
 			$data = [];
 			foreach ($query as $key => $value) {
 				$data[$key]['id'] = $value->id;
@@ -638,7 +640,7 @@ class ScheduleController extends Controller
 						$schedules = $schedules->where('schedule_template_id' ,$request->schedule_template_id);
 					}
 
-					$schedules = $schedules->get(["leave_applied","leave_type","id","leave_reason","ob_type","ob_start_time","ob_end_time","patient_id","schedule_type","shift_date","shift_end_time","shift_start_time","shift_name","emergency_work_duration","extra_work_duration","scheduled_work_duration","vacation_duration","ob_work_duration","shift_type","shift_id"]);
+					$schedules = $schedules->get(["leave_applied","leave_type","id","leave_reason","ob_type","ob_start_time","ob_end_time","patient_id","schedule_type","shift_date","shift_end_time","shift_start_time","shift_name","emergency_work_duration","extra_work_duration","scheduled_work_duration","vacation_duration","ob_work_duration","shift_type","shift_id",'approved_by_company','verified_by_employee']);
 					$value->schedules = $schedules;
 				}
 
@@ -666,7 +668,7 @@ class ScheduleController extends Controller
 						$schedules = $schedules->where('schedule_template_id' ,$request->schedule_template_id);
 					}
 					
-					$schedules = $schedules->get(["leave_applied","leave_type","id","leave_reason","ob_type","ob_start_time","ob_end_time","patient_id","schedule_type","shift_date","shift_end_time","shift_start_time","shift_name","emergency_work_duration","extra_work_duration","scheduled_work_duration","vacation_duration","ob_work_duration","shift_type","shift_id"]);
+					$schedules = $schedules->get(["leave_applied","leave_type","id","leave_reason","ob_type","ob_start_time","ob_end_time","patient_id","schedule_type","shift_date","shift_end_time","shift_start_time","shift_name","emergency_work_duration","extra_work_duration","scheduled_work_duration","vacation_duration","ob_work_duration","shift_type","shift_id",'approved_by_company','verified_by_employee']);
 					$value->schedules = $schedules;
 				}
 			}			
@@ -848,7 +850,7 @@ class ScheduleController extends Controller
 
 			foreach ($dates as $key => $shift_date) 
 			{
-				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration',]);
+				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration','approved_by_company','verified_by_employee']);
 
 				foreach ($schedules as $key => $value) {
 					$value->hours = $value->scheduled_work_duration + $value->emergency_work_duration + $value->ob_work_duration + $value->extra_work_duration;
@@ -973,5 +975,15 @@ class ScheduleController extends Controller
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
 		}
+	}
+
+
+	public function employeeWorkingHourExport(Request $request)
+	{
+		$rand = rand(0,1000);
+		$dates = [$request->start_date,$request->end_date];
+        $excel = Excel::store(new EmployeeWorkingHourExport($dates), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
+        
+        return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hour_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
 	}
 }

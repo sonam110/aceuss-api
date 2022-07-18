@@ -171,6 +171,22 @@ class FollowUpsController extends Controller
                         $ipFollowups->is_latest_entry = 1;
             		 	$ipFollowups->save();
                         $ipfollowupsId[] = $ipFollowups->id;
+
+                        /*--notify-user-followup-created--*/
+                        $notifyUser = User::find($ipCheck->user_id);
+                        $data_id =  $ipFollowups->id;
+                        $notification_template = EmailTemplate::where('mail_sms_for', 'followup-created')->first();
+                        $variable_data = [
+                            '{{name}}' => $notifyUser->name,
+                            '{{created_by}}' => Auth::User()->name,
+                            '{{title}}' => $ipFollowups->title,
+                            '{{start_date}}' => $ipFollowups->start_date,
+                            '{{start_time}}' => $ipFollowups->start_time,
+                            '{{end_date}}' => $ipFollowups->end_date,
+                            '{{end_time}}' => $ipFollowups->end_time
+                        ];
+                        actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        //------------------------------//
             		 	
                         /*-----------------Persons Informationn ----------------*/
                         if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
@@ -274,6 +290,8 @@ class FollowUpsController extends Controller
                                                 $content = mailTemplateContent($emailTem->content,$variables);
                                                 Mail::to($userSave->email)->send(new WelcomeMail($content));
                                             }
+
+                                            
                                             
                                         }
                                     }

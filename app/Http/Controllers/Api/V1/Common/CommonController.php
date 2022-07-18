@@ -11,6 +11,8 @@ use Validator;
 use Auth;
 use Exception;
 use App\Models\User;
+use App\Models\EmployeeType;
+
 use App\Models\Label;
 use App\Models\SmsLog;
 use Illuminate\Support\Facades\Hash;
@@ -119,13 +121,13 @@ class CommonController extends Controller
 	{
 		try {
 
-			$query =DB::table('employee_types')->select('id','designation')->where('type','patient') ;
+			$query =EmployeeType::where('type','patient') ;
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','designation']);
 
 				$pagination =  [
 					'data' => $result,
@@ -138,7 +140,7 @@ class CommonController extends Controller
 			}
 			else
 			{
-				$query = $query->get();
+				$query = $query->get(['id','designation']);
 			}
 			return prepareResult(true,"Patient Type list",$query,'200');
 		}

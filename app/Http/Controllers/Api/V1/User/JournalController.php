@@ -274,6 +274,7 @@ class JournalController extends Controller
 		 	$journal->save();
 
             /*-----------notify-user-journal-created--------------------*/
+            $exra_params = ['patient_id'=>$journal->patient_id];
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
             $data_id =  $journal->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'journal')->first();
@@ -281,7 +282,7 @@ class JournalController extends Controller
                 '{{name}}'              => $user->name,
                 '{{created_by}}'        => Auth::User()->name,
             ];
-            actionNotification($user,$data_id,$notification_template,$variable_data);
+            actionNotification($user,$data_id,$notification_template,$variable_data,$exra_params);
             //-----------------------------------------------//
 
             DB::commit();

@@ -887,6 +887,20 @@ class ActivityController extends Controller
     			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
     		}
     		Task::where('resource_id',$id)->where('type_id','1')->delete();
+    		/*-----------notify-user-activity-deleted--------------------*/
+    		$users = $checkId->assignEmployee;
+    		$data_id =  $checkId->id;
+    		$notification_template = EmailTemplate::where('mail_sms_for', 'trashed-acvity-created')->first();
+    		foreach ($users as $key => $value) {
+    			$variable_data = [
+	    		    '{{name}}'              => $value->name,
+	    		    '{{title}}'				=> $checkId->title,
+	    		    '{{deleted_by}}'        => Auth::User()->name,
+	    		];
+	    		actionNotification($value,$data_id,$notification_template,$variable_data,$exra_params);
+    		}
+    		
+    		//-----------------------------------------------//
     		// $checkId->tasks->delete();
     		$checkId->delete();
     		DB::commit();

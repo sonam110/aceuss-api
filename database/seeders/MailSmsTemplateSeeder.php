@@ -451,8 +451,8 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->notify_body = "Dear {{name}}, new followup {{title}} starts at {{start_date}} {{start_time}} ends at {{end_date}} {{end_time}} created by {{created_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{title}},{{start_date}}, {{start_time}},{{end_date}}, {{end_time}},{{created_by}}";
         $smsTemplate->save();
 
         $smsTemplate = new EmailTemplate;
@@ -465,8 +465,8 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->notify_body = "Dear {{name}}, new IP {{title}} sis created by {{created_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{title}},{{created_by}}";
         $smsTemplate->save();
 
         $smsTemplate = new EmailTemplate;
@@ -479,38 +479,10 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->notify_body = "Dear {{name}}, new IP is assigned to you by {{assigned_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{assigned_by}}";
         $smsTemplate->save();
-
-        $smsTemplate = new EmailTemplate;
-        $smsTemplate->mail_sms_for = 'ov-created';
-        $smsTemplate->mail_subject = 'OV Created';
-        $smsTemplate->module = 'schedule';
-        $smsTemplate->type = 'ov';
-        $smsTemplate->event = 'created';
-        $smsTemplate->screen = 'list';
-        $smsTemplate->status_code = 'info';
-        $smsTemplate->save_to_database = 1;
-        $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
-        $smsTemplate->save();
-
-        $smsTemplate = new EmailTemplate;
-        $smsTemplate->mail_sms_for = 'workshift-created';
-        $smsTemplate->mail_subject = 'workshift has Created';
-        $smsTemplate->module = 'schedule';
-        $smsTemplate->type = 'workshift';
-        $smsTemplate->event = 'created';
-        $smsTemplate->screen = 'list';
-        $smsTemplate->status_code = 'info';
-        $smsTemplate->save_to_database = 1;
-        $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
-        $smsTemplate->save();
-
+        
 
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'trashed-activity-created';
@@ -522,24 +494,24 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        $smsTemplate->notify_body = "Dear {{name}}, activity {{title}} is deleted by {{deleted_by}}";
+        $smsTemplate->custom_attributes = "{{name}},{{title}},{{deleted_by}}";
         $smsTemplate->save();
 
         
 
-        $smsTemplate = new EmailTemplate;
-        $smsTemplate->mail_sms_for = 'file-uploaded';
-        $smsTemplate->mail_subject = 'New File has Uploaded';
-        $smsTemplate->module = 'setting';
-        $smsTemplate->type = 'manage-file';
-        $smsTemplate->event = 'uploaded';
-        $smsTemplate->screen = 'list';
-        $smsTemplate->status_code = 'info';
-        $smsTemplate->save_to_database = 1;
-        $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
-        $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
-        $smsTemplate->save();
+        // $smsTemplate = new EmailTemplate;
+        // $smsTemplate->mail_sms_for = 'file-uploaded';
+        // $smsTemplate->mail_subject = 'New File has Uploaded';
+        // $smsTemplate->module = 'setting';
+        // $smsTemplate->type = 'manage-file';
+        // $smsTemplate->event = 'uploaded';
+        // $smsTemplate->screen = 'list';
+        // $smsTemplate->status_code = 'info';
+        // $smsTemplate->save_to_database = 1;
+        // $smsTemplate->sms_body = "";
+        // $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
+        // $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
+        // $smsTemplate->save();
     }
 }

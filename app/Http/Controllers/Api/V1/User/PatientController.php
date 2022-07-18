@@ -281,6 +281,18 @@ class PatientController extends Controller
                         $patientPlan->is_latest_entry = 1;
                         $patientPlan->save();
 
+                        /*--notify-user-ip-created--*/
+                        $data_id =  $patientPlan->id;
+                        $notifyUser = User::find($patientPlan->user_id);
+                        $notification_template = EmailTemplate::where('mail_sms_for', 'ip-created')->first();
+                        $variable_data = [
+                            '{{name}}' => $notifyUser->name,
+                            '{{created_by}}' => Auth::User()->name,
+                            '{{title}}' => $patientPlan->title
+                        ];
+                        actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        //------------------------------//
+
                         $impPlan_ids[] = $patientPlan->id;
                         $ids = implode(', ',$impPlan_ids);
                         if(!empty(@$patient['save_as_template']) && @$patient['save_as_template'] == true){
@@ -411,6 +423,7 @@ class PatientController extends Controller
                                                 ]);    
                                                 Mail::to($userSave->email)->send(new WelcomeMail($content));
                                             }
+                                            
                                             
                                         }
                                     }
@@ -844,6 +857,17 @@ class PatientController extends Controller
             $ipAssigne->ip_id = $request->ip_id;
             $ipAssigne->status = '1';
             $ipAssigne->save();
+
+            /*--notify-user-ip-assigned--*/
+            $notifyUser = User::find($request->user_id);
+            $data_id =  $ipAssigne->ip_id;
+            $notification_template = EmailTemplate::where('mail_sms_for', 'ip-assigned')->first();
+            $variable_data = [
+                '{{name}}' => $notifyUser->name,
+                '{{assigned_by}}' => Auth::User()->name
+            ];
+            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+            //------------------------------//
             $ipAssigneEmp = IpAssigneToEmployee::where('id',$ipAssigne->id)->with('User:id,name','PatientImplementationPlan')->first();
             return prepareResult(true,getLangByLabelGroups('IP','message_assigne') ,$ipAssigneEmp, config('httpcodes.success'));
         }

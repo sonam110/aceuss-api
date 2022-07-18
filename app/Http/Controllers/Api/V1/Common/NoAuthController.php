@@ -12,6 +12,7 @@ use Auth;
 use Exception;
 use App\Models\User;
 use App\Models\Label;
+use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\SmsLog;
 use Illuminate\Support\Facades\Hash;

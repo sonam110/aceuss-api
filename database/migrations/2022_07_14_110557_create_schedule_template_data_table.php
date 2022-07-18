@@ -18,8 +18,8 @@ class CreateScheduleTemplateDataTable extends Migration
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->unsignedBigInteger('schedule_template_id');
-            $table->foreign('schedule_template_id')->references('id')->on('schedules')->onDelete('cascade');
+            $table->unsignedBigInteger('schedule_template_id')->nullable()->comment('active schedule template');
+            $table->foreign('schedule_template_id')->references('id')->on('schedule_templates')->onDelete('cascade');
 
             $table->unsignedBigInteger('shift_id')->nullable();
             $table->foreign('shift_id')->references('id')->on('company_work_shifts')->onDelete('cascade');

@@ -321,6 +321,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $notification->image_url        = '';
             $notification->screen           = $screen;
             $notification->data_id          = $id;
+            $notification->extra_param      = json_encode($extra_param);
             $notification->read_status      = false;
             $notification->save();
 
@@ -387,7 +388,8 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                         'user_type' => $user->user_type_id,
                         'module'    => $module,
                         'event'     => $event,
-                        'screen'    => $screen
+                        'screen'    => $screen,
+                        'extra_param'=>$extra_param
                     ]                        
                 ])
                 ->setApiKey(env('FIREBASE_KEY'))

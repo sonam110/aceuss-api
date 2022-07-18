@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\CompanyWorkShift;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\Schedule;
+use App\Models\ScheduleTemplateData;
 
 class ScheduleTemplate extends Model
 {
@@ -25,4 +27,14 @@ class ScheduleTemplate extends Model
     	'status',
     	'deactivation_date'
     ];
+
+    public function templateData()
+    {
+        return $this->hasMany(ScheduleTemplateData::class,'schedule_template_id','id');
+    }
+
+    public function templateDataWithShift()
+    {
+        return $this->hasMany(ScheduleTemplateData::class,'schedule_template_id','id')->with('scheduleShifts');
+    }
 }
