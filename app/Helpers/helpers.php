@@ -336,11 +336,10 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param=null)
+function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {
-        
         if(!empty($user))
         {
             if(!empty($notification_template))
@@ -389,7 +388,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                         'module'    => $module,
                         'event'     => $event,
                         'screen'    => $screen,
-                        'extra_param'=>$extra_param
+                        'extra_param'=>$extra_param,
                     ]                        
                 ])
                 ->setApiKey(env('FIREBASE_KEY'))
@@ -404,7 +403,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 $notification->sender_id        = Auth::id();
                 $notification->device_id        = $userDeviceInfo ? $userDeviceInfo->id : null;
                 $notification->device_platform  = $userDeviceInfo ? $userDeviceInfo->login_via : null;
-                $notification->type             = $module;
+                $notification->type             = $type;
                 $notification->status_code      = $status_code;
                 $notification->user_type        = $user->user_type_id;
                 $notification->module           = $module;
@@ -415,6 +414,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 $notification->image_url        = '';
                 $notification->screen           = $screen;
                 $notification->data_id          = $data_id;
+                $notification->extra_param          = json_encode($extra_param);
                 $notification->read_status      = false;
                 $notification->save();
 

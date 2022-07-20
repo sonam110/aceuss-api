@@ -56,7 +56,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		
 		
-			/*-------------Bank detail------------------------*/
+		/*-------------Bank detail------------------------*/
 		Route::post('banks', [App\Http\Controllers\Api\V1\Common\BankDetailController::class, 'banks']);
 		Route::apiResource('bank', Common\BankDetailController::class)->only(['store','destroy','show', 'update']);
 		/*-------------Update salary detail------------------------*/
@@ -339,7 +339,10 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('schedule-approve', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleApprove']);
 		Route::post('schedule-verify', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'scheduleVerify']);
 		Route::post('employee-datewise-work', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'employeeDatewiseWork']);
-		Route::post('employee-working-hour-export', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'employeeWorkingHourExport']);
+		Route::post('employee-working-hours-export', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'employeeWorkingHoursExport']);
+		Route::post('patient-assigned-hours-export', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'patientAssignedHoursExport']);
+
+		Route::post('get-schedules-data', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getSchedulesData']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);
@@ -363,6 +366,11 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('schedule-templates', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'scheduleTemplates']);
 		Route::apiResource('schedule-template', User\ScheduleTemplateController::class)->only(['store','destroy','show', 'update']);
 		Route::post('schedule-template-change-status/{id}', [App\Http\Controllers\Api\V1\User\ScheduleTemplateController::class, 'changeStatus']);
+
+		//----------------Module-Request-------------------------//
+		Route::post('module-requests', [App\Http\Controllers\Api\V1\User\ModuleRequestController::class, 'moduleRequests']);
+		Route::apiResource('module-request', User\ModuleRequestController::class)->only(['store','destroy','show', 'update']);
+		Route::post('module-request-status/{id}', [App\Http\Controllers\Api\V1\User\ModuleRequestController::class, 'changeStatus']);
 		
 	});
 
@@ -370,6 +378,6 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::post('labels-import', 'Common\NoAuthController@labelsImport');
 	Route::get('get-label-by-language-id/{id}', 'Common\NoAuthController@getLabelByLanguageId');
 	Route::get('get-languages', 'Common\NoAuthController@getLanguages');
-
+	Route::get('get-email-templates', 'Common\NoAuthController@getEmailTemplates');
 	
 });

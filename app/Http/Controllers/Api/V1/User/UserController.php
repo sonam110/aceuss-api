@@ -24,6 +24,8 @@ use App\Models\LicenceKeyManagement;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\EmployeeAssignedWorkingHour;
+use App\Models\UserScheduledDate;
+
 class UserController extends Controller
 {
 	protected $top_most_parent_id;
@@ -468,6 +470,28 @@ class UserController extends Controller
                 $empAssWorkHour->created_by = Auth::id();
                 $empAssWorkHour->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $empAssWorkHour->save();
+
+                $joining_date = $request->joining_date ? strtotime($request->joining_date) : strtotime(date('Y-m-d'));
+                $two_years_later = strtotime(date('Y-m-d', strtotime('+2 years',$joining_date)));
+                $date_sets = [];
+                for($curDate=$joining_date; $curDate<=$two_years_later; $curDate += (86400 * 28))
+                {
+                    $start_date = date('Y-m-d', $curDate);
+                    $end_date = date('Y-m-d', strtotime('+27 days',strtotime($start_date)));
+                    if(strtotime($end_date) < $two_years_later)
+                    {
+                    	$date_sets[] = [$start_date,$end_date];
+                    }
+                }
+
+                foreach ($date_sets as $key => $value) {
+                	$datesData = new UserScheduledDate;
+                	$datesData->working_percent = $workingPercent;
+                	$datesData->emp_id = $user->id;
+                	$datesData->start_date = $value[0];
+                	$datesData->end_date = $value[1];
+                	$datesData->save();
+                }
             }
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();

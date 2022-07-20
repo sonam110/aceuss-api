@@ -111,4 +111,37 @@ class NoAuthController extends Controller
             
         }
     }
+
+    public function getEmailTemplates(Request $request)
+    {
+        try{
+
+            $query = EmailTemplate::orderBy('id', 'DESC');
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Email Template List",$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            return prepareResult(true,"Email Template List",$query,config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
 }

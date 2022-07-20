@@ -397,6 +397,48 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'module-request';
+        $smsTemplate->mail_subject = 'Module Request';
+        $smsTemplate->module = 'Module';
+        $smsTemplate->type = 'module-request';
+        $smsTemplate->event = 'module-request';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, there is a new request for modules {{modules}} by {{requested_by}} on {{request_date}} because of {{request_comment}}";
+        $smsTemplate->custom_attributes = "{{name}},{{modules}},{{requested_by}},{{request_date}},{{request_comment}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'module-request-approved';
+        $smsTemplate->mail_subject = 'Module Request Approved';
+        $smsTemplate->module = 'Module';
+        $smsTemplate->type = 'module-request';
+        $smsTemplate->event = 'module-request-approved';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your request for modules {{modules}} is approved   by {{approved_by}} on {{reply_date}} because of {{reply_comment}}";
+        $smsTemplate->custom_attributes = "{{name}},{{modules}},{{approved_by}},{{reply_date}},{{reply_comment}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'module-request-rejected';
+        $smsTemplate->mail_subject = 'Module Request Rejected';
+        $smsTemplate->module = 'Module';
+        $smsTemplate->type = 'module-request';
+        $smsTemplate->event = 'module-request-rejected';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your request for modules {{modules}} is rejected   by {{rejected_by}} on {{reply_date}} because of {{reply_comment}}";
+        $smsTemplate->custom_attributes = "{{name}},{{modules}},{{rejected_by}},{{reply_date}}{{reply_comment}}";
+        $smsTemplate->save();
+
         //----------------------vivek-----------------------------------//
 
         $smsTemplate = new EmailTemplate;
@@ -513,5 +555,6 @@ class MailSmsTemplateSeeder extends Seeder
         // $smsTemplate->notify_body = "Dear {{name}}, {{approved_by}} has applied and approved your leave on {{dates}}";
         // $smsTemplate->custom_attributes = "{{name}},{{dates}},{{approved_by}}";
         // $smsTemplate->save();
+
     }
 }

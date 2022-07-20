@@ -35,6 +35,10 @@ class ModuleController extends Controller
             } else {
                 $query = Module::orderBy('id', 'DESC');
             }
+            if(!empty($request->name))
+            {
+                $query->where('name','like','%'.$request->name.'%');
+            }
 	        if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

@@ -49,9 +49,9 @@ class CommentController extends Controller
             {
                 /*-----------Send notification---------------------*/
                 $activity = Activity::find($request->source_id);
-                $extra_param = ['status'=>$activity->status];
+                $extra_param = ['status'=>$activity->status,'title'=>$activity->title];
                 $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
-                $data_id =  $addComment->id;
+                $data_id =  $activity->id;
                 $notification_template = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
                 $variable_data = [
                     '{{name}}'              => $user->name,

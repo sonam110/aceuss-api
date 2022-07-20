@@ -19,7 +19,8 @@ use App\Models\EmailTemplate;
 use Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\UserScheduledDate;
-use App\Exports\EmployeeWorkingHourExport;
+use App\Exports\EmployeeWorkingHoursExport;
+use App\Exports\PatientAssignedHoursExport;
 
 class ScheduleController extends Controller
 {
@@ -39,7 +40,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender')->where('is_active',1);
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','patient:id,name,branch_id')->where('is_active',1);
 
 			if(!empty($request->shift_id))
 			{
@@ -131,143 +132,168 @@ class ScheduleController extends Controller
 		try 
 		{
 			$validator = Validator::make($request->all(),[   
-				'schedule_template_id' => 'required|exists:schedule_templates,id' ,
-				'user_id' => 'required|exists:users,id'
+				'schedule_template_id' => 'required|exists:schedule_templates,id'
 			],
 			[   
-				'schedule_template_id' =>  getLangByLabelGroups('Schedule','message_schedule_template_id'),
-				'user_id' =>  getLangByLabelGroups('Schedule','message_user_id'),
+				'schedule_template_id' =>  getLangByLabelGroups('Schedule','message_schedule_template_id')
 			]);
 			if ($validator->fails()) 
 			{
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
-			$user = User::find($request->user_id);
-			$shedule_ids = [];
+			
+
+			$schedule_ids = [];
 			$group_id = generateRandomNumber();
-			$assignedWork_id = null;
-			$assignedWork = null;
-			if(!empty($user->assignedWork))
-			{
-				$assignedWork = $user->assignedWork;
-				$assignedWork_id = $assignedWork->id;
-			}
 			foreach ($request->schedules as $key => $value) 
 			{
-				if($key == 0)
+				$date = date('Y-m-d',strtotime($value['date']));			
+				if($value['type'] == 'delete')
+				{
+					$schedules = Schedule::where('shift_date',$date)->where('schedule_template_id',$request->schedule_template_id)->delete();
+				}
+				else
 				{
 					$start_date = $value['date'];
-				}
-
-				$date = date('Y-m-d',strtotime($value['date']));
-				foreach($value['shifts'] as $key=>$shift)
-				{
-					$shift_name 		= null;
-					$shift_color 		= null;
-					$shift_type 		= null;
-					if(!empty($shift['shift_id']))
+					$assignedWork_id = null;
+					$assignedWork = null;
+					if(!empty($shift['user_id']))
 					{
-						$c_shift = CompanyWorkShift::find($shift['shift_id']);
-						if (!is_object($c_shift)) {
-							return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
-						}
-						$shift_name 		= $c_shift->shift_name;
-						$shift_color 		= $c_shift->shift_color;
-						$shift_type 		= $c_shift->shift_type;
-
-					}
-
-					$shift_start_time = $shift['shift_start_time'];
-					$shift_end_time = $shift['shift_end_time'];
-
-					$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
-
-					$schedule = new Schedule;
-					$schedule->user_id = $user->id;
-					$schedule->patient_id = $request->patient_id;
-					$schedule->branch_id = $request->branch_id;
-					$schedule->shift_id = $shift['shift_id'];
-					$schedule->parent_id = $request->parent_id;
-					$schedule->created_by = Auth::id();
-					$schedule->slot_assigned_to = null;
-					$schedule->employee_assigned_working_hour_id = $assignedWork_id;
-					$schedule->schedule_template_id = $request->schedule_template_id;
-					$schedule->schedule_type = $shift['schedule_type'];
-					$schedule->shift_date = $date;
-					$schedule->group_id = $group_id;
-					$schedule->shift_name = $shift_name;
-					$schedule->shift_type = $shift_type;
-					$schedule->shift_color = $shift_color;
-					$schedule->shift_start_time = $shift_start_time;
-					$schedule->shift_end_time = $shift_end_time;
-					$schedule->leave_applied = 0;
-					$schedule->leave_group_id = null;
-					$schedule->leave_type = null;
-					$schedule->leave_reason = null;
-					$schedule->leave_approved = 0;
-					$schedule->leave_approved_by = null;
-					$schedule->leave_approved_date_time = null;
-					$schedule->leave_notified_to = null;
-					$schedule->notified_group = null;
-					$schedule->is_active = 1;
-					$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-					$schedule->extra_work_duration = $result['extra_work_duration'];
-					$schedule->emergency_work_duration = $result['emergency_work_duration'];
-					$schedule->ob_work_duration = $result['ob_work_duration'];
-					$schedule->ob_type = $result['ob_type'];
-					$schedule->ob_start_time = $result['ob_start_time'];
-					$schedule->ob_end_time = $result['ob_end_time'];
-					$schedule->status = $request->status ? $request->status :0;
-					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-					$schedule->save();
-
-    				//----notify-emp-for-schedule-assigned---//
-
-					$data_id =  $schedule->id;
-					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-					$variable_data = [
-                        '{{name}}'          => $user->name,
-                        '{{schedule_title}}'=> $schedule->title,
-                        '{{date}}'          => $schedule->shift_date,
-                        '{{start_time}}'    => $schedule->shift_start_time,
-                        '{{end_time}}'      => $schedule->shift_end_time,
-                        '{{assigned_by}}'   => Auth::User()->name
-                    ];
-					actionNotification($user,$data_id,$notification_template,$variable_data);
-                    //----------------------------------------//
-
-					if(!empty($request->patient_id))
-					{
-						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)
-						->where('start_date','>=' ,$schedule->shift_date)
-						->where('end_date','<=',$schedule->shift_date)
-						->orderBy('id','desc')->first();
-						if(empty($patientAssignedHours))
+						$user = User::find($shift['user_id']);
+						if(!empty($user->assignedWork))
 						{
-							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
+							$assignedWork = $user->assignedWork;
+							$assignedWork_id = $assignedWork->id;
 						}
-						$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-						$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
-
 					}
-					$schedule_ids[] = $schedule->id;
-				}
-			}
-			$datesData = UserScheduledDate::where('emp_id',$request->user_id)
-			->where('schedule_template_id',$request->schedule_template_id)
-			->where('start_date',"<=" ,$start_date)
-			->where('end_date',">=" ,$start_date)
-			->first();
-			if(empty($datesData))
-			{
-				$datesData = new UserScheduledDate;
-				$datesData->schedule_template_id = $request->schedule_template_id;
-				$datesData->emp_id = $request->user_id;
-				$datesData->start_date = $start_date;
-				$datesData->end_date = date('Y-m-d', strtotime('+27 days',strtotime($start_date)));
-				$datesData->save();
+					foreach($value['shifts'] as $key=>$shift)
+					{
+						if($shift['type'] == 'delete')
+						{
+							$schedules = Schedule::where('schedule_id',$shift['schedule_id'])->delete();
+						}
+						else
+						{
+							$shift_name 		= null;
+							$shift_color 		= null;
+							$shift_type 		= null;
+							if(!empty($shift['shift_id']))
+							{
+								$c_shift = CompanyWorkShift::find($shift['shift_id']);
+								if (!is_object($c_shift)) {
+									return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+								}
+								$shift_name 		= $c_shift->shift_name;
+								$shift_color 		= $c_shift->shift_color;
+								$shift_type 		= $c_shift->shift_type;
+							}
 
-				$userUpdate = User::find($request->user_id)->update(['schedule_start_date'=>$start_date]);
+							$shift_start_time = $shift['shift_start_time'];
+							$shift_end_time = $shift['shift_end_time'];
+
+							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
+							if($shift['type'] == 'add')
+							{
+								$schedule = new Schedule;
+							}
+							else
+							{
+								$schedule = Schedule::find($shift['schedule_id']);
+							}
+
+							$schedule->user_id = $shift['employee_id'];
+							$schedule->patient_id = $shift['patient_id'];
+							$schedule->branch_id = $request->branch_id;
+							$schedule->shift_id = $shift['shift_id'];
+							$schedule->parent_id = $request->parent_id;
+							$schedule->created_by = Auth::id();
+							$schedule->slot_assigned_to = null;
+							$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+							$schedule->schedule_template_id = $request->schedule_template_id;
+							$schedule->schedule_type = $shift['schedule_type'];
+							$schedule->shift_date = $date;
+							$schedule->group_id = $group_id;
+							$schedule->shift_name = $shift_name;
+							$schedule->shift_type = $shift_type;
+							$schedule->shift_color = $shift_color;
+							$schedule->shift_start_time = $shift_start_time;
+							$schedule->shift_end_time = $shift_end_time;
+							$schedule->leave_applied = 0;
+							$schedule->leave_group_id = null;
+							$schedule->leave_type = null;
+							$schedule->leave_reason = null;
+							$schedule->leave_approved = 0;
+							$schedule->leave_approved_by = null;
+							$schedule->leave_approved_date_time = null;
+							$schedule->leave_notified_to = null;
+							$schedule->notified_group = null;
+							$schedule->is_active = 1;
+							$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+							$schedule->extra_work_duration = $result['extra_work_duration'];
+							$schedule->emergency_work_duration = $result['emergency_work_duration'];
+							$schedule->ob_work_duration = $result['ob_work_duration'];
+							$schedule->ob_type = $result['ob_type'];
+							$schedule->ob_start_time = $result['ob_start_time'];
+							$schedule->ob_end_time = $result['ob_end_time'];
+							$schedule->status = $request->status ? $request->status :0;
+							$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+							$schedule->save();
+
+							if(!empty($shift['user_id']))
+							{
+								$datesData = UserScheduledDate::where('emp_id',$shift['user_id'])
+								->where('schedule_template_id',$request->schedule_template_id)
+								->where('start_date',"<=" ,$start_date)
+								->where('end_date',">=" ,$start_date)
+								->first();
+								if(empty($datesData))
+								{
+									$datesData = new UserScheduledDate;
+									$datesData->schedule_template_id = $request->schedule_template_id;
+									$datesData->emp_id = $shift['user_id'];
+									$datesData->start_date = $start_date;
+									$datesData->end_date = date('Y-m-d', strtotime('+27 days',strtotime($start_date)));
+									$datesData->save();
+
+									$userUpdate = User::find($shift['user_id'])->update(['schedule_start_date'=>$start_date]);
+								}
+							}
+
+						    //----notify-emp-for-schedule-assigned---//
+							if(!empty($shift['user_id']))
+							{
+								$data_id =  $schedule->id;
+								$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+								$variable_data = [
+									'{{name}}'          => $user->name,
+									'{{schedule_title}}'=> $schedule->title,
+									'{{date}}'          => $schedule->shift_date,
+									'{{start_time}}'    => $schedule->shift_start_time,
+									'{{end_time}}'      => $schedule->shift_end_time,
+									'{{assigned_by}}'   => Auth::User()->name
+								];
+								actionNotification($user,$data_id,$notification_template,$variable_data);
+							}
+						    //----------------------------------------//
+
+							if(!empty($shift['patient_id']))
+							{
+								$patientAssignedHours = AgencyWeeklyHour::where('user_id',$shift['patient_id'])
+								->where('start_date','<=' ,$schedule->shift_date)
+								->where('end_date','>=',$schedule->shift_date)
+								->orderBy('id','desc')->first();
+								if(empty($patientAssignedHours))
+								{
+									$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
+								}
+								$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+								$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
+
+							}
+							$schedule_ids[] = $schedule->id;
+						}
+					}
+				}
 			}
 			DB::commit();
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
@@ -449,13 +475,13 @@ class ScheduleController extends Controller
 				$data_id =  $schedule->id;
 				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
 				$variable_data = [
-                    '{{name}}'          => $user->name,
-                    '{{schedule_title}}'=> $schedule->title,
-                    '{{date}}'          => $schedule->shift_date,
-                    '{{start_time}}'    => $schedule->shift_start_time,
-                    '{{end_time}}'      => $schedule->shift_end_time,
-                    '{{assigned_by}}'   => Auth::User()->name
-                ];
+					'{{name}}'          => $user->name,
+					'{{schedule_title}}'=> $schedule->title,
+					'{{date}}'          => $schedule->shift_date,
+					'{{start_time}}'    => $schedule->shift_start_time,
+					'{{end_time}}'      => $schedule->shift_end_time,
+					'{{assigned_by}}'   => Auth::User()->name
+				];
 				actionNotification($user,$data_id,$notification_template,$variable_data);
                 //----------------------------------------//
 
@@ -478,7 +504,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->where('is_active',1)->groupBy('user_id');
+			$query = Schedule::orderBy('created_at', 'DESC')->where('top_most_parent_id',Auth::user()->id)->where('is_active',1)->groupBy('user_id');
 
 			if(!empty($request->user_ids))
 			{
@@ -503,7 +529,6 @@ class ScheduleController extends Controller
 				$data['emergency_hours'][] = $emergency;
 				$data['vacation_hours'][] = $vacation;
 			}
-
 			return prepareResult(true,"Schedule Report",$data,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
@@ -515,7 +540,7 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender')->where('is_active',1);
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender')->where('top_most_parent_id',Auth::user()->id)->where('is_active',1);
 
 			if(!empty($request->shift_id))
 			{
@@ -591,7 +616,7 @@ class ScheduleController extends Controller
 		{
 			$users_ids = [];
 
-			$users = User::where('top_most_parent_id',auth()->user()->top_most_parent_id)->where('status','1');
+			$users = User::where('top_most_parent_id',auth()->user()->top_most_parent_id)->where('top_most_parent_id',Auth::user()->id)->where('status','1');
 			if(!empty($request->user_type_id))
 			{
 				$users->where('user_type_id' ,$request->user_type_id);
@@ -955,6 +980,9 @@ class ScheduleController extends Controller
 				$schedule->update(['status'=>1,'verified_by_employee'=>1]);
 				$user = User::find(Auth::user()->top_most_parent_id);
 				//----notify-company-schedule-verified----//
+				$exra_param = ['employee_id'=>$schedule->user_id, 'shift_date' => $schedule->shift_date,
+					'shift_start_time'=> $schedule->shift_start_time,
+					'shift_end_time'=> $schedule->shift_end_time,];
 				$data_id =  $id;
 				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
 				$variable_data = [
@@ -965,7 +993,7 @@ class ScheduleController extends Controller
 					'{{end_time}}'=> $schedule->shift_end_time,
 					'{{verified_by}}'=> Auth::user()->name
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data);
+				actionNotification($user,$data_id,$notification_template,$variable_data,$exra_param);
 	            //--------------------------------------//
 			}
 			$data = Schedule::whereIn('id',$ids)->get();
@@ -978,12 +1006,72 @@ class ScheduleController extends Controller
 	}
 
 
-	public function employeeWorkingHourExport(Request $request)
+	public function employeeWorkingHoursExport(Request $request)
 	{
-		$rand = rand(0,1000);
-		$dates = [$request->start_date,$request->end_date];
-        $excel = Excel::store(new EmployeeWorkingHourExport($dates), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
-        
-        return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hour_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
+		try{
+
+			$rand = rand(0,1000);
+			$dates = [$request->start_date,$request->end_date];
+			$user_id  = $request->user_id;
+			$excel = Excel::store(new EmployeeWorkingHoursExport($dates,$user_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
+
+			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
+	}
+
+	public function patientAssignedHoursExport(Request $request)
+	{
+		try{
+			$rand = rand(0,1000);
+			$dates = [$request->start_date,$request->end_date];
+			$patient_id  = $request->patient_id;
+			$excel = Excel::store(new PatientAssignedHoursExport($dates,$patient_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
+
+			return prepareResult(true,getLangByLabelGroups('schedule','message_patient_assigned_hours_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
+	}
+
+
+	public function getSchedulesData(Request $request)
+	{
+		try{
+			$validator = Validator::make($request->all(),[   
+				'schedule_template_id' => 'required|exists:schedule_templates,id',
+				'user_id' => 'required|exists:users,id',
+				'date' => 'required|date'
+			]);
+			if ($validator->fails()) 
+			{
+				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+			}
+
+			$user = User::find($request->user_id);
+			$data = [];
+			$data_set = UserScheduledDate::where('start_date','<=',$request->date)->where('end_date','>',$request->date)->where('emp_id',$user->id)->first();
+			if (!is_object($data_set)) {
+				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+			}
+			$assignedWork = $user->assignedWork;
+			$data['schedules'] = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$data_set->start_date,$data_set->end_date])->get();
+
+
+			$data['assigned_hours'] = ($assignedWork->assigned_working_hour_per_week * 4) * $data_set->working_percent / 100;
+
+			$data['scheduled_hours'] = Schedule::select([
+				\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration) as total_hours')
+			])->where('user_id',$user->id)->whereBetween('shift_date',[$data_set->start_date,$data_set->end_date])->first()->total_hours;
+
+			$data['remaining_hours'] = $data['assigned_hours'] - $data['scheduled_hours'];
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_list') ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
 	}
 }

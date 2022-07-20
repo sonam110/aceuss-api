@@ -93,137 +93,137 @@ class ScheduleTemplateController extends Controller
 			$scheduleTemplate->status =  $request->status;
 			$scheduleTemplate->save();
 
-			$user = User::find($request->user_id);
-			$shedule_ids = [];
-			$group_id = generateRandomNumber();
-			$assignedWork_id = null;
-			$assignedWork = null;
-			if(!empty($user && $user->assignedWork))
-			{
-				$assignedWork = $user->assignedWork;
-				$assignedWork_id = $assignedWork->id;
-			}
+			// $user = User::find($request->user_id);
+			// $shedule_ids = [];
+			// $group_id = generateRandomNumber();
+			// $assignedWork_id = null;
+			// $assignedWork = null;
+			// if(!empty($user && $user->assignedWork))
+			// {
+			// 	$assignedWork = $user->assignedWork;
+			// 	$assignedWork_id = $assignedWork->id;
+			// }
 
-			foreach ($request->schedule_template_data as $key => $value) 
-			{
-				if($key == 0)
-				{
-					$start_date = $value['date'];
-				}
+			// foreach ($request->schedule_template_data as $key => $value) 
+			// {
+			// 	if($key == 0)
+			// 	{
+			// 		$start_date = $value['date'];
+			// 	}
 
-				$date = date('Y-m-d',strtotime($value['date']));
-				foreach($value['shifts'] as $key=>$shift)
-				{
-					$shift_name 		= null;
-					$shift_color 		= null;
-					$shift_type 		= null;
-					if(!empty($shift['shift_id']))
-					{
-						$c_shift = CompanyWorkShift::find($shift['shift_id']);
-						if (!is_object($c_shift)) {
-							return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
-						}
-						$shift_name 		= $c_shift->shift_name;
-						$shift_color 		= $c_shift->shift_color;
-						$shift_type 		= $c_shift->shift_type;
-					}
+			// 	$date = date('Y-m-d',strtotime($value['date']));
+			// 	foreach($value['shifts'] as $key=>$shift)
+			// 	{
+			// 		$shift_name 		= null;
+			// 		$shift_color 		= null;
+			// 		$shift_type 		= null;
+			// 		if(!empty($shift['shift_id']))
+			// 		{
+			// 			$c_shift = CompanyWorkShift::find($shift['shift_id']);
+			// 			if (!is_object($c_shift)) {
+			// 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+			// 			}
+			// 			$shift_name 		= $c_shift->shift_name;
+			// 			$shift_color 		= $c_shift->shift_color;
+			// 			$shift_type 		= $c_shift->shift_type;
+			// 		}
 
-					$shift_start_time = $shift['shift_start_time'];
-					$shift_end_time = $shift['shift_end_time'];
-					if(!empty($request->user_id))
-					{
-						if(!empty($user->assignedWork))
-						{
-							$assignedWork = $user->assignedWork;
-							$assignedWork_id = $assignedWork->id;
-						}
-						$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
+			// 		$shift_start_time = $shift['shift_start_time'];
+			// 		$shift_end_time = $shift['shift_end_time'];
+			// 		if(!empty($request->user_id))
+			// 		{
+			// 			if(!empty($user->assignedWork))
+			// 			{
+			// 				$assignedWork = $user->assignedWork;
+			// 				$assignedWork_id = $assignedWork->id;
+			// 			}
+			// 			$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
 
-						$schedule = new Schedule;
-						$schedule->user_id = $user->id;
-						$schedule->patient_id = $request->patient_id;
-						$schedule->branch_id = $request->branch_id;
-						$schedule->shift_id = $shift['shift_id'];
-						$schedule->parent_id = NULL;
-						$schedule->created_by = Auth::id();
-						$schedule->slot_assigned_to = null;
-						$schedule->employee_assigned_working_hour_id = $assignedWork_id;
-						$schedule->schedule_template_id = $scheduleTemplate->id;
-						$schedule->schedule_type = $shift['schedule_type'];
-						$schedule->shift_date = $date;
-						$schedule->group_id = $group_id;
-						$schedule->shift_name = $shift_name;
-						$schedule->shift_type = $shift_type;
-						$schedule->shift_color = $shift_color;
-						$schedule->shift_start_time = $shift_start_time;
-						$schedule->shift_end_time = $shift_end_time;
-						$schedule->leave_applied = 0;
-						$schedule->leave_group_id = null;
-						$schedule->leave_type = null;
-						$schedule->leave_reason = null;
-						$schedule->leave_approved = 0;
-						$schedule->leave_approved_by = null;
-						$schedule->leave_approved_date_time = null;
-						$schedule->leave_notified_to = null;
-						$schedule->notified_group = null;
-						$schedule->is_active = 1;
-						$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-						$schedule->extra_work_duration = $result['extra_work_duration'];
-						$schedule->emergency_work_duration = $result['emergency_work_duration'];
-						$schedule->ob_work_duration = $result['ob_work_duration'];
-						$schedule->ob_type = $result['ob_type'];
-						$schedule->ob_start_time = $result['ob_start_time'];
-						$schedule->ob_end_time = $result['ob_end_time'];
-						$schedule->status = $request->status ? $request->status :0;
-						$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-						$schedule->save();
+			// 			$schedule = new Schedule;
+			// 			$schedule->user_id = $user->id;
+			// 			$schedule->patient_id = $request->patient_id;
+			// 			$schedule->branch_id = $request->branch_id;
+			// 			$schedule->shift_id = $shift['shift_id'];
+			// 			$schedule->parent_id = NULL;
+			// 			$schedule->created_by = Auth::id();
+			// 			$schedule->slot_assigned_to = null;
+			// 			$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+			// 			$schedule->schedule_template_id = $scheduleTemplate->id;
+			// 			$schedule->schedule_type = $shift['schedule_type'];
+			// 			$schedule->shift_date = $date;
+			// 			$schedule->group_id = $group_id;
+			// 			$schedule->shift_name = $shift_name;
+			// 			$schedule->shift_type = $shift_type;
+			// 			$schedule->shift_color = $shift_color;
+			// 			$schedule->shift_start_time = $shift_start_time;
+			// 			$schedule->shift_end_time = $shift_end_time;
+			// 			$schedule->leave_applied = 0;
+			// 			$schedule->leave_group_id = null;
+			// 			$schedule->leave_type = null;
+			// 			$schedule->leave_reason = null;
+			// 			$schedule->leave_approved = 0;
+			// 			$schedule->leave_approved_by = null;
+			// 			$schedule->leave_approved_date_time = null;
+			// 			$schedule->leave_notified_to = null;
+			// 			$schedule->notified_group = null;
+			// 			$schedule->is_active = 1;
+			// 			$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+			// 			$schedule->extra_work_duration = $result['extra_work_duration'];
+			// 			$schedule->emergency_work_duration = $result['emergency_work_duration'];
+			// 			$schedule->ob_work_duration = $result['ob_work_duration'];
+			// 			$schedule->ob_type = $result['ob_type'];
+			// 			$schedule->ob_start_time = $result['ob_start_time'];
+			// 			$schedule->ob_end_time = $result['ob_end_time'];
+			// 			$schedule->status = $request->status ? $request->status :0;
+			// 			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+			// 			$schedule->save();
 
-				    	//----notify-emp-for-schedule-assigned---//
+			// 	    	//----notify-emp-for-schedule-assigned---//
 
-						$data_id =  $schedule->id;
-						$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-						$variable_data = [
-							'{{name}}'          => $user->name,
-							'{{schedule_title}}'=> $schedule->title,
-							'{{date}}'          => $schedule->shift_date,
-							'{{start_time}}'    => $schedule->shift_start_time,
-							'{{end_time}}'      => $schedule->shift_end_time,
-							'{{assigned_by}}'   => Auth::User()->name
-						];
-						actionNotification($user,$data_id,$notification_template,$variable_data);
-				        //----------------------------------------//
+			// 			$data_id =  $schedule->id;
+			// 			$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+			// 			$variable_data = [
+			// 				'{{name}}'          => $user->name,
+			// 				'{{schedule_title}}'=> $schedule->title,
+			// 				'{{date}}'          => $schedule->shift_date,
+			// 				'{{start_time}}'    => $schedule->shift_start_time,
+			// 				'{{end_time}}'      => $schedule->shift_end_time,
+			// 				'{{assigned_by}}'   => Auth::User()->name
+			// 			];
+			// 			actionNotification($user,$data_id,$notification_template,$variable_data);
+			// 	        //----------------------------------------//
 
-						if(!empty($request->patient_id))
-						{
-							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)
-							->where('start_date','>=' ,$schedule->shift_date)
-							->where('end_date','<=',$schedule->shift_date)
-							->orderBy('id','desc')->first();
-							if(empty($patientAssignedHours))
-							{
-								$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
-							}
-							$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-							$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
-						}
-						$schedule_ids[] = $schedule->id;
-					}
-					$templateData = new ScheduleTemplateData;
-					$templateData->schedule_template_id = $scheduleTemplate->id;
-					$templateData->shift_id = $shift['shift_id'];
-					$templateData->schedule_type = $shift['schedule_type'];
-					$templateData->shift_date = $date;
-					$templateData->shift_name = $shift_name;
-					$templateData->shift_type = $shift_type;
-					$templateData->shift_color = $shift_color;
-					$templateData->shift_start_time = $shift_start_time;
-					$templateData->shift_end_time = $shift_end_time;
-					$templateData->created_by = Auth::id();
-					$templateData->is_active = $request->status ? $request->status :0;
-					$templateData->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-					$templateData->save();
-				}
-			}
+			// 			if(!empty($request->patient_id))
+			// 			{
+			// 				$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)
+			// 				->where('start_date','>=' ,$schedule->shift_date)
+			// 				->where('end_date','<=',$schedule->shift_date)
+			// 				->orderBy('id','desc')->first();
+			// 				if(empty($patientAssignedHours))
+			// 				{
+			// 					$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
+			// 				}
+			// 				$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+			// 				$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
+			// 			}
+			// 			$schedule_ids[] = $schedule->id;
+			// 		}
+			// 		$templateData = new ScheduleTemplateData;
+			// 		$templateData->schedule_template_id = $scheduleTemplate->id;
+			// 		$templateData->shift_id = $shift['shift_id'];
+			// 		$templateData->schedule_type = $shift['schedule_type'];
+			// 		$templateData->shift_date = $date;
+			// 		$templateData->shift_name = $shift_name;
+			// 		$templateData->shift_type = $shift_type;
+			// 		$templateData->shift_color = $shift_color;
+			// 		$templateData->shift_start_time = $shift_start_time;
+			// 		$templateData->shift_end_time = $shift_end_time;
+			// 		$templateData->created_by = Auth::id();
+			// 		$templateData->is_active = $request->status ? $request->status :0;
+			// 		$templateData->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+			// 		$templateData->save();
+			// 	}
+			// }
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
 		}
