@@ -9,6 +9,7 @@ use Ratchet\ConnectionInterface;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\OauthAccessTokens;
+use App\Models\Notification;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -57,6 +58,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example disconnect               conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
      * @example readmessages             conn.send(JSON.stringify({"command": "readmessages", "logged_in_user_id": "2", "other_user_id": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example totalunreadmessage             conn.send(JSON.stringify({"command": "totalunreadmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example totalunreadNotification             conn.send(JSON.stringify({"command": "totalunreadNotification", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      */
     public function onMessage(ConnectionInterface $conn, $msg) 
     {
@@ -197,6 +199,19 @@ class WebSocketController implements MessageComponentInterface {
                                 'command'   => 'totalunreadmessage',
                                 'userId'   => $data->userId,
                                 'data'      => $totalunreadmessage
+                            ];
+                            $conn->send(json_encode($returnData));
+                        }
+                        break;
+                    case "totalunreadNotification":
+                        if ($userToken['user_id'] != $data->userId ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $totalunreadNotification = $this->totalunreadNotification($data->userId);
+                            $returnData = [
+                                'command'   => 'totalunreadNotification',
+                                'userId'   => $data->userId,
+                                'data'      => $totalunreadNotification
                             ];
                             $conn->send(json_encode($returnData));
                         }
@@ -423,6 +438,13 @@ class WebSocketController implements MessageComponentInterface {
     private function totalunreadmessage($userId)
     {
         $query = Message::where('receiver_id', $userId)->whereNull('read_at')->count();
+        return $query;
+    }
+
+    private function totalunreadNotification($userId)
+    {
+        $query = Notification::where('user_id', $userId)->whereNull('read_at')->count();
+        $query['notifications'] = Notification::where('user_id', $userId)->whereNull('read_at')->get();
         return $query;
     }
 }
