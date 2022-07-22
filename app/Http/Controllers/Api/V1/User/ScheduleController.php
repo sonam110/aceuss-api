@@ -26,13 +26,11 @@ class ScheduleController extends Controller
 {
 	public function __construct()
 	{
-
 		// $this->middleware('permission:schedule-browse',['except' => ['show']]);
 		// $this->middleware('permission:schedule-add', ['only' => ['store']]);
 		// $this->middleware('permission:schedule-edit', ['only' => ['update']]);
 		// $this->middleware('permission:schedule-read', ['only' => ['show']]);
 		// $this->middleware('permission:schedule-delete', ['only' => ['destroy']]);
-
 	}
 	
 
@@ -96,6 +94,11 @@ class ScheduleController extends Controller
 				$query->whereRaw('MONTH(shift_date) = '.$month);
 			}
 
+			if(!empty($request->leave_group_id))
+			{
+				$query->where('leave_group_id','like','%'.$request->leave_group_id.'%');
+			}
+
 			if(!empty($request->perPage))
 			{
 
@@ -123,7 +126,100 @@ class ScheduleController extends Controller
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
+	}
 
+	public function schedulesCopy(Request $request)
+	{
+		try 
+		{
+			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','patient:id,name,branch_id')->where('is_active',1)->with('user:id,user_type_id,name,branch_id','user.branch:id,name','patient:id,user_type_id,name,branch_id','patient.branch:id,name');
+
+			if(!empty($request->shift_id))
+			{
+				$query->where('shift_id' ,$request->shift_id);
+			}
+			if(!empty($request->schedule_template_id))
+			{
+				$query->where('schedule_template_id' ,$request->schedule_template_id);
+			}
+			if(!empty($request->schedule_type))
+			{
+				$query->where('schedule_type' ,$request->schedule_type);
+			}
+
+			if(!empty($request->patient_id))
+			{
+				$query->where('patient_id' ,$request->patient_id);
+			}
+			if(!empty($request->user_id))
+			{
+				$query->where('user_id' ,$request->user_id);
+			}
+
+			if(!empty($request->shift_date))
+			{
+				$query->where('shift_date',$request->shift_date);
+			}
+			
+			if(!empty($request->shift_start_date))
+			{
+				$query->where('shift_date',">=" ,$request->shift_start_date);
+			}
+			if(!empty($request->shift_end_date))
+			{
+				$query->where('shift_date',"<=" ,$request->shift_end_date);
+			}
+
+			if(!empty($request->shift_start_time))
+			{
+				$query->where('shift_start_time',">=" ,$request->shift_start_time);
+			}
+			if(!empty($request->shift_end_time))
+			{
+				$query->where('shift_end_time',"<=" ,$request->shift_end_time);
+			}
+			if($request->group_id == 'yes')
+			{
+				$query->groupBy('group_id');
+			}
+			if (!empty($request->month)) 
+			{
+				$month = $request->month;
+				$query->whereRaw('MONTH(shift_date) = '.$month);
+			}
+
+			if(!empty($request->leave_group_id))
+			{
+				$query->where('leave_group_id','like','%'.$request->leave_group_id.'%');
+			}
+
+			if(!empty($request->perPage))
+			{
+
+				$perPage = $request->perPage;
+				$page = $request->input('page', 1);
+				$total = $query->count();
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id']);
+
+				$pagination =  [
+					'data' => $result,
+					'total' => $total,
+					'current_page' => $page,
+					'per_page' => $perPage,
+					'last_page' => ceil($total / $perPage)
+				];
+				return prepareResult(true,"Schedule list",$pagination,config('httpcodes.success'));
+			}
+			else
+			{
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id']);
+			}
+
+			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
 	}
 
 	public function store(Request $request)
@@ -141,14 +237,13 @@ class ScheduleController extends Controller
 			{
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
-			
 
 			$schedule_ids = [];
 			$group_id = generateRandomNumber();
 			foreach ($request->schedules as $key => $value) 
 			{
-				$date = date('Y-m-d',strtotime($value['date']));			
-				if($value['type'] == 'delete')
+				$date = date('Y-m-d',strtotime($value['date']));
+				if(!empty($value['type']) && $value['type'] == 'delete')
 				{
 					$schedules = Schedule::where('shift_date',$date)->where('schedule_template_id',$request->schedule_template_id)->delete();
 				}
@@ -168,7 +263,11 @@ class ScheduleController extends Controller
 					}
 					foreach($value['shifts'] as $key=>$shift)
 					{
-						if($shift['type'] == 'delete')
+						if(empty($shift['type']))
+						{
+
+						}
+						elseif($shift['type'] == 'delete')
 						{
 							$schedules = Schedule::where('schedule_id',$shift['schedule_id'])->delete();
 						}
@@ -286,9 +385,11 @@ class ScheduleController extends Controller
 								{
 									$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
 								}
-								$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-								$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
-
+								if(!empty($patientAssignedHours))
+								{
+									$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+									$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
+								}
 							}
 							$schedule_ids[] = $schedule->id;
 						}
@@ -1055,8 +1156,9 @@ class ScheduleController extends Controller
 			$data = [];
 			$data_set = UserScheduledDate::where('start_date','<=',$request->date)->where('end_date','>',$request->date)->where('emp_id',$user->id)->first();
 			if (!is_object($data_set)) {
-				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_data_set_not_found'), ['No Data Set'],config('httpcodes.success'));
 			}
+			$data['data_set'] =  $data_set;
 			$assignedWork = $user->assignedWork;
 			$data['schedules'] = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$data_set->start_date,$data_set->end_date])->get();
 

@@ -445,14 +445,14 @@ class LeaveController extends Controller
                 //----notify-employee-leave-approved----//
     			$user = User::find($leave->user_id);
     			$data_id =  $request->leave_group_id;
-
+                $extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$request->leave_group_id];
     			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
     			$variable_data = [
                     '{{name}}'  => $user->name,
                     '{{dates}}' => $dates,
                     '{{approved_by}}'=> Auth::user()->name
                 ];
-    			actionNotification($user,$data_id,$notification_template,$variable_data);
+    			actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
                 //--------------------------------------//
     		}
     		elseif(!empty($request->leaves))
@@ -534,14 +534,14 @@ class LeaveController extends Controller
                     //----notify-employee-leave-approved---//
 					$leave_approved_user = User::find($leave->user_id);
 					$data_id =  $leave->id;
-
+                    $extra_param = ['employee_id'=>$leave->user_id,'leave_group_id'=>$leave->leave_group_id];
 					$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
 					$variable_data = [
                         '{{name}}'  => $user->name,
                         '{{date}}' => $leave->shift_date,
                         '{{approved_by}}'=> Auth::user()->name
                     ];
-					actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data);
+					actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param);
                     //----------------------------------------//
     			}
     			$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->groupBy('leave_group_id')->get();
@@ -580,13 +580,14 @@ class LeaveController extends Controller
     		//-------notify-employee-leave-approved--------//
     		$user = User::find($leaves->user_id);
     		$data_id =  $leave_group_id;
+            $extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id];
     		$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
     		$variable_data = [
                 '{{name}}'  => $user->name,
                 '{{dates}}' => implode(',', $dates),
                 '{{approved_by}}'=> Auth::user()->name
             ];
-    		actionNotification($user,$data_id,$notification_template,$variable_data);
+    		actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
             //----------------------------------------------//
 
     		return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
@@ -864,6 +865,7 @@ class LeaveController extends Controller
     		//--notify-emp-leave-applied-approved-by-company-----//
     		$user = User::find($request->emp_id);
     		$data_id =  $leave_group_id;
+            $extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id];
 
     		$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
     		$variable_data = [
@@ -871,7 +873,7 @@ class LeaveController extends Controller
 				'{{dates}}'	=> implode(',', $dates),
 				'{{approved_by}}'=> Auth::user()->name
 			];
-    		actionNotification($user,$data_id,$notification_template,$variable_data);
+    		actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
     		//-----------------------------------------------------//
 
     		$data = Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->get();
@@ -884,5 +886,22 @@ class LeaveController extends Controller
 	    	DB::rollback();
 	    	return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 	    }
+	}
+
+	public function getCompanyLeaves()
+	{
+		try {
+			$query = Schedule::where('top_most_parent_id', Auth::user()->top_most_parent_id)->where('leave_applied',1)->get(['shift_date']);
+			$dates = [];
+			foreach ($query as $key => $value) {
+				$dates[] = $value->shift_date;
+			}
+
+			return prepareResult(true,"Leave Date list",$dates,config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+
+		}
 	}
 }

@@ -139,12 +139,14 @@ class PatientImplementationPlan extends Model
 
     public function ipFollowUps()
     {
-        return $this->hasMany(IpFollowUp::class,'ip_id','id');
+        $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+        return $this->hasMany(IpFollowUp::class,'ip_id','id')->where('start_date','>=',$date);
     }
 
     public function activities()
     {
-        return $this->hasMany(Activity::class,'ip_id','id');
+        $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+        return $this->hasMany(Activity::class,'ip_id','id')->where('start_date','>=',$date);
     }
 
     public function setStartDateAndTimeAttribute($value) {

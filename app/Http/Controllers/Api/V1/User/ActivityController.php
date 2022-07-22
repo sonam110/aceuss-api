@@ -1186,6 +1186,7 @@ class ActivityController extends Controller
     			elseif ($request->status == 3) {
     				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
     			}
+    			$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
 
     			foreach ($receivers_ids as $key => $value) {
     				$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
@@ -1196,7 +1197,7 @@ class ActivityController extends Controller
 						'{{start_date}}'        => $activity->start_date,
 						'{{start_time}}'        => $activity->start_time
 					];
-    				actionNotification($user,$data_id,$notification_template,$variable_data);
+    				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
     			}
     			DB::commit();
 
@@ -1283,6 +1284,7 @@ class ActivityController extends Controller
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
             $data_id =  $getActivity->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
+            $extra_param = ['status'=>3,'start_date'=>$getActivity->start_date];
             $companyObj = companySetting($user->top_most_parent_id);
 			$variable_data = [
 				'{{name}}'              => $user->name,
@@ -1292,7 +1294,7 @@ class ActivityController extends Controller
 				'{{start_time}}'        => $getActivity->start_time
 			];
 
-            actionNotification($user,$data_id,$notification_template,$variable_data);
+            actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
 
     		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
     	}

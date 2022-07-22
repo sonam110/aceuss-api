@@ -327,6 +327,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		//-----------------------Schedule---------------------//
 		Route::post('schedules', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedules']);
+		Route::post('schedules-copy', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedulesCopy']);
 		Route::apiResource('schedule', User\ScheduleController::class)->only(['store','destroy','show', 'update']);
 		Route::get('user-schedules/{id}', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getUserSchedules']);
 
@@ -352,6 +353,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::get('leaves-approve-by-group-id/{group_id}', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leavesApproveByGroupId']);
 		Route::post('leave-schedule-slot-selected', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaveScheduleSlotSelected']);
 		Route::post('company-leave', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'companyLeave']);
+		Route::get('company-leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'getCompanyLeaves']);
 
 		//-----------------------Stampling---------------------//
 		Route::post('stamplings', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplings']);

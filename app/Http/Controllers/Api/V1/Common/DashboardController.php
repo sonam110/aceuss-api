@@ -82,7 +82,6 @@ class DashboardController extends Controller
                 $data['ipPendingCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
 
             }
-
             elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
                 $data['activityCount'] = Activity::where(function ($q) use ($user) {
@@ -303,7 +302,7 @@ class DashboardController extends Controller
             
             return prepareResult(true,'ActivityCount' ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
-                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
+                return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }  
     }
 }

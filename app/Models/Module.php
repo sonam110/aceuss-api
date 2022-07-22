@@ -8,6 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Module extends Model
 {
     use HasFactory,LogsActivity;
+    protected $appends = ['value'];
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
@@ -16,4 +17,9 @@ class Module extends Model
         'status',
         'entry_mode',
     ];
+    public function getValueAttribute()
+    {
+    	$data = strtolower(str_replace(' ','_',$this->name));
+        return $data;
+    }
 }

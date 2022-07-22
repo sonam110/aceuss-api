@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EmployeeAssignedWorkingHour;
+use App\Models\UserScheduledDate;
 use Validator;
 use Auth;
 use Exception;
@@ -83,6 +84,8 @@ class EmployeeAssignedWorkingHourController extends Controller
             $empAssWorkHour->created_by = Auth::id();
             $empAssWorkHour->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$empAssWorkHour->save();
+
+            $data_set_update = UserScheduledDate::where('end_date','>',date('Y-m-d'))->where('emp_id',$request->emp_id)->update(['working_percent'=>$workingPercent]);
               DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_create') ,$empAssWorkHour, config('httpcodes.success'));
         }
@@ -142,6 +145,8 @@ class EmployeeAssignedWorkingHourController extends Controller
             $empAssWorkHour->created_by = Auth::id();
             $empAssWorkHour->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $empAssWorkHour->save();
+
+            $data_set_update = UserScheduledDate::where('end_date','>',date('Y-m-d'))->where('emp_id',$request->emp_id)->update(['working_percent'=>$workingPercent]);
             DB::commit();
 	        return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_update'),$empAssWorkHour, config('httpcodes.success'));
 			    

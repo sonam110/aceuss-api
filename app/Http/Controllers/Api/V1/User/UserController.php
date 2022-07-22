@@ -87,6 +87,10 @@ class UserController extends Controller
     		} else {
     			$query = $query->orderBy('id', 'DESC');
     		}
+            if(!empty($request->joining_date))
+            {
+                $query->where('joining_date','<', $request->joining_date);
+            }
             if(!empty($request->employee_type))
             {
                 $query->where('employee_type', $request->employee_type);
