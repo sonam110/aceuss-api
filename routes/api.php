@@ -344,6 +344,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('patient-assigned-hours-export', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'patientAssignedHoursExport']);
 
 		Route::post('get-schedules-data', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getSchedulesData']);
+		Route::post('get-patients-data', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'getPatientsData']);
 
 		//-----------------------Leave---------------------//
 		Route::post('leaves', [App\Http\Controllers\Api\V1\User\LeaveController::class, 'leaves']);
