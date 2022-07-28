@@ -87,10 +87,16 @@ class ScheduleTemplateController extends Controller
 			if ($validator->fails()) {
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
+			$activation_date =  NULL;
+			if($request->status == 1)
+			{
+				$activation_date =  date('Y-m-d');
+			}
 			$scheduleTemplate = new ScheduleTemplate;
 			$scheduleTemplate->title = $request->title;
 			$scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 			$scheduleTemplate->status =  $request->status;
+			$scheduleTemplate->activation_date =  $request->activation_date;
 			$scheduleTemplate->save();
 
 			// $user = User::find($request->user_id);
@@ -249,10 +255,17 @@ class ScheduleTemplateController extends Controller
 			if (!is_object($checkId)) {
 				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
+
 			$scheduleTemplate = ScheduleTemplate::where('id',$id)->first();
+			$activation_date =  $scheduleTemplate->activation_date;
+			if($request->status == 1 && $scheduleTemplate->status == 0)
+			{
+				$activation_date =  date('Y-m-d');
+			}
 			$scheduleTemplate->title = $request->title;
 			$scheduleTemplate->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 			$scheduleTemplate->status =  $request->status;
+			$scheduleTemplate->activation_date =  $request->activation_date;
 			$scheduleTemplate->save();
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_update') ,$scheduleTemplate, config('httpcodes.success'));
@@ -302,7 +315,22 @@ class ScheduleTemplateController extends Controller
 		try 
 		{
 			$scheduleTemplate = ScheduleTemplate::find($id);
+			if($scheduleTemplate->deactivation_date != null)
+			{
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_already_deactivated'), ['Once deactivated can not be Activated.'],config('httpcodes.bad_request'));
+			}
+			$activation_date =  $scheduleTemplate->activation_date;
+			if($request->status == 1 && $scheduleTemplate->status == 0)
+			{
+				$activation_date =  date('Y-m-d');
+			}
+			else
+			{
+				$deactivation_date =  date('Y-m-d');
+			}
 			$scheduleTemplate->status = $request->status;
+			$scheduleTemplate->activation_date = $activation_date;
+			$scheduleTemplate->deactivation_date = $deactivation_date;
 			$scheduleTemplate->save();
 
 			$messages = [];

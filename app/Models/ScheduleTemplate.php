@@ -20,9 +20,6 @@ class ScheduleTemplate extends Model
     protected $fillable = [
     	'top_most_parent_id',
     	'title',
-    	// 'from_date',
-    	// 'to_date',
-    	// 'shifts',
     	'entry_mode',
     	'status',
     	'deactivation_date'

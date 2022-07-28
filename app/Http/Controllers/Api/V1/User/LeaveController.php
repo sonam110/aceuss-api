@@ -209,7 +209,7 @@ class LeaveController extends Controller
     				//--notify-top-most-company-for-new-leave-application--//
 					$user = User::find(Auth::user()->top_most_parent_id);
 					$data_id =  $schedule->id;
-					$extra_param = ['leave_group_id'=>$group_id];
+					$extra_param = ['leave_group_id'=>$group_id,'leave_object'=>Schedule::where('id',$schedule->id)->with('user:id,name')->first()];
 					$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
 					$variable_data = [
 						'{{requested_by}}'  => Auth::User()->name,
@@ -296,7 +296,7 @@ class LeaveController extends Controller
                         //--notify-top-most-company-for-new-leave-application--//
 						$user = User::find(Auth::user()->top_most_parent_id);
 						$data_id =  $schedule->id;
-						$extra_param = ['leave_group_id'=>$group_id];
+						$extra_param = ['leave_group_id'=>$group_id,'leave_object'=>Schedule::where('id',$schedule->id)->with('user:id,name')->first()];
 						$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
 						$variable_data = [
 							'{{requested_by}}'  => Auth::User()->name,
@@ -610,7 +610,8 @@ class LeaveController extends Controller
 
 			Schedule::whereIn('id',$request->schedule_ids)
 			->update([
-				'slot_assigned_to' => Auth::id()
+				'slot_assigned_to' => Auth::id(),
+				'assign_status' => 'assigned'
 			]);
 			foreach ($leaves as $key => $leave) {
 				$shift_name         = $leave->shift_name;
@@ -670,13 +671,13 @@ class LeaveController extends Controller
 			$dates = [];
 			$leaves1 = Schedule::where('notified_group',$leave1->notified_group)->where('assign_status','vacant')->get();
 			foreach ($leaves1 as $key => $value) {
-				$dates[] = $value->date;
+				$dates[] = $value->shift_date;
 			}
 			if(!empty($dates))
 			{
 				$dates = implode(',', $dates);
 
-				$users = User::whereIn('id',json_decode($leave->leave_notified_to))
+				$users = User::whereIn('id',json_decode($leave1->leave_notified_to))
 				->where('id','!=',Auth::id())
 				->get();
 
@@ -720,13 +721,6 @@ class LeaveController extends Controller
 		DB::beginTransaction();
 		try 
 		{
-			$schedule_id = [];
-			$leave_group_id = generateRandomNumber();
-			if(ScheduleTemplate::where('status','1')->count()<=0)
-			{
-				return prepareResult(false,getLangByLabelGroups('Leave','message_template_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
-			}
-			$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 			$validation = \Validator::make($request->all(), [
 				'leaves'      => 'required|array',
 			]);
@@ -735,6 +729,13 @@ class LeaveController extends Controller
 			{
 				return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
+			$schedule_id = [];
+			$leave_group_id = generateRandomNumber();
+			if(ScheduleTemplate::where('status','1')->count()<=0)
+			{
+				return prepareResult(false,getLangByLabelGroups('Leave','message_template_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
+			}
+			$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 			$dates = [];
 			foreach ($request->leaves as $key => $leave) 
 			{
@@ -742,7 +743,7 @@ class LeaveController extends Controller
 				{
 					$dates[] = $shift_date;
 					$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->emp_id)->get();
-					if(!empty($schedules))
+					if(!is_object($schedules))
 					{
 						foreach ($schedules as $key => $schedule) {
 							$schedule_id[] = $schedule->id;
@@ -869,7 +870,7 @@ class LeaveController extends Controller
     		//--notify-emp-leave-applied-approved-by-company-----//
 			$user = User::find($request->emp_id);
 			$data_id =  $leave_group_id;
-			$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id];
+			$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id,'leave_object'=>Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name')->get()];
 
 			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
 			$variable_data = [
@@ -895,17 +896,18 @@ class LeaveController extends Controller
 	public function getCompanyLeaves()
 	{
 		try {
-			$query = Schedule::where('top_most_parent_id', Auth::user()->top_most_parent_id)->where('leave_applied',1)->get(['shift_date']);
-			$dates = [];
-			foreach ($query as $key => $value) {
-				$dates[] = $value->shift_date;
+			if(Auth::user()->user_type_id == 2)
+			{
+				$query = Schedule::where('top_most_parent_id', Auth::user()->top_most_parent_id)->where('user_id','!=',Auth::id())->where('leave_applied',1)->get(['shift_date','id','shift_start_time','shift_end_time','leave_group_id','user_id','approved_by_company','verified_by_employee']);
 			}
-
-			return prepareResult(true,"Leave Date list",$dates,config('httpcodes.success'));
+			else
+			{
+				$query = Schedule::whereJsonContains('leave_notified_to', Auth::id())->where('user_id','!=',Auth::id())->where('leave_applied',1)->get(['shift_date','id','shift_start_time','shift_end_time','leave_group_id','user_id','approved_by_company','verified_by_employee']);
+			}
+			return prepareResult(true,"Leave Date list",$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 	}
 }
