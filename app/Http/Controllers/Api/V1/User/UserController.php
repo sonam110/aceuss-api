@@ -49,6 +49,7 @@ class UserController extends Controller
     {
     	try {
     		$user = getUser();
+            $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             if(!empty($user->branch_id)) {
                 $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
             } else {
