@@ -59,7 +59,9 @@ class User extends Authenticatable
      */
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
-    protected $appends = ['company_types','patient_types','on_vacation'];
+    protected $appends = ['company_types','patient_types','on_vacation'
+    // ,'tasks_count','patient_tasks_count','assigned_tasks_count','activities_count','ips_count','follow_ups_count','patients_count','employees_count','journals_count','deviations_count','bookmarks_count'
+];
     protected $fillable = [
         'unique_id',
         'custom_unique_id',
@@ -402,6 +404,72 @@ class User extends Authenticatable
         }
         return false;
     }
+
+    // public function getTasksCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(Task::class,'top_most_parent_id','id')->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getPatientTasksCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(Task::class,'resource_id','id')->where('type_id', 7)->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getAssignedTasksCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(Task::class,'resource_id','id')->where('type_id', 7)->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getActivitiesCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(Activity::class,'top_most_parent_id','id')->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getIpsCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(PatientImplementationPlan::class,'top_most_parent_id','id')->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getFollowUpsCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(IpFollowUp::class,'top_most_parent_id','id')->where('start_date','>=',$date)->count();
+    // }
+
+    // public function getPatientsCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id',6)->where('created_at','>=',$date)->count();
+    // }
+
+    // public function getEmployeesCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //      return $this->hasMany(User::class,'top_most_parent_id','id')->where('user_type_id',3)->where('created_at','>=',$date)->count();
+    // }
+
+    // public function getJournalsCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //     return $this->hasMany(Journal::class,'patient_id','id')->where('created_at','>=',$date)->count();
+    // }
+
+    // public function getDeviationsCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //     return $this->hasMany(Deviation::class,'patient_id','id')->where('created_at','>=',$date)->count();
+    // }
+
+    // public function getBookmarksCountAttribute()
+    // {
+    //     $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
+    //     return $this->hasMany(Bookmark::class,'user_id','id')->where('created_at','>=',$date)->count();
+    // }
 
 
 

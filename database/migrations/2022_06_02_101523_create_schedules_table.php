@@ -66,6 +66,7 @@ class CreateSchedulesTable extends Migration
             $table->datetime('leave_approved_date_time')->nullable();
             $table->string('leave_notified_to')->nullable();
             $table->string('notified_group')->nullable();
+            $table->enum('assign_status',['vacant','assigned'])->nullable();
             //-----------------------------------------------------//
             $table->boolean('is_active')->default(0);
             $table->string('scheduled_work_duration')->default(0)->nullable()->comment('total worked - ob worked , when type basic');

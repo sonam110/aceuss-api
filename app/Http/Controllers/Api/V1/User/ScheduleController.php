@@ -269,7 +269,7 @@ class ScheduleController extends Controller
 						}
 						elseif($shift['type'] == 'delete')
 						{
-							$schedules = Schedule::where('schedule_id',$shift['schedule_id'])->delete();
+							$schedules = Schedule::where('id',$shift['schedule_id'])->delete();
 						}
 						else
 						{
@@ -1144,7 +1144,7 @@ class ScheduleController extends Controller
 		try{
 			$validator = Validator::make($request->all(),[   
 				'schedule_template_id' => 'required|exists:schedule_templates,id',
-				'user_id' => 'required|exists:users,id',
+				// 'user_id' => 'required|exists:users,id',
 				'date' => 'required|date'
 			]);
 			if ($validator->fails()) 
@@ -1152,28 +1152,160 @@ class ScheduleController extends Controller
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
 
+			$ts = strtotime($request->date);
+			$start_date = date('Y-m-01', $ts); 
+			$end_date = date('Y-m-t', $ts); 
+
 			$user = User::find($request->user_id);
 			$data = [];
-			$data_set = UserScheduledDate::where('start_date','<=',$request->date)->where('end_date','>',$request->date)->where('emp_id',$user->id)->first();
-			if (!is_object($data_set)) {
-				return prepareResult(true,getLangByLabelGroups('Schedule','message_data_set_not_found'), ['No Data Set'],config('httpcodes.success'));
+			$emp_ids = [];
+			if(!empty($request->user_id))
+			{
+				$emp_ids[] = $request->user_id;
 			}
-			$data['data_set'] =  $data_set;
-			$assignedWork = $user->assignedWork;
-			$data['schedules'] = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$data_set->start_date,$data_set->end_date])->get();
+			else
+			{
+				$data_sets = UserScheduledDate::where('start_date','<=',$end_date)->where('end_date','>',$start_date)->get();
+				foreach ($data_sets as $key => $data_set) {
+					$emp_ids[] = $data_set->emp_id;
+				}
+				$emp_ids = array_unique($emp_ids);
+			}
+			
+			foreach ($emp_ids as $key => $emp_id) {
+				$user = User::where('id',$emp_id)->first(['id','name']);
+				if (!is_object($user)) {
+					$data[] = 'user not found';
+				}
+				else
+				{
+
+					$assignedWork = $user->assignedWork;
+					$data[] = $user;
+
+					$user_data_sets = UserScheduledDate::where('start_date','<=',$end_date)->where('end_date','>',$start_date)->where('emp_id',$user->id)->get();
+					$user->data_sets = $user_data_sets;
+					foreach ($user_data_sets as $key => $user_data_set) {
+						// $user_schedules = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$user_data_set->start_date,$user_data_set->end_date])->where('schedule_template_id',$request->schedule_template_id)->get();
 
 
-			$data['assigned_hours'] = ($assignedWork->assigned_working_hour_per_week * 4) * $data_set->working_percent / 100;
+						if(strtotime($user_data_set->end_date) > strtotime(date('Y-m-d')))
+						{
+							$user_latest_schedule = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$user_data_set->start_date,date('Y-m-d')])->where('schedule_template_id',$request->schedule_template_id)->orderBy('id','desc')->where('leave_applied',0)->first();
+							$scheduled_hours = Schedule::select([
+								\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration) as total_sum_hours')
+							])->where('user_id',$user->id)->whereBetween('shift_date',[$user_data_set->start_date,date('Y-m-d')])->where('schedule_template_id',$request->schedule_template_id)->where('is_active',1)->where('leave_applied',0)->first()->total_sum_hours;
+						}
+						else
+						{
+							$user_latest_schedule = Schedule::where('user_id',$user->id)->whereBetween('shift_date',[$user_data_set->start_date,$user_data_set->end_date])->where('schedule_template_id',$request->schedule_template_id)->orderBy('id','desc')->where('leave_applied',0)->first();
 
-			$data['scheduled_hours'] = Schedule::select([
-				\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration) as total_hours')
-			])->where('user_id',$user->id)->whereBetween('shift_date',[$data_set->start_date,$data_set->end_date])->first()->total_hours;
+							$scheduled_hours = Schedule::select([
+								\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration) as total_sum_hours')
+							])->where('user_id',$user->id)->whereBetween('shift_date',[$user_data_set->start_date,$user_data_set->end_date])->where('schedule_template_id',$request->schedule_template_id)->where('is_active',1)->where('leave_applied',0)->first()->total_sum_hours;
+						}
 
-			$data['remaining_hours'] = $data['assigned_hours'] - $data['scheduled_hours'];
+						if(!empty($assignedWork))
+						{
+							$assigned_hours = ($assignedWork->assigned_working_hour_per_week * 4) * $user_data_set->working_percent / 100;
+							$remaining_hours = $assigned_hours - $scheduled_hours;
+						}
+						else
+						{
+							$assigned_hours = 0;
+							$remaining_hours = 0;
+						}
+						// $user_data_set->schedules = $user_schedules;
+						$user_data_set->latest_schedule = $user_latest_schedule;
+						$user_data_set->assigned_hours = ($assigned_hours)*60;
+						$user_data_set->scheduled_hours = ($scheduled_hours)*60;
+						$user_data_set->remaining_hours = ($remaining_hours)*60;
+					}
+				}
+			}		
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_list') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+		}
+	}
+
+	public function getPatientsData(Request $request)
+	{
+		try 
+		{
+			$validator = Validator::make($request->all(),[   
+				'schedule_template_id' => 'required|exists:schedule_templates,id',
+				// 'user_id' => 'required|exists:users,id',
+				// 'patient_id' => 'required'
+			]);
+			if ($validator->fails()) 
+			{
+				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+			}
+
+			$template = ScheduleTemplate::find($request->schedule_template_id);
+			$activation_date = $template->activation_date;
+			$deactivation_date = $template->deactivation_date;
+			if($activation_date == null)
+			{
+				// if($deactivation_date == null)
+				// {
+				// 	return prepareResult(false,getLangByLabelGroups('Schedule','message_schedule_not_activated'), ['Schedule has not been activated since created'],config('httpcodes.not_found'));
+				// }
+				// $activation_date = \Carbon\Carbon::parse(User::find($request->patient_id)->created_at)->format('Y-m-d');
+				$activation_date = date('Y-m-d',strtotime('+1 days'));
+			}
+			if($deactivation_date == null || $deactivation_date >= date('Y-m-d'))
+			{
+				$deactivation_date = date('Y-m-d');
+			}
+			$patient_ids = [];
+			if(!empty($request->patient_id))
+			{
+				$patient_ids[] = $request->patient_id;
+			}
+			else
+			{
+				$patients = Schedule::where('schedule_template_id', $request->schedule_template_id)
+				->where('patient_id','!=',null)
+				->get(['patient_id']);
+
+				foreach ($patients as $key => $value) {
+					$patient_ids[] = $value->patient_id;
+				}
+			}
+
+			$data = [];
+			foreach ($patient_ids as $key => $patient_id) {
+				// $patient_name = User::find($patient_id)->name;
+				$data[$patient_id]['patient_assigned_hours'] = (AgencyWeeklyHour::where('user_id',$patient_id)
+					->sum('assigned_hours'))*60;
+				$data[$patient_id]['patient_completed_hours'] = (Schedule::select([
+					\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration)  + SUM(vacation_duration) as completed_hours')
+				])
+				->where('schedule_template_id', $request->schedule_template_id)
+				->where('patient_id', $request->patient_id) 
+				->where('shift_date', '>=',$activation_date)
+				->where('shift_date', '<=',$deactivation_date) 
+				->where('leave_applied', 0)    
+				->first()->completed_hours)*60;
+
+				$data[$patient_id]['patient_planned_hours'] = (Schedule::select([
+					\DB::raw('SUM(scheduled_work_duration) + SUM(extra_work_duration) + SUM(ob_work_duration) + SUM(emergency_work_duration)  + SUM(vacation_duration) as planned_hours')
+				])
+				->where('schedule_template_id', $request->schedule_template_id)
+				->where('patient_id', $request->patient_id)
+				->where('is_active', 1) 
+				->where('leave_applied', 0)
+				->where('shift_date', '>',date('Y-m-d'))       
+				->first()->planned_hours)*60;
+			}
+			
+			return prepareResult(true, 'Patient Hours.' ,$data, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
 }

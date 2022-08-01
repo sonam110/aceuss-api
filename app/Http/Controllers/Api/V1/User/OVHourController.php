@@ -45,6 +45,11 @@ class OVHourController extends Controller
             {
                 $query->where('end_time',"<=" ,$request->end_time);
             }
+
+            if(!empty($request->date))
+            {
+                $query->where('date',$request->date);
+            }
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

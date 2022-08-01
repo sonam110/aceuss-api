@@ -72,6 +72,21 @@ class FollowUpsController extends Controller
             {
                 $query = $query->where('is_completed', 0);
             }
+
+            if(!empty($request->title))
+            {
+                $query->where('title', $request->title);
+            }
+
+            if(!empty($request->start_date))
+            {
+                $query->where('start_date',">=" ,$request->start_date);
+            }
+            if(!empty($request->end_date))
+            {
+                $query->where('start_date',"<=" ,$request->end_date);
+            }
+            
             $followUpCounts = IpFollowUp::select([
                 \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as completed'),
                 \DB::raw('COUNT(IF(is_completed = 0, 0, NULL)) as not_completed')

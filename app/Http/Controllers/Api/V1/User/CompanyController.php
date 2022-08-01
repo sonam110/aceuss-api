@@ -23,17 +23,31 @@ class CompanyController extends Controller
         DB::beginTransaction();
         try {
 	        $user = getUser();
-            $whereRaw = $this->getWhereRawFromRequest($request);
-	        if($whereRaw != '') { 
-                $query =  CompanyWorkShift::whereRaw($whereRaw)
-                ->orderBy('id', 'DESC');
-            } else {
-                $query = CompanyWorkShift::orderBy('id', 'DESC');
-            }
+	        $query = CompanyWorkShift::orderBy('id', 'DESC');
 
             if(!empty($request->shift_type))
             {
                 $query->where('shift_type' ,$request->shift_type);
+            }
+            if(!empty($request->shift_name))
+            {
+                $query->where('shift_name' ,$request->shift_name);
+            }
+            if(!empty($request->shift_start_time))
+            {
+                $start_time = str_replace(':', '', $request->shift_start_time);
+                // $query->whereDate('shift_start_time',">=" ,$request->shift_start_time);
+                $query->where(\DB::raw("DATE_FORMAT(shift_start_time, '%H%i')"), '>=',$start_time);
+            }
+
+            if(!empty($request->shift_end_time))
+            {
+                $end_time = str_replace(':', '', $request->shift_end_time);
+                $query->where(\DB::raw("DATE_FORMAT(shift_end_time, '%H%i')"), '>=',$end_time);
+            }
+            if(!empty($request->status))
+            {
+                $query->where('status', $request->status);
             }
 		    
             if(!empty($request->perPage))
@@ -191,42 +205,6 @@ class CompanyController extends Controller
         }
     }
 
-    private function getWhereRawFromRequest(Request $request) 
-    {
-        $w = '';
-        if (is_null($request->input('status')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
-        }
-        if (is_null($request->input('shift_name')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "shift_name like '%" .trim(strtolower($request->input('shift_name'))) . "%')";
-             
-        }
-        if (is_null($request->shift_start_time) == false || is_null($request->shift_end_time) == false) {
-           
-            if ($w != '') {$w = $w . " AND ";}
-
-            if ($request->shift_start_time != '')
-            {
-              $w = $w . "("."shift_start_time >= '".date('y-m-d',strtotime($request->shift_start_time))."')";
-            }
-            if (is_null($request->shift_start_time) == false && is_null($request->shift_end_time) == false) 
-                {
-
-              $w = $w . " AND ";
-            }
-            if ($request->shift_end_time != '')
-            {
-                $w = $w . "("."shift_start_time <= '".date('y-m-d',strtotime($request->shift_end_time))."')";
-            }
-            
-          
-           
-        }
-        return($w);
-
-    }
 
     public function companySubscriptionExtend(Request $request)
     {
