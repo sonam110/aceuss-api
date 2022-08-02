@@ -55,46 +55,64 @@ class UserController extends Controller
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
-    		$query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','employee_type','is_password_change','status','step_one','step_two','step_three','step_four','step_five', 
-    			DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1) ipCount"), 
+    		$query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five','users.report_verify','users.verification_method', 
+    			DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1 AND start_date >= ".$date.") ipCount"), 
     			DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), 
-    			DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id  AND is_latest_entry = 1) patientActivityCount"), 
+    			DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id  AND is_latest_entry = 1 AND start_date >= ".$date.") patientActivityCount"), 
     			DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), 
-    			DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND is_latest_entry = 1) patientTaskCount"), 
+    			DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND is_latest_entry = 1 AND start_date >= ".$date.") patientTaskCount"), 
     			DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
     			DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
-    			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))->where('top_most_parent_id',$this->top_most_parent_id)
+    			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
+            ->where('users.top_most_parent_id',$this->top_most_parent_id)
+            ->withoutGlobalScope('top_most_parent_id')
     		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
-                $query =  $query->where('id', '!=',$user->id);
+                $query =  $query->where('users.id', '!=',$user->id);
     		}
     		else
     		{
     			$query =  $query->where(function ($q) use ($user) {
-    				$q->where('id', $user->id)
-    				->orWhere('id', $user->parent_id);
+    				$q->where('users.id', $user->id)
+    				->orWhere('users.id', $user->parent_id);
     			});
     		}
 
+
+
     		if($user->user_type_id =='2') {
-    			$query = $query->orderBy('id','DESC');
+    			$query = $query->orderBy('users.id','DESC');
     		} else{
-    			$query =  $query->whereIn('branch_id',$allChilds);
+    			$query =  $query->whereIn('users.branch_id',$allChilds);
     		}
     		$whereRaw = $this->getWhereRawFromRequest($request);
     		if($whereRaw != '') {
-    			$query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
+    			$query = $query->whereRaw($whereRaw)->orderBy('users.id', 'DESC');
     		} else {
-    			$query = $query->orderBy('id', 'DESC');
+    			$query = $query->orderBy('users.id', 'DESC');
     		}
             if(!empty($request->joining_date))
             {
-                $query->where('joining_date','<', $request->joining_date);
+                $query->where('users.joining_date','<', $request->joining_date);
             }
             if(!empty($request->employee_type))
             {
-                $query->where('employee_type', $request->employee_type);
+                $query->where('users.employee_type', $request->employee_type);
+            }
+            if(!empty($request->gender))
+            {
+                $query->where('users.gender', $request->gender);
+            }
+            if(!empty($request->patient_type_id))
+            {
+                $query->whereJsonContains('users.patient_type_id', $request->patient_type_id);
+            }
+            if(!empty($request->ip_id))
+            {
+                $query->join('patient_implementation_plans', function ($join) {
+                    $join->on('users.id', '=', 'patient_implementation_plans.user_id');
+                });
             }
     		if(!empty($request->perPage))
     		{
@@ -242,6 +260,7 @@ class UserController extends Controller
             $user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
             $user->report_verify = $request->report_verify;
+            $user->verification_method = $request->verification_method;
     		$user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required == true) ? 1:0;
     		$user->is_secret = ($request->is_secret == true) ? 1:0;
@@ -597,6 +616,7 @@ class UserController extends Controller
     		$user->employee_type = $request->employee_type;
             $user->contract_type = $request->contract_type;
             $user->report_verify = $request->report_verify;
+            $user->verification_method = $request->verification_method;
             $user->contract_value = $request->contract_value;
     		$user->is_file_required = ($request->is_file_required) ? 1:0;
     		$user->is_secret = ($request->is_secret) ? 1:0;
@@ -831,97 +851,34 @@ class UserController extends Controller
     	}
     }
 
-    private function getWhereRawFromRequest(Request $request) 
-    {
-    	$w = '';
-    	if (is_null($request->input('status')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
-    	}
-    	if (is_null($request->input('user_type_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "user_type_id = "."'" .$request->input('user_type_id')."'".")";
-    	}
-
-    	if (is_null($request->input('branch_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
-    	}
-
-    	if (is_null($request->input('parent_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
-    	}
-    	if (is_null($request->input('category_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
-    	}
-    	if (is_null($request->input('dept_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "dept_id = "."'" .$request->input('dept_id')."'".")";
-    	}
-    	if (is_null($request->input('patient_type_id')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "patient_type_id = "."'" .$request->input('patient_type_id')."'".")";
-    	}
-    	if (is_null($request->input('name')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "name like '%" .trim(strtolower($request->input('name'))) . "%')";
-
-    	}
-    	if (is_null($request->input('email')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "email like '%" .trim(strtolower($request->input('email'))) . "%')";
-
-    	}
-    	if (is_null($request->input('contact_number')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "contact_number like '%" .trim(strtolower($request->input('contact_number'))) . "%')";
-
-    	}
-    	if (is_null($request->input('personal_number')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "personal_number like '%" .trim(strtolower($request->input('personal_number'))) . "%')";
-
-    	}
-    	if (is_null($request->input('organization_number')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "organization_number like '%" .trim(strtolower($request->input('organization_number'))) . "%')";
-
-    	}
-    	return($w);
-
-    }
-
-
     public function getLicenceStatus()
     {
-    	try 
-    	{
-    		$licenceKeyData = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->orderBy('id','desc')->first();
+        try 
+        {
+            $licenceKeyData = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->orderBy('id','desc')->first();
 
-    		if(empty($licenceKeyData))
-    		{
-    			return prepareResult(false,getLangByLabelGroups('LicenceKey','message_data_doesnt_exist') ,[], config('httpcodes.success'));
-    		}
+            if(empty($licenceKeyData))
+            {
+                return prepareResult(false,getLangByLabelGroups('LicenceKey','message_data_doesnt_exist') ,[], config('httpcodes.success'));
+            }
 
-    		if($licenceKeyData->expire_at >= date('Y-m-d'))
-    		{
-    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,'active', config('httpcodes.success'));
-    		}
-    		else
-    		{
+            if($licenceKeyData->expire_at >= date('Y-m-d'))
+            {
+                return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_active') ,'active', config('httpcodes.success'));
+            }
+            else
+            {
                 $companyStatus = User::find(auth()->user()->top_most_parent_id);
                 $companyStatus->licence_status = 0;
                 $companyStatus->save();
 
-    			return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_inactive') ,'inactive', config('httpcodes.success'));
-    		}
-    	} catch (\Throwable $exception) {
-    		\Log::error($exception);
-    		DB::rollback();
-    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-    	}
+                return prepareResult(true,getLangByLabelGroups('LicenceKey','message_status_inactive') ,'inactive', config('httpcodes.success'));
+            }
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
     }
 
     public function emailUpdate(Request $request,User $user)
@@ -955,6 +912,71 @@ class UserController extends Controller
             return prepareResult(false, $exception->getMessage(),[],'500');
         }
     }
+
+    private function getWhereRawFromRequest(Request $request) 
+    {
+    	$w = '';
+    	if (is_null($request->input('status')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.status = "."'" .$request->input('status')."'".")";
+    	}
+    	if (is_null($request->input('user_type_id')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.user_type_id = "."'" .$request->input('user_type_id')."'".")";
+    	}
+
+    	if (is_null($request->input('branch_id')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.branch_id = "."'" .$request->input('branch_id')."'".")";
+    	}
+
+    	if (is_null($request->input('parent_id')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.parent_id = "."'" .$request->input('parent_id')."'".")";
+    	}
+    	if (is_null($request->input('category_id')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.category_id = "."'" .$request->input('category_id')."'".")";
+    	}
+    	if (is_null($request->input('dept_id')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.dept_id = "."'" .$request->input('dept_id')."'".")";
+    	}
+    	// if (is_null($request->input('patient_type_id')) == false) {
+    	// 	if ($w != '') {$w = $w . " AND ";}
+    	// 	$w = $w . "(" . "patient_type_id = "."'" .$request->input('patient_type_id')."'".")";
+    	// }
+    	if (is_null($request->input('name')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.name like '%" .trim(strtolower($request->input('name'))) . "%')";
+
+    	}
+    	if (is_null($request->input('email')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.email like '%" .trim(strtolower($request->input('email'))) . "%')";
+
+    	}
+    	if (is_null($request->input('contact_number')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.contact_number like '%" .trim(strtolower($request->input('contact_number'))) . "%')";
+
+    	}
+    	if (is_null($request->input('personal_number')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.personal_number like '%" .trim(strtolower($request->input('personal_number'))) . "%')";
+
+    	}
+    	if (is_null($request->input('organization_number')) == false) {
+    		if ($w != '') {$w = $w . " AND ";}
+    		$w = $w . "(" . "users.organization_number like '%" .trim(strtolower($request->input('organization_number'))) . "%')";
+
+    	}
+    	return($w);
+
+    }
+
+
+    
 
 
 }

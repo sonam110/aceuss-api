@@ -83,6 +83,7 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->default('https://aceuss.3mad.in/uploads/no-image.png')->nullable();
             $table->date('schedule_start_date')->nullable();
             $table->enum('report_verify', ['yes','no'])->default('no')->nullable();
+            $table->enum('verification_method', ['normal','bank_id'])->default('normal')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

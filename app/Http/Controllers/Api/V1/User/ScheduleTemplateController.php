@@ -320,11 +320,12 @@ class ScheduleTemplateController extends Controller
 				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_already_deactivated'), ['Once deactivated can not be Activated.'],config('httpcodes.bad_request'));
 			}
 			$activation_date =  $scheduleTemplate->activation_date;
+			$deactivation_date = $scheduleTemplate->deactivation_date;
 			if($request->status == 1 && $scheduleTemplate->status == 0)
 			{
 				$activation_date =  date('Y-m-d');
 			}
-			else
+			if($request->status == 0 && $scheduleTemplate->status == 1)
 			{
 				$deactivation_date =  date('Y-m-d');
 			}

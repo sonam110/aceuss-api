@@ -28,7 +28,7 @@ use App\Models\Deviation;
 
 class CompanyAccountController extends Controller
 {
-     public function __construct()
+    public function __construct()
     {
 
         $this->middleware('permission:companies-browse',['except' => ['show']]);
@@ -43,8 +43,29 @@ class CompanyAccountController extends Controller
     public function companies(Request $request)
     {
         try {
+            $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $user = getUser();
-            $query = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')->where('role_id','2') ;
+            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','employee_type','is_password_change','status','step_one','step_two','step_three','step_four','step_five')
+            ->where('status','1')
+            ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')
+            ->withCount(
+                [
+                    'tasks' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date);
+                    },
+                    'activities' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date);
+                    },
+                    'ips' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date);
+                    },
+                    'followUps' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date);
+                    },
+                    'patients','employees','assignedModule','branchs'
+                ]
+            )
+            ->where('role_id','2') ;
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') {
                 $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
@@ -54,7 +75,7 @@ class CompanyAccountController extends Controller
 
             if(!empty($request->company_type_id))
             {
-                $query->whereIn('company_type_id', $request->company_type_id);
+                $query->whereJsonContains('company_type_id', $request->company_type_id);
             }
 
             if(!empty($request->contact_number))
