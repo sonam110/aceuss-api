@@ -42,6 +42,7 @@ class PatientController extends Controller
 
     public function ipsList(Request $request)
     {
+        $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
         try {
             $user = getUser();
             if(!empty($user->branch_id)) {
@@ -55,10 +56,16 @@ class PatientController extends Controller
             $query = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
             ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','ipFollowUps','branch:id,name')
-            ->withCount('ipFollowUps','activities')
             ->with(
                 ['patient' => function ($query) {
                     $query->withCount(['persons','patientPlan','patientActivity']);
+                }]
+            )
+            ->withCount(
+                ['ipFollowUps' => function ($query) use ($date) {
+                    $query->where('start_date','>=',$date);
+                },'activities' => function ($query) use ($date) {
+                    $query->where('start_date','>=',$date);
                 }]
             );
 

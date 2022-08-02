@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\UserScheduledDate;
 use App\Exports\EmployeeWorkingHoursExport;
 use App\Exports\PatientAssignedHoursExport;
+use App\Models\PatientImplementationPlan;
 
 class ScheduleController extends Controller
 {
@@ -40,6 +41,14 @@ class ScheduleController extends Controller
 		{
 			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','patient:id,name,branch_id')->where('is_active',1);
 
+			if($request->leave_applied == '0')
+			{
+				$query->where('leave_applied' ,0);
+			}
+			if($request->leave_applied == '1')
+			{
+				$query->where('leave_applied' ,1);
+			}
 			if(!empty($request->shift_id))
 			{
 				$query->where('shift_id' ,$request->shift_id);
@@ -132,7 +141,10 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','patient:id,name,branch_id')->where('is_active',1)->with('user:id,user_type_id,name,branch_id','user.branch:id,name','patient:id,user_type_id,name,branch_id','patient.branch:id,name');
+			$query = Schedule::orderBy('created_at', 'DESC')
+			->with('user:id,name,gender','patient:id,name,branch_id')
+			->where('is_active',1)
+			->with('user:id,user_type_id,name,branch_id','user.branch:id,name','patient:id,user_type_id,name,branch_id','patient.branch:id,name');
 
 			if(!empty($request->shift_id))
 			{
@@ -199,7 +211,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company']);
 
 				$pagination =  [
 					'data' => $result,
@@ -212,7 +224,7 @@ class ScheduleController extends Controller
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company']);
 			}
 
 			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
@@ -1300,9 +1312,14 @@ class ScheduleController extends Controller
 				->where('leave_applied', 0)
 				->where('shift_date', '>',date('Y-m-d'))       
 				->first()->planned_hours)*60;
+				
+				$data[$patient_id]['ips'] = PatientImplementationPlan::where('user_id',$patient_id)
+				->where('is_latest_entry',1)
+				->where('status',1)
+				->get(['id','title','start_date','end_date']);
 			}
 			
-			return prepareResult(true, 'Patient Hours.' ,$data, config('httpcodes.success'));
+			return prepareResult(true, 'Patient Data.' ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

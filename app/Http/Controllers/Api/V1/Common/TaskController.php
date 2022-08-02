@@ -127,13 +127,6 @@ class TaskController extends Controller
             {
                 $taskCounts->where('resource_id', $request->resource_id);
             }
-            
-
-            $whereRaw2 = $this->getWhereRawFromRequestOther($request);
-
-            if($whereRaw2 != '') { 
-                $taskCounts = $taskCounts->whereRaw($whereRaw2);
-            }
 
             $taskCounts = $taskCounts->first();
 
@@ -757,22 +750,26 @@ class TaskController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
         }
-        if (is_null($request->input('parent_id')) == false) {
+        if (is_null($request->input('resource_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
+            $w = $w . "(" . "resource_id = "."'" .$request->input('resource_id')."'".")";
         }
         if (is_null($request->input('type_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "type_id = "."'" .$request->input('type_id')."'".")";
         }
-        if (is_null($request->input('branch_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
-        }
-        if (is_null($request->input('created_by')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "created_by = "."'" .$request->input('created_by')."'".")";
-        }
+        // if (is_null($request->input('category_id')) == false) {
+        //     if ($w != '') {$w = $w . " AND ";}
+        //     $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+        // }
+        // if (is_null($request->input('branch_id')) == false) {
+        //     if ($w != '') {$w = $w . " AND ";}
+        //     $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+        // }
+        // if (is_null($request->input('created_by')) == false) {
+        //     if ($w != '') {$w = $w . " AND ";}
+        //     $w = $w . "(" . "created_by = "."'" .$request->input('created_by')."'".")";
+        // }
         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
            
             if ($w != '') {$w = $w . " AND ";}
@@ -811,62 +808,6 @@ class TaskController extends Controller
         		if ($w != '') {$w = $w . " AND ";}
         		$w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
         	}
-        }
-        return($w);
-
-    }
-
-    private function getWhereRawFromRequestOther(Request $request)
-    {
-        $w = '';
-        if (is_null($request->input('ip_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
-        }
-        if (is_null($request->input('patient_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
-        }
-        if (is_null($request->input('branch_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
-        }
-        if (is_null($request->input('category_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
-        }
-
-        if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
-           
-            if ($w != '') {$w = $w . " AND ";}
-
-            if ($request->start_date != '')
-            {
-              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
-            }
-            if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
-                {
-
-              $w = $w . " AND ";
-            }
-            if ($request->end_date != '')
-            {
-                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
-            }
-            
-          
-           
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
-
-             
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " OR ";}
-             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-             
         }
         return($w);
 
