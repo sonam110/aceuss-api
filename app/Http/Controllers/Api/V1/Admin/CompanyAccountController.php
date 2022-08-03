@@ -45,8 +45,8 @@ class CompanyAccountController extends Controller
         try {
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $user = getUser();
-            $query = User::select('id','unique_id','custom_unique_id','user_type_id', 'company_type_id','patient_type_id', 'category_id', 'top_most_parent_id', 'parent_id','branch_id','country_id','city', 'dept_id', 'govt_id','name', 'email', 'email_verified_at','contact_number','user_color', 'gender','organization_number', 'personal_number','joining_date','is_fake','is_secret','employee_type','is_password_change','status','step_one','step_two','step_three','step_four','step_five')
-            ->where('status','1')
+            $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five')
+            ->where('users.status','1')
             ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')
             ->withCount(
                 [
@@ -65,46 +65,55 @@ class CompanyAccountController extends Controller
                     'patients','employees','assignedModule','branchs'
                 ]
             )
-            ->where('role_id','2') ;
-            $whereRaw = $this->getWhereRawFromRequest($request);
-            if($whereRaw != '') {
-                $query = $query->whereRaw($whereRaw)->orderBy('id', 'DESC');
-            } else {
-                $query = $query->orderBy('id', 'DESC');
-            }
+            ->where('users.role_id','2')
+            ->orderBy('users.id', 'DESC');
 
             if(!empty($request->company_type_id))
             {
-                $query->whereJsonContains('company_type_id', $request->company_type_id);
+                $query->whereJsonContains('users.company_type_id', $request->company_type_id);
             }
 
             if(!empty($request->contact_number))
             {
-                $query->where('contact_number', $request->contact_number);
+                $query->where('users.contact_number', $request->contact_number);
             }
 
             if(!empty($request->email))
             {
-                $query->where('email', $request->email);
+                $query->where('users.email', $request->email);
             }
 
             if(!empty($request->name))
             {
-                $query->where('name',"like", "%".$request->name."%");
+                $query->where('users.name',"like", "%".$request->name."%");
             }
 
             if(!empty($request->organization_number))
             {
-                $query->where('organization_number',"like", "%".$request->organization_number."%");
+                $query->where('users.organization_number',"like", "%".$request->organization_number."%");
             }
-            if(!empty($request->status))
+            if(!empty($request->status) && $request->status==1)
             {
-                $query->where('status', $request->status);
+                $query->where('users.status', 1);
+            }
+            elseif(!empty($request->status) && $request->status==0)
+            {
+                $query->where('users.status', 0);
             }
 
             if(!empty($request->licence_end_date))
             {
-                $query->where('licence_end_date', $request->licence_end_date);
+                $query->where('users.licence_end_date', $request->licence_end_date);
+            }
+
+            if(!empty($request->package_id))
+            {
+                $query->join('subscriptions', function($join) use ($request) {
+                    $join->on('users.id', '=', 'subscriptions.user_id');
+                })
+                ->where('subscriptions.package_id', $request->package_id)
+                ->where('subscriptions.status', 1)
+                ->groupBy('subscriptions.user_id');
             }
 
             if(!empty($request->perPage))
@@ -447,15 +456,6 @@ class CompanyAccountController extends Controller
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
-    }
-    
-    private function getWhereRawFromRequest(Request $request) {
-        $w = '';
-        if (is_null($request->input('status')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
-        }
-        return($w);
     }
 
     public function companyStats(Request $request,$id)
