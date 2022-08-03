@@ -40,7 +40,7 @@ class PackageController extends Controller
 
             if(!empty($request->is_sms_enable))
             {
-                $query->where('sms_enable', $request->is_sms_enable);
+                $query->where('is_sms_enable', $request->is_sms_enable);
             }
 
             if(!empty($request->name))
