@@ -96,7 +96,7 @@ class CompanyAccountController extends Controller
             {
                 $query->where('users.status', 1);
             }
-            elseif(!empty($request->status) && $request->status==0)
+            elseif($request->status=='no')
             {
                 $query->where('users.status', 0);
             }
