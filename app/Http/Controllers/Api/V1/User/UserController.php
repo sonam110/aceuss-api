@@ -112,7 +112,8 @@ class UserController extends Controller
             {
                 $query->join('patient_implementation_plans', function ($join) {
                     $join->on('users.id', '=', 'patient_implementation_plans.user_id');
-                });
+                })
+                ->where('patient_implementation_plans.id', $request->ip_id);
             }
     		if(!empty($request->perPage))
     		{

@@ -291,6 +291,9 @@ class LabelSeeder extends Seeder
             'common' => [
                 'cant_delete' => 'You cannot delete this record.',
             ],
+            'Leave' => [
+                'date_must_be_greater_than_today_date' => 'Date must be greater than today date.',
+            ],
             'mobile_web' => [
                "Dashboards" => "Dashboards", 
                "Analytics" => "Analytics", 

@@ -25,6 +25,7 @@ use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
 use App\Events\EventNotification;
+use Str;
 
 function getUser() {
     return auth('api')->user();
@@ -498,7 +499,7 @@ function comment($source_id, $source_namen,$comment)
 }
 
 function generateRandomNumber($len = 12) {
-    return substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'),1,$len);
+    return Str::random($len);
 }
 
 

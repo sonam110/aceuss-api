@@ -132,7 +132,7 @@ class PatientController extends Controller
 
             if(!empty($request->title))
             {
-                $query->where('patient_implementation_plans.title', $request->title);
+                $query->where('patient_implementation_plans.title', 'LIKE', '%'.$request->title.'%');
             }
 
             if(!empty($request->start_date) && !empty($request->end_date))
@@ -161,7 +161,12 @@ class PatientController extends Controller
                 \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_not_approved'),
                 \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_incompleted'),
                 \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_completed'),
-            ])->where('is_latest_entry', 1);
+            ])
+            ->where('is_latest_entry', 1);
+            if(!empty($request->user_id))
+            {
+                $ipCounts->where('patient_implementation_plans.user_id',$request->user_id);
+            }
             if($user->user_type_id =='2'){
 
             } else{
@@ -261,7 +266,7 @@ class PatientController extends Controller
                         $patientPlan->limitations = @$patient['limitations'];
                         $patientPlan->limitation_details = @$patient['limitation_details'];
                         $patientPlan->how_support_should_be_given = @$patient['how_support_should_be_given'];
-                        $patientPlan->who_give_support =  json_encode(@$patient['who_give_support']);
+                        $patientPlan->who_give_support = (!empty(@$patient['who_give_support'])) ? json_encode(@$patient['who_give_support']) : null;
                         $patientPlan->sub_goal = @$patient['sub_goal'];
                         $patientPlan->sub_goal_details = @$patient['sub_goal_details'];
                         $patientPlan->sub_goal_selected = @$patient['sub_goal_selected'];
@@ -276,7 +281,7 @@ class PatientController extends Controller
                         $patientPlan->start_date = @$patient['start_date'];
                         $patientPlan->end_date = @$patient['end_date'];
                         $patientPlan->save_as_template = (@$patient['save_as_template']) ? 1:0;
-                        $patientPlan->documents = json_encode(@$patient['documents']);
+                        $patientPlan->documents = !empty(@$patient['documents']) ? json_encode(@$patient['documents']) : null;
                         $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
                         $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
                         $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;
@@ -1062,35 +1067,35 @@ class PatientController extends Controller
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.status = "."'" .$request->input('status')."'".")";
         }
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "id = "."'" .$request->input('ip_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.id = "."'" .$request->input('ip_id')."'".")";
         }
         if (is_null($request->input('parent_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "parent_id = "."'" .$request->input('parent_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.parent_id = "."'" .$request->input('parent_id')."'".")";
         }
         if (is_null($request->input('user_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "user_id = "."'" .$request->input('user_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.user_id = "."'" .$request->input('user_id')."'".")";
         }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.branch_id = "."'" .$request->input('branch_id')."'".")";
         }
         if (is_null($request->input('category_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.category_id = "."'" .$request->input('category_id')."'".")";
         }
          if (is_null($request->input('subcategory_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "subcategory_id = "."'" .$request->input('subcategory_id')."'".")";
+            $w = $w . "(" . "patient_implementation_plans.subcategory_id = "."'" .$request->input('subcategory_id')."'".")";
         }
         if (is_null($request->input('goal')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "goal_id like '%" .trim(strtolower($request->input('goal_id'))) . "%')";
+             $w = $w . "(" . "patient_implementation_plans.goal_id like '%" .trim(strtolower($request->input('goal_id'))) . "%')";
 
              
         }

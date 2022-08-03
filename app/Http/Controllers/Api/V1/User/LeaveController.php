@@ -367,6 +367,10 @@ class LeaveController extends Controller
 			if (!is_object($checkId)) {
 				return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
+			if(strtotime($checkId->shift_date)<=strtotime(date('Y-m-d')))
+			{
+				return prepareResult(false,getLangByLabelGroups('Leave','date_must_be_greater_than_today_date'), [],config('httpcodes.not_found'));
+			}
 			Schedule::where('id',$id)->delete();
 			return prepareResult(true,getLangByLabelGroups('Leave','message_delete') ,[], config('httpcodes.success'));
 		} catch (\Throwable $exception) {
