@@ -343,27 +343,41 @@ class ScheduleTemplateController extends Controller
 
 			if($request->status == 1)
 			{
+				if(Schedule::where('schedule_template_id',$id)->where('user_id','!=',null)->count() < 1)
+				{
+					return prepareResult(false, getLangByLabelGroups('ScheduleTemplate','message_cannot_activate'),['can not activate as it has not user assigned schedules.'], config('httpcodes.internal_server_error'));
+				}
 				$schedules = Schedule::where('schedule_template_id',$id)->where('shift_start_time','>',date('Y-m-d H:i:s'))->get();
 
 				foreach ($schedules as $key => $schedule) {
 					$check = Schedule::where('user_id',$schedule->user_id)
+					->where('user_id','!=',null)
 					->where('shift_date',$schedule->shift_date)
 					->where('is_active',1)
 					->where('id',"!=",$schedule->id)
-					->where(function($query) use($schedule) {
-						$query->where(function($query) use ($schedule) {
-							$query->where('shift_start_time',">=",$schedule->shift_start_time)
-							->where('shift_start_time',"<=",$schedule->shift_end_time);
-						})
-						->orWhere(function($query) use ($schedule) {
-							$query->where('shift_end_time',">=",$schedule->shift_start_time)
-							->where('shift_end_time',"<=",$schedule->shift_end_time);
-						});
-					})
+					// ->where(function($query) use($schedule) {
+					// 	$query->where(function($query) use ($schedule) {
+					// 		$query->where('shift_start_time',">=",$schedule->shift_start_time)
+					// 		->where('shift_start_time',"<=",$schedule->shift_end_time);
+					// 	})
+					// 	->orWhere(function($query) use ($schedule) {
+					// 		$query->where('shift_end_time',">=",$schedule->shift_start_time)
+					// 		->where('shift_end_time',"<=",$schedule->shift_end_time);
+					// 	});
+					// })
 					->first();
 					if(!empty($check))
 					{
-						$messages[] = "schedule Id - ".$check->id." / User Id - ".$check->user_id." / start-end-time : ".$check->shift_start_time."-".$check->shift_end_time;
+						$messages[] = [
+							"schedule_id"=>$check->id,
+							"schedule_template_id"=>$check->schedule_template_id,
+							"schedule_template_name"=>$check->scheduleTemplate->title,
+							"user_id"=>$check->user_id,
+							"emp_name"=>$check->user ? $check->user->name : '',
+							"patient_name"=>$check->patient ? $check->patient->name : "",
+							"start_time"=>$check->shift_start_time,
+							"end_time"=>$check->shift_end_time
+						];
 					}
 				}
 				if(!empty($messages))
@@ -374,6 +388,10 @@ class ScheduleTemplateController extends Controller
 			}
 			else
 			{
+				if(ScheduleTemplate::where('status',1)->where('id','!=',$request->schedule_template_id)->count() <1)
+				{
+					return prepareResult(false, getLangByLabelGroups('ScheduleTemplate','message_cannot_deactivate'),['can not deactivate as it is only active template'], config('httpcodes.internal_server_error'));
+				}
 				Schedule::where('schedule_template_id',$id)->update(['is_active' => $request->status]);
 			}
 			DB::commit();

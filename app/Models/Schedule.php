@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\TopMostParentId;
 use App\Models\User;
 use App\Models\CompanyWorkShift;
+use App\Models\ScheduleTemplate;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -31,6 +33,10 @@ class Schedule extends Model
     public function patient()
     {
         return $this->belongsTo(User::class,'patient_id','id');
+    }
+    public function scheduleTemplate()
+    {
+        return $this->belongsTo(ScheduleTemplate::class,'schedule_template_id','id');
     }
 
     public function companyWorkShift()

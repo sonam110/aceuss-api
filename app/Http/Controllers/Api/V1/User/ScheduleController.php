@@ -107,6 +107,14 @@ class ScheduleController extends Controller
 			{
 				$query->where('leave_group_id','like','%'.$request->leave_group_id.'%');
 			}
+			if($request->status == '0')
+			{
+				$query->where('status' ,0);
+			}
+			if($request->status == '1')
+			{
+				$query->where('status' ,1);
+			}
 
 			if(!empty($request->perPage))
 			{
@@ -123,14 +131,14 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"Schedule list",$pagination,config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$pagination,config('httpcodes.success'));
 			}
 			else
 			{
 				$query = $query->get();
 			}
 
-			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -204,6 +212,14 @@ class ScheduleController extends Controller
 			{
 				$query->where('leave_group_id','like','%'.$request->leave_group_id.'%');
 			}
+			if($request->status == '0')
+			{
+				$query->where('status' ,0);
+			}
+			if($request->status == '1')
+			{
+				$query->where('status' ,1);
+			}
 
 			if(!empty($request->perPage))
 			{
@@ -220,14 +236,14 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"Schedule list",$pagination,config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$pagination,config('httpcodes.success'));
 			}
 			else
 			{
 				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company']);
 			}
 
-			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -411,95 +427,12 @@ class ScheduleController extends Controller
 			DB::commit();
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
 			
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_created') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-		}
-	}
-
-	public function update(Request $request,$id){
-		DB::beginTransaction();
-		try 
-		{
-			$schedule = Schedule::find($id);
-			if (!is_object($schedule)) {
-				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), ['schedule not found'],config('httpcodes.not_found'));
-			}
-
-			$shift_name 		= $schedule->shift_name;
-			$shift_color 		= $schedule->shift_color;
-
-			if(!empty($request->shift_id))
-			{
-				$shift = CompanyWorkShift::find($request->shift_id);
-				if (!is_object($shift)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
-				}
-
-				$shift_name 		= $shift->shift_name;
-				$shift_color 		= $shift->shift_color;
-			}
-			$shift_date = date('Y-m-d', strtotime($request->shift_date));
-			$date = !empty($request->shift_date) ? $shift_date : $schedule->shift_date;
-			
-			$startEndTime = getStartEndTime($request->shift_start_time, $request->shift_end_time, $date);
-			$shift_start_time = $startEndTime['start_time'];
-			$shift_end_time = $startEndTime['end_time'];
-			$assignedWork_id = null;
-			$assignedWork = null;
-			if(!empty(User::find($schedule->user_id)->assignedWork))
-			{
-				$assignedWork = User::find($schedule->user_id)->assignedWork;
-				$assignedWork_id = $assignedWork->id;
-			}
-
-			$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$request->schedule_type);
-
-			$schedule->top_most_parent_id = $request->top_most_parent_id;
-			$schedule->user_id = $schedule->user_id;
-			$schedule->patient_id = $request->patient_id;
-			$schedule->branch_id = $request->branch_id;
-			$schedule->shift_id = $request->shift_id;
-			$schedule->parent_id = $request->parent_id;
-			$schedule->created_by = Auth::id();
-			$schedule->slot_assigned_to = $request->slot_assigned_to;
-			$schedule->employee_assigned_working_hour_id = $assignedWork_id;
-			$schedule->schedule_template_id = $request->schedule_template_id;
-			$schedule->schedule_type = $request->schedule_type;
-			$schedule->shift_date = $date;
-			$schedule->group_id = $schedule->group_id;
-			$schedule->shift_name = $shift_name;
-			$schedule->shift_color = $shift_color;
-			$schedule->shift_start_time = $shift_start_time;
-			$schedule->shift_end_time = $shift_end_time;
-			$schedule->leave_applied = 0;
-			$schedule->leave_group_id = null;
-			$schedule->leave_type = null;
-			$schedule->leave_reason = null;
-			$schedule->leave_approved = 0;
-			$schedule->leave_approved_by = null;
-			$schedule->leave_approved_date_time = null;
-			$schedule->leave_notified_to = null;
-			$schedule->notified_group = null;
-			$schedule->is_active = 1;
-			$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-			$schedule->extra_work_duration = $result['extra_work_duration'];
-			$schedule->ob_work_duration = $result['ob_work_duration'];
-			$schedule->ob_type = $result['ob_type'];
-			$schedule->status = $request->status ? $request->status :0;
-			$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
-			$schedule->save();
-			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_update') ,$schedule, config('httpcodes.success'));
-		}
-		catch(Exception $exception) {
-			\Log::error($exception);
-			DB::rollback();
-			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 	}
 
@@ -623,7 +556,6 @@ class ScheduleController extends Controller
 			{
 				$query->whereIn('user_id', $request->user_ids);
 			}
-            // if(!empty())
 			$query = $query->get();
 			$data = [];
 
@@ -757,6 +689,14 @@ class ScheduleController extends Controller
 			if(!empty($request->sort_by_name))
 			{
 				$users->orderBy('name' ,$request->sort_by_name);
+			}
+			if($request->status == '0')
+			{
+				$query->where('status' ,0);
+			}
+			if($request->status == '1')
+			{
+				$query->where('status' ,1);
 			}
 			
 

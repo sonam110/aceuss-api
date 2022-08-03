@@ -101,7 +101,7 @@ class OVHourController extends Controller
         elseif(empty($request->start_time))
         {
             $validation = \Validator::make($request->all(), [
-                'date'      => 'required',
+                'dates'      => 'required',
             ]);
 
             if ($validation->fails()) {

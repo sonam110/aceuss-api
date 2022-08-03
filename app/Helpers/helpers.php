@@ -25,7 +25,7 @@ use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
 use App\Events\EventNotification;
-use Str;
+use Str as Str;
 
 function getUser() {
     return auth('api')->user();
