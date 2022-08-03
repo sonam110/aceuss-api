@@ -433,5 +433,7 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'fileLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'fileLog-browse','belongs_to'=>'2']);
 
+        Permission::create(['name' => 'files-upload-for-usertype', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-upload-for-usertype','belongs_to'=>'1']);
+
     }
 }

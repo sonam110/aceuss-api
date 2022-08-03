@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
             $adminUser->assignRole($adminRole);
             
 
-            $adminPermissions = Permission::select('id','name')->whereIn('belongs_to',['1','3'])->get();
+            /*$adminPermissions = Permission::select('id','name')->whereIn('belongs_to',['1','3'])->get();
             foreach ($adminPermissions as $key => $permission) {
                 $addedPermission = $permission->name;
                 $adminRole->givePermissionTo($addedPermission);
@@ -63,7 +63,7 @@ class UserSeeder extends Seeder
             foreach ($roles as $key => $role) {
                 $defaultPermission = Permission::select('id','name')->where('id','11')->first(); 
                 $role->givePermissionTo($defaultPermission->name);
-            }
+            }*/
 
             $companyType1 = CompanyType::create(['id' => '1','created_by'=>'1','name' => 'Group Living']);
             $companyType2 = CompanyType::create(['id' => '2','created_by'=>'1','name' => 'Home Living']);
