@@ -71,7 +71,7 @@ class ActivityController extends Controller
 
 			if(!empty($request->title))
 			{
-				$query->where('title', $request->title);
+				$query->where('title', 'LIKE', '%'.$request->title.'%');
 			}
 
 			if(!empty($request->start_date))

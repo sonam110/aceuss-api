@@ -34,7 +34,7 @@ class OVHourController extends Controller
 
             if(!empty($request->title))
             {
-                $query->where('title','like','%'.$request->title.'%');
+                $query->where('title', 'LIKE', '%'.$request->title.'%');
             }
 
             if(!empty($request->start_time))
