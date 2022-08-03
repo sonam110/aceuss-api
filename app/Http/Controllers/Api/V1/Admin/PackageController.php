@@ -45,8 +45,9 @@ class PackageController extends Controller
 
             if(!empty($request->name))
             {
-                $query->where('name', $request->name);
+                $query->where('name', 'LIKE', '%'.$request->name.'%');
             }
+            
             if(!empty($request->number_of_employees))
             {
                 $query->where('number_of_employees', $request->number_of_employees);
