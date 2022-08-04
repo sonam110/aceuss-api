@@ -115,7 +115,8 @@ class User extends Authenticatable
         'avatar',
         'schedule_start_date',
         'report_verify',
-        'verification_method'
+        'verification_method',
+        'contact_person_number'
     ];
 
     /**

@@ -11,6 +11,8 @@ use App\Console\Commands\taskNotify;
 use App\Console\Commands\SystemLogout;
 use App\Console\Commands\DatabaseBackUp;
 use App\Console\Commands\NotifyBirthday;
+use App\Console\Commands\VerifyScheduleReminder;
+use App\Console\Commands\AutoVerifySchedule;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,6 +24,7 @@ class Kernel extends ConsoleKernel
         Commands\DatabaseBackUp::class,
         Commands\NotifyBirthday::class,
         Commands\VerifyScheduleReminder::class,
+        Commands\AutoVerifySchedule::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -36,6 +39,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('system:logout')->sundays('06:00');
         $schedule->command('notify:birthday')->dailyAt('09:00');
         $schedule->command('verify_schedule:reminder')->dailyAt('09:00');
+        $schedule->command('auto_verify:schedule')->monthlyOn(1, '00:01');
     }
 
     protected function commands()

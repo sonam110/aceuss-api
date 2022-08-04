@@ -45,7 +45,7 @@ class CompanyAccountController extends Controller
         try {
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $user = getUser();
-            $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five')
+            $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number', 'users.contact_person_name', 'users.contact_person_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five')
             ->where('users.status','1')
             ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')
             ->withCount(
@@ -70,7 +70,7 @@ class CompanyAccountController extends Controller
 
             if(!empty($request->company_type_id))
             {
-                $query->whereJsonContains('users.company_type_id', $request->company_type_id);
+                $query->whereJsonContains('users.company_type_id', strval($request->company_type_id));
             }
 
             if(!empty($request->contact_number))
@@ -200,6 +200,8 @@ class CompanyAccountController extends Controller
             $user->contract_value = $request->contract_value;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
@@ -386,6 +388,7 @@ class CompanyAccountController extends Controller
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();

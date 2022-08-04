@@ -12,6 +12,7 @@ use Auth;
 use Exception;
 use App\Models\User;
 use App\Models\Label;
+use App\Models\Module;
 use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\SmsLog;
@@ -138,6 +139,51 @@ class NoAuthController extends Controller
                 $query = $query->get();
             }
             return prepareResult(true,"Email Template List",$query,config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
+
+    public function getModules(Request $request)
+    {
+        try{
+
+            $query = Module::orderBy('id', 'DESC');
+            if(!empty($request->name))
+            {
+                $query->where('name','like','%'.$request->name.'%');
+            }
+            if($request->status == '0')
+            {
+                $query->where('status' ,0);
+            }
+            if($request->status == '1')
+            {
+                $query->where('status' ,1);
+            }
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,"Modules List",$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            return prepareResult(true,"Modules List",$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

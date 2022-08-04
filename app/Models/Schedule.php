@@ -56,7 +56,7 @@ class Schedule extends Model
 
     public function getTotalHoursAttribute($value)
     {
-        return $this->scheduled_work_duration + $this->extra_work_duration + $this->ob_work_duration + $this->emergency_work_duration;
+        return (float) $this->scheduled_work_duration + (float) $this->extra_work_duration + (float) $this->ob_work_duration + (float) $this->emergency_work_duration;
     }
 
     public function scheduleDates()

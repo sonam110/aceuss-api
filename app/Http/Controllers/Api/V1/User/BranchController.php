@@ -83,6 +83,8 @@ class BranchController extends Controller
             $user->created_by = $userInfo->id;
             $user->is_file_required = ($request->is_file_required) ? 1 : 0;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
+            $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_number = $request->contact_person_number;
             $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->save();
 
@@ -173,6 +175,8 @@ class BranchController extends Controller
             $user->user_color = $request->user_color;
             $user->is_file_required = ($request->is_file_required) ? 1 : 0;
             $user->status = ($request->status) ? $request->status : 1;
+            $user->contact_person_number = $request->contact_person_number;
+            $user->contact_person_name = $request->contact_person_name;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
             $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
             $user->save();

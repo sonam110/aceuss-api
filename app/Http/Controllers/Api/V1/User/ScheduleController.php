@@ -362,7 +362,7 @@ class ScheduleController extends Controller
 							$schedule->ob_type = $result['ob_type'];
 							$schedule->ob_start_time = $result['ob_start_time'];
 							$schedule->ob_end_time = $result['ob_end_time'];
-							$schedule->status = $request->status ? $request->status :0;
+							$schedule->status = 0;
 							$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 							$schedule->save();
 
@@ -930,11 +930,26 @@ class ScheduleController extends Controller
 			{
 				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration','approved_by_company','verified_by_employee']);
 
-				foreach ($schedules as $key => $value) {
-					$value->hours = $value->scheduled_work_duration + $value->emergency_work_duration + $value->ob_work_duration + $value->extra_work_duration;
-				}
+				// foreach ($schedules as $key => $value) {
+				// 	$value->hours = $value->scheduled_work_duration + $value->emergency_work_duration + $value->ob_work_duration + $value->extra_work_duration;
+				// }
+				$scheduled_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('scheduled_work_duration');
+				$extra_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('extra_work_duration');
+				$emergency_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('emergency_work_duration');
+				$ob_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('ob_work_duration');
+				$vacation_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('vacation_duration');
+				$total_hours = $scheduled_work_duration + $extra_work_duration + $emergency_work_duration + $ob_work_duration + $vacation_duration;
 
-				$data[] = ["date" => $shift_date,"schedules" => $schedules];
+				$data[] = [
+					"date" => $shift_date,
+					"schedules" => $schedules,
+					"scheduled work duration" => $scheduled_work_duration,
+					"extra_work_duration" => $extra_work_duration,
+					"ob_work_duration" => $emergency_work_duration,
+					"emergency_work_duration" => $ob_work_duration,
+					"vacation_duration" => $vacation_duration,
+					"total_hour"=>$total_hours
+				];
 			}
 			return prepareResult(true, 'Employee Hours.' ,$data, config('httpcodes.success'));
 		}

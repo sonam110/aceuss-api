@@ -897,7 +897,7 @@ class ActivityController extends Controller
 	    		    '{{title}}'				=> $checkId->title,
 	    		    '{{deleted_by}}'        => Auth::User()->name,
 	    		];
-	    		actionNotification($value,$data_id,$notification_template,$variable_data,$exra_params);
+	    		actionNotification($value,$data_id,$notification_template,$variable_data);
     		}
     		
     		//-----------------------------------------------//

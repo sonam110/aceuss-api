@@ -383,5 +383,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	Route::get('get-label-by-language-id/{id}', 'Common\NoAuthController@getLabelByLanguageId');
 	Route::get('get-languages', 'Common\NoAuthController@getLanguages');
 	Route::get('get-email-templates', 'Common\NoAuthController@getEmailTemplates');
+	Route::post('get-modules', 'Common\NoAuthController@getModules');
+
 	
 });
