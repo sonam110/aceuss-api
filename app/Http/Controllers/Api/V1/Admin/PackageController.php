@@ -25,7 +25,8 @@ class PackageController extends Controller
     public function packages(Request $request)
     {
         try {
-            $query = Package::select(array('packages.*', DB::raw("(SELECT count(*) from subscriptions WHERE packages.id = subscriptions.package_id) purchaseCount")));
+            $query = Package::select(array('packages.*', DB::raw("(SELECT count(*) from subscriptions WHERE packages.id = subscriptions.package_id) purchaseCount")))
+                ->where('status', '!=', '2');
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
                 $query->orderBy('id', 'DESC');
