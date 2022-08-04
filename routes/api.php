@@ -284,6 +284,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 		Route::post('statistics-deviation','User\StatisticsDeviationController@statisticsDeviation');
 		Route::post('get-twm-wise-deviation','User\StatisticsDeviationController@getTWMwiseReport');
+		Route::post('get-month-wise-deviation','User\StatisticsDeviationController@getMonthWiseReport');
 
 		/*------------- Patient Cashier -------------------*/
 		Route::post('patient-cashiers', [App\Http\Controllers\Api\V1\User\PatientCashierController::class, 'patientCashiers']);

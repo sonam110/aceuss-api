@@ -39,7 +39,7 @@ class CreateNotificationsTable extends Migration
             $table->string('screen')->nullable();
             $table->integer('data_id')->nullable();
             $table->boolean('read_status')->default(0);
-            $table->string('extra_param')->nullable();
+            $table->text('extra_param')->nullable();
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });

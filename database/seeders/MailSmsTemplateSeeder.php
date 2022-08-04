@@ -439,6 +439,20 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{modules}},{{rejected_by}},{{reply_date}}{{reply_comment}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'verify-schedule-reminder';
+        $smsTemplate->mail_subject = 'Verify Schedule Reminder';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'schedule';
+        $smsTemplate->event = 'verify-schedule-reminder';
+        $smsTemplate->screen = 'list';
+        $smsTemplate->status_code = 'warning';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your have some unverified schedules this month, please verify...or will be auto verified by system on end of this month.";
+        $smsTemplate->custom_attributes = "{{name}}";
+        $smsTemplate->save();
+
         //----------------------vivek-----------------------------------//
 
         $smsTemplate = new EmailTemplate;

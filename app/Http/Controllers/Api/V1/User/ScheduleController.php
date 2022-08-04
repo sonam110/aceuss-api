@@ -989,7 +989,7 @@ class ScheduleController extends Controller
 						$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
 						$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
 					}
-					$schedule->update(['status'=>1,'approved_by_company'=>1,'verified_by_employee'=>1]);
+					$schedule->update(['status'=>1,'approved_by_company'=>1]);
 				}
 			}
 			
@@ -1240,7 +1240,8 @@ class ScheduleController extends Controller
 				->where('patient_id', $request->patient_id) 
 				->where('shift_date', '>=',$activation_date)
 				->where('shift_date', '<=',$deactivation_date) 
-				->where('leave_applied', 0)    
+				->where('leave_applied', 0) 
+				->where('status', 1)      
 				->first()->completed_hours)*60;
 
 				$data[$patient_id]['patient_planned_hours'] = (Schedule::select([

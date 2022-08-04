@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         Commands\taskNotify::class,
         Commands\DatabaseBackUp::class,
         Commands\NotifyBirthday::class,
+        Commands\VerifyScheduleReminder::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('database:backup')->dailyAt('00:01');
         $schedule->command('system:logout')->sundays('06:00');
         $schedule->command('notify:birthday')->dailyAt('09:00');
+        $schedule->command('verify_schedule:reminder')->dailyAt('09:00');
     }
 
     protected function commands()

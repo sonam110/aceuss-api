@@ -213,18 +213,14 @@ class StatisticsDeviationController extends Controller
         return prepareResult(true,"Deviations",$returnObj,config('httpcodes.success'));
     }
 
-    public function getMonthwiseReport(Request $request)
+    public function getMonthWiseReport(Request $request)
     {
         $datalabels = [];
-        $dataset_total_deviation = [];
-        $dataset_total_signed = [];
-        $dataset_without_activity = [];
-        $dataset_with_activity = [];
-        $dataset_total_completed = [];
+        $data = [];
         for($i = 6; $i>=1; $i--)
         {
-            $month = m('Y-m-d',strtotime('-'.($i-1).' months'));
-            $datalabels[] = $month;
+            $month = date('m',strtotime('-'.($i-1).' months'));
+            $datalabels[] = \Carbon\Carbon::parse('2020-'.$month.'-01')->format('M');
 
             $user = getUser();
             if(!empty($user->branch_id)) {
@@ -236,10 +232,6 @@ class StatisticsDeviationController extends Controller
 
             $query = Deviation::select([
                 \DB::raw('COUNT(id) as total_deviation'),
-                \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
-                \DB::raw('COUNT(IF(activity_id IS NULL, 0, NULL)) as total_without_activity'),
-                \DB::raw('COUNT(IF(activity_id IS NOT NULL, 0, NULL)) as total_with_activity'),
-                \DB::raw('COUNT(IF(is_completed = 1, 0, NULL)) as total_completed'),
             ]);
 
             if(in_array($user->user_type_id, [2,3,4,5,11]))
@@ -267,23 +259,11 @@ class StatisticsDeviationController extends Controller
             {
                 $query->where('patient_id', $request->patient_id);
             }
-            $query->whereDate('date_time', $date);         
+            $query->whereRaw('MONTH(date_time) = '.$month);         
             $result = $query->first();
-            $dataset_total_deviation[] = $result->total_deviation;
-            $dataset_total_signed[] = $result->total_signed;
-            $dataset_without_activity[] = $result->total_without_activity;
-            $dataset_with_activity[] = $result->total_with_activity;
-            $dataset_total_completed[] = $result->total_completed;
+            $data[] = $result->total_deviation;
         }
-
-        $returnObj = [
-            'labels' => $datalabels,
-            'dataset_total_deviation' => $dataset_total_deviation,
-            'dataset_total_signed' => $dataset_total_signed,
-            'dataset_without_activity' => $dataset_without_activity,
-            'dataset_with_activity' => $dataset_with_activity,
-            'dataset_total_completed' => $dataset_total_completed
-        ];
+        $returnObj = ['datalabels'=>$datalabels,'data'=>$data];
         return prepareResult(true,"Deviations",$returnObj,config('httpcodes.success'));
     }
 }
