@@ -11,7 +11,7 @@ class Bookmark extends Model
 {
 	use HasFactory;
 
-    protected $fillable = ['bookmark_master_id', 'user_id'];
+    protected $fillable = ['bookmark_master_id', 'user_id', 'user_types'];
 
     public function User()
     {

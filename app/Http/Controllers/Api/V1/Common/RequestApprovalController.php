@@ -207,7 +207,7 @@ class RequestApprovalController extends Controller
                     $pdf = PDF::loadView('print-ip', $data);
                     $pdf->save('reports/ip/'.$filename);
                     $url = env('CDN_DOC_URL').'reports/ip/'.$filename;
-                    $requestApproved = RequestForApproval::whereIn('id',[$ids])->update(['status'=>'2','other_info'=> $url]);
+                    $requestApproved = RequestForApproval::whereIn('id',$ids)->update(['status'=>'2','other_info'=> $url]);
                     return prepareResult(true,'Download PDF' ,$url, config('httpcodes.success'));
                 }
                 elseif($request->approval_type == '2') {

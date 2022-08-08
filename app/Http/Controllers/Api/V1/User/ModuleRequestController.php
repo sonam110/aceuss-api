@@ -98,6 +98,7 @@ class ModuleRequestController extends Controller
                 '{{request_date}}'   => date('Y-m-d'),
                 '{{request_comment}}'=> $request->request_comment
             ];
+            actionNotification($user,$data_id,$notification_template,$variable_data);
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
 		}
@@ -164,7 +165,7 @@ class ModuleRequestController extends Controller
 			if (!is_object($checkId)) {
 				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
-			return prepareResult(true,'View ModuleRequest' ,$checkId, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_show') ,$checkId, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -214,7 +215,7 @@ class ModuleRequestController extends Controller
 
 			actionNotification($user,$data_id,$notification_template,$variable_data);
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_change_status') ,$moduleRequest, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);

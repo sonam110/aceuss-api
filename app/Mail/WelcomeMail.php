@@ -40,6 +40,7 @@ class WelcomeMail extends Mailable
             'company'       => $companyObj,
             'name'          => $userInfo['name'],
             'email'         => $userInfo['email'],
+            // 'password'      => $userInfo['password'],
             'id'            => $userInfo['id'],
             'content'       => $getTemplate,
             'template_for'  => $template,

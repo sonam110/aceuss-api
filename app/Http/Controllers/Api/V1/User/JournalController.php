@@ -222,14 +222,14 @@ class JournalController extends Controller
                     'total_with_activity' => $journalCounts->total_with_activity,
                     'total_without_activity' => $journalCounts->total_without_activity,
                 ];
-                return prepareResult(true,"Journal list",$pagination,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('Journal','message_list'),$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Journal list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -398,7 +398,7 @@ class JournalController extends Controller
             }
 
         	$data = getJournal($id);
-            return prepareResult(true,'View Journal' ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_show') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -485,7 +485,7 @@ class JournalController extends Controller
             $pdf = PDF::loadView('print-journal', $data);
             $pdf->save('reports/journals/'.$filename);
             $url = env('CDN_DOC_URL').'reports/journals/'.$filename;
-            return prepareResult(true,'Print journal' ,$url, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_print') ,$url, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -512,7 +512,7 @@ class JournalController extends Controller
             ]);
             DB::commit();
             $data = getJournal($request->journal_id);
-            return prepareResult(true,getLangByLabelGroups('Journal','message_sign') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Journal','message_active') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

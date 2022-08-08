@@ -94,6 +94,11 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			Route::post('modules', [App\Http\Controllers\Api\V1\Admin\ModuleController::class, 'modules']);
 			Route::apiResource('module',Admin\ModuleController::class)->only(['store','destroy','show', 'update']);
 
+			/*-------------Bookmark Master------------------------*/
+			Route::post('bookmark-masters', [App\Http\Controllers\Api\V1\Admin\BookmarkMasterController::class, 'bookmarkMasters']);
+			Route::apiResource('bookmark-master',Admin\BookmarkMasterController::class)->only(['store','destroy','show', 'update']);
+
+
 			/*-------------Group------------------------*/
 			Route::post('groups', [App\Http\Controllers\Api\V1\Admin\GroupController::class, 'groups']);
 			Route::apiResource('group',Admin\GroupController::class)->only(['store','destroy','show', 'update']);

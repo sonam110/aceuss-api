@@ -57,14 +57,14 @@ class JournalActionController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Journal list",$pagination,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('JournalAction','message_list'),$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Journal list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('JournalAction','message_list'),$query,config('httpcodes.success'));
         
         }
         catch(Exception $exception) {
@@ -224,7 +224,7 @@ class JournalActionController extends Controller
             $data = JournalAction::with('journal','journalActionLogs')
                 ->where('id', $id)
                 ->first();
-            return prepareResult(true,'View Journal Action' ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('JournalAction','message_show') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -267,7 +267,7 @@ class JournalActionController extends Controller
                 'signed_date' => date('Y-m-d')
             ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('JournalAction','message_approve') ,$journalAction, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('JournalAction','message_sign') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

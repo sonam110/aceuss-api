@@ -52,7 +52,7 @@ class FollowUpsController extends Controller
             $query = IpFollowUp::with('ActionByUser:id,name,email','PatientImplementationPlan.patient')
                 ->where('is_latest_entry', 1);
             if($user->user_type_id =='2'){
-                // $query = $query->orderBy('id','DESC');
+                
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
@@ -75,7 +75,9 @@ class FollowUpsController extends Controller
 
             if(!empty($request->title))
             {
-                $query->where('title', 'LIKE', '%'.$request->title.'%');
+                $query->where(function ($query) use ($request) {
+                     $query->where('title', 'LIKE', '%'.$request->title.'%')->orWhere('description', 'LIKE', '%'.$request->title.'%');
+                });
             }
 
             if(!empty($request->start_date))
@@ -788,16 +790,6 @@ class FollowUpsController extends Controller
           
            
         }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
-
-             
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " OR ";}
-             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-        }
 
         return($w);
 
@@ -843,17 +835,6 @@ class FollowUpsController extends Controller
             
           
            
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
-
-             
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " OR ";}
-             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-             
         }
         return($w);
 

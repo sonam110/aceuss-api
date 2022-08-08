@@ -294,8 +294,8 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
         $smsTemplate->sms_body = "";
-        $smsTemplate->notify_body = "Dear {{name}}, Schedule slot for {{date}} is selected by {{selected_by}} and  dates {{vacant_dates}}  are still available to select.";
-        $smsTemplate->custom_attributes = "{{name}},{{vacant_dates}},{{selected_by}},{{date}}";
+        $smsTemplate->notify_body = "Dear {{name}}, Schedule slot for {{selected_dates}} is selected by {{selected_by}} and  dates {{vacant_dates}}  are still available to select.";
+        $smsTemplate->custom_attributes = "{{name}},{{vacant_dates}},{{selected_by}},{{selected_dates}}";
         $smsTemplate->save();
         
         $smsTemplate = new EmailTemplate;

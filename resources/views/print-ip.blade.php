@@ -153,7 +153,6 @@
         </tr>
        
     </table>
-    @endforeach
     @if($ip->patient)
     <table class="header table table-striped">
         <tr>
@@ -434,6 +433,8 @@
             @endif
         </tbody>
     </table>
+    @endforeach
+    
 </body>
 <htmlpagefooter name="page-footer">
 </htmlpagefooter>

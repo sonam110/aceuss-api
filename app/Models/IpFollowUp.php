@@ -48,7 +48,6 @@ class IpFollowUp extends Model
         'is_latest_entry',
         'more_witness',
         'emp_id'
-
 	];
 	public function PatientImplementationPlan()
     {

@@ -64,13 +64,13 @@ class OVHourController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"OVHour list",$pagination,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('OVHour','message_list') ,$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"OVHour list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OVHour','message_list') ,$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -195,7 +195,7 @@ class OVHourController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('OVHour','message_id_not_found'), [],config('httpcodes.not_found'));
             }
-             return prepareResult(true,'View OVHour' ,$checkId, config('httpcodes.success'));
+             return prepareResult(true,getLangByLabelGroups('OVHour','message_show')  ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -246,7 +246,7 @@ class OVHourController extends Controller
             $ovHour->entry_mode = $request->entry_mode;
             $ovHour->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('OVHour','message_create') ,$ovHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('OVHour','message_update') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();

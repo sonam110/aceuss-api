@@ -66,7 +66,8 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
             ->where('users.top_most_parent_id',$this->top_most_parent_id)
             ->withoutGlobalScope('top_most_parent_id')
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role');
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role')
+            ->withCount('employees','patients');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
                 $query =  $query->where('users.id', '!=',$user->id);
@@ -324,6 +325,7 @@ class UserController extends Controller
     				'name' => $user->name,
     				'email' => $user->email,
     				'id' => $user->id,
+                    // 'password'=>$request->password
     			]);   
     			Mail::to($user->email)->send(new WelcomeMail($content));
     		}
@@ -342,12 +344,13 @@ class UserController extends Controller
             elseif ($user->user_type_id == 11) {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'branch-created')->first();
             }
+            $extra_param = ['name'=>$user->name];
             
             $variable_data = [
                 '{{name}}'          => $notified_company->name,
                 '{{user_name}}'     => $user->name
             ];
-            actionNotification($user,$data_id,$notification_template,$variable_data);
+            actionNotification($notified_company,$data_id,$notification_template,$variable_data,$extra_param);
             //----------------------------------------//
 
     		/*-------------patient weekly Hours-----------------------*/

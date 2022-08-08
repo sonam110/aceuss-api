@@ -10,7 +10,7 @@ class BookmarkMaster extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['target','title','icon','link'];
+    protected $fillable = ['target','title','icon','link','user_types'];
 
     public function bookmarks()
     {

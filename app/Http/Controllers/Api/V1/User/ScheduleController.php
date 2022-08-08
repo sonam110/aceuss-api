@@ -55,7 +55,9 @@ class ScheduleController extends Controller
 			}
 			if(!empty($request->schedule_template_id))
 			{
-				$query->where('schedule_template_id' ,$request->schedule_template_id);
+				$query->where(function ($query) use ($request) {
+                     $query->where('schedule_template_id' ,$request->schedule_template_id)->orWhere('leave_applied' ,1);
+                });
 			}
 			if(!empty($request->schedule_type))
 			{
@@ -131,14 +133,14 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$pagination,config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$pagination,config('httpcodes.success'));
 			}
 			else
 			{
 				$query = $query->get();
 			}
 
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -220,6 +222,22 @@ class ScheduleController extends Controller
 			{
 				$query->where('status' ,1);
 			}
+			if($request->leave_applied == '0')
+			{
+				$query->where('leave_applied' ,0);
+			}
+			if($request->leave_applied == '1')
+			{
+				$query->where('leave_applied' ,1);
+			}
+			if($request->leave_approved == '0')
+			{
+				$query->where('leave_approved' ,0);
+			}
+			if($request->leave_approved == '1')
+			{
+				$query->where('leave_approved' ,1);
+			}
 
 			if(!empty($request->perPage))
 			{
@@ -227,7 +245,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
 
 				$pagination =  [
 					'data' => $result,
@@ -236,14 +254,14 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$pagination,config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$pagination,config('httpcodes.success'));
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
 			}
 
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_list'),$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -308,7 +326,7 @@ class ScheduleController extends Controller
 							{
 								$c_shift = CompanyWorkShift::find($shift['shift_id']);
 								if (!is_object($c_shift)) {
-									return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+									return prepareResult(false,getLangByLabelGroups('CompanyWorkShift','message_id_not_found'), [],config('httpcodes.not_found'));
 								}
 								$shift_name 		= $c_shift->shift_name;
 								$shift_color 		= $c_shift->shift_color;
@@ -427,7 +445,7 @@ class ScheduleController extends Controller
 			DB::commit();
 			$data = Schedule::whereIn('id',$schedule_ids)->with('user:id,name,gender','scheduleDates:group_id,shift_date')->groupBy('group_id')->get();
 			
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_schedule_created') ,$data, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			\Log::error($exception);
@@ -460,7 +478,7 @@ class ScheduleController extends Controller
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
 			}
-			return prepareResult(true,'View Schedule' ,$schedule, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_show') ,$schedule, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -472,7 +490,7 @@ class ScheduleController extends Controller
 		try 
 		{
 			$query = Schedule::where('user_id', $id)->where('shift_date',date('Y-m-d'))->get();
-			return prepareResult(true,"Schedule list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -574,7 +592,7 @@ class ScheduleController extends Controller
 				$data['emergency_hours'][] = $emergency;
 				$data['vacation_hours'][] = $vacation;
 			}
-			return prepareResult(true,"Schedule Report",$data,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_report'),$data,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -646,7 +664,7 @@ class ScheduleController extends Controller
 				$data[$key]['id'] = $value->id;
 				$data[$key]['shift_date'] = $value->shift_date;
 			}
-			return prepareResult(true,"Schedule list",$data,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_dates_list'),$data,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -729,7 +747,7 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"Schedule list",$pagination,config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$pagination,config('httpcodes.success'));
 			}
 			else
 			{
@@ -751,7 +769,7 @@ class ScheduleController extends Controller
 				}
 			}			
 
-			return prepareResult(true,"Schedule list",$users,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$users,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -840,7 +858,7 @@ class ScheduleController extends Controller
 			'emergency_hours' => $emergency_hours,
 			'vacation_hours' => $vacation_hours,
 		];
-		return prepareResult(true,"Schedule",$returnObj,config('httpcodes.success'));
+		return prepareResult(true,getLangByLabelGroups('Schedule','message_statistics'),$returnObj,config('httpcodes.success'));
 	}
 
 	public function patientCompletedHours(Request $request)
@@ -892,7 +910,7 @@ class ScheduleController extends Controller
 					}
 				}
 			}
-			return prepareResult(true, 'Patient Hours.' ,$data, config('httpcodes.success'));
+			return prepareResult(true, getLangByLabelGroups('Schedule','message_patient_hours'),$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -951,7 +969,7 @@ class ScheduleController extends Controller
 					"total_hour"=>$total_hours
 				];
 			}
-			return prepareResult(true, 'Employee Hours.' ,$data, config('httpcodes.success'));
+			return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -1010,7 +1028,7 @@ class ScheduleController extends Controller
 			
 			$data = Schedule::whereIn('id',$ids)->get();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_delete') ,$data, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_approve') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -1066,7 +1084,7 @@ class ScheduleController extends Controller
 			}
 			$data = Schedule::whereIn('id',$ids)->get();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('Schedule','message_delete') ,$data, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Schedule','message_verify') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -1083,7 +1101,7 @@ class ScheduleController extends Controller
 			$user_id  = $request->user_id;
 			$excel = Excel::store(new EmployeeWorkingHoursExport($dates,$user_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
 
-			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'public/export/schedule/'.$rand.'.xlsx'], config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -1275,7 +1293,7 @@ class ScheduleController extends Controller
 				->get(['id','title','start_date','end_date']);
 			}
 			
-			return prepareResult(true, 'Patient Data.' ,$data, config('httpcodes.success'));
+			return prepareResult(true, getLangByLabelGroups('Schedule','message_patients_data') ,$data, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
