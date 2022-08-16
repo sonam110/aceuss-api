@@ -43,13 +43,13 @@ class BookmarkMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"BookmarkMaster list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-		    return prepareResult(true,getLangByLabelGroups('BookmarkMaster','bc_message_records_fetched'),$query,config('httpcodes.success'));
+		    return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -65,24 +65,25 @@ class BookmarkMasterController extends Controller
         		'title' => 'required',   
 	        ],
 		    [
-            'title.required' => getLangByLabelGroups('BookmarkMaster','bc_message_title_required'),
+            'title.required' => getLangByLabelGroups('BcValidation','bc_message_title_required'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = BookmarkMaster::where('title',$request->title)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('BookmarkMaster','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
         	}
 	        $BookmarkMaster = new BookmarkMaster;
             $BookmarkMaster->title = $request->title;
             $BookmarkMaster->target = $request->target;
             $BookmarkMaster->icon = $request->icon;
+            $BookmarkMaster->icon_type = $request->icon_type;
             $BookmarkMaster->link = $request->link;
             $BookmarkMaster->user_types = json_encode($request->user_types); 
 		 	$BookmarkMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('BookmarkMaster','bc_message_created') ,$BookmarkMaster, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$BookmarkMaster, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -97,10 +98,10 @@ class BookmarkMasterController extends Controller
         try {
             $checkId= BookmarkMaster::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BookmarkMaster','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $bookmark_master = BookmarkMaster::where('id',$id)->first();
-            return prepareResult(true,getLangByLabelGroups('BookmarkMaster','bc_message_detail_fetched'),$bookmark_master, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show'),$bookmark_master, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -116,29 +117,30 @@ class BookmarkMasterController extends Controller
 	           	'title' => 'required', 
 	        ],
 	    	[
-            'title.required' => getLangByLabelGroups('BookmarkMaster','bc_message_title_required'),
+            'title.required' => getLangByLabelGroups('BcValidation','bc_message_title_required'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = BookmarkMaster::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BookmarkMaster','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = BookmarkMaster::where('id','!=',$id)->where('title',$request->title)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('BookmarkMaster','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $BookmarkMaster = BookmarkMaster::find($id);
 		 	$BookmarkMaster->title = $request->title;
             $BookmarkMaster->target = $request->target;
             $BookmarkMaster->icon = $request->icon;
+            $BookmarkMaster->icon_type = $request->icon_type;
             $BookmarkMaster->link = $request->link;
             $BookmarkMaster->user_types = json_encode($request->user_types); 
             $BookmarkMaster->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('BookmarkMaster','bc_message_updated') ,$BookmarkMaster, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_update') ,$BookmarkMaster, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -152,12 +154,12 @@ class BookmarkMasterController extends Controller
         try {
         	$checkId= BookmarkMaster::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('BookmarkMaster','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$BookmarkMaster = BookmarkMaster::findOrFail($id);
             $BookmarkMaster->delete();
-         	return prepareResult(true, getLangByLabelGroups('BookmarkMaster','bc_message_deleted') ,[], config('httpcodes.success'));
+         	return prepareResult(true, getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }

@@ -762,9 +762,9 @@ class LeaveController extends Controller
 			$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 			foreach ($request->leaves as $key => $leave) 
 			{
-				if(!empty($request->schedule_id))
+				if(!empty($leave['schedule_id']))
 				{
-					$schedule = Schedule::find($request->schedule_id);
+					$schedule = Schedule::find($leave['schedule_id']);
 					$dates[] = $schedule->shift_date;
 					$schedule_id[] = $schedule->id;
 					$vacation_duration = 0;

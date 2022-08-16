@@ -53,14 +53,14 @@ class ModuleController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Module list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
 		    
-		    return prepareResult(true,"Module list",$query,config('httpcodes.success'));
+		    return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -110,7 +110,7 @@ class ModuleController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Module','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $module = Module::where('id',$id)->first();
-            return prepareResult(true,'View Module',$module, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show'),$module, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

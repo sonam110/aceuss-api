@@ -220,7 +220,7 @@ class TaskController extends Controller
             if($request->remind_before_start ){
                 $validator = Validator::make($request->all(),[     
                     "before_minutes"    => "required",
-                    "before_is_text_notify"  => "required",        
+                    // "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -394,7 +394,7 @@ class TaskController extends Controller
             if($request->remind_before_start ){
                 $validator = Validator::make($request->all(),[     
                     "before_minutes"    => "required",
-                    "before_is_text_notify"  => "required",        
+                    // "before_is_text_notify"  => "required",        
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 

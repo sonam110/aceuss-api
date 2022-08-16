@@ -453,6 +453,34 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'punch-in-reminder';
+        $smsTemplate->mail_subject = 'Punch In Reminder';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'schedule';
+        $smsTemplate->event = 'punch-in-reminder';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your have an assigned schedule which will start at {{shift_start_time}}, punch in on time,";
+        $smsTemplate->custom_attributes = "{{name}},{{shift_start_time}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'punch-out-reminder';
+        $smsTemplate->mail_subject = 'Punch Out Reminder';
+        $smsTemplate->module = 'schedule';
+        $smsTemplate->type = 'schedule';
+        $smsTemplate->event = 'punch-out-reminder';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your assigned schedule ends at {{shift_end_time}}, punch out on time,";
+        $smsTemplate->custom_attributes = "{{name}},{{shift_end_time}}";
+        $smsTemplate->save();
+
         //----------------------vivek-----------------------------------//
 
         $smsTemplate = new EmailTemplate;

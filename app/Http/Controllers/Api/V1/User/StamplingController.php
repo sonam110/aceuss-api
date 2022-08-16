@@ -347,4 +347,37 @@ class StamplingController extends Controller
 
     	}
 	}
+
+	public function stamplingReports(Request $request)
+	{
+		try 
+		{
+			$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null)->get(['id','schedule_id','in_time','out_time','total_ob_hours']);
+			foreach ($stamplings as $key => $value) {
+				$schedule = Schedule::find($value->schedule_id);
+				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+				$total_worked_duration = timeDifference($value->in_time,$value->out_time);
+				$extra_work = 0;
+				$remaining_work = 0;
+				if($total_worked_duration > $scheduled_duration)
+				{
+					$extra_work = $total_worked_duration - $scheduled_duration;
+				}
+				else
+				{
+					$remaining_work = -$total_worked_duration + $scheduled_duration;
+				}
+				$value->shift_start_time = $schedule->shift_start_time;
+				$value->shift_end_time = $schedule->shift_end_time;
+				$value->shift_hours = number_format($scheduled_duration,2);
+				$value->stampling_duration = number_format($total_worked_duration,2);
+				$value->extra_work = number_format($extra_work,2);
+				// $value->remaining_work = number_format($remaining_work,2);
+			}
+			return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$stamplings, config('httpcodes.success'));
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
+	}
 }

@@ -93,26 +93,13 @@ class ManageLicenceController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Licence Key list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-
-
-            /*$data = [];
-            foreach ($query as $key => $value) {
-                $modules = json_decode($value->module_attached);
-                foreach ($modules as $key => $module) {
-                    $mod[] = Module::find($module);
-                }
-                $value['company']=User::find($value->top_most_parent_id);
-                $value['package']=json_decode($value->package_details);
-                $value['module'] = $mod;
-                $data[] = $value;
-            }*/
-            return prepareResult(true,"Licence Key list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -181,7 +168,7 @@ class ManageLicenceController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('LicenceKey','message_id_not_found'), [],config('httpcodes.not_found'));
             }
-             return prepareResult(true,'View Licence Key Management' ,$checkId, config('httpcodes.success'));
+             return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

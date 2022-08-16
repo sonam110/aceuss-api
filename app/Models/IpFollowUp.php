@@ -22,6 +22,7 @@ class IpFollowUp extends Model
     protected $appends = ['witness_List'];
     protected $fillable =[
         'ip_id',
+        'patient_id',
     	'top_most_parent_id',
         'branch_id',
     	'parent_id',

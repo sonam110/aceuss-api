@@ -41,13 +41,13 @@ class LanguageController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Language List",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Language List",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -104,7 +104,7 @@ class LanguageController extends Controller
      */
     public function show(Language $language)
     {
-    	return prepareResult(true,getLangByLabelGroups('Language','message_language_create') ,$language, config('httpcodes.success'));
+    	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$language, config('httpcodes.success'));
     }
 
     /**

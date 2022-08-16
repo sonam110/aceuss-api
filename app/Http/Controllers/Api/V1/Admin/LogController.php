@@ -53,8 +53,7 @@ class LogController extends Controller
             {
                 $query = $query->get();
             }
-
-            return prepareResult(true,"Sms Log",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
         } catch (\Throwable $e) {
             Log::error($e);
            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

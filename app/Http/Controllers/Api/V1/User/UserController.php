@@ -67,7 +67,7 @@ class UserController extends Controller
             ->where('users.top_most_parent_id',$this->top_most_parent_id)
             ->withoutGlobalScope('top_most_parent_id')
     		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role')
-            ->withCount('employees','patients');
+            ->withCount('employees','patients','leaves','vacations');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
                 $query =  $query->where('users.id', '!=',$user->id);

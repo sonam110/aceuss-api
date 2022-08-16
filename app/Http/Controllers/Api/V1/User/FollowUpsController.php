@@ -56,6 +56,13 @@ class FollowUpsController extends Controller
             } else{
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $query->where(function ($q) use ($user) {
+                    $q->where('patient_id', $user->id)
+                    ->orWhere('patient_id', $user->parent_id);
+                });
+            }
             if($whereRaw != '') { 
                 $query =  $query->whereRaw($whereRaw)
                 ->orderBy('id', 'DESC');
@@ -98,6 +105,13 @@ class FollowUpsController extends Controller
 
             } else{
                 $followUpCounts =  $followUpCounts->whereIn('ip_follow_ups.branch_id',$allChilds);
+            }
+            if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                $followUpCounts->where(function ($q) use ($user) {
+                    $q->where('ip_follow_ups.patient_id', $user->id)
+                    ->orWhere('ip_follow_ups.patient_id', $user->parent_id);
+                });
             }
 
             $whereRaw2 = $this->getWhereRawFromRequestOther($request);
@@ -171,7 +185,8 @@ class FollowUpsController extends Controller
                     if(!empty($followup['start_date']))
                     {
             	        $ipFollowups = new IpFollowUp;
-            		 	$ipFollowups->ip_id = $request->ip_id ;
+            		 	$ipFollowups->ip_id = $request->ip_id;
+                        $ipFollowups->patient_id = $ipCheck->user_id;
                         $ipFollowups->branch_id = getBranchId() ;
             		 	$ipFollowups->top_most_parent_id = $user->top_most_parent_id;
             		 	$ipFollowups->title = $request->title;

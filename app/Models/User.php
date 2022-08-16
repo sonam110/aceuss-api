@@ -404,4 +404,15 @@ class User extends Authenticatable
         }
         return false;
     }
+
+    public function leaves()
+    {
+        return $this->hasMany(Schedule::class,'user_id','id')->where('leave_type','leave');
+    }
+
+    public function vacations()
+    {
+        return $this->hasMany(Schedule::class,'user_id','id')->where('leave_type','vacation');
+    }
+
 }

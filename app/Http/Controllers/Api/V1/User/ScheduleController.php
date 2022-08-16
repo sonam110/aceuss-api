@@ -326,7 +326,7 @@ class ScheduleController extends Controller
 							{
 								$c_shift = CompanyWorkShift::find($shift['shift_id']);
 								if (!is_object($c_shift)) {
-									return prepareResult(false,getLangByLabelGroups('CompanyWorkShift','message_id_not_found'), [],config('httpcodes.not_found'));
+									return prepareResult(false,getLangByLabelGroups('CompanyWorkShift','message_record_not_found'), [],config('httpcodes.not_found'));
 								}
 								$shift_name 		= $c_shift->shift_name;
 								$shift_color 		= $c_shift->shift_color;
@@ -460,7 +460,7 @@ class ScheduleController extends Controller
 		{
 			$schedule= Schedule::find($id);
 			if (!is_object($schedule)) {
-				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$schedule->delete();
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_delete') ,[], config('httpcodes.success'));
@@ -476,7 +476,7 @@ class ScheduleController extends Controller
 		{
 			$schedule= Schedule::with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id')->where('id',$id)->first();
 			if (!is_object($schedule)) {
-				return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_show') ,$schedule, config('httpcodes.success'));
 		}
@@ -985,7 +985,7 @@ class ScheduleController extends Controller
 			foreach ($ids as $key => $id) {
 				$schedule= Schedule::find($id);
 				if (!is_object($schedule)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+					return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 				}
 				$user = User::find($schedule->user_id);
 				if($user->report_verify == 'yes')
@@ -1045,7 +1045,7 @@ class ScheduleController extends Controller
 			foreach ($ids as $key => $id) {
 				$schedule= Schedule::find($id);
 				if (!is_object($schedule)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_id_not_found'), [],config('httpcodes.not_found'));
+					return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 				}
 
 				if(!empty($schedule->patient_id))
@@ -1063,8 +1063,16 @@ class ScheduleController extends Controller
 					$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
 					$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
 				}
-				$schedule->update(['status'=>1,'verified_by_employee'=>1]);
-				$user = User::find(Auth::user()->top_most_parent_id);
+				if(Auth::user()->verification_method =='normal')
+				{
+					$schedule->update(['status'=>1,'verified_by_employee'=>1]);
+				}
+				else
+				{
+					//add code for verification by bank_id
+					$schedule->update(['status'=>1,'verified_by_employee'=>1]);
+				}
+				$company = User::find(Auth::user()->top_most_parent_id);
 				//----notify-company-schedule-verified----//
 				$exra_param = ['employee_id'=>$schedule->user_id, 'shift_date' => $schedule->shift_date,
 					'shift_start_time'=> $schedule->shift_start_time,
@@ -1072,14 +1080,14 @@ class ScheduleController extends Controller
 				$data_id =  $id;
 				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
 				$variable_data = [
-					'{{name}}'  => $user->name,
+					'{{name}}'  => $company->name,
 					'{{schedule_title}}'=>$schedule->title,
 					'{{date}}' => $schedule->shift_date,
 					'{{start_time}}'=> $schedule->shift_start_time,
 					'{{end_time}}'=> $schedule->shift_end_time,
 					'{{verified_by}}'=> Auth::user()->name
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$exra_param);
+				actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
 	            //--------------------------------------//
 			}
 			$data = Schedule::whereIn('id',$ids)->get();

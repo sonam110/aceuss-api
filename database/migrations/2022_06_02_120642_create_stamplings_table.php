@@ -36,14 +36,14 @@ class CreateStamplingsTable extends Migration
             $table->string('reason_for_late_in')->nullable();
             $table->string('reason_for_late_out')->nullable();
 
-            $table->float('scheduled_hours_rate')->nullable()->comment('amount or salary / hr');
-            $table->float('extra_hours_rate')->nullable()->comment('amount or salary / hr');
-            $table->float('ob_hours_rate')->nullable()->comment('amount or salary / hr');
+            $table->float('scheduled_hours_rate',8,2)->nullable()->comment('amount or salary / hr');
+            $table->float('extra_hours_rate',8,2)->nullable()->comment('amount or salary / hr');
+            $table->float('ob_hours_rate',8,2)->nullable()->comment('amount or salary / hr');
             $table->string('ob_type')->nullable();
 
-            $table->string('total_schedule_hours')->default(0)->nullable()->comment('total worked - ob worked - extra worked');
-            $table->string('total_extra_hours')->default(0)->nullable();
-            $table->float('total_ob_hours')->default(0)->nullable();
+            $table->float('total_schedule_hours',8,2)->default(0)->nullable()->comment('total worked - ob worked - extra worked',8,2);
+            $table->float('total_extra_hours',8,2)->default(0)->nullable();
+            $table->float('total_ob_hours',8,2)->default(0)->nullable();
             
             $table->string('working_percent')->default(0)->nullable();
 

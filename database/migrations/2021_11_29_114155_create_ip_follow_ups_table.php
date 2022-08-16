@@ -19,6 +19,9 @@ class CreateIpFollowUpsTable extends Migration
             $table->unsignedBigInteger('ip_id')->nullable();
             $table->foreign('ip_id')->references('id')->on('patient_implementation_plans')->onDelete('cascade');
 
+            $table->unsignedBigInteger('patient_id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->foreign('branch_id')->references('id')->on('users')->onDelete('cascade');
 

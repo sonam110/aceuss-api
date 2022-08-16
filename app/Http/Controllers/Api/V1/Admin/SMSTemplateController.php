@@ -50,7 +50,7 @@ class SMSTemplateController extends Controller
                 $query = $query->get();
             }
 
-             return prepareResult(true,"Template list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -86,12 +86,9 @@ class SMSTemplateController extends Controller
 
     public function show(SmsTemplate $smsTemplate)
     {
-        try {
-            if($smsTemplate)
-            {
-                return prepareResult(true,'show Template' ,$smsTemplate, config('httpcodes.success'));
-            }
-            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
+        try 
+        {
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

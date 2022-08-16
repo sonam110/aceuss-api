@@ -18,6 +18,7 @@ class CreateBookmarkMastersTable extends Migration
             $table->string('target')->nullable();
             $table->string('title')->nullable();
             $table->string('icon')->nullable();
+            $table->string('icon_type')->nullable();
             $table->string('user_types')->nullable();
             $table->string('link')->nullable();
             $table->timestamps();

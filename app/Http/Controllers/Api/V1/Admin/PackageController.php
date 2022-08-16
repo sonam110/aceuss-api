@@ -66,9 +66,6 @@ class PackageController extends Controller
                 $query->where('status', $request->status);
             }
 
-
-
-
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -83,13 +80,13 @@ class PackageController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Package list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Package list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -176,7 +173,7 @@ class PackageController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Package','message_id_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->first();
-            return prepareResult(true,'View Package',$package, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show'),$package, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
