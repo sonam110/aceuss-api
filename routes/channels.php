@@ -21,10 +21,10 @@ Broadcast::channel('notification-for-all', function ($data) {
     return true;
 });
 
-Broadcast::channel('bank-id-verified.{userId}-{uniqueId}', function ($data, $userId, $uniqueId) {
+Broadcast::channel('bank-id-verified.{userId}-{uniqueId}', function ($data, $userId, $uniqueId, $action=null) {
     return true;
 });
 
-Broadcast::channel('notifications.{userId}-{uniqueId}', function ($data, $userId, $uniqueId) {
+Broadcast::channel('notifications.{userId}-{uniqueId}', function ($data, $userId, $uniqueId, $action=null) {
     return true;
 });

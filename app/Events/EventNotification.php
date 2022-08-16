@@ -17,12 +17,14 @@ class EventNotification implements ShouldBroadcast
     public $data;
     public $userId;
     public $uniqueId;
+    public $action;
 
-    public function __construct($data, $userId, $uniqueId)
+    public function __construct($data, $userId, $uniqueId, $action)
     {
         $this->data = $data;
         $this->userId = $userId;
         $this->uniqueId = $uniqueId;
+        $this->action = $action;
     }
 
     public function broadcastOn()

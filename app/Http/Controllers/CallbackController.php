@@ -108,8 +108,8 @@ class CallbackController extends Controller
             "message_type" => 'success',
         ];
         //\broadcast(new NotificationForAll($data));
-        \broadcast(new BankIdVerified($data, $user, $user->unique_id));
-        \broadcast(new EventNotification($data, $user->id, $user->unique_id));
+        \broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
+        \broadcast(new EventNotification($data, $user->id, $user->unique_id, 'required'));
         //event(new BankIdVerified('Hello World'));
         return 'Success';
     }

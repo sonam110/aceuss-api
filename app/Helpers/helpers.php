@@ -249,7 +249,7 @@ function addTask($task,$resource_id){
 
 
 
-function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen, $status_code)
+function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$id,$screen, $status_code,$actionNoti=null)
 {
     if(!empty($obj['user_id']))
     {
@@ -329,7 +329,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $userUniqueId = User::select('unique_id')->find($obj['user_id']);
             if($userUniqueId)
             {
-                \broadcast(new EventNotification($notification, $obj['user_id'], $userUniqueId->unique_id));
+                \broadcast(new EventNotification($notification, $obj['user_id'], $userUniqueId->unique_id, $actionNoti));
             }
         }    
     }
@@ -337,7 +337,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null)
+function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null,$actionNoti=null)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {
@@ -419,7 +419,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user->id, $user->unique_id));
+                \broadcast(new EventNotification($notification, $user->id, $user->unique_id, $actionNoti));
             }    
         }
     }
@@ -436,7 +436,7 @@ function sendMessage($sms_for,$obj, $companyObj)
     $isSent = false;
     $message = false;
     $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
-    if($getMsg)
+    if($getMsg && env('IS_ENABLED_SEND_SMS', false)==true)
     {
         $message = $getMsg->sms_body;
          $arrayVal = [
