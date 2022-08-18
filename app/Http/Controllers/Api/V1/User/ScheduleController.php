@@ -245,7 +245,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
 
 				$pagination =  [
 					'data' => $result,
@@ -258,7 +258,7 @@ class ScheduleController extends Controller
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
 			}
 
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
@@ -331,12 +331,24 @@ class ScheduleController extends Controller
 								$shift_name 		= $c_shift->shift_name;
 								$shift_color 		= $c_shift->shift_color;
 								$shift_type 		= $c_shift->shift_type;
+								$rest_start_time 	= $date.' '.$c_shift->rest_start_time;
+								$rest_end_time 		= $date.' '.$c_shift->rest_end_time;
+							}
+							elseif(!empty($shift['rest_start_time']) && !empty($shift['rest_end_time']))
+							{
+								$rest_start_time 	= $shift['rest_start_time'];
+								$rest_end_time 		= $shift['rest_end_time'];
+							}
+							else
+							{
+								$rest_start_time 	= null;
+								$rest_end_time 		= null;
 							}
 
 							$shift_start_time = $shift['shift_start_time'];
 							$shift_end_time = $shift['shift_end_time'];
 
-							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type);
+							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type,$rest_start_time,$rest_end_time);
 							if($shift['type'] == 'add')
 							{
 								$schedule = new Schedule;
@@ -363,6 +375,8 @@ class ScheduleController extends Controller
 							$schedule->shift_color = $shift_color;
 							$schedule->shift_start_time = $shift_start_time;
 							$schedule->shift_end_time = $shift_end_time;
+							$schedule->rest_start_time = $rest_start_time;
+							$schedule->rest_end_time = $rest_end_time;
 							$schedule->leave_applied = 0;
 							$schedule->leave_group_id = null;
 							$schedule->leave_type = null;
@@ -474,7 +488,8 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$schedule= Schedule::with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id')->where('id',$id)->first();
+			// $schedule= Schedule::with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id')->where('id',$id)->first();
+			$schedule= Schedule::with('user:id,name,gender')->groupBy('group_id')->where('id',$id)->first();
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 			}

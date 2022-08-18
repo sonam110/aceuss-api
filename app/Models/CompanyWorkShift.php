@@ -43,5 +43,15 @@ class CompanyWorkShift extends Model
         return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
     }
 
+    public function getRestStartTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
+    }
+
+    public function getRestEndTimeAttribute($value)
+    {
+        return (!empty($value)) ? date('H:i', strtotime($value)) : NULL;
+    }
+
 
 }

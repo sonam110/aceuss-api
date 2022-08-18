@@ -28,6 +28,8 @@ class CreateStamplingsTable extends Migration
             $table->date('date');
             $table->datetime('in_time');
             $table->datetime('out_time')->nullable();
+            $table->datetime('rest_start_time')->nullable();
+            $table->datetime('rest_end_time')->nullable();
             $table->string('in_location');
             $table->string('out_location')->nullable();
 

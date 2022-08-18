@@ -101,13 +101,15 @@ class CompanyController extends Controller
         	}
         	$checkAlready = CompanyWorkShift::where('shift_name',$request->shift_name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('Company','message_name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('Company','message_record_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $companyWorkShift = new CompanyWorkShift;
 		 	$companyWorkShift->shift_name = $request->shift_name;
             $companyWorkShift->shift_type = $request->shift_type;
 		 	$companyWorkShift->shift_start_time = $request->shift_start_time;
 		 	$companyWorkShift->shift_end_time = $request->shift_end_time;
+            $companyWorkShift->rest_start_time = $request->rest_start_time;
+            $companyWorkShift->rest_end_time = $request->rest_end_time;
 		 	$companyWorkShift->shift_color = $request->shift_color;
 		 	$companyWorkShift->status = '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
@@ -173,6 +175,8 @@ class CompanyController extends Controller
             $companyWorkShift->shift_type = $request->shift_type;
 		 	$companyWorkShift->shift_start_time = $request->shift_start_time;
 		 	$companyWorkShift->shift_end_time = $request->shift_end_time;
+            $companyWorkShift->rest_start_time = $request->rest_start_time;
+            $companyWorkShift->rest_end_time = $request->rest_end_time;
 		 	$companyWorkShift->shift_color = $request->shift_color;
 		 	$companyWorkShift->status = ($request->status) ? $request->status : '1';
             $companyWorkShift->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';

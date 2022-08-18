@@ -294,6 +294,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		/*------------- Patient Cashier -------------------*/
 		Route::post('patient-cashiers', [App\Http\Controllers\Api\V1\User\PatientCashierController::class, 'patientCashiers']);
 		Route::apiResource('patient-cashier', User\PatientCashierController::class)->only(['store']);
+		Route::post('patient-cashiers-export', [App\Http\Controllers\Api\V1\User\PatientCashierController::class, 'patientCashiersExport']);
+		
 
 		/*-------------Folder------------------------*/
 		Route::post('folders', [App\Http\Controllers\Api\V1\User\FolderController::class, 'folders']);

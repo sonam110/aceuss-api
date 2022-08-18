@@ -23,6 +23,8 @@ class CreateCompanyWorkShiftsTable extends Migration
             $table->string('shift_name');
             $table->time('shift_start_time');
             $table->time('shift_end_time');
+            $table->time('rest_start_time')->nullable();
+            $table->time('rest_end_time')->nullable();
             $table->string('shift_color')->nullable();
             $table->boolean('status')->default(0);
             $table->string('entry_mode')->nullable();

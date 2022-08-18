@@ -130,6 +130,9 @@ class StamplingController extends Controller
 					{
 						$in_time = $schedule->shift_start_time;
 					}
+
+					$rest_start_time = $schedule->rest_start_time;
+					$rest_end_time = $schedule->rest_end_time;
 				}
 				else
 				{
@@ -140,43 +143,48 @@ class StamplingController extends Controller
 						return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 					}
 
-					$stampling_type = 'walkin';
-					$result = scheduleWorkCalculation($date,$in_time,$request->expected_out_time,'extra');
+					$rest_start_time = $request->rest_start_time;
+					$rest_end_time = $request->rest_end_time;
 
-					$schedule = new Schedule;
-					$schedule->top_most_parent_id = $user->top_most_parent_id;
-					$schedule->user_id = Auth::id();
-					$schedule->patient_id = NULL;
-					$schedule->shift_id = NULL;
-					$schedule->parent_id = NULL;
-					$schedule->created_by = Auth::id();
-					$schedule->slot_assigned_to = null;
-					$schedule->employee_assigned_working_hour_id = NULL;
-					$schedule->schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
-					$schedule->schedule_type = 'extra';
-					$schedule->shift_date = $date;
-					$schedule->group_id = generateRandomNumber();
-					$schedule->shift_name = null;
-					$schedule->shift_color = null;
-					$schedule->shift_start_time = $in_time;
-					$schedule->shift_end_time = $request->expected_out_time;
-					$schedule->leave_applied = 0;
-					$schedule->leave_group_id = null;
-					$schedule->leave_type = null;
-					$schedule->leave_reason = null;
-					$schedule->leave_approved = 0;
-					$schedule->leave_approved_by = null;
+					$stampling_type = 'walkin';
+					$result = scheduleWorkCalculation($date,$in_time,$request->expected_out_time,'extra',null,$rest_start_time,$rest_end_time);
+
+					$schedule 							= new Schedule;
+					$schedule->top_most_parent_id 		= $user->top_most_parent_id;
+					$schedule->user_id 					= Auth::id();
+					$schedule->patient_id 				= NULL;
+					$schedule->shift_id 				= NULL;
+					$schedule->parent_id 				= NULL;
+					$schedule->created_by 				= Auth::id();
+					$schedule->slot_assigned_to 		= null;
+					$schedule->employee_assigned_working_hour_id= NULL;
+					$schedule->schedule_template_id 	= ScheduleTemplate::where('status','1')->first()->id;
+					$schedule->schedule_type 			= 'extra';
+					$schedule->shift_date 				= $date;
+					$schedule->group_id 				= generateRandomNumber();
+					$schedule->shift_name 				= null;
+					$schedule->shift_color 				= null;
+					$schedule->shift_start_time 		= $in_time;
+					$schedule->shift_end_time 			= $request->expected_out_time;
+					$schedule->rest_start_time 			= $rest_start_time;
+					$schedule->rest_end_time 			= $rest_end_time;
+					$schedule->leave_applied 			= 0;
+					$schedule->leave_group_id 			= null;
+					$schedule->leave_type 				= null;
+					$schedule->leave_reason 			= null;
+					$schedule->leave_approved 			= 0;
+					$schedule->leave_approved_by		= null;
 					$schedule->leave_approved_date_time = null;
-					$schedule->leave_notified_to = null;
-					$schedule->notified_group = null;
-					$schedule->is_active = 1;
-					$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-					$schedule->extra_work_duration = $result['extra_work_duration'];
-					$schedule->emergency_work_duration = $result['emergency_work_duration'];
-					$schedule->ob_work_duration = $result['ob_work_duration'];
-					$schedule->ob_type = $result['ob_type'];
-					$schedule->status = $request->status ? $request->status :0;
-					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+					$schedule->leave_notified_to		= null;
+					$schedule->notified_group 			= null;
+					$schedule->is_active 				= 1;
+					$schedule->scheduled_work_duration 	= $result['scheduled_work_duration'];
+					$schedule->extra_work_duration 		= $result['extra_work_duration'];
+					$schedule->emergency_work_duration 	= $result['emergency_work_duration'];
+					$schedule->ob_work_duration 		= $result['ob_work_duration'];
+					$schedule->ob_type 					= $result['ob_type'];
+					$schedule->status 					= $request->status ? $request->status :0;
+					$schedule->entry_mode 				= $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();
 
 					$schedule_id = $schedule->id;
@@ -193,6 +201,8 @@ class StamplingController extends Controller
 				$stampling->date 						= date('Y-m-d');
 				$stampling->stampling_type 				= $stampling_type;
 				$stampling->in_time 					= $in_time;
+				$schedule->rest_start_time 				= $rest_start_time;
+				$schedule->rest_end_time 				= $rest_end_time;
 				$stampling->in_location 				= json_encode($request->location);
 				$stampling->reason_for_early_in 		= $request->reason_for_early_in;
 				$stampling->reason_for_late_in 			= $request->reason_for_late_in;
@@ -239,6 +249,9 @@ class StamplingController extends Controller
 					$out_time = $schedule->shift_end_time;
 				}
 
+				$rest_start_time = $stampling->rest_start_time;
+				$rest_end_time = $stampling->rest_end_time;
+
 
 	            
 
@@ -248,11 +261,18 @@ class StamplingController extends Controller
 
 				// $data = basicScheduleTimeCalculation('2022-06-22 22:20:00','2022-06-23 06:50:00',$relaxation_time,'2022-06-22 19:30:00','2022-06-23 08:10:00', '2022-06-22 11:30', '2022-06-23 05:30', true);
 				// return $data;
-				$ob = getObDuration($date,$in_time,$out_time);
+				$ob = getObDuration($date,$in_time,$out_time,$rest_start_time,$rest_end_time);
 				$ob_duration = $ob['duration'];
 
-				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
-				$total_worked_duration = timeDifference($in_time,$out_time);
+				$rest_duration = 0;
+
+				if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $out_time))
+				{
+				    $rest_duration = timeDifference($rest_start_time,$rest_end_time);
+				}
+
+				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time)-$rest_duration;
+				$total_worked_duration = timeDifference($in_time,$out_time) - $rest_duration;
 				$countable_scheduled_duration = $total_worked_duration - $ob_duration;
 				$extra_duration =  0;
 				if($countable_scheduled_duration > $scheduled_duration)
@@ -352,7 +372,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null)->get(['id','schedule_id','in_time','out_time','total_ob_hours']);
+			$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null)->get(['id','schedule_id','in_time','out_time','total_ob_hours','stampling_type','date']);
 			foreach ($stamplings as $key => $value) {
 				$schedule = Schedule::find($value->schedule_id);
 				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
@@ -367,11 +387,20 @@ class StamplingController extends Controller
 				{
 					$remaining_work = -$total_worked_duration + $scheduled_duration;
 				}
+
 				$value->shift_start_time = $schedule->shift_start_time;
 				$value->shift_end_time = $schedule->shift_end_time;
-				$value->shift_hours = number_format($scheduled_duration,2);
-				$value->stampling_duration = number_format($total_worked_duration,2);
-				$value->extra_work = number_format($extra_work,2);
+				$value->shift_hours = $scheduled_duration;
+				$value->stampling_duration = $total_worked_duration;
+				$value->extra_work = $extra_work;
+				if($schedule->schedule_type == 'emergency')
+				{
+					$value->emergency_work_duration = $schedule->emergency_work_duration - $value->total_ob_hours;
+				}
+				else
+				{
+					$value->emergency_work_duration = 0;
+				}
 				// $value->remaining_work = number_format($remaining_work,2);
 			}
 			return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$stamplings, config('httpcodes.success'));

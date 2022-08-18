@@ -1247,7 +1247,7 @@ function timeWithRelaxation($scheduled_time,$relaxationTime)
     return $time;
 }
 
-function getObDuration($date,$time1, $time2)
+function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time=null)
 {
     $ob = [];
     $data = OVHour::where('date',$date)->orWhere('date','')->orderBy('id','desc')->first();
@@ -1258,6 +1258,7 @@ function getObDuration($date,$time1, $time2)
         $ob['end_time'] = $data->end_time;
         $time1 = strtotime($time1);
         $time2 = strtotime($time2);
+        $rest_ob_duration = 0;
 
         $obtime1 = strtotime($date.' '.$data->start_time);
         $obtime2 = strtotime($date.' '.$data->end_time);
@@ -1291,6 +1292,39 @@ function getObDuration($date,$time1, $time2)
         {
             $ob['duration'] = ($time2 - $obtime1)/60;
         }
+
+        if(($rest_start_time != null) && ($rest_end_time != null) && ($resttime2 < $time2))
+        {
+            $resttime1 = strtotime($rest_start_time);
+            $resttime2 = strtotime($rest_end_time);
+
+            if(($obtime1 <= $resttime1) && ($obtime2 <= $resttime1))
+            {
+                $rest_ob_duration = 0;
+            }
+            elseif(($obtime1 >= $resttime2) && ($obtime2 <= $resttime2))
+            {
+                $rest_ob_duration = 0;
+            }
+            elseif(($obtime1 >= $resttime1) && ($obtime2 <= $resttime2))
+            {
+                $rest_ob_duration = ($obtime2 - $obtime1)/60;
+            }
+            elseif (($obtime1 <= $resttime1) && ($obtime2 >= $resttime2)) 
+            {
+                $rest_ob_duration = ($resttime2 - $resttime1)/60;
+            }
+            elseif (($obtime1 <= $resttime1) && ($obtime2 <= $resttime2)) 
+            {
+                $rest_ob_duration = ($obtime2 - $resttime1)/60;
+            }
+            elseif (($obtime1 >= $resttime1) && ($obtime2 >= $resttime2)) 
+            {
+                $rest_ob_duration = ($resttime2 - $obtime1)/60;
+            }
+        }
+
+        $ob['duration'] = $ob['duration'] - $rest_ob_duration;
     }
     else
     {
@@ -1303,15 +1337,21 @@ function getObDuration($date,$time1, $time2)
 }
 
 
-function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null)
+function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null)
 {
     $result = [];
-    $ob = getObDuration($date,$start_time,$end_time);
+    $ob = getObDuration($date,$start_time,$end_time,$rest_start_time,$rest_end_time);
     $ob_duration = $ob['duration'];
+    $rest_duration = 0;
+
+    if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $end_time))
+    {
+        $rest_duration = timeDifference($rest_start_time,$rest_end_time);
+    }
 
     if($schedule_type == 'basic')
     {
-        $scheduled_duration = timeDifference($start_time,$end_time);
+        $scheduled_duration = timeDifference($start_time,$end_time) - $rest_duration;
         $extra_duration =  0;
         $countable_emergency_duration = 0;
         $countable_scheduled_duration = $scheduled_duration - $ob_duration;
@@ -1326,7 +1366,7 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     {
         $scheduled_duration = 0;
         $countable_emergency_duration = 0;
-        $extra_duration =  timeDifference($start_time,$end_time);
+        $extra_duration =  timeDifference($start_time,$end_time) - $rest_duration;
         $countable_scheduled_duration = 0;
         $countable_extra_duration = $extra_duration - $ob_duration;
         if($shift_type == 'emergency')

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Validator;
 use Auth;
 use DB;
+use App\Exports\PatientCashiersExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Exception;
 
 class PatientCashierController extends Controller
@@ -149,6 +151,22 @@ class PatientCashierController extends Controller
              \Log::error($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function patientCashiersExport(Request $request)
+    {
+        try{
+
+            $rand = rand(0,1000);
+            $dates = [$request->start_date,$request->end_date];
+            $patient_id  = $request->patient_id;
+            $excel = Excel::store(new PatientCashiersExport($patient_id), 'export/cashier/'.$rand.'.xlsx' , 'export_path');
+
+            return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/cashier/'.$rand.'.xlsx'], config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
 }

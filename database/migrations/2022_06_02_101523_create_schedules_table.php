@@ -55,6 +55,8 @@ class CreateSchedulesTable extends Migration
             $table->string('shift_date');
             $table->datetime('shift_start_time')->nullable();
             $table->datetime('shift_end_time')->nullable();
+            $table->datetime('rest_start_time')->nullable();
+            $table->datetime('rest_end_time')->nullable();
             $table->string('shift_color')->nullable();
             //--------------for-leave-management-------------------//
             $table->boolean('only_leave')->default(0)->nullable();
