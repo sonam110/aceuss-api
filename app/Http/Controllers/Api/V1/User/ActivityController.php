@@ -264,7 +264,7 @@ class ActivityController extends Controller
 					'today_created_deviation' => $today_created_deviation,
 					'total_activities_time_passed' => $datePassedActivityCounts->total_activities_time_passed
 				];
-				return prepareResult(true,"Activity list",$pagination,config('httpcodes.success'));
+				$query = $pagination;
 			}
 			else
 			{
@@ -275,12 +275,11 @@ class ActivityController extends Controller
 				} 
 			}
 
-			return prepareResult(true,"Activity list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
 
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
 
 	}
@@ -565,8 +564,6 @@ class ActivityController extends Controller
             						addTask($request->task,$activity->id);
             					}
             				}
-
-
             			}
             		}
             	}
@@ -574,9 +571,9 @@ class ActivityController extends Controller
             	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
             	->whereIn('id',$activity_ids)
             	->get();
-            	return prepareResult(true,'Activity Added successfully' ,$activityList, config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$activityList, config('httpcodes.success'));
             } else{
-            	return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
+            	return prepareResult(false,getLangByLabelGroups('Activity','bc_message_no_date_found'),[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -711,7 +708,7 @@ class ActivityController extends Controller
             }
             $checkId = Activity::where('id',$id)->first();
             if (!is_object($checkId)) {
-            	return prepareResult(false, getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+            	return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -864,9 +861,9 @@ class ActivityController extends Controller
             	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
             	->whereIn('id',$activity_ids)
             	->get();
-            	return prepareResult(true,'Activity Update successfully' ,$activityList, config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$activityList, config('httpcodes.success'));
             } else{
-            	return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
+            	return prepareResult(false,getLangByLabelGroups('Activity','bc_message_no_date_found'),[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -884,7 +881,7 @@ class ActivityController extends Controller
     		$user = getUser();
     		$checkId= Activity::where('id',$id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
     		}
     		Task::where('resource_id',$id)->where('type_id','1')->delete();
     		/*-----------notify-user-activity-deleted--------------------*/
@@ -904,7 +901,7 @@ class ActivityController extends Controller
     		// $checkId->tasks->delete();
     		$checkId->delete();
     		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -928,7 +925,7 @@ class ActivityController extends Controller
     		$id = $request->id;
     		$checkId= Activity::where('id',$id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
     		}
     		$activity = Activity::find($id);
     		$activity->approved_by = $user->id;
@@ -936,7 +933,7 @@ class ActivityController extends Controller
     		$activity->status = '1';
     		$activity->save();
     		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Activity','message_approve') ,$activity, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_approve') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -949,10 +946,10 @@ class ActivityController extends Controller
     		$user = getUser();
     		$checkId= Activity::where('id',$id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
     		}
     		$activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient.PatientInformation','assignEmployee.employee:id,name,email','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->first();
-    		return prepareResult(true,'View Activity' ,$activity, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -978,11 +975,11 @@ class ActivityController extends Controller
 
     		$checkId= Activity::where('id',$request->activity_id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
     		}
     		$check_already = ActivityAssigne::where('user_id',$request->user_id)->where('activity_id',$request->activity_id)->first();
     		if (is_object($check_already)) {
-    			return prepareResult(false,'This activity is already assigned for this employee', [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('Activity','bc_message_already_assigned'), [],config('httpcodes.bad_request'));
     		}
     		$activityAssigne = new ActivityAssigne;
     		$activityAssigne->activity_id = $request->activity_id;
@@ -1008,7 +1005,7 @@ class ActivityController extends Controller
     		actionNotification($user,$data_id,$notification_template,$variable_data);
     		DB::commit();
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
-    		return prepareResult(true,getLangByLabelGroups('Activity','message_assigne') ,$activityAssigne, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_assign') ,$activityAssigne, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		\Log::error($exception);
@@ -1047,14 +1044,14 @@ class ActivityController extends Controller
     				'per_page' => $perPage,
     				'last_page' => ceil($total / $perPage)
     			];
-    			return prepareResult(true,"Edited Activity list",$pagination,config('httpcodes.success'));
+    			$query = $pagination;
     		}
     		else
     		{
     			$query = $query->get();
     		}
 
-    		return prepareResult(true,'Activity Ip List' ,$query, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_log') ,$query, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -1109,7 +1106,7 @@ class ActivityController extends Controller
     		}
 
     		if($is_action_perform == false){
-    			return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_unauthorized'),[], config('httpcodes.bad_request')); 
     		}
     		$option  = ActivityOption::where('id',$request->option)->first();
     		$is_journal_assign_module = checkAssignModule(3);
@@ -1141,71 +1138,67 @@ class ActivityController extends Controller
     		$activity->action_by = $user->id;
     		$activity->action_date = date('Y-m-d');
     		$activity->save();
-    		if($activity){
-    			$start_date_time = $activity->start_date.' '.$activity->start_time;
-    			$start_date = Carbon::parse($start_date_time);
-    			$current = Carbon::now()->format('Y-m-d H:i:s');
-    			$now = Carbon::parse($current);
-    			$interval = $start_date->diffInSeconds($now);
-    			$time_diff = dates($interval);
-    			$activityTimeLog = new ActivityTimeLog;
-    			$activityTimeLog->activity_id = $activity->id;
-    			$activityTimeLog->start_date = $activity->start_date;
-    			$activityTimeLog->start_time = $activity->start_time;
-    			$activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
-    			$activityTimeLog->action_time = Carbon::now()->format('H:is');
-    			$activityTimeLog->action_by = $user->id;
-    			$activityTimeLog->time_diff = $time_diff;
-    			$activityTimeLog->save();
+    		
+			$start_date_time = $activity->start_date.' '.$activity->start_time;
+			$start_date = Carbon::parse($start_date_time);
+			$current = Carbon::now()->format('Y-m-d H:i:s');
+			$now = Carbon::parse($current);
+			$interval = $start_date->diffInSeconds($now);
+			$time_diff = dates($interval);
+			$activityTimeLog = new ActivityTimeLog;
+			$activityTimeLog->activity_id = $activity->id;
+			$activityTimeLog->start_date = $activity->start_date;
+			$activityTimeLog->start_time = $activity->start_time;
+			$activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
+			$activityTimeLog->action_time = Carbon::now()->format('H:is');
+			$activityTimeLog->action_by = $user->id;
+			$activityTimeLog->time_diff = $time_diff;
+			$activityTimeLog->save();
 
-    			$activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
+			$activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
 
-    			$journal_id = null;
-    			$deviation_id = null;
-    			if($is_journal_assign_module == true && $is_journal == '1'){
-    				$journal =  journal($activity->id);
-    				$journal_id = (!empty($journal)) ? $journal : null;
-    			}
-    			if($is_deviation_assign_module == true && $is_deviation == '1'){
-    				$deviation = deviation($activity->id);
-    				$deviation_id = (!empty($deviation)) ? $deviation : null;
-    			}
+			$journal_id = null;
+			$deviation_id = null;
+			if($is_journal_assign_module == true && $is_journal == '1'){
+				$journal =  journal($activity->id);
+				$journal_id = (!empty($journal)) ? $journal : null;
+			}
+			if($is_deviation_assign_module == true && $is_deviation == '1'){
+				$deviation = deviation($activity->id);
+				$deviation_id = (!empty($deviation)) ? $deviation : null;
+			}
 
-    			/*-----------Send notification---------------------*/
+			/*-----------Send notification---------------------*/
 
-    			$receivers_ids = array_filter(array_unique($receivers_ids));
-    			$data_id =  $activity->id;
-    			
+			$receivers_ids = array_filter(array_unique($receivers_ids));
+			$data_id =  $activity->id;
+			
 
-    			if($request->status == 1) {
-    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-done')->first();
-    			}
-    			elseif ($request->status == 2) {
-    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-done')->first();
-    			}
-    			elseif ($request->status == 3) {
-    				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
-    			}
-    			$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
+			if($request->status == 1) {
+				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-done')->first();
+			}
+			elseif ($request->status == 2) {
+				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-done')->first();
+			}
+			elseif ($request->status == 3) {
+				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
+			}
+			$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
 
-    			foreach ($receivers_ids as $key => $value) {
-    				$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
-					$variable_data = [
-						'{{name}}'              => $user->name,
-						'{{action_by}}'         => Auth::User()->name,
-						'{{activity_title}}'    => $activity->title,
-						'{{start_date}}'        => $activity->start_date,
-						'{{start_time}}'        => $activity->start_time
-					];
-    				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
-    			}
-    			DB::commit();
+			foreach ($receivers_ids as $key => $value) {
+				$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+				$variable_data = [
+					'{{name}}'              => $user->name,
+					'{{action_by}}'         => Auth::User()->name,
+					'{{activity_title}}'    => $activity->title,
+					'{{start_date}}'        => $activity->start_date,
+					'{{start_time}}'        => $activity->start_time
+				];
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+			}
+			DB::commit();
 
-    			return prepareResult(true,'Action Done successfully' ,$activity, config('httpcodes.success'));
-    		} else {
-    			return prepareResult(false,'Opps! Something Went Wrong',[], config('httpcodes.bad_request')); 
-    		}
-
+			return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_action') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		\Log::error($exception);
@@ -1227,7 +1220,7 @@ class ActivityController extends Controller
 
     		Activity::whereIn('id', $request->activity_ids)->delete();
     		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -1244,7 +1237,7 @@ class ActivityController extends Controller
     			'activity_tag' => $request->activity_tag
     		]);
     		DB::commit();
-    		return prepareResult(true, 'Activity tag added.' ,[], config('httpcodes.success'));
+    		return prepareResult(true, getLangByLabelGroups('BcCommon','bc_message_tag_added') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -1267,7 +1260,7 @@ class ActivityController extends Controller
     		$getActivity = Activity::find($request->activity_id);
     		if(!$getActivity)
     		{
-    			return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'),[], config('httpcodes.not_found'));
     		}
     		Activity::where('group_id', $getActivity->group_id)
     		->whereDate('start_date', '>=', $request->from_date)
@@ -1296,7 +1289,7 @@ class ActivityController extends Controller
 
             actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
 
-    		return prepareResult(true, 'Activity Added as not applicable.' ,[], config('httpcodes.success'));
+    		return prepareResult(true, getLangByLabelGroups('BcCommon','bc_message_mark_not_applicable') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

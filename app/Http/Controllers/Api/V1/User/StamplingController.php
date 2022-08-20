@@ -10,6 +10,9 @@ use App\Models\OVHour;
 use App\Models\Stampling;
 use App\Models\EmailTemplate;
 use App\Models\ScheduleTemplate;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StamplingReportExport;
+use App\Exports\StamplingDatewiseReportExport;
 use App\Models\CompanyWorkShift;
 use Exception;
 use PDF;
@@ -274,11 +277,11 @@ class StamplingController extends Controller
 				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time)-$rest_duration;
 				$total_worked_duration = timeDifference($in_time,$out_time) - $rest_duration;
 				$countable_scheduled_duration = $total_worked_duration - $ob_duration;
-				$extra_duration =  0;
-				if($countable_scheduled_duration > $scheduled_duration)
-				{
+				// $extra_duration =  0;
+				// if($countable_scheduled_duration > $scheduled_duration)
+				// {
 					$extra_duration =  $countable_scheduled_duration - $scheduled_duration;
-				}
+				// }
 
 				$total_schedule_hours = $countable_scheduled_duration/60;
 				$total_ob_hours = $ob_duration/60;
@@ -358,7 +361,7 @@ class StamplingController extends Controller
 	{
 		try {
 
-    		$query = Stampling::where('user_id', Auth::id())->where('out_time',null)->orderBy('created_at','desc')->get(['id','in_time','in_location']);
+    		$query = Stampling::where('user_id', Auth::id())->where('out_time',null)->orderBy('created_at','desc')->with('schedule')->get(['id','in_time','in_location','schedule_id']);
 
     		return prepareResult(true,"Stampling list",$query,config('httpcodes.success'));
     	}
@@ -372,38 +375,129 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null)->get(['id','schedule_id','in_time','out_time','total_ob_hours','stampling_type','date']);
-			foreach ($stamplings as $key => $value) {
-				$schedule = Schedule::find($value->schedule_id);
-				$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
-				$total_worked_duration = timeDifference($value->in_time,$value->out_time);
-				$extra_work = 0;
-				$remaining_work = 0;
-				if($total_worked_duration > $scheduled_duration)
+				$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null);
+				if(!empty($request->start_date))
 				{
-					$extra_work = $total_worked_duration - $scheduled_duration;
+					$stamplings->where('date','>=',$request->start_date);
 				}
-				else
+				if(!empty($request->end_date))
 				{
-					$remaining_work = -$total_worked_duration + $scheduled_duration;
+					$stamplings->where('date','<=',$request->end_date);
 				}
+				$stamplings = $stamplings->get(['id','schedule_id','date','in_time','out_time','stampling_type','total_ob_hours']);
+				foreach ($stamplings as $key => $value) {
+					$schedule = Schedule::find($value->schedule_id);
+					$scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
+					$total_worked_duration = timeDifference($value->in_time,$value->out_time);
+					$extra_work = 0;
+					$remaining_work = 0;
+					if($total_worked_duration > $scheduled_duration)
+					{
+						$extra_work = $total_worked_duration - $scheduled_duration;
+					}
+					else
+					{
+						$remaining_work = -$total_worked_duration + $scheduled_duration;
+					}
 
-				$value->shift_start_time = $schedule->shift_start_time;
-				$value->shift_end_time = $schedule->shift_end_time;
-				$value->shift_hours = $scheduled_duration;
-				$value->stampling_duration = $total_worked_duration;
-				$value->extra_work = $extra_work;
-				if($schedule->schedule_type == 'emergency')
+					$value->shift_start_time = $schedule->shift_start_time;
+					$value->shift_end_time = $schedule->shift_end_time;
+					$value->shift_hours = $scheduled_duration;
+					$value->stampling_duration = $total_worked_duration;
+					$value->extra_work = $extra_work;
+					if($schedule->schedule_type == 'emergency')
+					{
+						$value->emergency_work_duration = $schedule->emergency_work_duration - $value->total_ob_hours;
+					}
+					else
+					{
+						$value->emergency_work_duration = 0;
+					}
+					// $value->remaining_work = number_format($remaining_work,2);
+				}
+				if($request->export == true)
 				{
-					$value->emergency_work_duration = $schedule->emergency_work_duration - $value->total_ob_hours;
+					$rand = rand(0,1000);
+					$excel = Excel::store(new StamplingReportExport($stamplings), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
+
+					return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
 				}
 				else
 				{
-					$value->emergency_work_duration = 0;
+					return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$stamplings, config('httpcodes.success'));
 				}
-				// $value->remaining_work = number_format($remaining_work,2);
+				
+		}
+		catch(Exception $exception) {
+			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+		}
+	}
+
+	public function stamplingDatewiseReports(Request $request)
+	{
+		try 
+		{
+			$dates = [];
+			$data = [];
+			if(!empty($request->start_date) && !empty($request->end_date))
+			{
+				$date1 = strtotime($request->start_date);
+				$date2 = strtotime($request->end_date);
+				for($curDate=$date1; $curDate<=$date2; $curDate += (86400))
+				{
+					$dates[] = date('Y-m-d', $curDate);
+				}
 			}
-			return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$stamplings, config('httpcodes.success'));
+			elseif(!empty($request->dates))
+			{
+				$dates = $request->dates;
+			}
+			else
+			{
+				$stamplings = Stampling::where('user_id',$request->user_id)->where('out_time','!=',null)->get(['date']);
+				foreach ($stamplings as $key => $value) {
+					$dates[] = $value->date;
+				}
+			}
+
+			$dates = array_unique($dates);
+
+			foreach ($dates as $key => $date) 
+			{
+				$stamplings = Stampling::where('date',$date)->where('user_id',$request->user_id)->where('out_time','!=',null)->get();
+				$total_schedule_hours = Stampling::where('date',$date)->where('user_id',$request->user_id)->where('out_time','!=',null)->sum('total_schedule_hours');
+				$total_extra_hours = Stampling::where('date',$date)->where('user_id',$request->user_id)->where('out_time','!=',null)->sum('total_extra_hours');
+				$total_ob_hours = Stampling::where('date',$date)->where('user_id',$request->user_id)->where('out_time','!=',null)->sum('total_ob_hours');
+				if($total_extra_hours > 0 )
+				{
+					$total_hours = $total_schedule_hours + $total_extra_hours + $total_ob_hours;
+				}
+				else
+				{
+					$total_hours = $total_schedule_hours  + $total_ob_hours;
+				}
+				
+
+				$data[] = [
+					"date" => $date,
+					// "stamplings" => $stamplings,
+					"total_schedule_work_done" => $total_schedule_hours,
+					"total_extra_work_done" => $total_extra_hours,
+					"total_ob_work_done" => $total_ob_hours,
+					"stampling_hour"=>$total_hours
+				];
+			}
+			if($request->export == true)
+			{
+				$rand = rand(0,1000);
+				$excel = Excel::store(new StamplingDatewiseReportExport($data), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
+
+				return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
+			}
+			else
+			{
+				return prepareResult(true,  getLangByLabelGroups('Stampling','message_employee_hours'),$data, config('httpcodes.success'));
+			}
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

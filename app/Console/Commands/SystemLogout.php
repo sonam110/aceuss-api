@@ -53,11 +53,11 @@ class SystemLogout extends Command
             $scheduled_duration = timeDifference($schedule->shift_start_time,$schedule->shift_end_time);
             $total_worked_duration = timeDifference($in_time,$out_time);
             $countable_scheduled_duration = $total_worked_duration - $ob_duration;
-            $extra_duration =  0;
-            if($countable_scheduled_duration > $scheduled_duration)
-            {
+            // $extra_duration =  0;
+            // if($countable_scheduled_duration > $scheduled_duration)
+            // {
                 $extra_duration =  $countable_scheduled_duration - $scheduled_duration;
-            }
+            // }
 
             $total_schedule_hours = $countable_scheduled_duration/60;
             $total_ob_hours = $ob_duration/60;

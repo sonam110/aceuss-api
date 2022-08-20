@@ -97,7 +97,7 @@ class LabelController extends Controller
 			$count = Label::where('label_name',$request->label_name)->where('label_value',$request->label_value)->where('language_id',$request->language_id)->count();
 			if($count>=1)
 			{
-				return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'), [],config('httpcodes.bad_request'));
+				return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'), [],config('httpcodes.bad_request'));
 			}
 			$label = new Label;
 			$label->group_id         = $request->group_id;

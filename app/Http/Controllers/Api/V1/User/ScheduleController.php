@@ -978,8 +978,8 @@ class ScheduleController extends Controller
 					"schedules" => $schedules,
 					"scheduled work duration" => $scheduled_work_duration,
 					"extra_work_duration" => $extra_work_duration,
-					"ob_work_duration" => $emergency_work_duration,
-					"emergency_work_duration" => $ob_work_duration,
+					"ob_work_duration" => $ob_work_duration,
+					"emergency_work_duration" => $emergency_work_duration,
 					"vacation_duration" => $vacation_duration,
 					"total_hour"=>$total_hours
 				];

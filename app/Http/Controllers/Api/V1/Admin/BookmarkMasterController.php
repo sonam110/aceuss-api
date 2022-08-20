@@ -72,7 +72,7 @@ class BookmarkMasterController extends Controller
         	}
         	$checkAlready = BookmarkMaster::where('title',$request->title)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $BookmarkMaster = new BookmarkMaster;
             $BookmarkMaster->title = $request->title;
@@ -128,7 +128,7 @@ class BookmarkMasterController extends Controller
             }
             $checkAlready = BookmarkMaster::where('id','!=',$id)->where('title',$request->title)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $BookmarkMaster = BookmarkMaster::find($id);

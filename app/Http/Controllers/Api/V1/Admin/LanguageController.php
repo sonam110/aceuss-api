@@ -78,7 +78,7 @@ class LanguageController extends Controller
     		$count = Language::where('title',$request->title)->where('value',$request->value)->count();
     		if($count>=1)
     		{
-    			return prepareResult(false,getLangByLabelGroups('Language','message_Dublicate Entry'), [],config('httpcodes.not_found'));
+    			return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'), [],config('httpcodes.not_found'));
 
     		}
     		$language = new Language;
@@ -88,7 +88,7 @@ class LanguageController extends Controller
     		$language->entry_mode           = $request->entry_mode;
     		$language->save();
     		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Language','message_create') ,$language, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$language, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
     		DB::rollback();
@@ -134,7 +134,7 @@ class LanguageController extends Controller
     		$language->entry_mode           = $request->entry_mode;
     		$language->save();
     		DB::commit();
-    		return prepareResult(true,getLangByLabelGroups('Language','message_language_update') ,$language, config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_language_update') ,$language, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
     		DB::rollback();
@@ -155,7 +155,7 @@ class LanguageController extends Controller
     	{
     		if(strtolower($language->title) == 'english' || $language->id == 1)
     		{
-    			return prepareResult(false ,getLangByLabelGroups('LoginValidation','message_language_cannot_be_deleted') ,['English language can not be deleted'], config('httpcodes.success'));
+    			return prepareResult(false ,getLangByLabelGroups('BcCommon','bc_message_language_cannot_be_deleted') ,['English language can not be deleted'], config('httpcodes.success'));
     		}
     		else
     		{  
@@ -163,7 +163,7 @@ class LanguageController extends Controller
     			$language->delete();
     		}
 
-    		return prepareResult(true,getLangByLabelGroups('Language','message_language_deleted') ,[], config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_language_deleted') ,[], config('httpcodes.success'));
     	} catch (\Throwable $exception) {
     		\Log::error($exception);
     		DB::rollback();

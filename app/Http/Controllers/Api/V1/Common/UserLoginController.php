@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserType;
+use App\Models\CompanySetting;
 use App\Models\Subscription;
 use App\Models\AssigneModule;
 use App\Models\Package;
@@ -102,6 +103,16 @@ class UserLoginController extends Controller
                                 $role   = Role::where('name', $user['roles'])->first();
                                 $user['permissions']  = $role->permissions()->select('id','name as action','group_name as subject','se_name')->get();
                                 $user['licence_status'] = 1;
+
+                                $companySetting = CompanySetting::where('user_id',Auth::user()->top_most_parent_id)->first();
+                                if(!empty($companySetting))
+                                { 
+                                    $user['relaxation_time'] = $companySetting->relaxation_time;
+                                }
+                                else
+                                {
+                                    $user['relaxation_time'] = 0;
+                                }
 
                                 if(auth()->user()->top_most_parent_id!=1)
                                 {

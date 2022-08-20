@@ -60,7 +60,7 @@ class ActivityClsController extends Controller
             }
             $checkAlready = ActivityClassification::where('name',$request->name)->first(); 
             if($checkAlready) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_existss'),[], config('httpcodes.bad_request')); 
             }
             $activityClassification = new ActivityClassification;
             $activityClassification->name = $request->name;
@@ -116,7 +116,7 @@ class ActivityClsController extends Controller
             $checkAlready = ActivityClassification::where('id','!=',$id)->where('name',$request->name)->first(); 
             if($checkAlready) {
 
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exist'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'),[], config('httpcodes.bad_request')); 
 
             }
             $activityClassification = ActivityClassification::find($id);

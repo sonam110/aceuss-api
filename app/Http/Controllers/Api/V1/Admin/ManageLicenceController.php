@@ -146,7 +146,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt->save();
 
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$keyMgmt, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -166,7 +166,7 @@ class ManageLicenceController extends Controller
             $checkId['package']=json_decode($checkId->package_details);
             $checkId['module'] = $mod;
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('LicenceKey','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -223,7 +223,7 @@ class ManageLicenceController extends Controller
                 $keyMgmt->save();
 
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$keyMgmt, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_update') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -244,12 +244,12 @@ class ManageLicenceController extends Controller
 
                 if(empty($licenceKeyData))
                 {
-                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,[], config('httpcodes.success'));
+                    return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found') ,[], config('httpcodes.not_found'));
                 }
 
                 if($licenceKeyData->is_used == 1)
                 {
-                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_already_assigned') ,[], config('httpcodes.success'));
+                    return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_already_assigned') ,[], config('httpcodes.bad_request'));
                 }
 
                 $package_details =  json_decode($licenceKeyData->package_details);
@@ -299,7 +299,7 @@ class ManageLicenceController extends Controller
                     'licence_end_date'=> $package_expire_at
                 ]);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_create') ,$licenceKeyData, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -315,14 +315,14 @@ class ManageLicenceController extends Controller
                 $user = User::find($id);
                 if($user->licence_status == 0)
                 {
-                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,['already expired'], config('httpcodes.success'));
+                    return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_subscription_already_expired') ,['already expired'], config('httpcodes.success'));
                 }
 
                 $licenceKeyData = LicenceKeyManagement::where('licence_key',$user->licence_key)->first();
 
                 if(empty($licenceKeyData))
                 {
-                    return prepareResult(false,getLangByLabelGroups('LicenceKey','message_invalid_data') ,[], config('httpcodes.success'));
+                    return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found') ,[], config('httpcodes.not_found'));
                 }
                 $package_expire_at = date('Y-m-d', strtotime('-1 days'));
 
@@ -347,7 +347,7 @@ class ManageLicenceController extends Controller
                 ]);
                 $user = User::find($id);
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('LicenceKey','message_licence_expired') ,$user, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_cancel') ,$user, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();

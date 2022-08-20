@@ -369,6 +369,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::apiResource('stampling', User\StamplingController::class)->only(['store','destroy','show', 'update']);
 		Route::get('stamp-in-data', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stampInData']);
 		Route::post('stampling-reports', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplingReports']);
+		Route::post('stampling-datewise-reports', [App\Http\Controllers\Api\V1\User\StamplingController::class, 'stamplingDatewiseReports']);
 
 		//-----------------------Emp Assi Working Hour---------------------//
 		Route::post('employee-assigned-working-hours', [App\Http\Controllers\Api\V1\User\EmployeeAssignedWorkingHourController::class, 'employeeAssignedWorkingHours']);
