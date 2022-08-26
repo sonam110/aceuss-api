@@ -332,6 +332,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		/*-------------OVHour------------------------*/
 			Route::post('ovhours', [App\Http\Controllers\Api\V1\User\OVHourController::class, 'ovhours']);
 			Route::apiResource('ovhour',User\OVHourController::class)->only(['store','destroy','show', 'update']);
+			Route::post('obe-hours-import', [App\Http\Controllers\Api\V1\User\OVHourController::class, 'obeHoursImport']);
 
 		//-----------------------Schedule---------------------//
 		Route::post('schedules', [App\Http\Controllers\Api\V1\User\ScheduleController::class, 'schedules']);

@@ -234,14 +234,14 @@ class DeviationController extends Controller
                     'total_with_activity' => $deviationCounts->total_with_activity,
                     'total_without_activity' => $deviationCounts->total_without_activity,
                 ];
-                return prepareResult(true,"Deviation list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Deviation list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -335,11 +335,11 @@ class DeviationController extends Controller
             $checkId= Deviation::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $deviation = Deviation::where('id', $id)->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch')->first();
-            return prepareResult(true,'View Deviation' ,$deviation, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_show') ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -373,7 +373,7 @@ class DeviationController extends Controller
             $deviation = Deviation::where('id',$id)
                 ->first();
             if (!is_object($deviation)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
@@ -427,7 +427,7 @@ class DeviationController extends Controller
             $user = getUser();
             $checkId= Deviation::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             Deviation::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('Deviation','message_delete') ,[], config('httpcodes.success'));
@@ -473,7 +473,7 @@ class DeviationController extends Controller
             $checkId = Deviation::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Deviation','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $deviation = Deviation::where('id', $id)->first();
@@ -482,7 +482,7 @@ class DeviationController extends Controller
             $pdf = PDF::loadView('print-deviation', $data);
             $pdf->save('reports/deviations/'.$filename);
             $url = env('CDN_DOC_URL').'reports/deviations/'.$filename;
-            return prepareResult(true,'Print Deviation' ,$url, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Deviation','message_print') ,$url, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);

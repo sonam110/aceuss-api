@@ -89,7 +89,7 @@ class RoleController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Roles",$query,'200');
+            return prepareResult(true,getLangByLabelGroups('role','message_list'),$query,'200');
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -155,9 +155,9 @@ class RoleController extends Controller
             $roleInfo = $roleInfo->find($role->id);
             if($roleInfo)
             {
-                return prepareResult(true,'View Role',$roleInfo, '200');
+                return prepareResult(true,getLangByLabelGroups('role','message_show'),$roleInfo, '200');
             }
-            return prepareResult(false, getLangByLabelGroups('role','message_id_not_found'), [],config('httpcodes.not_found'));
+            return prepareResult(false, getLangByLabelGroups('role','message_record_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }

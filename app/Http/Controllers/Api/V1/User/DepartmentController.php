@@ -47,14 +47,14 @@ class DepartmentController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Department list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Department list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Department','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -151,11 +151,11 @@ class DepartmentController extends Controller
             $user = getUser();
             $checkId= Department::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Department','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $department = Department::where('id',$id)->with('User:id,name')->first();
-            return prepareResult(true,'View Department',$department, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Department','message_show'),$department, config('httpcodes.success'));
                  
         }
         catch(Exception $exception) {
@@ -180,7 +180,7 @@ class DepartmentController extends Controller
         	}
         	$checkId = Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Department','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Department::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
@@ -192,7 +192,7 @@ class DepartmentController extends Controller
             $topParent = findTopParentId($request->parent_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->parent_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create department more than five level ',[], config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('Department','message_chil_level_exceed'),[], config('httpcodes.bad_request'));
 
             }
 	        $department = Department::find($id);
@@ -218,7 +218,7 @@ class DepartmentController extends Controller
 	    	$user = getUser();
         	$checkId= Department::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Department','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Department','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$department = Department::where('id',$id)->delete();

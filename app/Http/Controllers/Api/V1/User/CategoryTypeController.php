@@ -36,13 +36,13 @@ class CategoryTypeController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"CategoryType list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"CategoryType list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryType','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -85,11 +85,11 @@ class CategoryTypeController extends Controller
             $user = getUser();
             $checkId= CategoryType::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $categoryType = CategoryType::where('id',$id)->first();
-            return prepareResult(true,'Category Type view' ,$categoryType, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryType','message_show') ,$categoryType, config('httpcodes.success'));
                 
                 
         }
@@ -114,7 +114,7 @@ class CategoryTypeController extends Controller
         	}
         	$checkId = CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryType::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
@@ -142,7 +142,7 @@ class CategoryTypeController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryType::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryType','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryType = CategoryType::findOrFail($id);

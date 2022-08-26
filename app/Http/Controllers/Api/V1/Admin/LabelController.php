@@ -59,13 +59,13 @@ class LabelController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$pagination,config('httpcodes.success'));
+				$query = $pagination;
 			}
 			else
 			{
 				$query = $query->get();
 			}
-			return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -97,7 +97,7 @@ class LabelController extends Controller
 			$count = Label::where('label_name',$request->label_name)->where('label_value',$request->label_value)->where('language_id',$request->language_id)->count();
 			if($count>=1)
 			{
-				return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_already_exists'), [],config('httpcodes.bad_request'));
+				return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_already_exists'), [],config('httpcodes.bad_request'));
 			}
 			$label = new Label;
 			$label->group_id         = $request->group_id;
@@ -108,7 +108,7 @@ class LabelController extends Controller
 			$label->entry_mode       = $request->entry_mode;
 			$label->save();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$label, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
 			DB::rollback();
@@ -129,9 +129,9 @@ class LabelController extends Controller
 		{
 			$checkId= Label::find($id);
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
-			 return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$checkId, config('httpcodes.success'));
+			 return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$checkId, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -168,7 +168,7 @@ class LabelController extends Controller
 			$label->entry_mode       = $request->entry_mode;
 			$label->save();
 			DB::commit();
-			return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_update') ,$label, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
 			DB::rollback();
@@ -189,14 +189,14 @@ class LabelController extends Controller
 		{
 			$checkId= Label::find($id);
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			if(auth()->user()->user_type_id=='1')
 			{
 				Label::where('id',$id)->delete();
-				return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
 			}
-		   return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_unauthorized'), [],config('httpcodes.unauthorized'));
+		   return prepareResult(false, getLangByLabelGroups('BcCommon','message_unauthorized'), [],config('httpcodes.unauthorized'));
 			
 		} catch (\Throwable $exception) {
 			\Log::error($exception);
@@ -222,7 +222,7 @@ class LabelController extends Controller
 		Label::where('language_id',$language->id)->delete();
 		$import = Excel::import(new LabelsImport($data),request()->file('file'));
 
-		return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_import') ,[], config('httpcodes.success'));
+		return prepareResult(true,getLangByLabelGroups('BcCommon','message_import') ,[], config('httpcodes.success'));
 	}
 
 	public function labelsExport(Request $request) 
@@ -231,7 +231,7 @@ class LabelController extends Controller
         
         $excel = Excel::store(new LabelsExport(), 'export/'.$rand.'.xlsx' , 'export_path');
         
-        return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.xlsx'], config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.xlsx'], config('httpcodes.success'));
          
     }
 }

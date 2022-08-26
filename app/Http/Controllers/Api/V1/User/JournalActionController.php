@@ -57,7 +57,7 @@ class JournalActionController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,getLangByLabelGroups('JournalAction','message_list'),$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
@@ -82,7 +82,7 @@ class JournalActionController extends Controller
                 'journal_id' => 'required|exists:journals,id',    
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('JournalAction','message_journal_id'),   
+                'journal_id.required' =>  getLangByLabelGroups('JournalAction','message_journal_id_required'),   
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -90,7 +90,7 @@ class JournalActionController extends Controller
 
             if(empty($request->comment_action) && empty($request->comment_result))
             {
-                return prepareResult(false,'You need to fill atleast one field',[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('JournalAction','message_atleast_one_field_required'),[], config('httpcodes.bad_request')); 
             }
             
             $journalAction = new JournalAction;
@@ -130,7 +130,7 @@ class JournalActionController extends Controller
                 'journal_id' => 'required|exists:journals,id',          
             ],
             [
-                'journal_id' =>  getLangByLabelGroups('JournalAction','message_journal_id'),    
+                'journal_id.required' =>  getLangByLabelGroups('JournalAction','message_journal_id_required'),    
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -138,13 +138,13 @@ class JournalActionController extends Controller
 
             if(empty($request->comment_action) && empty($request->comment_result))
             {
-                return prepareResult(false,'You need to fill atleast one field',[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('JournalAction','message_atleast_one_field_required'),[], config('httpcodes.bad_request')); 
             }
             
             $checkId = JournalAction::where('id',$id)
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             if($checkId->is_signed==1)
@@ -198,7 +198,7 @@ class JournalActionController extends Controller
             $user = getUser();
             $checkId= JournalAction::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $journalAction = JournalAction::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('JournalAction','message_delete') ,[], config('httpcodes.success'));
@@ -218,7 +218,7 @@ class JournalActionController extends Controller
             $checkId= JournalAction::where('id',$id)->with('journal','journalActionLogs','editedBy:id,name','signedBy:id,name')
                 ->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('JournalAction','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('JournalAction','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $data = JournalAction::with('journal','journalActionLogs')

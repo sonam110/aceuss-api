@@ -55,13 +55,13 @@ class StamplingController extends Controller
 			{
 			    $query->where('date' ,$request->date);
 			}
-			if(!empty($request->in_time))
+			if(!empty($request->in_time) && !empty($request->out_time))
 			{
-			    $query->where('in_time',">=" ,$request->in_time);
+			    $query->where(\DB::raw("DATE_FORMAT(in_time, '%H:%i')"),">=" ,$request->in_time)->where(\DB::raw("DATE_FORMAT(out_time, '%H:%i')"),"<=" ,$request->out_time);
 			}
-			if(!empty($request->out_time))
+			if(!empty($request->stampling_type))
 			{
-			    $query->where('out_time',"<=" ,$request->out_time);
+			    $query->where('stampling_type', $request->stampling_type);
 			}
 			if(!empty($request->perPage))
 			{
@@ -78,20 +78,18 @@ class StamplingController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"Stampling list",$pagination,config('httpcodes.success'));
+				$query = $pagination;
 			}
 			else
 			{
 				$query = $query->get();
 			}
 
-			return prepareResult(true,"Stampling list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Stampling','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
 		}
-
 	}
 
 	public function store(Request $request)
@@ -105,7 +103,6 @@ class StamplingController extends Controller
 			if ($validator->fails()) {
 				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
 			}
-			
 			$user = Auth::User();
 			$relaxation_time = companySetting($user->top_most_parent_id)['relaxation_time'];
 			if(empty($relaxation_time))
@@ -139,6 +136,12 @@ class StamplingController extends Controller
 				}
 				else
 				{
+					$schedule_template = ScheduleTemplate::where('status','1')->first();
+					if(empty($schedule_template))
+					{
+						return prepareResult(false,getLangByLabelGroups('Stampling','message_active_template_unavailable'),[], config('httpcodes.bad_request')); 
+					}
+
 					$validator = Validator::make($request->all(),[  
 						'expected_out_time'=>'required'
 					]);
@@ -161,7 +164,7 @@ class StamplingController extends Controller
 					$schedule->created_by 				= Auth::id();
 					$schedule->slot_assigned_to 		= null;
 					$schedule->employee_assigned_working_hour_id= NULL;
-					$schedule->schedule_template_id 	= ScheduleTemplate::where('status','1')->first()->id;
+					$schedule->schedule_template_id 	= $schedule_template->id;
 					$schedule->schedule_type 			= 'extra';
 					$schedule->shift_date 				= $date;
 					$schedule->group_id 				= generateRandomNumber();
@@ -232,7 +235,7 @@ class StamplingController extends Controller
 				$stampling = Stampling::find($request->punchin_id);
 				if (!is_object($stampling)) 
 				{
-	                return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
+	                return prepareResult(false,getLangByLabelGroups('Stampling','message_record_not_found'), ['Not Logged In'],config('httpcodes.not_found'));
 	            }
 	            $in_time = $stampling->in_time;
 	            $out_time = date('Y-m-d H:i:s');
@@ -331,7 +334,7 @@ class StamplingController extends Controller
 		{
 			$stampling= Stampling::find($id);
 			if (!is_object($stampling)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Stampling','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$stampling->delete();
 			return prepareResult(true,getLangByLabelGroups('Stampling','message_delete') ,[], config('httpcodes.success'));
@@ -347,9 +350,9 @@ class StamplingController extends Controller
 		{
 			$stampling = Stampling::where('id',$id)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
 			if (!is_object($stampling)) {
-				return prepareResult(false,getLangByLabelGroups('Stampling','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Stampling','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
-			return prepareResult(true,'View Stampling' ,$stampling, config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('Stampling','message_show') ,$stampling, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -359,15 +362,14 @@ class StamplingController extends Controller
 
 	public function stampInData()
 	{
-		try {
-
+		try 
+		{
     		$query = Stampling::where('user_id', Auth::id())->where('out_time',null)->orderBy('created_at','desc')->with('schedule')->get(['id','in_time','in_location','schedule_id']);
 
-    		return prepareResult(true,"Stampling list",$query,config('httpcodes.success'));
+    		return prepareResult(true,getLangByLabelGroups('Stampling','message_list'),$query,config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-
     	}
 	}
 
@@ -420,11 +422,11 @@ class StamplingController extends Controller
 					$rand = rand(0,1000);
 					$excel = Excel::store(new StamplingReportExport($stamplings), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
 
-					return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
+					return prepareResult(true,getLangByLabelGroups('Patient Cashier','message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
 				}
 				else
 				{
-					return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$stamplings, config('httpcodes.success'));
+					return prepareResult(true,  getLangByLabelGroups('Stampling','message_employee_hours'),$stamplings, config('httpcodes.success'));
 				}
 				
 		}
@@ -492,7 +494,7 @@ class StamplingController extends Controller
 				$rand = rand(0,1000);
 				$excel = Excel::store(new StamplingDatewiseReportExport($data), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
 
-				return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Stampling','message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
 			}
 			else
 			{

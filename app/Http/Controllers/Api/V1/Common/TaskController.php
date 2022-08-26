@@ -404,7 +404,7 @@ class TaskController extends Controller
             
             $checkId = Task::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $old_end_date = $checkId->end_date;
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -512,7 +512,7 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$Task = Task::where('id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
@@ -529,7 +529,7 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name')->first();
 	        return prepareResult(true,'View Task' ,$task, config('httpcodes.success'));

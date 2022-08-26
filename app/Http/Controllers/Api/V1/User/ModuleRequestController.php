@@ -53,14 +53,14 @@ class ModuleRequestController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage),
 				];
-				return prepareResult(true,"ModuleRequest list",$pagination,config('httpcodes.success'));
+				$quesry = $pagination;
 			}
 			else
 			{
 				$query = $query->get();
 			}
 
-			return prepareResult(true,"ModuleRequest list",$query,config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -122,7 +122,7 @@ class ModuleRequestController extends Controller
 
 			$checkId = ModuleRequest::where('id',$id) ->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$moduleRequest = $checkId;
 			$moduleRequest->user_id = Auth::id();
@@ -147,7 +147,7 @@ class ModuleRequestController extends Controller
 		{
 			$checkId= ModuleRequest::where('id',$id)->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$checkId->delete();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_delete') ,[], config('httpcodes.success'));
@@ -163,7 +163,7 @@ class ModuleRequestController extends Controller
 		{
 			$checkId= ModuleRequest::where('id',$id)->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_show') ,$checkId, config('httpcodes.success'));
 		}
@@ -180,7 +180,7 @@ class ModuleRequestController extends Controller
 		{
 			$moduleRequest = ModuleRequest::find($id);
 			if (!is_object($moduleRequest)) {
-				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ModuleRequest','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$moduleRequest->reply_comment = $request->reply_comment;
 			$moduleRequest->reply_date = date('Y-m-d');

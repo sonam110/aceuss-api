@@ -31,13 +31,13 @@ class EmergencyContactController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"EmergencyContact list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"EmergencyContact list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
@@ -69,7 +69,7 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$EmergencyContact, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -94,7 +94,7 @@ class EmergencyContactController extends Controller
             }
             $checkId = EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $getUser = User::where('id',$request->user_id)->first();
             $EmergencyContact = EmergencyContact::find($id);
@@ -107,7 +107,7 @@ class EmergencyContactController extends Controller
             if($request->is_default) {
             	$updateDefault = EmergencyContact::where('id','!=',$EmergencyContact->id)->update(['is_default'=>'0']);
             }
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_update'),$EmergencyContact, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$EmergencyContact, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -122,10 +122,10 @@ class EmergencyContactController extends Controller
         try {
             $checkId= EmergencyContact::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $EmergencyContact = EmergencyContact::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','message_delete') ,[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

@@ -46,13 +46,13 @@ class ParagraphController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Paragraph list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Paragraph list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -76,7 +76,7 @@ class ParagraphController extends Controller
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$Paragraph, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -101,14 +101,14 @@ class ParagraphController extends Controller
             }
             $checkId = Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Paragraph = Paragraph::find($id);
             $Paragraph->paragraph = $request->paragraph;
             $Paragraph->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_update'),$Paragraph, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -122,10 +122,10 @@ class ParagraphController extends Controller
         try {
             $checkId= Paragraph::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $Paragraph = Paragraph::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('CompanyType','message_delete') ,[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

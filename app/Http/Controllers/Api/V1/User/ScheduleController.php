@@ -133,7 +133,7 @@ class ScheduleController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$pagination,config('httpcodes.success'));
+				$query = $pagination;
 			}
 			else
 			{

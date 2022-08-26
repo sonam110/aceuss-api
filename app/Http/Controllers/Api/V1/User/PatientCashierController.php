@@ -107,7 +107,7 @@ class PatientCashierController extends Controller
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Patient Cashier list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -145,7 +145,7 @@ class PatientCashierController extends Controller
             $data = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')
                 ->where('id', $patient_cashier->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('Patient Cashier','message_create') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
              \Log::error($exception);
@@ -163,7 +163,7 @@ class PatientCashierController extends Controller
             $patient_id  = $request->patient_id;
             $excel = Excel::store(new PatientCashiersExport($patient_id), 'export/cashier/'.$rand.'.xlsx' , 'export_path');
 
-            return prepareResult(true,getLangByLabelGroups('Patient Cashier','bc_message_export') ,['url' => env('APP_URL').'public/export/cashier/'.$rand.'.xlsx'], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/cashier/'.$rand.'.xlsx'], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));

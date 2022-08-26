@@ -28,7 +28,7 @@ class BookMarkController extends Controller
                 'bookmarked' => $bookmarked,
                 'bookmarklist' => $bookmarklist,
             ];
-            return prepareResult(true,"Bookmark list",$returnObj,config('httpcodes.success')); 
+            return prepareResult(true,getLangByLabelGroups('Bookmark','message_list'),$returnObj,config('httpcodes.success')); 
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -65,8 +65,14 @@ class BookMarkController extends Controller
                 'bookmarked' => $bookmarked,
                 'bookmarklist' => $bookmarklist,
             ];
-            return prepareResult(true,'Bookmark '.$action.' successfully' ,$returnObj, config('httpcodes.success'));
-
+            if($isBookmerked)
+            {
+                return prepareResult(true,getLangByLabelGroups('Bookmark','message_removed') ,$returnObj, config('httpcodes.success'));
+            }
+            else
+            {
+                return prepareResult(true,getLangByLabelGroups('Bookmark','message_added') ,$returnObj, config('httpcodes.success'));
+            }
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

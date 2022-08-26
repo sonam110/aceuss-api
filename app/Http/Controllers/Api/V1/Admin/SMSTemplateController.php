@@ -50,7 +50,7 @@ class SMSTemplateController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -76,7 +76,7 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$smsTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -88,7 +88,7 @@ class SMSTemplateController extends Controller
     {
         try 
         {
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$smsTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -111,7 +111,7 @@ class SMSTemplateController extends Controller
             $smsTemplate->custom_attributes  = $request->custom_attributes;
             $smsTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('CompanyType','message_update') ,$smsTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$smsTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -125,7 +125,7 @@ class SMSTemplateController extends Controller
             if(auth()->user()->user_type_id=='1')
             {
                 $smsTemplate->delete();
-                return prepareResult(true,getLangByLabelGroups('CompanyType','message_delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
             }
            return prepareResult(false, 'Record Not Found', [],config('httpcodes.not_found'));
             

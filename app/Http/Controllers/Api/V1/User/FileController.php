@@ -32,14 +32,14 @@ class FileController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"File list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"File list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -75,7 +75,7 @@ class FileController extends Controller
 		 	$file->visible_to_users = $request->visible_to_users;
             $file->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$file->save();
-	        return prepareResult(true,'file Added successfully' ,$file, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -91,14 +91,14 @@ class FileController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'name.required' => 'Name is required',
+            'name.required' => getLangByLabelGroups('BcValidation','message_name_required'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_update'), [],config('httpcodes.not_found'));
             }
 	        $file = File::find($id);
 		 	$file->top_most_parent_id = $user->top_most_parent_id;
@@ -113,7 +113,7 @@ class FileController extends Controller
 		 	$file->visible_to_users = $request->visible_to_users;
             $file->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$file->save();
-	        return prepareResult(true,'file Updated successfully' ,$file, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$file, config('httpcodes.success'));
 			    
 		       
         }
@@ -129,10 +129,10 @@ class FileController extends Controller
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$file = File::where('id',$id)->delete();
-         	return prepareResult(true,'file delete successfully' ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
 			    
         }
         catch(Exception $exception) {
@@ -160,7 +160,7 @@ class FileController extends Controller
 		 	$file->approved_date = date('Y-m-d');
 		 	$file->status = '1';
 		 	$file->save();
-	        return prepareResult(true,'File successfully approved' ,$file, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_approve') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -173,10 +173,10 @@ class FileController extends Controller
 	    	$user = getUser();
         	$checkId= File::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $file = File::where('id',$id)->with('Folder:id,name')->first();
-	        return prepareResult(true,'File successfully approved' ,$file, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

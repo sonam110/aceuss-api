@@ -121,7 +121,7 @@ class ScheduleTemplateController extends Controller
 
 			$checkId = ScheduleTemplate::where('id',$id) ->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 
 			$scheduleTemplate = ScheduleTemplate::where('id',$id)->first();
@@ -151,7 +151,7 @@ class ScheduleTemplateController extends Controller
 		{
 			$checkId= ScheduleTemplate::where('id',$id)->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			$checkId->delete();
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_delete') ,[], config('httpcodes.success'));
@@ -167,7 +167,7 @@ class ScheduleTemplateController extends Controller
 		{
 			$checkId= ScheduleTemplate::where('id',$id)->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_view') ,$checkId, config('httpcodes.success'));
 		}

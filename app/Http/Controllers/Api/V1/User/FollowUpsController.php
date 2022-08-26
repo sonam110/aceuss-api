@@ -138,21 +138,17 @@ class FollowUpsController extends Controller
                     'completed_follow_ups' => $followUpCounts->completed,
                     'not_completed_follow_ups' => $followUpCounts->not_completed
                 ];
-                return prepareResult(true,"Follow ups list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            
-            return prepareResult(true,"Follow ups list",$query,config('httpcodes.success'));
-	    
+            return prepareResult(true,getLangByLabelGroups('FollowUp','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
-            
         }
-    	
     }
 
     public function store(Request $request){
@@ -390,7 +386,7 @@ class FollowUpsController extends Controller
         	
         	$checkId = IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             if(is_array($request->repeat_datetime)  && sizeof($request->repeat_datetime) > 0 ){
                 $ipfollowupsId = [];
@@ -599,7 +595,7 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             Task::where('resource_id',$id)->where('type_id','5')->delete();
         	$IpFollowUp = IpFollowUp::where('id',$id)->delete();
@@ -616,10 +612,10 @@ class FollowUpsController extends Controller
 	    	$user = getUser();
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
-	        return prepareResult(true,'View Patient plan' ,$ipFollowups, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_show') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -641,7 +637,7 @@ class FollowUpsController extends Controller
         	$id = $request->id;
         	$checkId= IpFollowUp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $ipFollowups = IpFollowUp::find($id);
 		 	$ipFollowups->approved_by = $user->id;
@@ -674,7 +670,7 @@ class FollowUpsController extends Controller
             $id = $request->follow_up_id;
             $checkId= IpFollowUp::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $witness = null;
@@ -720,7 +716,7 @@ class FollowUpsController extends Controller
                     }
                 }
             }
-            return prepareResult(true,'Followup completed' ,$ipFollowups, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('FollowUp','message_complete') ,$ipFollowups, config('httpcodes.success'));
             
         
         }
@@ -759,14 +755,14 @@ class FollowUpsController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Folllowup list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Edited Folllowup List' ,$query, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('FollowUp','message_log') ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

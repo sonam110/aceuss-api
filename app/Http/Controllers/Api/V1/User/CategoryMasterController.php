@@ -54,13 +54,13 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -105,13 +105,13 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category Parent  list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category Parent  list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_parent_list'),$query,config('httpcodes.success'));
           
         }
         catch(Exception $exception) {
@@ -163,13 +163,13 @@ class CategoryMasterController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Category Childs  list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Category Childs  list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_child_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -200,7 +200,7 @@ class CategoryMasterController extends Controller
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_parent_id_not_found'),[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_parent_record_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
             
@@ -247,7 +247,7 @@ class CategoryMasterController extends Controller
         	}
         	$checkId = CategoryMaster::where('category_type_id',$request->category_type_id)->where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = CategoryMaster::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
@@ -257,7 +257,7 @@ class CategoryMasterController extends Controller
             if($request->parent_id) {
                 $checkParent = CategoryMaster::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_parent_id_not_found'),[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_parent_record_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
 	        $categoryMaster = CategoryMaster::find($id);
@@ -292,7 +292,7 @@ class CategoryMasterController extends Controller
 	    	$user = getUser();
         	$checkId= CategoryMaster::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$categoryMaster = CategoryMaster::where('id',$id)->delete();
@@ -305,23 +305,21 @@ class CategoryMasterController extends Controller
             
         }
     }
-    public function show($id){
-        
+    public function show($id)
+    { 
         try {
             $user = getUser();
             $checkId= CategoryMaster::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-            
             $categoryMaster = CategoryMaster::where('id',$id)->with('Parent:id,name','CategoryType:id,name','children')->first();
-            return prepareResult(true,'Category view',$categoryMaster, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_show'),$categoryMaster, config('httpcodes.success'));
                 
                 
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
-            
         }
     }
 

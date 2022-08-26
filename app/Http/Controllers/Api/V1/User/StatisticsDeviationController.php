@@ -69,7 +69,7 @@ class StatisticsDeviationController extends Controller
                 $query->whereDate('date_time', '<=', $request->end_date);
             }            
             $query = $query->first();
-            return prepareResult(true,"Deviations",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('CompanyType','message_stats'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -210,7 +210,7 @@ class StatisticsDeviationController extends Controller
             'dataset_with_activity' => $dataset_with_activity,
             'dataset_total_completed' => $dataset_total_completed
         ];
-        return prepareResult(true,"Deviations",$returnObj,config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats'),$returnObj,config('httpcodes.success'));
     }
 
     public function getMonthWiseReport(Request $request)
@@ -264,6 +264,6 @@ class StatisticsDeviationController extends Controller
             $data[] = $result->total_deviation;
         }
         $returnObj = ['datalabels'=>$datalabels,'data'=>$data];
-        return prepareResult(true,"Deviations",$returnObj,config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('CompanyType','message_stats'),$returnObj,config('httpcodes.success'));
     }
 }

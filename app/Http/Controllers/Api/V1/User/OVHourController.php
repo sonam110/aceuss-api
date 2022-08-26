@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API\V1\User;
 use App\Http\Controllers\Controller;
 use App\Models\OVHour;
 use Illuminate\Http\Request;
+use App\Imports\ObeHoursImport;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 use Str;
 use DB;
 
@@ -64,7 +66,7 @@ class OVHourController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,getLangByLabelGroups('OVHour','message_list') ,$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
@@ -193,7 +195,7 @@ class OVHourController extends Controller
         {
             $checkId= OVHour::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('OVHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('OVHour','message_record_not_found'), [],config('httpcodes.not_found'));
             }
              return prepareResult(true,getLangByLabelGroups('OVHour','message_show')  ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -268,7 +270,7 @@ class OVHourController extends Controller
         {
             $checkId= OVHour::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('OVHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('OVHour','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             OVHour::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_delete') ,[], config('httpcodes.success'));
@@ -276,5 +278,12 @@ class OVHourController extends Controller
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
+    }
+
+    public function obeHoursImport(Request $request)
+    {
+        $import = Excel::import(new ObeHoursImport(),request()->file('file'));
+
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_import') ,[], config('httpcodes.success'));
     }
 }

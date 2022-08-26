@@ -47,14 +47,14 @@ class PersonController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Person list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Person List' ,$query, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list') ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -106,7 +106,7 @@ class PersonController extends Controller
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$personalInfo, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$personalInfo, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -121,7 +121,7 @@ class PersonController extends Controller
             $user = getUser();
             $personInfo= PersonalInfoDuringIp::where('id',$id)->with('patient:id,name,email','PatientImplementationPlan','user:id,name')->first();
             if (!is_object($personInfo)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             return prepareResult(true,'View Compan Type' ,$personInfo, config('httpcodes.success'));
@@ -149,7 +149,7 @@ class PersonController extends Controller
         	}
         	$checkId = PersonalInfoDuringIp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
 	        $personalInfo = PersonalInfoDuringIp::find($id);
@@ -183,7 +183,7 @@ class PersonController extends Controller
             $personalInfo->is_other_name = $request->is_other_name;
             $personalInfo->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('CompanyType','message_update'),$personalInfo, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$personalInfo, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -198,11 +198,11 @@ class PersonController extends Controller
             $user = getUser();
         	$checkId= PersonalInfoDuringIp::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$personDelete = PersonalInfoDuringIp::where('id',$id)->delete();
-         	return prepareResult(true, getLangByLabelGroups('CompanyType','message_delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
 		}
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

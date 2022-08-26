@@ -222,7 +222,7 @@ class JournalController extends Controller
                     'total_with_activity' => $journalCounts->total_with_activity,
                     'total_without_activity' => $journalCounts->total_without_activity,
                 ];
-                return prepareResult(true,getLangByLabelGroups('Journal','message_list'),$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
@@ -320,7 +320,7 @@ class JournalController extends Controller
         	$checkId = Journal::where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
             if($checkId->is_signed == 1)
@@ -373,7 +373,7 @@ class JournalController extends Controller
 	    	$user = getUser();
         	$checkId= Journal::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$journal = Journal::where('id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('Journal','message_delete') ,[], config('httpcodes.success'));
@@ -394,7 +394,7 @@ class JournalController extends Controller
                 ->where('id',$id)
                 ->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Journal','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Journal','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
         	$data = getJournal($id);
@@ -455,7 +455,7 @@ class JournalController extends Controller
             $checkUser = User::where('id',$request->patient_id)
                 ->first();
             if (!is_object($checkUser)) {
-                return prepareResult(false,getLangByLabelGroups('Patient','id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Patient','record_not_found'), [],config('httpcodes.not_found'));
             }
 
             $journals = Journal::where('patient_id', $request->patient_id);

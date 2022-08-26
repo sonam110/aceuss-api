@@ -102,7 +102,7 @@ class WordController extends Controller
             }
             $checkId = Word::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('CompanyType','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Word = Word::find($id);
@@ -123,7 +123,7 @@ class WordController extends Controller
         try {
             $checkId= Word::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('CompanyType','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('CompanyType','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $Word = Word::where('id',$id)->delete();

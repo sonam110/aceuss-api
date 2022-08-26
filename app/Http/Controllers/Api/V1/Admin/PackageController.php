@@ -86,7 +86,7 @@ class PackageController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Package','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -170,10 +170,10 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->first();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show'),$package, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_show'),$package, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
@@ -206,7 +206,7 @@ class PackageController extends Controller
             }
             $checkId = Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $discounted_price  = 0;
             if($request->is_on_offer){
@@ -262,7 +262,7 @@ class PackageController extends Controller
         try {
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'2']);
             return prepareResult(true,getLangByLabelGroups('Package','message_delete'),[], config('httpcodes.success'));
@@ -290,10 +290,10 @@ class PackageController extends Controller
             $id = $request->id;
             $checkId= Package::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Package','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $package = Package::where('id',$id)->update(['status'=>'1']);
-            return prepareResult(true,'Package Restore Successfully',[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Package','message_restore'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));

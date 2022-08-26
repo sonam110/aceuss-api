@@ -57,7 +57,7 @@ class BranchController extends Controller
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->branch_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('Branch','message_child_level_exceed'),[], config('httpcodes.bad_request'));
             }
            
             $user = new User;
@@ -118,7 +118,7 @@ class BranchController extends Controller
 
              DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Branch','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -151,12 +151,12 @@ class BranchController extends Controller
 
             $checkId = User::where('id',$id)->where('top_most_parent_id',$top_most_parent_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('UserValidation','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('Branch','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $topParent = findBranchTopParentId($request->branch_id);
             $level = $this->checkLevel($topParent);
             if(!empty($request->branch_id) && $level == '5'){
-                return prepareResult(false,'Child level exceed you do not create branch more than five level ',[], config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('Branch','message_child_level_exceed'),[], config('httpcodes.bad_request'));
 
             }
             
@@ -183,7 +183,7 @@ class BranchController extends Controller
 
             DB::commit();
             $userdetail = User::with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details')->where('id',$user->id)->first() ;
-            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Branch','message_update'),$userdetail, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {

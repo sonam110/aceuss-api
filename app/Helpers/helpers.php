@@ -1293,7 +1293,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
             $ob['duration'] = ($time2 - $obtime1)/60;
         }
 
-        if(($rest_start_time != null) && ($rest_end_time != null) && ($resttime2 < $time2))
+        if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
         {
             $resttime1 = strtotime($rest_start_time);
             $resttime2 = strtotime($rest_end_time);

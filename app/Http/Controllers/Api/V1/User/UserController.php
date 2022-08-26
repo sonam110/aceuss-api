@@ -130,16 +130,16 @@ class UserController extends Controller
     				'per_page' => $perPage,
     				'last_page' => ceil($total / $perPage)
     			];
-    			return prepareResult(true,"User list",$pagination,'200');
+    			$query = $pagination;
     		}
     		else
     		{
     			$query = $query->get();
     		}
-    		return prepareResult(true,"User list",$query,'200');
+    		return prepareResult(true,getLangByLabelGroups('User','message_list'),$query,'200');
     	}
     	catch(Exception $exception) {
-    		return prepareResult(false, $exception->getMessage(),[], '500');
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
     }
@@ -158,14 +158,14 @@ class UserController extends Controller
     			'email'     => 'required|email|unique:users,email',
     		],
     		[
-    			'user_type_id.required' =>  getLangByLabelGroups('UserValidation','message_user_type_id'),
-    			'role_id.required' =>  getLangByLabelGroups('UserValidation','message_role_id'),
-    			'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
-    			'email.required' =>  getLangByLabelGroups('UserValidation','message_email'),
-    			'email.email' =>  getLangByLabelGroups('UserValidation','message_email_invalid'),
+    			'user_type_id.required' =>  getLangByLabelGroups('BcValidation','message_user_type_id_required'),
+    			'role_id.required' =>  getLangByLabelGroups('BcValidation','message_role_id'),
+    			'name.required' =>  getLangByLabelGroups('BcValidation','message_name_required'),
+    			'email.required' =>  getLangByLabelGroups('BcValidation','message_email_required'),
+    			'email.email' =>  getLangByLabelGroups('BcValidation','message_email_invalid'),
     		]);
     		if ($validator->fails()) {
-    			return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		}
 
             //check Permission for create employee
@@ -180,12 +180,14 @@ class UserController extends Controller
 
     			],
     			[
-    				'password.required' =>  getLangByLabelGroups('UserValidation','message_password'),
-    				'password.min' =>  getLangByLabelGroups('UserValidation','message_password_min'),
-    				'contact_number' =>  getLangByLabelGroups('UserValidation','message_contact_number'),
+    				'password.required' =>  getLangByLabelGroups('BcValidation','message_password_required'),
+    				'password.min' =>  getLangByLabelGroups('BcValidation','message_password_min'),
+                    'password.max' =>  getLangByLabelGroups('BcValidation','message_password_max'),
+                    'password.same:confirm-password' =>  getLangByLabelGroups('BcValidation','message_password_confirm_match'),
+    				'contact_number' =>  getLangByLabelGroups('BcValidation','message_contact_number_required'),
     			]);
     			if ($validator->fails()) {
-    				return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
 
     		}
@@ -195,7 +197,7 @@ class UserController extends Controller
     				'custom_unique_id' => 'required|unique:users,custom_unique_id', 
     			]);
     			if ($validator->fails()) {
-    				return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
 
     		}
@@ -204,7 +206,7 @@ class UserController extends Controller
     				'personal_number' => 'required|digits:12|unique:users,personal_number', 
     			]);
     			if ($validator->fails()) {
-    				return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
 
     		}
@@ -525,12 +527,12 @@ class UserController extends Controller
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
             $user['assignedWork'] = $user->assignedWork;
-    		return prepareResult(true,getLangByLabelGroups('UserValidation','message_create') ,$user, '200');
+    		return prepareResult(true,getLangByLabelGroups('User','message_create') ,$user, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		\Log::error($exception);
     		DB::rollback();
-    		return prepareResult(false, $exception->getMessage(),[], '500');
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
     }
@@ -541,14 +543,14 @@ class UserController extends Controller
 
     		$checkId= User::where('id', $user->id)->where('top_most_parent_id', $this->top_most_parent_id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
+    			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
     		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','role')->first();
-    		return prepareResult(true,'User View' ,$userShow, '200');
+    		return prepareResult(true,getLangByLabelGroups('User','message_show'),$userShow, config('httpcodes.success'));
 
     	}
     	catch(Exception $exception) {
-    		return prepareResult(false, $exception->getMessage(),[], '500');
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
     }
@@ -564,12 +566,12 @@ class UserController extends Controller
     			'name' => 'required', 
     		],
     		[
-    			'user_type_id.required' =>  getLangByLabelGroups('UserValidation','message_user_type_id'),
-    			'role_id.required' =>  getLangByLabelGroups('UserValidation','message_role_id'),
-    			'name.required' =>  getLangByLabelGroups('UserValidation','message_name'),
+    			'user_type_id.required' =>  getLangByLabelGroups('BcValidation','message_user_type_id'),
+    			'role_id.required' =>  getLangByLabelGroups('BcValidation','message_role_id'),
+    			'name.required' =>  getLangByLabelGroups('BcValidation','message_name'),
     		]);
     		if ($validator->fails()) {
-    			return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		}
 
     		if($request->user_type_id == '6' || $request->user_type_id =='3')
@@ -578,13 +580,13 @@ class UserController extends Controller
     				'personal_number' => 'required|digits:12|unique:users,personal_number,'.$user->id, 
     			]);
     			if ($validator->fails()) {
-    				return prepareResult(false,$validator->errors()->first(),[], '422'); 
+    				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
     		}
 
     		$checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false, getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
+    			return prepareResult(false, getLangByLabelGroups('BcValidation','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
 
             //for role set
@@ -820,7 +822,7 @@ class UserController extends Controller
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
             $user['assignedWork'] = $user->assignedWork;
-    		return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, '200');
+    		return prepareResult(true,getLangByLabelGroups('User','message_update'),$user, config('httpcodes.success'));
 
     	}
     	catch(Exception $exception) {
@@ -838,21 +840,20 @@ class UserController extends Controller
     		$id = $user->id;
     		$checkId= User::where('id',$id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
     		if (!is_object($checkId)) {
-    			return prepareResult(false,getLangByLabelGroups('UserValidation','message_id_not_found'), [],'404');
+    			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
 
             if($user->id == auth()->id())
             {
-                return prepareResult(false,getLangByLabelGroups('common','cant_delete'), [],'503');
+                return prepareResult(false,getLangByLabelGroups('User','message_unauthorized'), [], config('httpcodes.unauthorized'));
             }
 
-    		$updateStatus = User::where('id',$id)->update(['status'=>'2']);
-    		$userDelete = User::where('id',$id)->delete();
-    		return prepareResult(true, getLangByLabelGroups('UserValidation','message_delete'),[], '200');
-
+    		$updateStatus = $user->update(['status'=>'2']);
+    		$userDelete = $user->delete();
+    		return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
-    		return prepareResult(false, $exception->getMessage(),[], '500');
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
     }
@@ -865,7 +866,7 @@ class UserController extends Controller
 
             if(empty($licenceKeyData))
             {
-                return prepareResult(false,getLangByLabelGroups('LicenceKey','message_data_doesnt_exist') ,[], config('httpcodes.success'));
+                return prepareResult(false,getLangByLabelGroups('LicenceKey','message_record_not_found') ,[], config('httpcodes.success'));
             }
 
             if($licenceKeyData->expire_at >= date('Y-m-d'))
@@ -896,7 +897,7 @@ class UserController extends Controller
                 'email' => 'required|unique:users', 
             ]);
             if ($validator->fails()) {
-                return prepareResult(false,$validator->errors()->first(),[], '422'); 
+                return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
             
@@ -909,7 +910,7 @@ class UserController extends Controller
                 return prepareResult(false,['cant update, is_fake = 0'],[], config('httpcodes.bad_request')); 
             }
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$userInfo, '200');
+            return prepareResult(true,getLangByLabelGroups('User','message_update'),$userInfo, config('httpcodes.success'));
 
         }
         catch(Exception $exception) {

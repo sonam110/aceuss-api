@@ -81,7 +81,7 @@ class LeaveController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,getLangByLabelGroups('Leave','message_list'),$pagination,config('httpcodes.success'));
+				$query = $pagination;
 			}
 			else
 			{
@@ -102,7 +102,7 @@ class LeaveController extends Controller
 			$group_id = generateRandomNumber();
 			if(ScheduleTemplate::where('status','1')->count()<=0)
 			{
-				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_record_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
 			}
 			$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 			if($request->is_repeat == 1)
@@ -328,7 +328,7 @@ class LeaveController extends Controller
 		{
 			$checkId= Schedule::where('id',$id)->with('user:id,name,gender,user_type_id','user.userType:id,name', 'leaves:id,leave_group_id,date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,company_type_id')->first();
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Leave','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			return prepareResult(true,getLangByLabelGroups('Leave','message_view') ,$checkId, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
@@ -369,7 +369,7 @@ class LeaveController extends Controller
 		{
 			$checkId= Schedule::find($id);
 			if (!is_object($checkId)) {
-				return prepareResult(false,getLangByLabelGroups('Leave','message_id_not_found'), [],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('Leave','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
 			if(strtotime($checkId->shift_date)<=strtotime(date('Y-m-d')))
 			{
@@ -757,7 +757,7 @@ class LeaveController extends Controller
 			$leave_group_id = generateRandomNumber();
 			if(ScheduleTemplate::where('status','1')->count()<=0)
 			{
-				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_id_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
+				return prepareResult(false,getLangByLabelGroups('ScheduleTemplate','message_record_not_found'), ['Add Schedule Template First'],config('httpcodes.not_found'));
 			}
 			$schedule_template_id = ScheduleTemplate::where('status','1')->first()->id;
 			foreach ($request->leaves as $key => $leave) 

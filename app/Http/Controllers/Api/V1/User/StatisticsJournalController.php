@@ -68,7 +68,7 @@ class StatisticsJournalController extends Controller
                 $query->whereDate('date_time', '<=', $request->end_date);
             }            
             $query = $query->first();
-            return prepareResult(true,"Journal",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -204,6 +204,6 @@ class StatisticsJournalController extends Controller
             'dataset_without_activity' => $dataset_without_activity,
             'dataset_with_activity' => $dataset_with_activity
         ];
-        return prepareResult(true,"Journal",$returnObj,config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats'),$returnObj,config('httpcodes.success'));
     }
 }

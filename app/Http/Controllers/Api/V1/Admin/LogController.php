@@ -63,11 +63,11 @@ class LogController extends Controller
             	$rand = rand(0,1000);
             	$excel = Excel::store(new SmsLogExport($query), 'export/smslog/'.$rand.'.xlsx' , 'export_path');
 
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_export') ,['url' => env('APP_URL').'public/export/smslog/'.$rand.'.xlsx'], config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/smslog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
             }
         } catch (\Throwable $e) {
             Log::error($e);
@@ -119,11 +119,11 @@ class LogController extends Controller
             	$rand = rand(0,1000);
             	$excel = Excel::store(new BankIdLogExport($query), 'export/bankidlog/'.$rand.'.xlsx' , 'export_path');
 
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_export') ,['url' => env('APP_URL').'public/export/bankidlog/'.$rand.'.xlsx'], config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/bankidlog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
             }
         } catch (\Throwable $e) {
             Log::error($e);
@@ -165,11 +165,11 @@ class LogController extends Controller
                 $rand = rand(0,1000);
                 $excel = Excel::store(new ActivityLogExport($query), 'export/activitylog/'.$rand.'.xlsx' , 'export_path');
 
-                return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_export') ,['url' => env('APP_URL').'public/export/activitylog/'.$rand.'.xlsx'], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/activitylog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
-                return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
             }
         } catch (\Throwable $e) {
             Log::error($e);
@@ -184,12 +184,12 @@ class LogController extends Controller
             if($query)
             {
                 //$query = $query->changes();
-                return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
             }
-            return response(prepareResult(true, [], getLangByLabelGroups('BcCommon','bc_message_record_not_found')), config('httpcodes.not_found'));
+            return response(prepareResult(true, [], getLangByLabelGroups('BcCommon','message_record_not_found')), config('httpcodes.not_found'));
         } catch (\Throwable $e) {
             Log::error($e);
-           return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+           return prepareResult(false, $e->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
     

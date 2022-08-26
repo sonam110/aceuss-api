@@ -47,7 +47,7 @@ class GroupController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -80,7 +80,7 @@ class GroupController extends Controller
             $group->entry_mode = $request->entry_mode;
             $group->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$group, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$group, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -100,9 +100,9 @@ class GroupController extends Controller
         {
             $checkId= Group::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-             return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$checkId, config('httpcodes.success'));
+             return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -135,7 +135,7 @@ class GroupController extends Controller
             $group->entry_mode = $request->entry_mode;
             $group->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$group, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$group, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -156,14 +156,14 @@ class GroupController extends Controller
         {
             $checkId= Group::find($id);
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 Group::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
             }
-           return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_unauthorized'), [],config('httpcodes.unauthorized'));
+           return prepareResult(false, getLangByLabelGroups('BcCommon','message_unauthorized'), [],config('httpcodes.unauthorized'));
             
         } catch (\Throwable $exception) {
             \Log::error($exception);

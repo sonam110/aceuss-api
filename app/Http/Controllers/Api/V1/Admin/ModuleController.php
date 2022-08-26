@@ -60,7 +60,7 @@ class ModuleController extends Controller
                 $query = $query->get();
             }
 		    
-		    return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+		    return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -78,21 +78,21 @@ class ModuleController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'name.required' => getLangByLabelGroups('BcCommon','bc_message_name'),
+            'name.required' => getLangByLabelGroups('BcCommon','message_name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = Module::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','message_name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
 	        $Module = new Module;
 		 	$Module->name = $request->name;
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$Module, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$Module, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -107,10 +107,10 @@ class ModuleController extends Controller
         try {
             $checkId= Module::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $module = Module::where('id',$id)->first();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show'),$module, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_show'),$module, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
@@ -129,19 +129,19 @@ class ModuleController extends Controller
 			
 	        ],
 	    	[
-            'name.required' => getLangByLabelGroups('BcCommon','bc_message_name'),
+            'name.required' => getLangByLabelGroups('BcCommon','message_name'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Module::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Module::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
 
-              	return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_name_already_exists'),[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('BcCommon','message_name_already_exists'),[], config('httpcodes.bad_request')); 
 
         	}
 	        $Module = Module::find($id);
@@ -150,7 +150,7 @@ class ModuleController extends Controller
             $Module->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$Module->save();
             DB::commit();
-	        return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_update') ,$Module, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$Module, config('httpcodes.success'));
 			    
 		       
         }
@@ -166,12 +166,12 @@ class ModuleController extends Controller
         try {
         	$checkId= Module::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$Module = Module::findOrFail($id);
             $Module->delete();
-         	return prepareResult(true, getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
@@ -196,7 +196,7 @@ class ModuleController extends Controller
             }
             $checkId= Package::where('id',$request->package_id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlreadyAssigne= Subscription::where('user_id',$request->user_id)->where('id',$request->package_id)->first();
             if (is_object($checkAlreadyAssigne)) {
@@ -224,7 +224,7 @@ class ModuleController extends Controller
             $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $packageSubscribe->save();
             DB::commit();
-            return prepareResult(true,'Package Assigned successfully' ,$packageSubscribe, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Package','message_assigne') ,$packageSubscribe, config('httpcodes.success'));
                 
                 
         }
@@ -259,7 +259,7 @@ class ModuleController extends Controller
                 }
             }
             $assignemodules = AssigneModule::where('user_id',$request->user_id)->with('Module:id,name')->get();
-            return prepareResult(true,'Module assigne successfully' ,$assignemodules, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Module','message_assigne') ,$assignemodules, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));

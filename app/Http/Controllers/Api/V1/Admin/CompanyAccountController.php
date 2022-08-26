@@ -130,13 +130,13 @@ class CompanyAccountController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,getLangByLabelGroups('Company','bc_message_list'),$pagination,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('Company','message_list'),$pagination,config('httpcodes.success'));
             }
             else
             {
                 $query = $query->withCount('tasks','activities','ips','followUps','patients','employees')->get();
             }
-            return prepareResult(true,getLangByLabelGroups('Company','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Company','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -160,14 +160,14 @@ class CompanyAccountController extends Controller
 
             ],
             [
-            'company_type_id.required' =>  getLangByLabelGroups('BcValidation','bc_message_company_type_id'),
-            'name.required' =>  getLangByLabelGroups('BcValidation','bc_message_name_required'),
-            'email.required' =>  getLangByLabelGroups('BcValidation','bc_message_email_required'),
-            'email.email' =>  getLangByLabelGroups('BcValidation','bc_message_email_invalid'),
-            'password.required' =>  getLangByLabelGroups('BcValidation','bc_message_password_required'),
-            'password.min' =>  getLangByLabelGroups('BcValidation','bc_message_password_min'),
-            'contact_number' =>  getLangByLabelGroups('BcValidation','bc_message_contact_number_required'),
-            'package_id.required' =>  getLangByLabelGroups('BcValidation','bc_message_package_id_required'),
+            'company_type_id.required' =>  getLangByLabelGroups('BcValidation','message_company_type_id'),
+            'name.required' =>  getLangByLabelGroups('BcValidation','message_name_required'),
+            'email.required' =>  getLangByLabelGroups('BcValidation','message_email_required'),
+            'email.email' =>  getLangByLabelGroups('BcValidation','message_email_invalid'),
+            'password.required' =>  getLangByLabelGroups('BcValidation','message_password_required'),
+            'password.min' =>  getLangByLabelGroups('BcValidation','message_password_min'),
+            'contact_number' =>  getLangByLabelGroups('BcValidation','message_contact_number_required'),
+            'package_id.required' =>  getLangByLabelGroups('BcValidation','message_package_id_required'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
@@ -310,7 +310,7 @@ class CompanyAccountController extends Controller
             $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();
-            return prepareResult(true,getLangByLabelGroups('Company','bc_message_create') ,$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Company','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             \Log::error($exception);
@@ -326,13 +326,13 @@ class CompanyAccountController extends Controller
             
             $checkId= User::where('id',$user->id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Company','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $userShow = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
 
-            return prepareResult(true,getLangByLabelGroups('Company','bc_message_show') ,$userShow, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Company','message_show') ,$userShow, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
@@ -367,7 +367,7 @@ class CompanyAccountController extends Controller
 
             $checkId = User::where('id',$user->id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Company','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
@@ -402,7 +402,7 @@ class CompanyAccountController extends Controller
                 }
                 $checkAlreadySubsc = Subscription::where('user_id',$user->id)->first();
                 if(!is_object($checkAlreadySubsc)){
-                     return prepareResult(false,getLangByLabelGroups('Company','bc_message_already_subscribed'),[], config('httpcodes.bad_request')); 
+                     return prepareResult(false,getLangByLabelGroups('Company','message_already_subscribed'),[], config('httpcodes.bad_request')); 
                 }
                 
                 $package = Package::where('id',$request->package_id)->first();
@@ -433,7 +433,7 @@ class CompanyAccountController extends Controller
             $userdetail = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
-            return prepareResult(true,getLangByLabelGroups('Company','bc_message_update'),$userdetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Company','message_update'),$userdetail, config('httpcodes.success'));
                 
         }
         catch(Exception $exception) {
@@ -450,11 +450,11 @@ class CompanyAccountController extends Controller
             $id = $user->id;
             $checkId= User::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Company','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $updateStatus = User::where('id',$id)->update(['status'=>'2']);
             $userDelete = User::where('id',$id)->delete();
-            return prepareResult(true, getLangByLabelGroups('Company','bc_message_delete'),[], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('Company','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -470,7 +470,7 @@ class CompanyAccountController extends Controller
             $date = date('Y-m-d',strtotime('-'. $data_of));
             $user = User::find($id);
             if (!is_object($user)) {
-                return prepareResult(false,getLangByLabelGroups('Company','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $data = [];
             for($i=$data_of; $i>=0; $i--)
@@ -487,7 +487,7 @@ class CompanyAccountController extends Controller
                 $data['company_assignedModule_count'][] = $user->assignedModule->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
                 $data['company_branchs_count'][] = $user->branchs->where('created_at','<',$date)->where('created_at','>=',$previous_date)->count();
             }
-            return prepareResult(true,getLangByLabelGroups('Company','bc_message_stats') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Company','message_stats') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));

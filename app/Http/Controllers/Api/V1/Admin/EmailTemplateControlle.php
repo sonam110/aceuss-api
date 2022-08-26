@@ -46,7 +46,7 @@ class EmailTemplateControlle extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -76,7 +76,7 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_create') ,$EmailTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -89,9 +89,9 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-             return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$checkId, config('httpcodes.success'));
+             return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -110,7 +110,7 @@ class EmailTemplateControlle extends Controller
             $EmailTemplate->custom_attributes  = $request->custom_attributes;
             $EmailTemplate->save();
             DB::commit();
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_update') ,$EmailTemplate, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$EmailTemplate, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();
@@ -123,14 +123,14 @@ class EmailTemplateControlle extends Controller
         try {
             $checkId= EmailTemplate::where('id',$id)->withoutGlobalScope('top_most_parent_id')->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','bc_message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             if(auth()->user()->user_type_id=='1')
             {
                 EmailTemplate::where('id',$id)->delete();
-                return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_delete') ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
             }
-           return prepareResult(false, getLangByLabelGroups('BcCommon','bc_message_unauthorized'), [],config('httpcodes.unauthorized'));
+           return prepareResult(false, getLangByLabelGroups('BcCommon','message_unauthorized'), [],config('httpcodes.unauthorized'));
             
         } catch (\Throwable $exception) {
             \Log::error($exception);

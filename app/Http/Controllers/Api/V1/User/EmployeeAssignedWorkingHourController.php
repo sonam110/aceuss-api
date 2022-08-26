@@ -42,13 +42,13 @@ class EmployeeAssignedWorkingHourController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"EmployeeAssignedWorkingHour list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"EmployeeAssignedWorkingHour list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -103,11 +103,11 @@ class EmployeeAssignedWorkingHourController extends Controller
         {
             $checkId= EmployeeAssignedWorkingHour::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
             $employeeAssignedWorkingHour = EmployeeAssignedWorkingHour::where('id',$id)->with('employee:id,name')->first();
-            return prepareResult(true,'View EmployeeAssignedWorkingHour',$employeeAssignedWorkingHour, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_show'),$employeeAssignedWorkingHour, config('httpcodes.success'));
                  
         }
         catch(Exception $exception) {
@@ -165,7 +165,7 @@ class EmployeeAssignedWorkingHourController extends Controller
         {
         	$checkId = EmployeeAssignedWorkingHour::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$checkId->delete();
          	return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_delete'),[], config('httpcodes.success'));

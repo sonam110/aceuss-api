@@ -46,7 +46,7 @@ class PermissionController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_list'),$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Permission','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -93,7 +93,7 @@ class PermissionController extends Controller
         try {
             if($permission)
             {
-                 return prepareResult(true,getLangByLabelGroups('BcCommon','bc_message_show') ,$permission, config('httpcodes.success'));
+                 return prepareResult(true,getLangByLabelGroups('Permission','message_show') ,$permission, config('httpcodes.success'));
             }
             return prepareResult(false, getLangByLabelGroups('permission','message_per_not_found'), [],config('httpcodes.not_found'));
         } catch (\Throwable $exception) {
@@ -147,7 +147,7 @@ class PermissionController extends Controller
         try {
             $permissions = PermissionExtend::select('group_name')->with('groupWisePermissions')->groupBy('group_name')->get();
             
-             return prepareResult(true,'Groupwsir Permission' ,$permission, config('httpcodes.success'));
+             return prepareResult(true,getLangByLabelGroups('permission','message_groupwise_list') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $exception) {
            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }

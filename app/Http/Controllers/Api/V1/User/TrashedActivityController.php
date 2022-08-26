@@ -76,7 +76,7 @@ class TrashedActivityController extends Controller
 
                 } 
             }
-            return prepareResult(true,"Activity list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Activity','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
@@ -91,11 +91,11 @@ class TrashedActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id', $id)->onlyTrashed()->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->onlyTrashed()->forceDelete();
             DB::commit();
-            return prepareResult(true,"Activity deleted",[],config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Activity','message_delete'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -110,11 +110,11 @@ class TrashedActivityController extends Controller
             $user = getUser();
             $checkId= Activity::where('id', $id)->onlyTrashed()->first();
             if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('Activity','message_id_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $activity = Activity::where('id',$id)->onlyTrashed()->restore();
             DB::commit();
-            return prepareResult(true,"Activity restored",[],config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Activity','message_restore'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

@@ -13,7 +13,6 @@ class FolderController extends Controller
 {
 	public function folders(Request $request)
     {
-       
         try {
 	        $user = getUser();
 	    	$whereRaw = $this->getWhereRawFromRequest($request);
@@ -39,14 +38,14 @@ class FolderController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Folder list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,"Folder list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Folder','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -63,7 +62,7 @@ class FolderController extends Controller
                 ->whereNull('parent_id')
                 ->get();
           
-            return prepareResult(true,"Folder list",$folderParent,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Folder','message_parent_list'),$folderParent,config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -81,19 +80,19 @@ class FolderController extends Controller
         		'name' => 'required',      
 	        ],
 		    [
-            'name.required' => 'Name is required',
+            'name.required' => getLangByLabelGroups('BcValidation','message_name_required'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkAlready = Folder::where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,"This name Already Exist.",[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('Folder','message_name_already_exists'),[], config('httpcodes.bad_request')); 
         	}
             if($request->parent_id) {
                 $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,"Parent not found.",[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('Folder','message_parent_record_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
             
@@ -103,7 +102,7 @@ class FolderController extends Controller
 		 	$folder->visible_to_users = $request->visible_to_users;
             $folder->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$folder->save();
-	        return prepareResult(true,'Folder Added successfully' ,$folder, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Folder','message_create') ,$folder, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -119,24 +118,24 @@ class FolderController extends Controller
         		'name' => 'required',   
 	        ],
 		    [
-            'name.required' => 'Name is required',
+            'name.required' => getLangByLabelGroups('BcValidation','message_name_required'),
             ]);
 	        if ($validator->fails()) {
             	return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
         	}
         	$checkId = Folder::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Folder','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $checkAlready = Folder::where('id','!=',$id)->where('name',$request->name)->first(); 
         	if($checkAlready) {
-              	return prepareResult(false,"This Name Already Exist.",[], config('httpcodes.bad_request')); 
+              	return prepareResult(false,getLangByLabelGroups('Folder','message_name_exists'),[], config('httpcodes.bad_request')); 
         	}
             $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
             if($request->parent_id) {
                 $checkParent = Folder::whereNull('parent_id')->where('id',$request->parent_id)->first(); 
                 if(!$checkParent) {
-                    return prepareResult(false,"Parent not found.",[], config('httpcodes.not_found')); 
+                    return prepareResult(false,getLangByLabelGroups('Folder','message_parent_record_not_found'),[], config('httpcodes.not_found')); 
                 }
             }
 	        $folder = Folder::find($id);
@@ -145,7 +144,7 @@ class FolderController extends Controller
 		 	$folder->visible_to_users = $request->visible_to_users;
             $folder->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
 		 	$folder->save();
-	        return prepareResult(true,'Folder Updated successfully' ,$folder, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Folder','message_update') ,$folder, config('httpcodes.success'));
 			    
 		       
         }
@@ -161,11 +160,11 @@ class FolderController extends Controller
 	    	$user = getUser();
         	$checkId= Folder::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,"Id Not Found", [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Folder','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
         	$folder = Folder::where('id',$id)->delete();
-         	return prepareResult(true,'Folder delete successfully' ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('Folder','message_delete') ,[], config('httpcodes.success'));
 		     	
 			    
         }
