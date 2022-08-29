@@ -14,6 +14,8 @@ use App\Console\Commands\NotifyBirthday;
 use App\Console\Commands\VerifyScheduleReminder;
 use App\Console\Commands\AutoVerifySchedule;
 use App\Console\Commands\NotifyStamplingStartEndTime;
+use App\Console\Commands\GenerateStamplingReport;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -27,6 +29,7 @@ class Kernel extends ConsoleKernel
         Commands\VerifyScheduleReminder::class,
         Commands\AutoVerifySchedule::class,
         Commands\NotifyStamplingStartEndTime::class,
+        Commands\GenerateStamplingReport::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -43,6 +46,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('verify_schedule:reminder')->dailyAt('09:00');
         $schedule->command('auto_verify:schedule')->monthlyOn(1, '00:01');
         $schedule->command('remind:punchin-punchout')->everyMinute();
+        $schedule->command('generate:stampling-report')->dailyAt('09:00');
+        
     }
 
     protected function commands()

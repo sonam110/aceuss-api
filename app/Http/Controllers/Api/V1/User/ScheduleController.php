@@ -435,22 +435,22 @@ class ScheduleController extends Controller
 							}
 						    //----------------------------------------//
 
-							if(!empty($shift['patient_id']))
-							{
-								$patientAssignedHours = AgencyWeeklyHour::where('user_id',$shift['patient_id'])
-								->where('start_date','<=' ,$schedule->shift_date)
-								->where('end_date','>=',$schedule->shift_date)
-								->orderBy('id','desc')->first();
-								if(empty($patientAssignedHours))
-								{
-									$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
-								}
-								if(!empty($patientAssignedHours))
-								{
-									$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-									$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
-								}
-							}
+							// if(!empty($shift['patient_id']))
+							// {
+							// 	$patientAssignedHours = AgencyWeeklyHour::where('user_id',$shift['patient_id'])
+							// 	->where('start_date','<=' ,$schedule->shift_date)
+							// 	->where('end_date','>=',$schedule->shift_date)
+							// 	->orderBy('id','desc')->first();
+							// 	if(empty($patientAssignedHours))
+							// 	{
+							// 		$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->orderBy('id','desc')->first();
+							// 	}
+							// 	if(!empty($patientAssignedHours))
+							// 	{
+							// 		$scheduledHours = $patientAssignedHours->scheduled_hours + $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+							// 		$patientAssignedHours->update(['scheduled_hours'=>$scheduledHours]);
+							// 	}
+							// }
 							$schedule_ids[] = $schedule->id;
 						}
 					}
@@ -907,6 +907,11 @@ class ScheduleController extends Controller
 			{
 				if(Schedule::where('patient_id',$request->patient_id)->where('shift_date',$shift_date)->count() > 0)
 				{
+					$allSch = Schedule::where('patient_id',$request->patient_id)->where('shift_date',$shift_date)->get();
+					$check_status = [];
+					foreach ($allSch as $key => $value) {
+						$check_status[] = $value->status;
+					}
 					$query = Schedule::select([
 						\DB::raw('SUM(scheduled_work_duration) as regular_hours'),
 						\DB::raw('SUM(extra_work_duration) as extra_hours'),
@@ -915,13 +920,35 @@ class ScheduleController extends Controller
 						\DB::raw('SUM(vacation_duration) as vacation_hours')
 					]);
 					$query->whereDate('shift_date', $shift_date);
-					$query->where('patient_id', $request->patient_id); 
-					$query->where('status', 1);        
+					$query->where('patient_id', $request->patient_id);
+					$query->where('leave_applied', 0);  
+					// $query->where('status', 1);        
 					$result = $query->first();
+					$patientAssignedHours = AgencyWeeklyHour::where('user_id',$request->patient_id)->sum('assigned_hours') * 60;
+					$patientSchedules = Schedule::select([
+						\DB::raw('SUM(scheduled_work_duration) as regular_hours'),
+						\DB::raw('SUM(extra_work_duration) as extra_hours'),
+						\DB::raw('SUM(ob_work_duration) as obe_hours'),
+						\DB::raw('SUM(emergency_work_duration) as emergency_hours'),
+						\DB::raw('SUM(vacation_duration) as vacation_hours')
+					])
+					->whereDate('shift_date','<=', $shift_date)
+					->where('patient_id', $request->patient_id) 
+					->where('leave_applied', 0) 
+					->first();
 					if(!empty($result))
 					{
 						$total_hours = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
-						$data['date'][] = ["date" => $shift_date,"hours" => $total_hours];
+						$patientCompletedHours = $patientSchedules->regular_hours + $patientSchedules->extra_hours + $patientSchedules->obe_hours + $patientSchedules->emergency_hours + $patientSchedules->vacation_hours;
+						if(in_array(0, $check_status))
+						{
+							$status = 0;
+						}
+						else
+						{
+							$status = 1;
+						}
+						$data['date'][] = ["date" => $shift_date,"minutes" => $total_hours,"status" => $status,'remaining_minutes'=>$patientAssignedHours-$patientCompletedHours];
 					}
 				}
 			}
@@ -1180,14 +1207,14 @@ class ScheduleController extends Controller
 				$emp_ids = array_unique($emp_ids);
 			}
 			
-			foreach ($emp_ids as $key => $emp_id) {
+			foreach ($emp_ids as $key => $emp_id) 
+			{
 				$user = User::where('id',$emp_id)->first(['id','name']);
 				if (!is_object($user)) {
 					$data[] = 'user not found';
 				}
 				else
 				{
-
 					$assignedWork = $user->assignedWork;
 					$data[] = $user;
 

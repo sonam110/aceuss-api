@@ -24,6 +24,7 @@ use App\Models\LicenceKeyManagement;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\EmployeeAssignedWorkingHour;
+use App\Models\Schedule;
 use App\Models\UserScheduledDate;
 
 class UserController extends Controller
@@ -546,6 +547,27 @@ class UserController extends Controller
     			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
     		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','role')->first();
+            if($user->user_type_id == 6)
+            {
+                // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
+                $patientSchedules = Schedule::select([
+                    \DB::raw('SUM(scheduled_work_duration) as regular_hours'),
+                    \DB::raw('SUM(extra_work_duration) as extra_hours'),
+                    \DB::raw('SUM(ob_work_duration) as obe_hours'),
+                    \DB::raw('SUM(emergency_work_duration) as emergency_hours'),
+                    \DB::raw('SUM(vacation_duration) as vacation_hours')
+                ])
+                ->whereDate('shift_date','<=', date('Y-m-d'))
+                ->where('patient_id', $user->id) 
+                ->where('leave_applied', 0) 
+                ->first();
+                $used_total_patient_hours = $patientSchedules->regular_hours + $patientSchedules->extra_hours + $patientSchedules->obe_hours + $patientSchedules->emergency_hours + $patientSchedules->vacation_hours;
+            }
+            else
+            {
+                $used_total_patient_hours = 0;
+            }
+            $userShow->used_total_patient_hours = $used_total_patient_hours;
     		return prepareResult(true,getLangByLabelGroups('User','message_show'),$userShow, config('httpcodes.success'));
 
     	}

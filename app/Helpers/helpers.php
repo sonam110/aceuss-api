@@ -1379,10 +1379,10 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     $result['ob_type'] = $ob['type'];
     $result['ob_start_time'] = $ob['start_time'];
     $result['ob_end_time'] = $ob['end_time'];
-    $result['scheduled_work_duration'] = number_format($countable_scheduled_duration/60,2);
-    $result['emergency_work_duration'] = number_format($countable_emergency_duration/60,2);
-    $result['ob_work_duration'] = number_format($ob_duration/60,2);
-    $result['extra_work_duration'] = number_format($countable_extra_duration/60,2);
+    $result['scheduled_work_duration'] = $countable_scheduled_duration;
+    $result['emergency_work_duration'] = $countable_emergency_duration;
+    $result['ob_work_duration'] = $ob_duration;
+    $result['extra_work_duration'] = $countable_extra_duration;
     return $result;
 }
 

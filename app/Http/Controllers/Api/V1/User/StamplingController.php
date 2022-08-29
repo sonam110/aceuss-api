@@ -286,9 +286,9 @@ class StamplingController extends Controller
 					$extra_duration =  $countable_scheduled_duration - $scheduled_duration;
 				// }
 
-				$total_schedule_hours = $countable_scheduled_duration/60;
-				$total_ob_hours = $ob_duration/60;
-				$total_extra_hours = $extra_duration/60;
+				$total_schedule_hours = $countable_scheduled_duration;
+				$total_ob_hours = $ob_duration;
+				$total_extra_hours = $extra_duration;
 
 				$working_percent = calculatePercentage($total_worked_duration, $scheduled_duration);
 
@@ -348,7 +348,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stampling = Stampling::where('id',$id)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
+			$stampling = Stampling::where('id',$id)->with('schedule','user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
 			if (!is_object($stampling)) {
 				return prepareResult(false,getLangByLabelGroups('Stampling','message_record_not_found'), [],config('httpcodes.not_found'));
 			}

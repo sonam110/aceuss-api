@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use DB;
 use Hash;
 use Auth;
-use App\Models\OvHour;
+use App\Models\OVHour;
 use Str;
 
 class ObeHoursImport implements ToModel,WithHeadingRow

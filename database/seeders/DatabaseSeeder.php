@@ -15,18 +15,18 @@ class DatabaseSeeder extends Seeder
     {
        \Artisan::call('create:directory');        
         //$this->call(PermissionSeeder::class);
-        // $this->call(DefaultEntrySeeder::class);
-        // $this->call(AgencySeeder::class);
-        // $this->call(MailSmsTemplateSeeder::class);
-        // $this->call(RoleSeeder::class);
+        $this->call(DefaultEntrySeeder::class);
+        $this->call(AgencySeeder::class);
+        $this->call(MailSmsTemplateSeeder::class);
+        $this->call(RoleSeeder::class);
         //$this->call(PermissionSeeder::class);
-        // $this->call(UserSeeder::class);
-        // $this->call(UserTypePermissionSeeder::class);
-        // $this->call(CategorySubCat::class);
+        $this->call(UserSeeder::class);
+        $this->call(UserTypePermissionSeeder::class);
+        $this->call(CategorySubCat::class);
         $this->call(LabelSeeder::class);
 
-        // \DB::unprepared(file_get_contents(storage_path('db-backups/permissions.sql')));
-        // \DB::unprepared(file_get_contents(storage_path('db-backups/user_type_has_permissions.sql')));
-        // \DB::unprepared(file_get_contents(storage_path('db-backups/role_has_permissions.sql')));
+        \DB::unprepared(file_get_contents(storage_path('db-backups/permissions.sql')));
+        \DB::unprepared(file_get_contents(storage_path('db-backups/user_type_has_permissions.sql')));
+        \DB::unprepared(file_get_contents(storage_path('db-backups/role_has_permissions.sql')));
     }
 }
