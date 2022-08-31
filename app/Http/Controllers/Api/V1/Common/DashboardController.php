@@ -156,7 +156,7 @@ class DashboardController extends Controller
                 $data['followupCompleteCount'] = IpFollowUp::whereIn('branch_id',$allChilds)->where('status','2')->where('is_latest_entry', 1)->count();
                 $data['followupPendingCount'] = IpFollowUp::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
             }
-            return prepareResult(true,'Dashboard' ,$data, config('httpcodes.success'));    
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  
@@ -300,7 +300,7 @@ class DashboardController extends Controller
                 }
             }
             
-            return prepareResult(true,'ActivityCount' ,$data, config('httpcodes.success'));    
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }  

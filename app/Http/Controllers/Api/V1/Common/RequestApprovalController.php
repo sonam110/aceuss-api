@@ -264,13 +264,13 @@ class RequestApprovalController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"All Approval Request  list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"All Approval Request  list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
@@ -283,7 +283,7 @@ class RequestApprovalController extends Controller
             $approval_request =  RequestForApproval::where('id',$id)->first();
             $is_approved = false;
             if (!is_object($approval_request)) {
-                return prepareResult(false,getLangByLabelGroups('IP','message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $group_token = $approval_request->group_token;
 
@@ -329,7 +329,7 @@ class RequestApprovalController extends Controller
                     $user_role->givePermissionTo(['isCategoryEditPermission-edit']);
                 }
             }
-            return prepareResult(true,"Approved successfully",$approval_request,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_approve'),$approval_request,config('httpcodes.success'));
                 
             }
         catch(Exception $exception) {
@@ -351,7 +351,7 @@ class RequestApprovalController extends Controller
             }
             $rejest_request =  RequestForApproval::where('id',$request->id)->first();
             $updateRequest = RequestForApproval::where('id',$request->id)->update(['status'=>'3','rejected_by'=>$user->id,'reason_for_rejection'=> $request->reason_for_rejection]);
-            return prepareResult(true,"Reject successfully",$rejest_request,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_reject'),$rejest_request,config('httpcodes.success'));
             
         }
         catch(Exception $exception) {

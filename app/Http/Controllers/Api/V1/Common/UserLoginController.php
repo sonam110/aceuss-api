@@ -146,7 +146,7 @@ class UserLoginController extends Controller
                                     $user['file_access'] = null;
                                 }
                                 
-                             return prepareResult(true,"User Logged in successfully",$user,config('httpcodes.success'));
+                             return prepareResult(true,getLangByLabelGroups('LoginValidation','message_login'),$user,config('httpcodes.success'));
                             }
                         
                     }
@@ -283,9 +283,9 @@ class UserLoginController extends Controller
             $usertoken =[
                 'token'=> $token,
             ];
-            return prepareResult(true,'Token',$usertoken,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('LoginValidation','message_token'),$usertoken,config('httpcodes.success'));
         } else {
-            return prepareResult(false,'Token not found',[],config('httpcodes.bad_request'));
+            return prepareResult(false,getLangByLabelGroups('LoginValidation','message_no_token'),[],config('httpcodes.bad_request'));
         }
 
     }
@@ -309,9 +309,9 @@ class UserLoginController extends Controller
             $user = User::select('id','email','password_token')->where('email',$request->email)->where('password_token',$request->token)->first();
             if (!empty($user)) {
 
-                return prepareResult(true,'User Info',$user,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('User','message_show'),$user,config('httpcodes.success'));
             }else {
-                return prepareResult(false,'Invalid Otp',[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_otp_invalid'),[],config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -405,12 +405,12 @@ class UserLoginController extends Controller
     {
         $user = getUser();
         if (!is_object($user)) {
-            return prepareResult(false,"User Not Found", [],config('httpcodes.not_found'));
+            return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [],config('httpcodes.not_found'));
         }
         if(Auth::check()) {
             $token = $request->bearerToken();
             Auth::user()->token()->revoke();
-            return prepareResult(true,'Logout Successfully',[],config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('LoginValidation','message_logout'),[],config('httpcodes.success'));
         }else{
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -458,12 +458,12 @@ class UserLoginController extends Controller
                 $data['password'] =  \Hash::make($request->new_password);
                 $updatePass = User::updateOrCreate(['id' => $user->id],$data);
 
-                return prepareResult(true,"Password Updated Successfully." ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('User','message_password_change') ,[], config('httpcodes.success'));
                 
                
             }else{
 
-                return prepareResult(false,'Incorrect old password, Please try again with correct password',[],config('httpcodes.bad_request'));
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_incorrect_old_password'),[],config('httpcodes.bad_request'));
                
 
             }
@@ -481,9 +481,9 @@ class UserLoginController extends Controller
     {
         $userTypeList = UserType::whereNotIn('id',['1','2'])->select('id','name')->get();
         if($userTypeList) {
-            return prepareResult(true,'User type List' ,$userTypeList, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list') ,$userTypeList, config('httpcodes.success'));
         } else{
-            return prepareResult(true,'No user type Found' ,[], config('httpcodes.not_found'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_record_not_found') ,[], config('httpcodes.not_found'));
         }
     }
 
@@ -493,7 +493,7 @@ class UserLoginController extends Controller
         if($request->email){
             $user = User::where('email',$request->email)->where('status','1')->first();
             if ($user) {
-                return prepareResult(true,'Email found' ,[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('User','message_record_already_exists') ,[], config('httpcodes.success'));
             }
             else {
                 return prepareResult(false,getLangByLabelGroups('LoginValidation','message_email_not_exists'),[], config('httpcodes.not_found'));
@@ -507,7 +507,7 @@ class UserLoginController extends Controller
             
             $user = getUser();
             $userDetail = User::where('id',$user->id)->where('top_most_parent_id',$user->top_most_parent_id)->with('UserType:id,name','TopMostParent:id,user_type_id,name,email','Parent:id,name','CategoryMaster:id,created_by,name','Department:id,name','agencyHours')->first();
-            return prepareResult(true,'User detail' ,$userDetail, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('User','message_show') ,$userDetail, config('httpcodes.success'));
                 
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -534,13 +534,13 @@ class UserLoginController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Country list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Country list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
                 
@@ -556,7 +556,7 @@ class UserLoginController extends Controller
             $user->language_id   = $request->language_id;
             $user->save();
         }
-        return prepareResult(true, 'language added',$user,config('httpcodes.success'));
+        return prepareResult(true, getLangByLabelGroups('User','message_language_change'),$user,config('httpcodes.success'));
     }
     
 }

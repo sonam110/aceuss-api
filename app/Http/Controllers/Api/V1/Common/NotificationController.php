@@ -48,7 +48,7 @@ class NotificationController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Notification list", $query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_list'), $query,config('httpcodes.success'));
         }
         catch (\Throwable $exception) 
         {
@@ -65,7 +65,7 @@ class NotificationController extends Controller
         ]);
 
         if ($validation->fails()) {
-            return response(prepareResult(false, $validation->messages(), getLangByLabelGroups('messages','message_message_validation')), config('http_response.bad_request'));
+            return response(prepareResult(false, $validation->messages()), [], config('http_response.bad_request'));
         }
 
         DB::beginTransaction();
@@ -85,7 +85,7 @@ class NotificationController extends Controller
             $notification->read_status          = false;
             $notification->save();
             DB::commit();
-            return prepareResult(true,"Notification saved", $notification,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_create'), $notification,config('httpcodes.success'));
         }
         catch (\Throwable $exception)
         {
@@ -97,13 +97,13 @@ class NotificationController extends Controller
 
     public function show(Notification $notification)
     {
-        return prepareResult(true,"Notification show", $notification,config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('Notification','message_show'), $notification,config('httpcodes.success'));
     }
 
     public function destroy(Notification $notification)
     {
         $notification->delete();
-        return prepareResult(true,"Notification deleted", [],config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('Notification','message_delete'), [],config('httpcodes.success'));
     }
 
     public function read($id)
@@ -112,7 +112,7 @@ class NotificationController extends Controller
         {
             $notification = Notification::find($id);
             $notification->update(['read_status' => true]);
-            return prepareResult(true,"Notification readed", $notification,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_read'), $notification,config('httpcodes.success'));
         }
         catch (\Throwable $exception)
         {
@@ -127,7 +127,7 @@ class NotificationController extends Controller
         try
         {
             Notification::where('user_id', Auth::id())->update(['read_status' => true]);
-            return prepareResult(true,"User Notifications read all", [],config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_read'), [],config('httpcodes.success'));
         }
         catch (\Throwable $exception)
         {
@@ -142,7 +142,7 @@ class NotificationController extends Controller
         try
         {
             Notification::where('user_id', Auth::id())->delete();
-            return prepareResult(true,"User Notifications deleted", [],config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_delete'), [],config('httpcodes.success'));
         }
         catch (\Throwable $exception)
         {
@@ -158,7 +158,7 @@ class NotificationController extends Controller
         {
             
             $count = Notification::where('user_id',Auth::id())->where('read_status',0)->count();
-            return prepareResult(true,"User Unread Notifications Count", $count,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Notification','message_count'), $count,config('httpcodes.success'));
         }
         catch (\Throwable $exception)
         {

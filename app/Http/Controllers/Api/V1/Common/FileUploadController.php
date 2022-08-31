@@ -39,7 +39,7 @@ class FileUploadController extends Controller
                     $extension = strtolower($value->getClientOriginalExtension());
                     if(!in_array($extension, $formatCheck))
                     {
-                        return prepareResult(false,getLangByLabelGroups('fileUploadValidation','message_file_not_allowed'),[], config('httpcodes.bad_request'));
+                        return prepareResult(false,getLangByLabelGroups('File','message_file_not_allowed'),[], config('httpcodes.bad_request'));
                     }
                     $fileName   = time().'-'.rand(0,99999).'.' . $value->getClientOriginalExtension();
                     $extension = $value->getClientOriginalExtension();
@@ -60,7 +60,7 @@ class FileUploadController extends Controller
                     ];
                 }
 
-                return prepareResult(true,"File upload",$fileArray,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('File','message_file_not_allowed'),$fileArray,config('httpcodes.success'));
             }
             else
             {
@@ -69,7 +69,7 @@ class FileUploadController extends Controller
                 $fileSize = $file->getSize();
                 if(!in_array($extension, $formatCheck))
                 {
-                    return prepareResult(false,getLangByLabelGroups('fileUploadValidation','message_file_not_allowed'),[], config('httpcodes.bad_request'));
+                    return prepareResult(false,getLangByLabelGroups('File','message_file_not_allowed'),[], config('httpcodes.bad_request'));
                 }
                 
                 $file->move($destinationPath, $fileName);
@@ -84,7 +84,7 @@ class FileUploadController extends Controller
                     'file_extension'    => $file->getClientOriginalExtension(),
                     'uploading_file_name' => $file->getClientOriginalName(),
                 ];
-                return prepareResult(true,"File upload",$fileInfo,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('File','message_create'),$fileInfo,config('httpcodes.success'));
             }   
         }
         catch (\Throwable $exception) {

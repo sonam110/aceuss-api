@@ -114,9 +114,9 @@ class ImportDataController extends Controller
 
         if($errorShow)
         {
-            return prepareResult(true, 'Some records not imported. <br>'. $error, [], config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('BcCommon','message_some_data_not_imported'). $error, [], config('httpcodes.success'));
         }
-        return prepareResult(true,'Patient successfully imported' , [], config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_import') , [], config('httpcodes.success'));
     }
 
     public function downloadPatientImportSampleFile(Request $request)

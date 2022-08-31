@@ -60,7 +60,7 @@ class CommentController extends Controller
                 ];
                 actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
             }
-	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$addComment, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$addComment, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -93,13 +93,13 @@ class CommentController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Comment list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-		    return prepareResult(true,"Comment list",$query,config('httpcodes.success'));
+		    return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));

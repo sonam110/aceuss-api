@@ -149,7 +149,7 @@ class TaskController extends Controller
                     'completed_tasks' => $taskCounts->total_done,
                     'not_completed_tasks' => $taskCounts->total_not_done
                 ];
-                return prepareResult(true,"Task list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
@@ -160,7 +160,7 @@ class TaskController extends Controller
                 //     'total_not_completed' => $taskCounts->first()->total_not_done
                 // ];
             }
-            return prepareResult(true,"Task list",$query,config('httpcodes.success')); 
+            return prepareResult(true,getLangByLabelGroups('Task','message_list'),$query,config('httpcodes.success')); 
 	    }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -329,10 +329,10 @@ class TaskController extends Controller
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
-				return prepareResult(true,'Task Added successfully' ,$taskList, config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Task','message_create') ,$taskList, config('httpcodes.success'));
 
 			}else{
-                 return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
+                 return prepareResult(false,getLangByLabelGroups('Task','message_no_date_found'),[], config('httpcodes.bad_request'));
             }
         }
         catch(Exception $exception) {
@@ -404,7 +404,7 @@ class TaskController extends Controller
             
             $checkId = Task::where('id',$id)->first();
             if (!is_object($checkId)) {
-                return prepareResult(false, getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false, getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $old_end_date = $checkId->end_date;
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
@@ -494,7 +494,7 @@ class TaskController extends Controller
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
-				return prepareResult(true,'Task Update successfully' ,$taskList, config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Task','message_update') ,$taskList, config('httpcodes.success'));
 
 			}else{
                  return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
@@ -512,10 +512,10 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$Task = Task::where('id',$id)->delete();
-         	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
+         	return prepareResult(true,getLangByLabelGroups('Task','message_delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -529,10 +529,10 @@ class TaskController extends Controller
 	    	$user = getUser();
         	$checkId= Task::where('id',$id)->first();
 			if (!is_object($checkId)) {
-                return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
+                return prepareResult(false,getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
         	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name')->first();
-	        return prepareResult(true,'View Task' ,$task, config('httpcodes.success'));
+	        return prepareResult(true,getLangByLabelGroups('Task','message_show') ,$task, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -596,7 +596,7 @@ class TaskController extends Controller
 		    		
 		    	}
 		    	
-		    	return prepareResult(true,'Calander Task' ,$data, config('httpcodes.success'));
+		    	return prepareResult(true,getLangByLabelGroups('Task','message_calender_task') ,$data, config('httpcodes.success'));
           	}
         	
 	        
@@ -636,14 +636,14 @@ class TaskController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Edited Task list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
             
-            return prepareResult(true,'Edited Task list' ,$query, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Task','message_log') ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -690,7 +690,7 @@ class TaskController extends Controller
                 $receivers_ids[] = $task->top_most_parent_id;
             }
             if($is_action_perform == false){
-                return prepareResult(false,'You are not authorized to perform this action',[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('Task','message_unauthorized'),[], config('httpcodes.bad_request')); 
             }
 
             $task->status = $request->status;
@@ -730,7 +730,7 @@ class TaskController extends Controller
             DB::commit();
             $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
                     ->where('id',$request->task_id)->with('assignEmployee.employee:id,name,email,contact_number')->first();
-            return prepareResult(true,'Action Done successfully' ,$taskList, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Task','message_action') ,$taskList, config('httpcodes.success'));
            
         
         }

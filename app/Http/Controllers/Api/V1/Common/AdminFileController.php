@@ -58,7 +58,7 @@ class AdminFileController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,"Admin Files",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('File','message_list_admin'),$query,config('httpcodes.success'));
         } catch (\Throwable $e) {
             Log::error($e);
            return prepareResult(false, $e->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -146,7 +146,7 @@ class AdminFileController extends Controller
                 $query = $query->get();
             }
 
-            return prepareResult(true,"Admin Files",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('File','message_list_company'),$query,config('httpcodes.success'));
         } catch (\Throwable $e) {
             Log::error($e);
            return prepareResult(false, $e->getMessage(),[], config('httpcodes.internal_server_error'));
@@ -161,9 +161,9 @@ class AdminFileController extends Controller
             $adminFile = AdminFile::where('id',$id)->where('top_most_parent_id', auth()->user()->top_most_parent_id)->delete();
             if($adminFile)
             {
-                return prepareResult(true,'file deleted successfully',[], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('File','message_delete'),[], config('httpcodes.success'));
             }
-            return prepareResult(false, 'File not found.',[], config('httpcodes.internal_server_error'));
+            return prepareResult(false, getLangByLabelGroups('File','message_record_not_found'),[], config('httpcodes.internal_server_error'));
             
         }
         catch(Exception $exception) {
@@ -180,7 +180,7 @@ class AdminFileController extends Controller
             $fileAccessLog->admin_file_id = $request->admin_file_id; 
             $fileAccessLog->user_id = auth()->id(); 
             $fileAccessLog->save(); 
-            return prepareResult(true,'File access log added',[], config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('File','message_access_log_create'),[], config('httpcodes.success'));
             
         }
         catch(Exception $exception) {

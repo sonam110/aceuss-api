@@ -69,7 +69,7 @@ class CommonController extends Controller
 				$query = $query->get();
 			}
 
-			return prepareResult(true,"Permissions",$query,'200');
+			return prepareResult(true,getLangByLabelGroups('permission','message_list'),$query,'200');
 		} catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], '500');
 			
@@ -101,13 +101,13 @@ class CommonController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"User list",$pagination,'200');
+				$query = $pagination;
 			}
 			else
 			{
 				$query = $query->get();
 			}
-			return prepareResult(true,"User list",$query,'200');
+			return prepareResult(true,getLangByLabelGroups('User','message_list'),$query,'200');
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], '500');
@@ -136,13 +136,13 @@ class CommonController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage)
 				];
-				return prepareResult(true,"Patient Type list",$pagination,'200');
+				$query = $pagination;
 			}
 			else
 			{
 				$query = $query->get(['id','designation']);
 			}
-			return prepareResult(true,"Patient Type list",$query,'200');
+			return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,'200');
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], '500');
@@ -192,13 +192,13 @@ class CommonController extends Controller
 			}
 			$checkUser =User::where('id',$request->user_id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
 			if(!is_object($checkUser)){
-				return prepareResult(false,'User not found',[], '422'); 
+				return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found'),[], '422'); 
 			}
 			$updatePass = User::find($checkUser->id);
 			$updatePass->password = Hash::make($request->password);
 			$updatePass->is_password_change = '0';
 			$updatePass->save();
-			return prepareResult(true,"Password Change Successfully",$updatePass,'200');
+			return prepareResult(true,getLangByLabelGroups('User','message_password_change'),$updatePass,'200');
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),[], '500');

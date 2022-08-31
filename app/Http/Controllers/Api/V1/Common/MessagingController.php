@@ -104,7 +104,7 @@ class MessagingController extends Controller
                 }
             }
 
-            return prepareResult(true, 'Users List', $query, config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('User','message_list'), $query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(), [], config('httpcodes.internal_server_error'));
@@ -128,7 +128,7 @@ class MessagingController extends Controller
                 $query[$key]['unread_messages_count'] = ($data) ? $data->unread_messages_count : 0;
             }
 
-            return prepareResult(true, 'Users List', $query, config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('User','message_list'), $query, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(), [], config('httpcodes.internal_server_error'));
@@ -174,7 +174,7 @@ class MessagingController extends Controller
                 'end_date'  => $end_date
             ];
 
-            return prepareResult(true, 'messsages List', $returnData, config('httpcodes.success'));
+            return prepareResult(true, getLangByLabelGroups('BcCommon','message_list'), $returnData, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             return prepareResult(false, $exception->getMessage(), [], config('httpcodes.internal_server_error'));

@@ -38,13 +38,13 @@ class NoMiddlewareController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Agency list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Agency list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));     
         } 
@@ -55,7 +55,7 @@ class NoMiddlewareController extends Controller
     {
         try {
             $query = ActivityOption::get();;
-            return prepareResult(true,"Agency list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         } 
@@ -80,13 +80,13 @@ class NoMiddlewareController extends Controller
                     'per_page' => $perPage,
                     'last_page' => ceil($total / $perPage)
                 ];
-                return prepareResult(true,"Country list",$pagination,config('httpcodes.success'));
+                $query = $pagination;
             }
             else
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Country list",$query,config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));       
         }
@@ -101,7 +101,7 @@ class NoMiddlewareController extends Controller
             if(!is_object($checkSettings)){
                  return prepareResult(false,'User not found',[], config('httpcodes.bad_request')); 
             }
-            return prepareResult(true,'CompanySettings',$checkSettings, config('httpcodes.success'));     
+            return prepareResult(true,getLangByLabelGroups('BcCommon','message_show'),$checkSettings, config('httpcodes.success'));     
         }
         catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error')); 
@@ -133,9 +133,9 @@ class NoMiddlewareController extends Controller
                 $updatePass->is_password_change = '0';
                 $updatePass->save();
                 DB::commit();
-                return prepareResult(true,"Password Change Successfully",$updatePass,'200');
+                return prepareResult(true,getLangByLabelGroups('User','message_password_change'),$updatePass,'200');
             } else {
-                return prepareResult(false,"Email and Date of birth does not match",[],'422');
+                return prepareResult(false,getLangByLabelGroups('User','message_email_dob_error'),[],'422');
             }
         }
         catch(Exception $exception) {
@@ -185,7 +185,7 @@ class NoMiddlewareController extends Controller
             {
                 $query = $query->get();
             }
-            return prepareResult(true,"Permissions",$query,'200');
+            return prepareResult(true,getLangByLabelGroups('permission','message_list'),$query,'200');
         } catch(Exception $exception) {
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -213,7 +213,7 @@ class NoMiddlewareController extends Controller
             'user_type_has_permissions' => $user_type_has_permissions
 
         ];  
-        return prepareResult(true,"Permissions", $returnData,'200');
+        return prepareResult(true,getLangByLabelGroups('permission','message_list'), $returnData,'200');
     }
 
     public function addUserTypeHasPermissions(Request $request)
@@ -227,6 +227,6 @@ class NoMiddlewareController extends Controller
             $add->permission_id = $permission;
             $add->save();
         }
-        return prepareResult(true,"Permissions assigned",[],'200');
+        return prepareResult(true,getLangByLabelGroups('permission','message_assigne'),[],'200');
     }
 }
