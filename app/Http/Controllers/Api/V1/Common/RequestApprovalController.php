@@ -218,7 +218,7 @@ class RequestApprovalController extends Controller
                         {
                             if(!empty($getPersonalNumber->personal_number))
                             {
-                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person, $group_token);
+                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person, $group_token, $user->id, 'IP-approval');
                                 $url[$key]['person_id'] = $person;
                                 $url[$key]['group_token'] = $group_token;
                             }

@@ -828,13 +828,13 @@ function userChildBranches(User $user)
     return array_keys(array_flip($allBranches));
 }
 
-function bankIdVerification($personalNumber, $person_id, $group_token)
+function bankIdVerification($personalNumber, $person_id, $group_token, $loggedInUserId, $request_from)
 {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '945610088ce511434ad87fa50e567c7d').'&authenticateServiceKey='.env('BANKIDAPISECRET', '3e73749b89a9ee32369fa25910c4c4e9'));
+    curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '18c7f582c64cdf0ae758e2b1e80ae396'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".$group_token);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".$group_token."/".base64_encode($loggedInUserId)."/".$request_from);
 
     $headers = array();
     $headers[] = 'Accept: application/json';
@@ -858,7 +858,7 @@ function bankIdVerification($personalNumber, $person_id, $group_token)
     }
 }
 
-function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name)
+function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name, $ip, $request_from)
 {
     $checkSession = MobileBankIdLoginLog::where('sessionId', $sessionId)->count();
     if($checkSession<1)
@@ -869,6 +869,8 @@ function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number
         $mobileBankIdLoginLog->sessionId = $sessionId;
         $mobileBankIdLoginLog->personnel_number = $personnel_number;
         $mobileBankIdLoginLog->name = $name;
+        $mobileBankIdLoginLog->ip = $ip;
+        $mobileBankIdLoginLog->request_from = $request_from;
         $mobileBankIdLoginLog->save();
     }
     return true;

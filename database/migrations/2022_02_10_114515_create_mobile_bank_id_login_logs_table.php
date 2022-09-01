@@ -19,6 +19,8 @@ class CreateMobileBankIdLoginLogsTable extends Migration
             $table->string('sessionId');
             $table->string('personnel_number');
             $table->string('name');
+            $table->string('ip', 50)->nullable();
+            $table->string('request_from', 50)->nullable();
 
             $table->timestamps();
         });

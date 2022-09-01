@@ -586,7 +586,7 @@ class PatientController extends Controller
                             $patientPlan->start_date = @$patient['start_date'];
                             $patientPlan->end_date = @$patient['end_date'];
                             $patientPlan->save_as_template = (@$patient['save_as_template'] == true) ? 1:0;
-                            $patientPlan->documents = json_encode(@$patient['documents']);
+                            $patientPlan->documents = !empty(@$patient['documents']) ? json_encode(@$patient['documents']) : null;
                             $patientPlan->step_one = (!empty(@$patient['step_one'])) ? @$patient['step_one']:0;
                             $patientPlan->step_two = (!empty(@$patient['step_two'])) ? @$patient['step_two']:0;
                             $patientPlan->step_three = (!empty(@$patient['step_three'])) ? @$patient['step_three']:0;

@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PersonalInfoDuringIp;
+use App\Models\RequestForApproval;
 use App\Models\MobileBankIdLoginLog;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
+use App\Models\Notification;
 use App\Events\BankIdVerified;
 use App\Events\NotificationForAll;
 use App\Events\EventNotification;
 
 class CallbackController extends Controller
 {
-    public function verified(Request $request, $person_id, $group_token)
+    public function verified(Request $request, $person_id, $group_token, $user_id, $from)
     {
         $getPerson = PersonalInfoDuringIp::find(base64_decode($person_id));
         if($getPerson)
@@ -53,7 +55,7 @@ class CallbackController extends Controller
             }
             
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/GetSession?apiKey='.env('APIKEY', '945610088ce511434ad87fa50e567c7d').'&authenticateServiceKey='.env('APISECRET', '3e73749b89a9ee32369fa25910c4c4e9').'&sessionid='.$sessionId);
+            curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/GetSession?apiKey='.env('APIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('APISECRET', '18c7f582c64cdf0ae758e2b1e80ae396').'&sessionid='.$sessionId);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -84,10 +86,28 @@ class CallbackController extends Controller
             //BankID log generated here
             $name = $resDecode['userAttributes']['name'];
             $personnel_number = $resDecode['userAttributes']['personalNumber'];
+            $ip = $resDecode['userAttributes']['ipAddress'];
             $top_most_parent_id = $getPerson->patient->top_most_parent_id;
-            mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name);
+            mobileBankIdLoginLog($top_most_parent_id, $sessionId, substr($personnel_number,0,8), $name, $ip, $from);
 
             //Event Fire here
+            $user_id = base64_decode($user_id);
+            $userUniqueId = User::select('unique_id')->find($user_id);
+            if($userUniqueId)
+            {
+                //Notification create
+                $notification = new Notification;
+                $notification->user_id          = $user_id;
+                $notification->sender_id        = base64_decode($person_id);
+                $notification->type             = 'request-for-approval';
+                $notification->status_code      = 'info';
+                $notification->title            = 'BankID Request approved';
+                $notification->message          = 'BankID IP request has been approved.';
+                $notification->read_status      = false;
+                $notification->save();
+
+                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, null));
+            }
 
             return view('verified');
         }

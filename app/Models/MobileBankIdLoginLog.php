@@ -13,7 +13,7 @@ class MobileBankIdLoginLog extends Model
     use HasFactory, LogsActivity,TopMostParentId;
 
     protected $fillable = [
-        'uuid', 'top_most_parent_id', 'sessionId', 'personnel_number', 'name'
+        'uuid', 'top_most_parent_id', 'sessionId', 'personnel_number', 'name', 'ip', 'request_from'
     ];
 
     protected static $logAttributes = ['*'];
@@ -22,13 +22,6 @@ class MobileBankIdLoginLog extends Model
 
     protected static $logName = 'mobile_bank_id_login_logs';
 
-    public static function boot()
-    {
-        parent::boot();
-        self::creating(function ($model) {
-            $model->uuid = (string) Str::uuid();
-        });
-    }
     public function company()
     {
         return $this->belongsTo(User::class, 'top_most_parent_id', 'id')->withoutGlobalScope('top_most_parent_id')->withTrashed();
