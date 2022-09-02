@@ -173,6 +173,14 @@ class AdminFileController extends Controller
 
     public function fileAccessLog(Request $request)
     {
+        $validator = Validator::make($request->all(),[
+            'admin_file_id' => 'required|exists:admin_files,id',   
+        ]);
+
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+
         try {
             $user = getUser();            
             $fileAccessLog = new FileAccessLog;
