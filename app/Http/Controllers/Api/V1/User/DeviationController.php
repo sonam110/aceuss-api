@@ -459,7 +459,7 @@ class DeviationController extends Controller
                 $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->deviation_ids[0], $userInfo->id, 'deviation-approval', $top_most_parent_id);
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $request->deviation_ids[0];
-                $url[0]['uniqueId'] = $userInfo->uniqueId;
+                $url[0]['uniqueId'] = $userInfo->unique_id;
                 return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
             }
             else

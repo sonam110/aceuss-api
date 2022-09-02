@@ -268,7 +268,7 @@ class JournalActionController extends Controller
                 $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_action_ids[0], $userInfo->id, 'journal-action-approval', $top_most_parent_id);
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $request->journal_action_ids[0];
-                $url[0]['uniqueId'] = $userInfo->uniqueId;
+                $url[0]['uniqueId'] = $userInfo->unique_id;
                 return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
             }
             else
