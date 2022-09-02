@@ -32,7 +32,8 @@ class JournalAction extends Model
         'edit_date',
         'is_signed',
         'signed_by',
-        'signed_date'
+        'signed_date',
+        'sessionId',
     ];
 
     public function journal()

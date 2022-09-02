@@ -23,9 +23,11 @@ Route::get('/optimize', function () {
     return 'done';
 });
 
-Route::get('/verified/{person_id}/{group_token}/{user_id}/{from}', [App\Http\Controllers\CallbackController::class, 'verified']);
+Route::get('/verified/{person_id}/{user_id}/{from}', [App\Http\Controllers\CallbackController::class, 'verified']);
 
 Route::get('/check-event', [App\Http\Controllers\CallbackController::class, 'checkEvent']);
 
 Route::get('/check-childs', [App\Http\Controllers\CallbackController::class, 'checkChilds']);
+
+Route::get('/check-bank-id', [App\Http\Controllers\CallbackController::class, 'checkBankId']);
 

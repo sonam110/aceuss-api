@@ -1024,47 +1024,60 @@ class ScheduleController extends Controller
 		try 
 		{
 			$ids = $request->schedule_ids;
-			foreach ($ids as $key => $id) {
-				$schedule= Schedule::find($id);
-				if (!is_object($schedule)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
-				}
-				$user = User::find($schedule->user_id);
-				if($user->report_verify == 'yes')
+			if($request->signed_method=='bankid' && !empty(auth()->user()->personal_number))
+            {
+                $userInfo = getUser();
+                $top_most_parent_id = $userInfo->top_most_parent_id;
+                $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-company-approval', $top_most_parent_id);
+                $url[$key]['person_id'] = $userInfo->id;
+                $url[$key]['group_token'] = $ids;
+                return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
+            }
+            else
+            {
+				foreach ($ids as $key => $id) 
 				{
-		            //----notify-employee-schedule-approved----//
-					$data_id =  $id;
-					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-approved')->first();
-					$variable_data = [
-						'{{name}}'  => $user->name,
-						'{{schedule_title}}'=>$schedule->title,
-						'{{date}}' => $schedule->shift_date,
-						'{{start_time}}'=> $schedule->shift_start_time,
-						'{{end_time}}'=> $schedule->shift_end_time,
-						'{{approved_by}}'=> Auth::user()->name
-					];
-					actionNotification($user,$data_id,$notification_template,$variable_data);
-		            //--------------------------------------//
-					$schedule->update(['approved_by_company'=>1]);
-				}
-				else
-				{
-					if(!empty($schedule->patient_id))
-					{
-						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
-						->where('start_date','>=' ,$schedule->shift_date)
-						->where('end_date','<=',$schedule->shift_date)
-						->orderBy('id','desc')->first();
-						if(empty($patientAssignedHours))
-						{
-							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
-						}
-						$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-						$completedHours = $patientAssignedHours->completed_hours + $workedHours;
-						$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
-						$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+					$schedule= Schedule::find($id);
+					if (!is_object($schedule)) {
+						return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 					}
-					$schedule->update(['status'=>1,'approved_by_company'=>1]);
+					$user = User::find($schedule->user_id);
+					if($user->report_verify == 'yes')
+					{
+			            //----notify-employee-schedule-approved----//
+						$data_id =  $id;
+						$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-approved')->first();
+						$variable_data = [
+							'{{name}}'  => $user->name,
+							'{{schedule_title}}'=>$schedule->title,
+							'{{date}}' => $schedule->shift_date,
+							'{{start_time}}'=> $schedule->shift_start_time,
+							'{{end_time}}'=> $schedule->shift_end_time,
+							'{{approved_by}}'=> Auth::user()->name
+						];
+						actionNotification($user,$data_id,$notification_template,$variable_data);
+			            //--------------------------------------//
+						$schedule->update(['approved_by_company'=>1]);
+					}
+					else
+					{
+						if(!empty($schedule->patient_id))
+						{
+							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
+							->where('start_date','>=' ,$schedule->shift_date)
+							->where('end_date','<=',$schedule->shift_date)
+							->orderBy('id','desc')->first();
+							if(empty($patientAssignedHours))
+							{
+								$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
+							}
+							$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+							$completedHours = $patientAssignedHours->completed_hours + $workedHours;
+							$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+							$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+						}
+						$schedule->update(['status'=>1,'approved_by_company'=>1]);
+					}
 				}
 			}
 			
@@ -1084,7 +1097,8 @@ class ScheduleController extends Controller
 		try 
 		{
 			$ids = $request->schedule_ids;
-			foreach ($ids as $key => $id) {
+			foreach ($ids as $key => $id) 
+			{
 				$schedule= Schedule::find($id);
 				if (!is_object($schedule)) {
 					return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));

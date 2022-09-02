@@ -828,13 +828,13 @@ function userChildBranches(User $user)
     return array_keys(array_flip($allBranches));
 }
 
-function bankIdVerification($personalNumber, $person_id, $group_token, $loggedInUserId, $request_from)
+function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $loggedInUserId, $request_from, $top_most_parent_id)
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '18c7f582c64cdf0ae758e2b1e80ae396'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".$group_token."/".base64_encode($loggedInUserId)."/".$request_from);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from);
 
     $headers = array();
     $headers[] = 'Accept: application/json';
@@ -854,11 +854,15 @@ function bankIdVerification($personalNumber, $person_id, $group_token, $loggedIn
         return null;
     } else {
         $resDecode = json_decode($result, true);
+
+        //Generate Log
+        mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
+
         return $resDecode;
     }
 }
 
-function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name, $ip, $request_from)
+function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name, $ip, $request_from, $extra_info=null)
 {
     $checkSession = MobileBankIdLoginLog::where('sessionId', $sessionId)->count();
     if($checkSession<1)
@@ -871,6 +875,7 @@ function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number
         $mobileBankIdLoginLog->name = $name;
         $mobileBankIdLoginLog->ip = $ip;
         $mobileBankIdLoginLog->request_from = $request_from;
+        $mobileBankIdLoginLog->extra_info = $extra_info;
         $mobileBankIdLoginLog->save();
     }
     return true;

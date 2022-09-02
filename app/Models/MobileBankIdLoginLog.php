@@ -13,7 +13,7 @@ class MobileBankIdLoginLog extends Model
     use HasFactory, LogsActivity,TopMostParentId;
 
     protected $fillable = [
-        'uuid', 'top_most_parent_id', 'sessionId', 'personnel_number', 'name', 'ip', 'request_from'
+        'uuid', 'top_most_parent_id', 'sessionId', 'personnel_number', 'name', 'ip', 'request_from', 'extra_info'
     ];
 
     protected static $logAttributes = ['*'];

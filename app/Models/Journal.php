@@ -39,6 +39,7 @@ class Journal extends Model
         'is_signed',
         'signed_by',
         'signed_date',
+        'sessionId',
         'is_secret',
         'is_active'
 

@@ -80,7 +80,9 @@ class CreateSchedulesTable extends Migration
             $table->string('ob_start_time')->nullable();
             $table->string('ob_end_time')->nullable();
             $table->boolean('approved_by_company')->default(0)->nullable();
+            $table->string('company_sessionId')->nullable();
             $table->boolean('verified_by_employee')->default(0)->nullable();
+            $table->string('employee_sessionId')->nullable();
             $table->boolean('status')->default(0)->nullable();
             $table->string('entry_mode')->nullable();
             $table->timestamps();

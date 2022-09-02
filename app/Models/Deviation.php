@@ -37,6 +37,7 @@ class Deviation extends Model
         'follow_up',
         'is_secret',
         'is_signed',
+        'sessionId',
         'is_completed',
         'completed_date',
         'completed_by',

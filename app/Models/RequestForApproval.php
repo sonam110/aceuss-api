@@ -32,6 +32,7 @@ class RequestForApproval extends Model
         'approval_type',
         'other_info',
 		'status',
+        'sessionId',
         'entry_mode',
     ];
 

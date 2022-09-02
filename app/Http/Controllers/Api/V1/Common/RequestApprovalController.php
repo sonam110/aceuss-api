@@ -218,13 +218,14 @@ class RequestApprovalController extends Controller
                         {
                             if(!empty($getPersonalNumber->personal_number))
                             {
-                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person, $group_token, $user->id, 'IP-approval');
+                                $top_most_parent_id = $getPersonalNumber->patient->top_most_parent_id;
+                                $url[] = bankIdVerification($getPersonalNumber->personal_number, $person, $group_token, $user->id, 'IP-approval', $top_most_parent_id);
                                 $url[$key]['person_id'] = $person;
                                 $url[$key]['group_token'] = $group_token;
                             }
                         }
                     }
-                    return prepareResult(true,'Mobile BankID Link' ,$url, config('httpcodes.success'));
+                    return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
                 }
                 $getRequest = RequestForApproval::whereIn('id',$ids)->get();
                return prepareResult(true,'Send successfully' ,$getRequest, config('httpcodes.success'));

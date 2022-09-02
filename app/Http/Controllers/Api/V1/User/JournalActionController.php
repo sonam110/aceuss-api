@@ -261,12 +261,24 @@ class JournalActionController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
 
-            $journalAction = JournalAction::whereIn('id', $request->journal_action_ids)->update([
-                'is_signed' => $request->is_signed,
-                'signed_by' => auth()->id(),
-                'signed_date' => date('Y-m-d')
-            ]);
-            DB::commit();
+            if($request->signed_method=='bankid' && !empty(auth()->user()->personal_number))
+            {
+                $userInfo = getUser();
+                $top_most_parent_id = $userInfo->top_most_parent_id;
+                $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_action_ids[0], $userInfo->id, 'journal-action-approval', $top_most_parent_id);
+                $url[$key]['person_id'] = $userInfo->id;
+                $url[$key]['group_token'] = $request->journal_action_ids[0];
+                return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
+            }
+            else
+            {
+                $journalAction = JournalAction::whereIn('id', $request->journal_action_ids)->update([
+                    'is_signed' => $request->is_signed,
+                    'signed_by' => auth()->id(),
+                    'signed_date' => date('Y-m-d')
+                ]);
+                DB::commit();
+            }
             return prepareResult(true,getLangByLabelGroups('JournalAction','message_sign') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
