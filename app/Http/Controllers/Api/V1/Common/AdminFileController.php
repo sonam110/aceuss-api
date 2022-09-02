@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\AdminFile;
 use App\Models\FileAccessLog;
 use Log;
+use Validator;
+use Auth;
+use Exception;
+use DB;
 
 class AdminFileController extends Controller
 {
