@@ -1029,8 +1029,8 @@ class ScheduleController extends Controller
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
                 $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-company-approval', $top_most_parent_id);
-                $url[$key]['person_id'] = $userInfo->id;
-                $url[$key]['group_token'] = $ids;
+                $url[0]['person_id'] = $userInfo->id;
+                $url[0]['group_token'] = $ids;
                 return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
             }
             else
