@@ -156,6 +156,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 
 		Route::post('file-access-log', 'Common\AdminFileController@fileAccessLog');
+		Route::get('file-access-history', 'Common\AdminFileController@fileAccessHistory');
 		Route::post('company-files', 'Common\AdminFileController@companyFiles');
 		Route::apiResource('company-file-delete',Common\AdminFileController::class)->only(['destroy']);
 

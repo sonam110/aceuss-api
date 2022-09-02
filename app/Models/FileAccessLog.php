@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\User;
+use App\Models\AdminFile;
 
 class FileAccessLog extends Model
 {
@@ -18,4 +20,19 @@ class FileAccessLog extends Model
     protected $fillable = [
         'top_most_parent_id','admin_file_id','user_id'
     ];
+
+    public function TopMostParent()
+    {
+        return $this->belongsTo(User::class,'top_most_parent_id','id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function adminFile()
+    {
+        return $this->belongsTo(AdminFile::class,'admin_file_id','id');
+    }
 }
