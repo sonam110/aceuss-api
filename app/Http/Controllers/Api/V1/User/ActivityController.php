@@ -787,6 +787,7 @@ class ActivityController extends Controller
             						if ($validator->fails()) {
             							return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             						}
+            						ActivityAssigne::where('activity_id',$activity->id)->delete();
             						foreach ($request->employees as $key => $employee) {
             							if(!empty($employee))
             							{

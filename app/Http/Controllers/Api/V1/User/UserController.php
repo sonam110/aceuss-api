@@ -942,18 +942,58 @@ class UserController extends Controller
         }
     }
 
-    public function getCompanyAssignedPackages()
+    public function getCompanyAssignedPackages(Request $request)
     {
         try 
         {
-            $data = Auth::user()->subscriptions;
+            $data = Subscription::where('user_id',Auth::id());
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $data->count();
+                $result = $data->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                $data = $pagination;
+            }
+            else
+            {
+                $data = $data->get();
+            }
+
+            // if(empty($data))
+            // {
+            //     return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found') ,[], config('httpcodes.success'));
+            // }
+
+            return prepareResult(true,getLangByLabelGroups('Package','message_list') ,$data, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
+    public function getCompanyActivePackage()
+    {
+        try 
+        {
+            // $data = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->where('expire_at','>=',date('Y-m-d'))->orderBy('id','desc')->first();
+
+            $data = Subscription::where('user_id',Auth::id())->where('start_date','<=',date('Y-m-d'))->where('end_date','>=',date('Y-m-d'))->orderBy('id','desc')->first();
 
             if(empty($data))
             {
-                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found') ,[], config('httpcodes.success'));
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found') ,[], config('httpcodes.not_found'));
             }
-
-            return prepareResult(true,getLangByLabelGroups('Package','message_list') ,$data, config('httpcodes.success'));
+            return prepareResult(true,getLangByLabelGroups('Package','message_show') ,$data, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
             DB::rollback();

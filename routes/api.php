@@ -210,7 +210,8 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 
 	   	Route::get('get-licence-status', [App\Http\Controllers\Api\V1\User\UserController::class, 'getLicenceStatus']);
 
-	   	Route::get('get-company-assigned-packages', [App\Http\Controllers\Api\V1\User\UserController::class, 'getCompanyAssignedPackages']);
+	   	Route::post('get-company-assigned-packages', [App\Http\Controllers\Api\V1\User\UserController::class, 'getCompanyAssignedPackages']);
+	   	Route::get('get-company-active-package', [App\Http\Controllers\Api\V1\User\UserController::class, 'getCompanyActivePackage']);
 
 		/*-------------Branch -------------------*/
 		Route::apiResource('branch', User\BranchController::class)->only(['store','update']);
