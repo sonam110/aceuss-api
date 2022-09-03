@@ -251,6 +251,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Subscription::class,'id','user_id');
     }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class,'user_id','id');
+    } 
     public function BankDetail()
     {
         return $this->belongsTo(BankDetail::class,'id','user_id');

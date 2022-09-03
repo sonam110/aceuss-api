@@ -942,6 +942,25 @@ class UserController extends Controller
         }
     }
 
+    public function getCompanyAssignedPackages()
+    {
+        try 
+        {
+            $data = Auth::user()->subscriptions;
+
+            if(empty($data))
+            {
+                return prepareResult(false,getLangByLabelGroups('Package','message_record_not_found') ,[], config('httpcodes.success'));
+            }
+
+            return prepareResult(true,getLangByLabelGroups('Package','message_list') ,$data, config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            \Log::error($exception);
+            DB::rollback();
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
+    }
+
     private function getWhereRawFromRequest(Request $request) 
     {
     	$w = '';
