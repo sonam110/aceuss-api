@@ -1028,7 +1028,12 @@ class ScheduleController extends Controller
             {
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
-                $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-company-approval', $top_most_parent_id);
+                $response = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-company-approval', $top_most_parent_id);
+                if($response['status']==1) 
+                {
+                    return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
+                }
+                $url[] = $response['response'];
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
                 $url[0]['uniqueId'] = $userInfo->unique_id;
@@ -1098,54 +1103,72 @@ class ScheduleController extends Controller
 		try 
 		{
 			$ids = $request->schedule_ids;
-			foreach ($ids as $key => $id) 
-			{
-				$schedule= Schedule::find($id);
-				if (!is_object($schedule)) {
-					return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
-				}
-
-				if(!empty($schedule->patient_id))
+			if($request->signed_method=='bankid' && !empty(auth()->user()->personal_number))
+            {
+                $userInfo = getUser();
+                $top_most_parent_id = $userInfo->top_most_parent_id;
+                $response = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-employee-approval', $top_most_parent_id);
+                if($response['status']==1) 
+                {
+                    return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
+                }
+                $url[] = $response['response'];
+                $url[0]['person_id'] = $userInfo->id;
+                $url[0]['group_token'] = $ids;
+                $url[0]['uniqueId'] = $userInfo->unique_id;
+                return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
+            }
+            else
+            {
+				foreach ($ids as $key => $id) 
 				{
-					$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
-					->where('start_date','>=' ,$schedule->shift_date)
-					->where('end_date','<=',$schedule->shift_date)
-					->orderBy('id','desc')->first();
-					if(empty($patientAssignedHours))
-					{
-						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
+					$schedule= Schedule::find($id);
+					if (!is_object($schedule)) {
+						return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 					}
-					$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-					$completedHours = $patientAssignedHours->completed_hours + $workedHours;
-					$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
-					$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+
+					if(!empty($schedule->patient_id))
+					{
+						$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)
+						->where('start_date','>=' ,$schedule->shift_date)
+						->where('end_date','<=',$schedule->shift_date)
+						->orderBy('id','desc')->first();
+						if(empty($patientAssignedHours))
+						{
+							$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
+						}
+						$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+						$completedHours = $patientAssignedHours->completed_hours + $workedHours;
+						$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+						$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+					}
+					if(Auth::user()->verification_method =='normal')
+					{
+						$schedule->update(['status'=>1,'verified_by_employee'=>1]);
+					}
+					else
+					{
+						//add code for verification by bank_id
+						$schedule->update(['status'=>1,'verified_by_employee'=>1]);
+					}
+					$company = User::find(Auth::user()->top_most_parent_id);
+					//----notify-company-schedule-verified----//
+					$exra_param = ['employee_id'=>$schedule->user_id, 'shift_date' => $schedule->shift_date,
+						'shift_start_time'=> $schedule->shift_start_time,
+						'shift_end_time'=> $schedule->shift_end_time,];
+					$data_id =  $id;
+					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
+					$variable_data = [
+						'{{name}}'  => $company->name,
+						'{{schedule_title}}'=>$schedule->title,
+						'{{date}}' => $schedule->shift_date,
+						'{{start_time}}'=> $schedule->shift_start_time,
+						'{{end_time}}'=> $schedule->shift_end_time,
+						'{{verified_by}}'=> Auth::user()->name
+					];
+					actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
+		            //--------------------------------------//
 				}
-				if(Auth::user()->verification_method =='normal')
-				{
-					$schedule->update(['status'=>1,'verified_by_employee'=>1]);
-				}
-				else
-				{
-					//add code for verification by bank_id
-					$schedule->update(['status'=>1,'verified_by_employee'=>1]);
-				}
-				$company = User::find(Auth::user()->top_most_parent_id);
-				//----notify-company-schedule-verified----//
-				$exra_param = ['employee_id'=>$schedule->user_id, 'shift_date' => $schedule->shift_date,
-					'shift_start_time'=> $schedule->shift_start_time,
-					'shift_end_time'=> $schedule->shift_end_time,];
-				$data_id =  $id;
-				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
-				$variable_data = [
-					'{{name}}'  => $company->name,
-					'{{schedule_title}}'=>$schedule->title,
-					'{{date}}' => $schedule->shift_date,
-					'{{start_time}}'=> $schedule->shift_start_time,
-					'{{end_time}}'=> $schedule->shift_end_time,
-					'{{verified_by}}'=> Auth::user()->name
-				];
-				actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
-	            //--------------------------------------//
 			}
 			$data = Schedule::whereIn('id',$ids)->get();
 			DB::commit();

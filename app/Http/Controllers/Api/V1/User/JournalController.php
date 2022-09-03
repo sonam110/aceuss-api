@@ -438,7 +438,12 @@ class JournalController extends Controller
             {
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
-                $url[] = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_ids[0], $userInfo->id, 'journal-approval', $top_most_parent_id);
+                $response = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_ids[0], $userInfo->id, 'journal-approval', $top_most_parent_id);
+                if($response['status']==1) 
+                {
+                    return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
+                }
+                $url[] = $response['response'];
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $request->journal_ids[0];
                 $url[0]['uniqueId'] = $userInfo->unique_id;

@@ -356,14 +356,14 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
             }
             else
             {
-            	$title = '';
-            	$body = '';
-            	$module = '';
-            	$type = '';
-            	$event = '';
-            	$screen = '';
-            	$status_code = '';
-            	$save_to_database = '';
+                $title = '';
+                $body = '';
+                $module = '';
+                $type = '';
+                $event = '';
+                $screen = '';
+                $status_code = '';
+                $save_to_database = '';
             }
 
             $userDeviceInfo = DeviceLoginHistory::where('user_id',$user->id)
@@ -847,19 +847,31 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
         $message = curl_error($ch);
         curl_close($ch);
         \Log::error('something_went_wrong:curl error: '. $message);
-        return null;
+        $status = 1;
     } elseif(!empty($resDecode['errorObject'])) {
         $message = $resDecode['errorObject']['message'];
         \Log::error('something_went_wrong:curl error: '. $message);
-        return null;
+        $status = 1;
     } else {
         $resDecode = json_decode($result, true);
-
-        //Generate Log
-        mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
-
-        return $resDecode;
+        if(!empty(@$resDecode['errorObject']))
+        {
+            $message = $resDecode['errorObject']['message'];
+            \Log::error('something_went_wrong:curl error: '. $message);
+            $status = 1;
+        }
+        else
+        {
+            //Generate Log
+            mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
+            $status = 0;
+        }
     }
+    $return = [
+        'status' => $status,
+        'response' => $resDecode
+    ];
+    return $return;
 }
 
 function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number, $name, $ip, $request_from, $extra_info=null)
