@@ -459,7 +459,7 @@ class DeviationController extends Controller
                 $response = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->deviation_ids[0], $userInfo->id, 'deviation-approval', $top_most_parent_id);
                 if($response['status']==1) 
                 {
-                    return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
+                    return prepareResult(false, $response,$response, config('httpcodes.internal_server_error'));
                 }
                 $url[] = $response;
                 $url[0]['person_id'] = $userInfo->id;
