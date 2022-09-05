@@ -869,7 +869,8 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
     }
     $return = [
         'status' => $status,
-        'response' => $resDecode
+        'response' => $resDecode,
+        'personnel_number' => $personalNumber
     ];
     return $return;
 }

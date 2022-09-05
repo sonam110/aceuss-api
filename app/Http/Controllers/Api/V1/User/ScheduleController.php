@@ -1033,7 +1033,7 @@ class ScheduleController extends Controller
                 {
                     return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
                 }
-                $url[] = $response['response'];
+                $url[] = $response;
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
                 $url[0]['uniqueId'] = $userInfo->unique_id;
@@ -1112,7 +1112,7 @@ class ScheduleController extends Controller
                 {
                     return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
                 }
-                $url[] = $response['response'];
+                $url[] = $response;
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
                 $url[0]['uniqueId'] = $userInfo->unique_id;

@@ -224,7 +224,7 @@ class RequestApprovalController extends Controller
                                 {
                                     return prepareResult(false, $response['response'],$response['response'], config('httpcodes.internal_server_error'));
                                 }
-                                $url[] = $response['response'];
+                                $url[] = $response;
                                 $url[$key]['person_id'] = $person;
                                 $url[$key]['group_token'] = $group_token;
                                 $url[$key]['uniqueId'] = $user->uniqueId;
