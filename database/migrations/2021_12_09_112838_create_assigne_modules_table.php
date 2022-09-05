@@ -23,6 +23,8 @@ class CreateAssigneModulesTable extends Migration
 
             $table->string('entry_mode')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            
         });
     }
 

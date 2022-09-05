@@ -45,6 +45,7 @@ use App\Models\AssignTask;
 use App\Models\Language;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
+use App\Models\Stampling;
 use App\Models\Schedule;
 
 class User extends Authenticatable
@@ -346,6 +347,11 @@ class User extends Authenticatable
          return $this->hasMany(Activity::class,'top_most_parent_id','id');
     }
 
+    public function assignedActivities()
+    {
+        return $this->hasMany(ActivityAssigne::class,'user_id','id');
+    }
+
     public function ips()
     {
          return $this->hasMany(PatientImplementationPlan::class,'top_most_parent_id','id');
@@ -418,6 +424,16 @@ class User extends Authenticatable
     public function vacations()
     {
         return $this->hasMany(Schedule::class,'user_id','id')->where('leave_type','vacation');
+    }
+
+    public function schedules()
+    {
+         return $this->hasMany(Schedule::class,'user_id','id');
+    }
+
+    public function stamplings()
+    {
+         return $this->hasMany(Stampling::class,'top_most_parent_id','id');
     }
 
 }

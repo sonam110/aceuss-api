@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Activity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 class ActivityAssigne extends Model
 {
-    use HasFactory,LogsActivity;
+    use HasFactory,LogsActivity,softDeletes;
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Module;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 class AssigneModule extends Model
 {
-    use HasFactory,LogsActivity;
+    use HasFactory,LogsActivity,SoftDeletes;
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;

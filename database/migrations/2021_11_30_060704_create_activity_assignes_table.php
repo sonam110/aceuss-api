@@ -32,6 +32,8 @@ class CreateActivityAssignesTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->tinyInteger('is_notify')->default(0);
             $table->timestamps();
+            $table->softDeletes();
+            
         });
     }
 

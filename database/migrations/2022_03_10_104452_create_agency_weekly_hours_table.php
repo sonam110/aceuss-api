@@ -32,6 +32,8 @@ class CreateAgencyWeeklyHoursTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->boolean('approved_by_patient')->default(0)->nullable()->comment('1 for approved,0 for not approved');
             $table->timestamps();
+            $table->softDeletes();
+            
         });
     }
 

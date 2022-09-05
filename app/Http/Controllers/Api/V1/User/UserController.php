@@ -26,6 +26,17 @@ use Spatie\Permission\Models\Permission;
 use App\Models\EmployeeAssignedWorkingHour;
 use App\Models\Schedule;
 use App\Models\UserScheduledDate;
+use App\Models\Task;
+use App\Models\Activity;
+use App\Models\AssigneModule;
+use App\Models\AssignTask;
+use App\Models\ActivityAssigne;
+use App\Models\Stampling;
+use App\Models\PatientImplementationPlan;
+use App\Models\IpFollowUp;
+use App\Models\Journal;
+use App\Models\Deviation;
+use App\Models\PersonalInfoDuringIp;
 
 class UserController extends Controller
 {
@@ -871,6 +882,21 @@ class UserController extends Controller
             }
 
     		$updateStatus = $user->update(['status'=>'2']);
+            Task::where('top_most_parent_id',$user->id)->delete();
+            Activity::where('top_most_parent_id',$user->id)->delete();
+            AssigneModule::where('user_id',$user->id)->delete();
+            ActivityAssigne::where('user_id',$user->id)->delete();
+            AssignTask::where('user_id',$user->id)->delete();
+            EmployeeAssignedWorkingHour::where('emp_id',$user->id)->delete();
+            Schedule::where('user_id',$user->id)->delete();
+            Schedule::where('user_id',$user->id)->delete();
+            Stampling::where('user_id',$user->id)->delete();
+            PatientImplementationPlan::where('top_most_parent_id',$user->id)->delete();
+            Journal::where('patient_id',$user->id)->delete();
+            Deviation::where('patient_id',$user->id)->delete();
+            PersonalInfoDuringIp::where('patient_id',$user->id)->delete();
+            IpFollowUp::where('top_most_parent_id',$user->id)->delete();
+            User::where('top_most_parent_id',$user->id)->delete();
     		$userDelete = $user->delete();
     		return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
     	}
