@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use App\Models\IpFollowUp;
 use App\Models\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 class PersonalInfoDuringIp extends Model
 {
-    use HasFactory,LogsActivity;
+    use HasFactory,LogsActivity,SoftDeletes;
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;

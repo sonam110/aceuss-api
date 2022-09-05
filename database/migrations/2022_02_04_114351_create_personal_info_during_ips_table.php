@@ -50,6 +50,7 @@ class CreatePersonalInfoDuringIpsTable extends Migration
             $table->string('entry_mode')->nullable();
             $table->boolean('is_approval_requested')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

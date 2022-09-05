@@ -36,7 +36,6 @@ use App\Models\PatientImplementationPlan;
 use App\Models\IpFollowUp;
 use App\Models\Journal;
 use App\Models\Deviation;
-use App\Models\PersonalInfoDuringIp;
 
 class UserController extends Controller
 {
