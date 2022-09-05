@@ -847,28 +847,28 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
         $message = curl_error($ch);
         curl_close($ch);
         \Log::error('something_went_wrong:curl error: '. $message);
-        $status = 1;
+        $error = 1;
     } elseif(!empty($resDecode['errorObject'])) {
         $message = $resDecode['errorObject']['message'];
         \Log::error('something_went_wrong:curl error: '. $message);
-        $status = 1;
+        $error = 1;
     } else {
         $resDecode = json_decode($result, true);
         if(!empty(@$resDecode['errorObject']))
         {
             $message = $resDecode['errorObject']['message'];
             \Log::error('something_went_wrong:curl error: '. $message);
-            $status = 1;
+            $error = 1;
         }
         else
         {
             //Generate Log
             mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
-            $status = 0;
+            $error = 0;
         }
     }
     $return = [
-        'status' => $status,
+        'error' => $error,
         'response' => $resDecode,
         'personnel_number' => $personalNumber
     ];

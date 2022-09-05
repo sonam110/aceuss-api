@@ -1029,10 +1029,10 @@ class ScheduleController extends Controller
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
                 $response = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-company-approval', $top_most_parent_id);
-                if($response['status']==1) 
+                /*if($response['error']==1) 
                 {
                     return prepareResult(false, $response,$response, config('httpcodes.internal_server_error'));
-                }
+                }*/
                 $url[] = $response;
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
@@ -1108,10 +1108,10 @@ class ScheduleController extends Controller
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
                 $response = bankIdVerification($userInfo->personal_number, $userInfo->id, json_encode($ids), $userInfo->id, 'schedule-employee-approval', $top_most_parent_id);
-                if($response['status']==1) 
+                /*if($response['error']==1) 
                 {
                     return prepareResult(false, $response,$response, config('httpcodes.internal_server_error'));
-                }
+                }*/
                 $url[] = $response;
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
