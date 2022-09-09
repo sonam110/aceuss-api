@@ -285,12 +285,12 @@ class CallbackController extends Controller
         $user = User::first();
         $data = [
             "module" => 'Activity',
-            "user_id" => 1,
+            "user_id" => 2,
             "message" => 'test message',
             "message_type" => 'success',
         ];
         //\broadcast(new NotificationForAll($data));
-        \broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
+        //\broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
         \broadcast(new EventNotification($data, $user->id, $user->unique_id, 'required'));
         //event(new BankIdVerified('Hello World'));
         return 'Success';
