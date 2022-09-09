@@ -282,10 +282,10 @@ class CallbackController extends Controller
 
     public function checkEvent()
     {
-        $user = User::first();
+        $user = User::find(2);
         $data = [
             "module" => 'Activity',
-            "user_id" => 2,
+            "user_id" => $user->id,
             "message" => 'test message',
             "message_type" => 'success',
         ];
