@@ -21,7 +21,7 @@ use App\Events\EventNotification;
 
 class CallbackController extends Controller
 {
-    public function verified(Request $request, $person_id, $user_id, $from)
+    public function verified(Request $request, $person_id, $user_id, $from, $method)
     {
         $isSuccess = false;
         $sessionId = $request->grandidsession;
@@ -36,7 +36,16 @@ class CallbackController extends Controller
         {
             //get User info
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/GetSession?apiKey='.env('APIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('APISECRET', '18c7f582c64cdf0ae758e2b1e80ae396').'&sessionid='.$sessionId);
+
+            //$method = 1 (Auth) else 2 (Sign)
+            if($method==1)
+            {
+                curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/GetSession?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '19dc4de8687c468873040d8b3b18f6df').'&sessionid='.$sessionId);
+            }
+            else
+            {
+                curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/GetSession?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', '13b80a2111f29ecf20ce3620554ec4a7').'&sessionid='.$sessionId);
+            }
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -45,6 +54,8 @@ class CallbackController extends Controller
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
             $result = curl_exec($ch);
+            \Log::info('BankID callback data');
+            \Log::info($result);
             if (curl_errno($ch)) {
                 $message = curl_error($ch);
                 curl_close($ch);
@@ -313,7 +324,7 @@ class CallbackController extends Controller
     public function checkBankId()
     {
         $arr = json_encode([1,2,3,4]);
-        $res = bankIdVerification('7710037933', 1, $arr, 1, 'test', 1);
+        $res = bankIdVerification('7710037933', 1, $arr, 1, 'test', 1, 1, null);
         return $res;
     }
 }

@@ -23,7 +23,7 @@ Route::get('/optimize', function () {
     return 'done';
 });
 
-Route::get('/verified/{person_id}/{user_id}/{from}', [App\Http\Controllers\CallbackController::class, 'verified']);
+Route::get('/verified/{person_id}/{user_id}/{from}/{method}', [App\Http\Controllers\CallbackController::class, 'verified']);
 
 Route::get('/check-event', [App\Http\Controllers\CallbackController::class, 'checkEvent']);
 
