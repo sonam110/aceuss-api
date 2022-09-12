@@ -1037,6 +1037,7 @@ class ScheduleController extends Controller
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
                 $url[0]['uniqueId'] = $userInfo->unique_id;
+                DB::commit();
                 return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
             }
             else
@@ -1116,6 +1117,7 @@ class ScheduleController extends Controller
                 $url[0]['person_id'] = $userInfo->id;
                 $url[0]['group_token'] = $ids;
                 $url[0]['uniqueId'] = $userInfo->unique_id;
+                DB::commit();
                 return prepareResult(true,'Mobile BankID Link', $url, config('httpcodes.success'));
             }
             else

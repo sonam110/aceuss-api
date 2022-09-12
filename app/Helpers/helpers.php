@@ -891,6 +891,7 @@ function mobileBankIdLoginLog($top_most_parent_id, $sessionId, $personnel_number
         $mobileBankIdLoginLog->extra_info = $extra_info;
         $mobileBankIdLoginLog->save();
     }
+    \Log::info($mobileBankIdLoginLog);
     return true;
 }
 
