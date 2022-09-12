@@ -219,7 +219,7 @@ class RequestApprovalController extends Controller
                             if(!empty($getPersonalNumber->personal_number))
                             {
                                 $top_most_parent_id = $getPersonalNumber->patient->top_most_parent_id;
-                                $response =bankIdVerification($getPersonalNumber->personal_number, $person, $group_token, $user->id, 'IP-approval', $top_most_parent_id);
+                                $response =bankIdVerification($getPersonalNumber->personal_number, $person, $group_token, $user->id, 'IP-approval', $top_most_parent_id, 1, null);
                                 /*if($response['error']==1) 
                                 {
                                     return prepareResult(false, $response,$response, config('httpcodes.internal_server_error'));

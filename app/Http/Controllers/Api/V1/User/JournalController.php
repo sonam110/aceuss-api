@@ -438,7 +438,7 @@ class JournalController extends Controller
             {
                 $userInfo = getUser();
                 $top_most_parent_id = $userInfo->top_most_parent_id;
-                $response = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_ids[0], $userInfo->id, 'journal-approval', $top_most_parent_id);
+                $response = bankIdVerification($userInfo->personal_number, $userInfo->id, $request->journal_ids[0], $userInfo->id, 'journal-approval', $top_most_parent_id, 2, 'journal sign');
                 /*if($response['error']==1) 
                 {
                     return prepareResult(false, $response,$response, config('httpcodes.internal_server_error'));
