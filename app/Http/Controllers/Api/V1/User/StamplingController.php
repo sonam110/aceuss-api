@@ -422,7 +422,7 @@ class StamplingController extends Controller
 					$rand = rand(0,1000);
 					$excel = Excel::store(new StamplingReportExport($stamplings), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
 
-					return prepareResult(true,getLangByLabelGroups('Patient Cashier','message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
+					return prepareResult(true,getLangByLabelGroups('Patient Cashier','message_export') ,['url' => env('APP_URL').'export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
 				}
 				else
 				{
@@ -494,7 +494,7 @@ class StamplingController extends Controller
 				$rand = rand(0,1000);
 				$excel = Excel::store(new StamplingDatewiseReportExport($data), 'export/stampling-report/'.$rand.'.xlsx' , 'export_path');
 
-				return prepareResult(true,getLangByLabelGroups('Stampling','message_export') ,['url' => env('APP_URL').'public/export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
+				return prepareResult(true,getLangByLabelGroups('Stampling','message_export') ,['url' => env('APP_URL').'export/stampling-report/'.$rand.'.xlsx'], config('httpcodes.success'));
 			}
 			else
 			{

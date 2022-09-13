@@ -231,7 +231,7 @@ class LabelController extends Controller
         
         $excel = Excel::store(new LabelsExport(), 'export/'.$rand.'.xlsx' , 'export_path');
         
-        return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/'.$rand.'.xlsx'], config('httpcodes.success'));
+        return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'export/'.$rand.'.xlsx'], config('httpcodes.success'));
          
     }
 }

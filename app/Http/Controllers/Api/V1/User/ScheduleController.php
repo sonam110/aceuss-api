@@ -1191,7 +1191,7 @@ class ScheduleController extends Controller
 			$user_id  = $request->user_id;
 			$excel = Excel::store(new EmployeeWorkingHoursExport($dates,$user_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
 
-			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'public/export/schedule/'.$rand.'.xlsx'], config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'export/schedule/'.$rand.'.xlsx'], config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
@@ -1206,7 +1206,7 @@ class ScheduleController extends Controller
 			$patient_id  = $request->patient_id;
 			$excel = Excel::store(new PatientAssignedHoursExport($dates,$patient_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
 
-			return prepareResult(true,getLangByLabelGroups('schedule','message_patient_assigned_hours_export') ,['url' => env('APP_URL').'public/export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
+			return prepareResult(true,getLangByLabelGroups('schedule','message_patient_assigned_hours_export') ,['url' => env('APP_URL').'export/schedule'.$rand.'.xlsx'], config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
