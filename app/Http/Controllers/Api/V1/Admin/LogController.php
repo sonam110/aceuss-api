@@ -63,7 +63,7 @@ class LogController extends Controller
             	$rand = rand(0,1000);
             	$excel = Excel::store(new SmsLogExport($query), 'export/smslog/'.$rand.'.xlsx' , 'export_path');
 
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/smslog/'.$rand.'.xlsx'], config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'export/smslog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
@@ -119,7 +119,7 @@ class LogController extends Controller
             	$rand = rand(0,1000);
             	$excel = Excel::store(new BankIdLogExport($query), 'export/bankidlog/'.$rand.'.xlsx' , 'export_path');
 
-            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/bankidlog/'.$rand.'.xlsx'], config('httpcodes.success'));
+            	return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'export/bankidlog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
@@ -165,7 +165,7 @@ class LogController extends Controller
                 $rand = rand(0,1000);
                 $excel = Excel::store(new ActivityLogExport($query), 'export/activitylog/'.$rand.'.xlsx' , 'export_path');
 
-                return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'public/export/activitylog/'.$rand.'.xlsx'], config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'export/activitylog/'.$rand.'.xlsx'], config('httpcodes.success'));
             }
             else
             {
