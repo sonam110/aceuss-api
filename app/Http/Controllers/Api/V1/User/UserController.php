@@ -1012,12 +1012,12 @@ class UserController extends Controller
         {
             // $data = LicenceKeyManagement::where('top_most_parent_id', auth()->user()->top_most_parent_id)->where('is_used',1)->where('expire_at','>=',date('Y-m-d'))->orderBy('id','desc')->first();
 
-            $data = Subscription::where('user_id',Auth::id())->where('start_date','<=',date('Y-m-d'))->where('end_date','>=',date('Y-m-d'))->orderBy('id','desc')->first();
+            $data = Subscription::whereIn('user_id',[Auth::id(),Auth::user()->top_most_parent_id])->where('start_date','<=',date('Y-m-d'))->where('end_date','>=',date('Y-m-d'))->orderBy('id','desc')->first();
 
-            if(empty($data))
-            {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found') ,[], config('httpcodes.not_found'));
-            }
+            // if(empty($data))
+            // {
+            //     return prepareResult(false,getLangByLabelGroups('BcCommon','message_record_not_found') ,[], config('httpcodes.not_found'));
+            // }
             return prepareResult(true,getLangByLabelGroups('Package','message_show') ,$data, config('httpcodes.success'));
         } catch (\Throwable $exception) {
             \Log::error($exception);
