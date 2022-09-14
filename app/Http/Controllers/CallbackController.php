@@ -86,9 +86,10 @@ class CallbackController extends Controller
             }
             else
             {
+                $faker = \Faker\Factory::create();
                 $isSuccess = true;
-                $name = 'Test BankID';
-                $ip = '127.0.0.1';
+                $name = $faker->name;
+                $ip = $request->ip(); // long2ip(mt_rand());
             }
 
             $person_id = base64_decode($person_id);
