@@ -25,6 +25,6 @@ Broadcast::channel('bank-id-verified.{userId}-{uniqueId}', function ($data, $use
     return true;
 });
 
-Broadcast::channel('notifications.{userId}-{uniqueId}', function ($data, $userId, $uniqueId, $action=null) {
+Broadcast::channel('notifications.{userId}-{uniqueId}', function ($data, $userId, $uniqueId, $action=null, $pnr=null, $error=null) {
     return true;
 });

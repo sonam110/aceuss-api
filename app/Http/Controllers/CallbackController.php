@@ -33,6 +33,11 @@ class CallbackController extends Controller
         }
 
         $sessionInfo = MobileBankIdLoginLog::where('sessionId', $sessionId)->first();
+        $person_id = base64_decode($person_id);
+        $user_id = base64_decode($user_id);
+        $loggedInUser = User::find($user_id);
+        $personalNumber = null;
+
         if($sessionInfo)
         {
             if(env('IS_MOBILE_BANK_ON', false))
@@ -59,12 +64,6 @@ class CallbackController extends Controller
                 $result = curl_exec($ch);
                 \Log::info('BankID callback data');
                 \Log::info($result);
-                if (curl_errno($ch)) {
-                    $message = curl_error($ch);
-                    curl_close($ch);
-                    \Log::error('mobileID callback error: '.$message);
-                    return view('not-verified');
-                }
                 curl_close($ch);
                 $resDecode = json_decode($result, true);
                 if(!empty($resDecode['errorObject']))
@@ -72,17 +71,17 @@ class CallbackController extends Controller
                     $message = $resDecode['errorObject']['message'];
                     \Log::error('mobileID callback error:');
                     \Log::error($message);
-                    return view('not-verified');
                 }
                 elseif(empty($resDecode))
                 {
                     \Log::error('mobileID callback error:');
                     \Log::error($resDecode);
-                    return view('not-verified');
                 }
-
-                $name = $resDecode['userAttributes']['name'];
-                $ip = $resDecode['userAttributes']['ipAddress'];
+                else
+                {
+                    $name = $resDecode['userAttributes']['name'];
+                    $ip = $resDecode['userAttributes']['ipAddress'];
+                }
             }
             else
             {
@@ -92,14 +91,12 @@ class CallbackController extends Controller
                 $ip = $request->ip(); // long2ip(mt_rand());
             }
 
-            $person_id = base64_decode($person_id);
-            $user_id = base64_decode($user_id);
-            $loggedInUser = User::find($user_id);
             if($from=='IP-approval')
             {
-                $getPerson = PersonalInfoDuringIp::find($person_id);
+                $getPerson = PersonalInfoDuringIp::('id','personal_number')->find($person_id);
                 if($getPerson)
                 {
+                    $personalNumber = $getPerson->personal_number;
                     $isSuccess = true;
                     //update status
                     $requestForApproval = RequestForApproval::where('group_token', $sessionInfo->extra_info)
@@ -276,15 +273,14 @@ class CallbackController extends Controller
             }
         }
         
+        //Event Fire here
+        $userUniqueId = User::select('unique_id')->find($user_id);
         if($isSuccess)
         {
             //update Mobile BankID log
             $sessionInfo->name = $name;
             $sessionInfo->ip = $ip;
             $sessionInfo->save();
-
-            //Event Fire here
-            $userUniqueId = User::select('unique_id')->find($user_id);
             if($userUniqueId)
             {
                 //Notification create
@@ -298,11 +294,16 @@ class CallbackController extends Controller
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, $from));
+                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, $from, $personalNumber, false));
             }
             return view('verified');
         }
-        return view('not-verified');
+        else
+        {
+            $getPerson = PersonalInfoDuringIp::('id','personal_number')->find($person_id);
+            \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+            return view('not-verified');
+        }
     }
 
     public function checkEvent()
