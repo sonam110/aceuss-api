@@ -891,8 +891,9 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
     else
     {
         $error = 0;
+        $sessionId = generateRandomNumber(32);
         $data = [
-            'sessionId' => generateRandomNumber(32),
+            'sessionId' => $sessionId,
             'redirectUrl' => env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method.'?grandidsession='.$sessionId
         ];
         $resDecode = $data;
