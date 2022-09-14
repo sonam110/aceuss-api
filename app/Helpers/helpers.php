@@ -862,18 +862,21 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
     if (curl_errno($ch)) {
         $message = curl_error($ch);
         curl_close($ch);
-        \Log::error('something_went_wrong:curl error: '. $message);
+        \Log::error('something_went_wrong:curl error:');
+        \Log::error($message);
         $error = 1;
     } elseif(!empty($resDecode['errorObject'])) {
         $message = $resDecode['errorObject']['message'];
-        \Log::error('something_went_wrong:curl error: '. $message);
+        \Log::error('something_went_wrong:curl error:');
+        \Log::error($message);
         $error = 1;
     } else {
         $resDecode = json_decode($result, true);
         if(!empty(@$resDecode['errorObject']))
         {
             $message = $resDecode['errorObject']['message'];
-            \Log::error('something_went_wrong:curl error: '. $message);
+            \Log::error('something_went_wrong:curl error:');
+            \Log::error($message);
             $error = 1;
         }
         else
