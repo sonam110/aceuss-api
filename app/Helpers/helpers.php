@@ -895,8 +895,7 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
 
         //Generate Log
         mobileBankIdLoginLog($top_most_parent_id, $sessionId, substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
-                $error = 0;
-
+        
         $data = [
             'sessionId' => $sessionId,
             'redirectUrl' => env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method.'?grandidsession='.$sessionId

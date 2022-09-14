@@ -101,7 +101,7 @@ class CallbackController extends Controller
                 {
                     $isSuccess = true;
                     //update status
-                    $requestForApproval = RequestForApproval::where('group_token_or_id', $sessionInfo->extra_info)
+                    $requestForApproval = RequestForApproval::where('group_token', $sessionInfo->extra_info)
                     ->where('requested_to', $getPerson->id)
                     ->update([
                         'status' => 2,
@@ -111,12 +111,12 @@ class CallbackController extends Controller
                     //check all approved
                     $checkTotalPerson = RequestForApproval::select(\DB::raw('COUNT(id) as total_request_for_approve'),
                     \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_approved'))
-                        ->where('group_token_or_id', $sessionInfo->extra_info)
+                        ->where('group_token', $sessionInfo->extra_info)
                         ->first();
 
                     if($checkTotalPerson->total_request_for_approve == $checkTotalPerson->total_approved)
                     {
-                        $ip_ids = RequestForApproval::where('group_token_or_id', $sessionInfo->extra_info)
+                        $ip_ids = RequestForApproval::where('group_token', $sessionInfo->extra_info)
                             ->groupBy('request_type_id')
                             ->pluck('request_type_id');
 
