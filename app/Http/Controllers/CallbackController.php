@@ -298,7 +298,7 @@ class CallbackController extends Controller
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, null));
+                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, $from));
             }
             return view('verified');
         }
