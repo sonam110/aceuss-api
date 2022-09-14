@@ -830,61 +830,73 @@ function userChildBranches(User $user)
 
 function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $loggedInUserId, $request_from, $top_most_parent_id, $method, $display_message=null)
 {
-    $ch = curl_init();
-
-    //$method = 1 (Auth) else 2 (Sign)
-    if($method==1)
+    if(env('IS_MOBILE_BANK_ON', false))
     {
-        curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '18c7f582c64cdf0ae758e2b1e80ae396'));
-
-        $userVisibleData = null;
-        $userNonVisibleData = null;
-    }
-    else
-    {
-        curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', 'ad462cb0fe1aa1b0adabca6ffffe1d59'));
-
-        $userVisibleData = base64_encode('hello');
-        $userNonVisibleData = base64_encode('hello');
-    }
-
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&userVisibleData=".$userVisibleData."&userNonVisibleData=".$userNonVisibleData."&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method);
-
-    $headers = array();
-    $headers[] = 'Accept: application/json';
-    $headers[] = 'Content-Type: application/x-www-form-urlencoded';
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-    $result = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        $message = curl_error($ch);
-        curl_close($ch);
-        \Log::error('something_went_wrong:curl error:');
-        \Log::error($message);
-        $error = 1;
-    } elseif(!empty($resDecode['errorObject'])) {
-        $message = $resDecode['errorObject']['message'];
-        \Log::error('something_went_wrong:curl error:');
-        \Log::error($message);
-        $error = 1;
-    } else {
-        $resDecode = json_decode($result, true);
-        if(!empty(@$resDecode['errorObject']))
+        $ch = curl_init();
+        //$method = 1 (Auth) else 2 (Sign)
+        if($method==1)
         {
+            curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '18c7f582c64cdf0ae758e2b1e80ae396'));
+
+            $userVisibleData = null;
+            $userNonVisibleData = null;
+        }
+        else
+        {
+            curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', 'ad462cb0fe1aa1b0adabca6ffffe1d59'));
+
+            $userVisibleData = base64_encode('hello');
+            $userNonVisibleData = base64_encode('hello');
+        }
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&userVisibleData=".$userVisibleData."&userNonVisibleData=".$userNonVisibleData."&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method);
+
+        $headers = array();
+        $headers[] = 'Accept: application/json';
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $message = curl_error($ch);
+            curl_close($ch);
+            \Log::error('something_went_wrong:curl error:');
+            \Log::error($message);
+            $error = 1;
+        } elseif(!empty($resDecode['errorObject'])) {
             $message = $resDecode['errorObject']['message'];
             \Log::error('something_went_wrong:curl error:');
             \Log::error($message);
             $error = 1;
+        } else {
+            $resDecode = json_decode($result, true);
+            if(!empty(@$resDecode['errorObject']))
+            {
+                $message = $resDecode['errorObject']['message'];
+                \Log::error('something_went_wrong:curl error:');
+                \Log::error($message);
+                $error = 1;
+            }
+            else
+            {
+                //Generate Log
+                mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
+                $error = 0;
+            }
         }
-        else
-        {
-            //Generate Log
-            mobileBankIdLoginLog($top_most_parent_id, $resDecode['sessionId'], substr($personalNumber,0,8), null, null, $request_from, $group_token_or_id);
-            $error = 0;
-        }
+    }
+    else
+    {
+        $error = 0;
+        $data = [
+            'sessionId' => generateRandomNumber(32),
+            'redirectUrl' => env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method
+        ];
+        $resDecode = $data;
+        $personalNumber = $personalNumber;
     }
     $return = [
         'error' => $error,
