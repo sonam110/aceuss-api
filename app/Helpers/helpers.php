@@ -848,8 +848,6 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
         $userNonVisibleData = base64_encode('hello');
     }
 
-    dd();
-
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&gui=false&userVisibleData=".$userVisibleData."&userNonVisibleData=".$userNonVisibleData."&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method);
