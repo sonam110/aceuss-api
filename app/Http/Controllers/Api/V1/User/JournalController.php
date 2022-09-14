@@ -464,6 +464,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_sign') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+            \Log::info($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
