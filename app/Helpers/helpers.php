@@ -835,14 +835,14 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
     //$method = 1 (Auth) else 2 (Sign)
     if($method==1)
     {
-        curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '19dc4de8687c468873040d8b3b18f6df'));
+        curl_setopt($ch, CURLOPT_URL, env('BANKIDAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDAPISECRET', '18c7f582c64cdf0ae758e2b1e80ae396'));
 
         $userVisibleData = null;
         $userNonVisibleData = null;
     }
     else
     {
-        curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', '13b80a2111f29ecf20ce3620554ec4a7'));
+        curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', 'ad462cb0fe1aa1b0adabca6ffffe1d59'));
 
         $userVisibleData = base64_encode('hello');
         $userNonVisibleData = base64_encode('hello');
@@ -850,7 +850,7 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&gui=false&userVisibleData=".$userVisibleData."&userNonVisibleData=".$userNonVisibleData."&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "personalNumber=".$personalNumber."&thisDevice=false&askForSSN=false&mobileBankId=true&deviceChoice=false&userVisibleData=".$userVisibleData."&userNonVisibleData=".$userNonVisibleData."&callbackUrl=".env('BANKCALLBACKURL')."/".base64_encode($person_id)."/".base64_encode($loggedInUserId)."/".$request_from."/".$method);
 
     $headers = array();
     $headers[] = 'Accept: application/json';
