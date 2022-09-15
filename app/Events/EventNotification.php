@@ -21,7 +21,7 @@ class EventNotification implements ShouldBroadcast
     public $pnr;
     public $error;
 
-    public function __construct($data, $userId, $uniqueId, $action, $pnr, $error)
+    public function __construct($data, $userId, $uniqueId, $action=null, $pnr=null, $error=null)
     {
         $this->data = $data;
         $this->userId = $userId;
