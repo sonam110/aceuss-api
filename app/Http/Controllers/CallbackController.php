@@ -149,7 +149,7 @@ class CallbackController extends Controller
             }
             elseif($from=='deviation-approval')
             {
-                $deviation = Deviation::whereIn('id', $sessionInfo->extra_info)->update([
+                $deviation = Deviation::where('id', $sessionInfo->extra_info)->update([
                     'is_signed' => 1,
                     'is_completed' => 1,
                     'completed_by' => $user_id,
