@@ -120,6 +120,10 @@ class UserController extends Controller
             {
                 $query->whereJsonContains('users.patient_type_id', strval($request->patient_type_id));
             }
+            if(!empty($request->company_type_id))
+            {
+                $query->whereJsonContains('users.company_type_id', $request->company_type_id);
+            }
             if(!empty($request->ip_id))
             {
                 $query->join('patient_implementation_plans', function ($join) {
