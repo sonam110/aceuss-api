@@ -39,11 +39,11 @@ class ActivityController extends Controller
 		try 
 		{
 			$user = getUser();
-            if(!empty($user->branch_id)) {
-                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
-            } else {
-                $allChilds = userChildBranches(\App\Models\User::find($user->id));
-            }
+			if(!empty($user->branch_id)) {
+				$allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+			} else {
+				$allChilds = userChildBranches(\App\Models\User::find($user->id));
+			}
 
 			$whereRaw = $this->getWhereRawFromRequest($request);
 			$query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
@@ -80,7 +80,7 @@ class ActivityController extends Controller
 			}
 			if(!empty($request->end_date))
 			{
-				$query->where('start_date',"<=" ,$request->end_date);
+				$query->where('end_date',"<=" ,$request->end_date);
 			}
 
 			if(!empty($request->patient))
@@ -162,6 +162,8 @@ class ActivityController extends Controller
 				\DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_not_done'),
 				\DB::raw('COUNT(IF(status = 3, 0, NULL)) as total_not_applicable'),
 			])->where('is_latest_entry', 1);
+
+
 			if($user->user_type_id =='2'){
 
 			}
@@ -170,11 +172,18 @@ class ActivityController extends Controller
 				$activityCounts = $activityCounts->whereIn('activities.id', $agnActivity);
 
 			}
-			 else{
+			else{
 				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
-			
+			if(!empty($request->start_date))
+			{
+				$activityCounts->where('start_date',">=" ,$request->start_date);
+			}
+			if(!empty($request->end_date))
+			{
+				$activityCounts->where('start_date',"<=" ,$request->end_date);
+			}
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
@@ -183,15 +192,38 @@ class ActivityController extends Controller
 					->orWhere('activities.patient_id', $user->parent_id);
 				});
 			}
-
-
 			$whereRaw2 = $this->getWhereRawFromRequestOther($request);
-
 			if($whereRaw2 != '') { 
 				$activityCounts = $activityCounts->whereRaw($whereRaw2);
 			}
-
 			$activityCounts = $activityCounts->first();
+
+			////////pending Counts
+			$pendingActivityCounts = Activity::where('status',0)->where('is_latest_entry', 1);
+			if($user->user_type_id =='2'){
+
+			}
+			elseif($user->user_type_id =='3'){
+				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+				$pendingActivityCounts = $pendingActivityCounts->whereIn('activities.id', $agnActivity);
+
+			}
+			else{
+				$pendingActivityCounts =  $pendingActivityCounts->whereIn('activities.branch_id',$allChilds);
+			}
+
+			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+			{
+				$pendingActivityCounts->where(function ($q) use ($user) {
+					$q->where('activities.patient_id', $user->id)
+					->orWhere('activities.patient_id', $user->parent_id);
+				});
+			}
+			$whereRaw2 = $this->getWhereRawFromRequestOther($request);
+			if($whereRaw2 != '') { 
+				$pendingActivityCounts = $pendingActivityCounts->whereRaw($whereRaw2);
+			}
+			$pendingActivityCounts = $pendingActivityCounts->count();
 
 
             ////////Journal & Deviation
@@ -256,7 +288,8 @@ class ActivityController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage),
 
-					'total_pending' => $activityCounts->total_pending,
+					'total_pending' => $pendingActivityCounts,
+					// 'total_pending_1' => $activityCounts->total_pending,
 					'total_done' => $activityCounts->total_done,
 					'total_not_done' => $activityCounts->total_not_done,
 					'total_not_applicable' => $activityCounts->total_not_applicable,
@@ -498,23 +531,23 @@ class ActivityController extends Controller
             								{
             									if($request->is_compulsory == true && $key == 0){
             										$user = User::find($getUser->top_most_parent_id);
-        											$variable_data = [
-        												'{{name}}' => $user->name,
-        												'{{assigned_by}}' => Auth::User()->name,
-        												'{{activity_title}}' => $activity->title,
-        												'{{start_date}}' => $activity->start_date,
-        												'{{start_time}}' => $activity->start_time
-        											];
-        										 	actionNotification($user,$data_id,$notification_template,$variable_data);
+            										$variable_data = [
+            											'{{name}}' => $user->name,
+            											'{{assigned_by}}' => Auth::User()->name,
+            											'{{activity_title}}' => $activity->title,
+            											'{{start_date}}' => $activity->start_date,
+            											'{{start_time}}' => $activity->start_time
+            										];
+            										actionNotification($user,$data_id,$notification_template,$variable_data);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
             										$variable_data = [
-        												'{{name}}'=> $getUser->name,
-        												'{{assigned_by}}'=> Auth::User()->name,
-        												'{{activity_title}}'=> $activity->title,
-        												'{{start_date}}'=> $activity->start_date,
-        												'{{start_time}}'=> $activity->start_time
-        											];
+            											'{{name}}'=> $getUser->name,
+            											'{{assigned_by}}'=> Auth::User()->name,
+            											'{{activity_title}}'=> $activity->title,
+            											'{{start_date}}'=> $activity->start_date,
+            											'{{start_time}}'=> $activity->start_time
+            										];
             										actionNotification($getUser,$data_id,$notification_template,$variable_data);
             									}
             								}
@@ -809,23 +842,23 @@ class ActivityController extends Controller
             								{
             									if($request->is_compulsory == true && $key == 0){
             										$user = User::find($getUser->top_most_parent_id);
-        											$variable_data = [
-        												'{{name}}' => $user->name,
-        												'{{assigned_by}}' => Auth::User()->name,
-        												'{{activity_title}}' => $activity->title,
-        												'{{start_date}}' => $activity->start_date,
-        												'{{start_time}}' => $activity->start_time
-        											];
-        										 	actionNotification($user,$data_id,$notification_template,$variable_data);
+            										$variable_data = [
+            											'{{name}}' => $user->name,
+            											'{{assigned_by}}' => Auth::User()->name,
+            											'{{activity_title}}' => $activity->title,
+            											'{{start_date}}' => $activity->start_date,
+            											'{{start_time}}' => $activity->start_time
+            										];
+            										actionNotification($user,$data_id,$notification_template,$variable_data);
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
             										$variable_data = [
-        												'{{name}}'=> $getUser->name,
-        												'{{assigned_by}}'=> Auth::User()->name,
-        												'{{activity_title}}'=> $activity->title,
-        												'{{start_date}}'=> $activity->start_date,
-        												'{{start_time}}'=> $activity->start_time
-        											];
+            											'{{name}}'=> $getUser->name,
+            											'{{assigned_by}}'=> Auth::User()->name,
+            											'{{activity_title}}'=> $activity->title,
+            											'{{start_date}}'=> $activity->start_date,
+            											'{{start_time}}'=> $activity->start_time
+            										];
             										actionNotification($getUser,$data_id,$notification_template,$variable_data);
             									}
             								}
@@ -891,11 +924,11 @@ class ActivityController extends Controller
     		$notification_template = EmailTemplate::where('mail_sms_for', 'trashed-acvity-created')->first();
     		foreach ($users as $key => $value) {
     			$variable_data = [
-	    		    '{{name}}'              => $value->name,
-	    		    '{{title}}'				=> $checkId->title,
-	    		    '{{deleted_by}}'        => Auth::User()->name,
-	    		];
-	    		actionNotification($value,$data_id,$notification_template,$variable_data);
+    				'{{name}}'              => $value->name,
+    				'{{title}}'				=> $checkId->title,
+    				'{{deleted_by}}'        => Auth::User()->name,
+    			];
+    			actionNotification($value,$data_id,$notification_template,$variable_data);
     		}
     		
     		//-----------------------------------------------//
@@ -996,13 +1029,13 @@ class ActivityController extends Controller
     		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$data_id =  $checkId->id;
     		$notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
-			$variable_data = [
-				'{{name}}'  			=> $user->name,
-				'{{assigned_by}}' 		=> Auth::User()->name,
-				'{{activity_title}}'	=> $checkId->title,
-				'{{start_date}}' 		=> $checkId->start_date,
-				'{{start_time}}' 		=> $checkId->start_time
-			];
+    		$variable_data = [
+    			'{{name}}'  			=> $user->name,
+    			'{{assigned_by}}' 		=> Auth::User()->name,
+    			'{{activity_title}}'	=> $checkId->title,
+    			'{{start_date}}' 		=> $checkId->start_date,
+    			'{{start_time}}' 		=> $checkId->start_time
+    		];
     		actionNotification($user,$data_id,$notification_template,$variable_data);
     		DB::commit();
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
@@ -1140,69 +1173,69 @@ class ActivityController extends Controller
     		$activity->action_date = date('Y-m-d');
     		$activity->save();
     		
-			$start_date_time = $activity->start_date.' '.$activity->start_time;
-			$start_date = Carbon::parse($start_date_time);
-			$current = Carbon::now()->format('Y-m-d H:i:s');
-			$now = Carbon::parse($current);
-			$interval = $start_date->diffInSeconds($now);
-			$time_diff = dates($interval);
-			$activityTimeLog = new ActivityTimeLog;
-			$activityTimeLog->activity_id = $activity->id;
-			$activityTimeLog->start_date = $activity->start_date;
-			$activityTimeLog->start_time = $activity->start_time;
-			$activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
-			$activityTimeLog->action_time = Carbon::now()->format('H:is');
-			$activityTimeLog->action_by = $user->id;
-			$activityTimeLog->time_diff = $time_diff;
-			$activityTimeLog->save();
+    		$start_date_time = $activity->start_date.' '.$activity->start_time;
+    		$start_date = Carbon::parse($start_date_time);
+    		$current = Carbon::now()->format('Y-m-d H:i:s');
+    		$now = Carbon::parse($current);
+    		$interval = $start_date->diffInSeconds($now);
+    		$time_diff = dates($interval);
+    		$activityTimeLog = new ActivityTimeLog;
+    		$activityTimeLog->activity_id = $activity->id;
+    		$activityTimeLog->start_date = $activity->start_date;
+    		$activityTimeLog->start_time = $activity->start_time;
+    		$activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
+    		$activityTimeLog->action_time = Carbon::now()->format('H:is');
+    		$activityTimeLog->action_by = $user->id;
+    		$activityTimeLog->time_diff = $time_diff;
+    		$activityTimeLog->save();
 
-			$activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
+    		$activityAssigned = ActivityAssigne::where('activity_id',$request->activity_id)->update(['status'=>$request->status,'reason'=>$request->comment]);
 
-			$journal_id = null;
-			$deviation_id = null;
-			if($is_journal_assign_module == true && $is_journal == '1'){
-				$journal =  journal($activity->id);
-				$journal_id = (!empty($journal)) ? $journal : null;
-			}
-			if($is_deviation_assign_module == true && $is_deviation == '1'){
-				$deviation = deviation($activity->id);
-				$deviation_id = (!empty($deviation)) ? $deviation : null;
-			}
+    		$journal_id = null;
+    		$deviation_id = null;
+    		if($is_journal_assign_module == true && $is_journal == '1'){
+    			$journal =  journal($activity->id);
+    			$journal_id = (!empty($journal)) ? $journal : null;
+    		}
+    		if($is_deviation_assign_module == true && $is_deviation == '1'){
+    			$deviation = deviation($activity->id);
+    			$deviation_id = (!empty($deviation)) ? $deviation : null;
+    		}
 
-			/*-----------Send notification---------------------*/
+    		/*-----------Send notification---------------------*/
 
-			$receivers_ids = array_filter(array_unique($receivers_ids));
-			$data_id =  $activity->id;
-			
+    		$receivers_ids = array_filter(array_unique($receivers_ids));
+    		$data_id =  $activity->id;
 
-			if($request->status == 1) {
-				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-done')->first();
-				$display_message = getLangByLabelGroups('Activity','message_done');
-			}
-			elseif ($request->status == 2) {
-				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-done')->first();
-				$display_message = getLangByLabelGroups('Activity','message_not_done');
-			}
-			elseif ($request->status == 3) {
-				$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
-				$display_message = getLangByLabelGroups('Activity','message_mark_not_applicable');
-			}
-			$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
 
-			foreach ($receivers_ids as $key => $value) {
-				$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
-				$variable_data = [
-					'{{name}}'              => $user->name,
-					'{{action_by}}'         => Auth::User()->name,
-					'{{activity_title}}'    => $activity->title,
-					'{{start_date}}'        => $activity->start_date,
-					'{{start_time}}'        => $activity->start_time
-				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
-			}
-			DB::commit();
+    		if($request->status == 1) {
+    			$notification_template = EmailTemplate::where('mail_sms_for', 'activity-done')->first();
+    			$display_message = getLangByLabelGroups('Activity','message_done');
+    		}
+    		elseif ($request->status == 2) {
+    			$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-done')->first();
+    			$display_message = getLangByLabelGroups('Activity','message_not_done');
+    		}
+    		elseif ($request->status == 3) {
+    			$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
+    			$display_message = getLangByLabelGroups('Activity','message_mark_not_applicable');
+    		}
+    		$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
 
-			return prepareResult(true,$display_message ,$activity, config('httpcodes.success'));
+    		foreach ($receivers_ids as $key => $value) {
+    			$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+    			$variable_data = [
+    				'{{name}}'              => $user->name,
+    				'{{action_by}}'         => Auth::User()->name,
+    				'{{activity_title}}'    => $activity->title,
+    				'{{start_date}}'        => $activity->start_date,
+    				'{{start_time}}'        => $activity->start_time
+    			];
+    			actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+    		}
+    		DB::commit();
+
+    		return prepareResult(true,$display_message ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
     		\Log::error($exception);
@@ -1276,22 +1309,22 @@ class ActivityController extends Controller
                 'action_date' => date('Y-m-d')
             ]);
 
-            /*-----------Send notification---------------------*/
+    		/*-----------Send notification---------------------*/
 
-            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
-            $data_id =  $getActivity->id;
-            $notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
-            $extra_param = ['status'=>3,'start_date'=>$getActivity->start_date];
-            $companyObj = companySetting($user->top_most_parent_id);
-			$variable_data = [
-				'{{name}}'              => $user->name,
-				'{{action_by}}'         => Auth::User()->name,
-				'{{activity_title}}'    => $getActivity->title,
-				'{{start_date}}'        => $getActivity->start_date,
-				'{{start_time}}'        => $getActivity->start_time
-			];
+    		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
+    		$data_id =  $getActivity->id;
+    		$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
+    		$extra_param = ['status'=>3,'start_date'=>$getActivity->start_date];
+    		$companyObj = companySetting($user->top_most_parent_id);
+    		$variable_data = [
+    			'{{name}}'              => $user->name,
+    			'{{action_by}}'         => Auth::User()->name,
+    			'{{activity_title}}'    => $getActivity->title,
+    			'{{start_date}}'        => $getActivity->start_date,
+    			'{{start_time}}'        => $getActivity->start_time
+    		];
 
-            actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+    		actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
 
     		return prepareResult(true, getLangByLabelGroups('Activity','message_mark_not_applicable') ,[], config('httpcodes.success'));
     	}

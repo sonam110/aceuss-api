@@ -828,6 +828,23 @@ function userChildBranches(User $user)
     return array_keys(array_flip($allBranches));
 }
 
+function userTrashedChildBranches(User $user)
+{
+    $allBranches = [];
+    if ($user->allTrashedChildBranches->count() > 0) {
+        foreach ($user->allTrashedChildBranches as $child) {
+            $allBranches[] = $child->id;
+            $allBranches = array_merge($allBranches,is_array(userTrashedChildBranches($child))?userTrashedChildBranches($child):[] );
+        }
+    }
+    if(in_array(@auth()->user()->user_type_id, [1,3,4,5,6,7,8,9,10,12,13,14,15]))
+    {
+        $allBranches = array_merge($allBranches, [$user->id]);
+    }
+    //$allBranches = array_merge($allBranches, [$user->id]);
+    return array_keys(array_flip($allBranches));
+}
+
 function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $loggedInUserId, $request_from, $top_most_parent_id, $method, $display_message=null)
 {
     if(env('IS_MOBILE_BANK_ON', false))

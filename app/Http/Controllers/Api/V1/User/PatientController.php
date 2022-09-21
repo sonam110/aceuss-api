@@ -358,13 +358,18 @@ class PatientController extends Controller
                                     }
 
 
-                                    if(is_null(@$value['id']) == false){
-                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                        $getUser = User::where('email',$getperson->email)->first();
-                                    } else{
-                                        $personalInfo = new PersonalInfoDuringIp;
-                                    }
+                                    // if(is_null(@$value['id']) == false){
+                                    //     $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                    //     $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                    //     $getUser = User::where('email',$getperson->email)->first();
+                                    // } else{
+                                    //     $personalInfo = new PersonalInfoDuringIp;
+                                    // }
+
+                                    $personalInfo = new PersonalInfoDuringIp;
+                                    $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                    $getUser = User::where('email',$getperson->email)->first();
+
                                     $personalInfo->patient_id = @$patient['user_id'];
                                     $personalInfo->ip_id =$patientPlan->id;
                                     $personalInfo->name = @$value['name'] ;
@@ -654,13 +659,16 @@ class PatientController extends Controller
                                         $user_type_id ='9';
                                         $is_user = true;
                                     }
-                                    if(is_null(@$value['id']) == false){
-                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                        $getUser = User::where('email',$getperson->email)->first();
-                                    } else{
-                                        $personalInfo = new PersonalInfoDuringIp;
-                                    }
+                                    // if(is_null(@$value['id']) == false){
+                                    //     $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
+                                    //     $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                    //     $getUser = User::where('email',$getperson->email)->first();
+                                    // } else{
+                                    //     $personalInfo = new PersonalInfoDuringIp;
+                                    // }
+                                    $personalInfo = new PersonalInfoDuringIp;
+                                    $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
+                                    $getUser = User::where('email',$getperson->email)->first();
                                     $personalInfo->patient_id = @$patient['user_id'];
                                     $personalInfo->ip_id =$patientPlan->id;
                                     $personalInfo->name = @$value['name'] ;

@@ -205,6 +205,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		    Route::apiResource('department', User\DepartmentController::class)->only(['store','destroy','show', 'update']);
 		 /*-------------User Managment ------------------------*/
 	   	Route::post('users', [App\Http\Controllers\Api\V1\User\UserController::class, 'users']);
+	   	Route::post('trashed-users', [App\Http\Controllers\Api\V1\User\UserController::class, 'trashedUsers']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
 		Route::post('user-email-update', [App\Http\Controllers\Api\V1\User\UserController::class, 'emailUpdate']);
 
