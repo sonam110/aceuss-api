@@ -85,6 +85,14 @@ class CreateUsersTable extends Migration
             $table->date('schedule_start_date')->nullable();
             $table->enum('report_verify', ['yes','no'])->default('no')->nullable();
             $table->enum('verification_method', ['normal','bank_id'])->default('normal')->nullable();
+
+            $table->boolean('is_family_member')->default(0);
+            $table->boolean('is_caretaker')->default(0);
+            $table->boolean('is_contact_person')->default(0);
+            $table->boolean('is_guardian')->default(0);
+            $table->boolean('is_other')->default(0);
+            $table->string('is_other_name')->nullable();
+            
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

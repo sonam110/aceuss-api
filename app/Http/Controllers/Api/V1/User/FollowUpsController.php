@@ -240,33 +240,18 @@ class FollowUpsController extends Controller
                                     }
                                     if(is_null(@$value['id']) == false){
                                         $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                        $getUser = User::where('email',$getperson->email)->first();
+                                        $getUser = User::where('email',$personalInfo->user->email)->first();
                                     } else{
                                         $personalInfo = new PersonalInfoDuringIp;
                                     }
-                                    $personalInfo->patient_id =$ipCheck->user_id;
+                                    $personalInfo->patient_id = $ipCheck->user_id;
                                     $personalInfo->ip_id = $request->ip_id ;
                                     $personalInfo->follow_up_id = $ipFollowups->id ;
-                                    $personalInfo->name = @$value['name'] ;
-                                    $personalInfo->email = @$value['email'] ;
-                                    $personalInfo->contact_number = @$value['contact_number'];
-                                    $personalInfo->country_id = @$value['country_id'];
-                                    $personalInfo->city = @$value['city'];
-                                    $personalInfo->postal_area = @$value['postal_area'];
-                                    $personalInfo->zipcode = @$value['zipcode'];
-                                    $personalInfo->full_address = @$value['full_address'] ;
-                                    $personalInfo->personal_number = @$value['personal_number'] ;
-                                    $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                                    $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                                    $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                                    $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                                    $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
                                     $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
                                     $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
                                     $personalInfo->how_helped = @$value['how_helped'];
-                                    $personalInfo->is_other_name = @$value['is_other_name'];
                                     $personalInfo->save() ;
+
                                     /*-----Create Account /Entry in user table*/
                                     if($is_user == true) {
                                         $top_most_parent_id = auth()->user()->top_most_parent_id;
@@ -295,10 +280,16 @@ class FollowUpsController extends Controller
                                             $userSave->postal_area = @$value['postal_area'];
                                             $userSave->zipcode = @$value['zipcode'];
                                             $userSave->full_address = @$value['full_address'] ;
+                                            $userSave->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                                            $userSave->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                                            $userSave->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                                            $userSave->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                                            $userSave->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                                            $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : 0 ;
                                             $userSave->save(); 
 
                                             //update personal_info_during_ips
-                                            $personalInfo->user_id =$userSave->id;
+                                            $personalInfo->user_id = $userSave->id;
                                             $personalInfo->save();
 
                                             if(!empty($user_type_id))
@@ -318,13 +309,9 @@ class FollowUpsController extends Controller
                                                 $content = mailTemplateContent($emailTem->content,$variables);
                                                 Mail::to($userSave->email)->send(new WelcomeMail($content));
                                             }
-
-                                            
-                                            
                                         }
                                     }
                                 }
-
                             }
                         }
 
@@ -470,33 +457,18 @@ class FollowUpsController extends Controller
                                     }
                                     if(is_null(@$value['id']) == false){
                                         $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getperson = PersonalInfoDuringIp::where('id',@$value['id'])->first();
-                                        $getUser = User::where('email',$getperson->email)->first();
+                                        $getUser = User::where('email',$personalInfo->user->email)->first();
                                     } else{
                                         $personalInfo = new PersonalInfoDuringIp;
                                     }
-                                    $personalInfo->ip_id =$request->ip_id;
+                                    $personalInfo->ip_id = $request->ip_id;
                                     $personalInfo->follow_up_id = $ipFollowups->id ;
                                     $personalInfo->patient_id =$ipCheck->user_id;
-                                    $personalInfo->name = @$value['name'] ;
-                                    $personalInfo->email = @$value['email'] ;
-                                    $personalInfo->contact_number = @$value['contact_number'];
-                                    $personalInfo->country_id = @$value['country_id'];
-                                    $personalInfo->city = @$value['city'];
-                                    $personalInfo->postal_area = @$value['postal_area'];
-                                    $personalInfo->zipcode = @$value['zipcode'];
-                                    $personalInfo->full_address = @$value['full_address'] ;
-                                    $personalInfo->personal_number = @$value['personal_number'] ;
-                                    $personalInfo->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                                    $personalInfo->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                                    $personalInfo->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                                    $personalInfo->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                                    $personalInfo->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
                                     $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
                                     $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
                                     $personalInfo->how_helped = @$value['how_helped'];
-                                    $personalInfo->is_other_name = @$value['is_other_name'];
-                                    $personalInfo->save() ;
+                                    $personalInfo->save();
+
                                     /*-----Create Account /Entry in user table*/
                                     if($is_user == true) {
                                         $top_most_parent_id = auth()->user()->top_most_parent_id;
@@ -524,11 +496,17 @@ class FollowUpsController extends Controller
                                             $userSave->city = @$value['city'];
                                             $userSave->postal_area = @$value['postal_area'];
                                             $userSave->zipcode = @$value['zipcode'];
-                                            $userSave->full_address = @$value['full_address'] ;
+                                            $userSave->full_address = @$value['full_address'];
+                                            $userSave->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
+                                            $userSave->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
+                                            $userSave->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
+                                            $userSave->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
+                                            $userSave->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
+                                            $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : 0 ;
                                             $userSave->save();
                                             
                                             //update personal_info_during_ips
-                                            $personalInfo->user_id =$userSave->id;
+                                            $personalInfo->user_id = $userSave->id;
                                             $personalInfo->save();
                                             
                                             if(env('IS_MAIL_ENABLE',false) == true){ 
@@ -551,8 +529,6 @@ class FollowUpsController extends Controller
                                         }
                                     }
                                 }
-
-                                
                             }
                         }
 
@@ -598,7 +574,8 @@ class FollowUpsController extends Controller
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             Task::where('resource_id',$id)->where('type_id','5')->delete();
-        	$IpFollowUp = IpFollowUp::where('id',$id)->delete();
+            $IpFollowUp = IpFollowUp::where('id',$id)->delete();
+        	$personalInfoDuringIp = PersonalInfoDuringIp::where('follow_up_id', $id)->delete();
          	return prepareResult(true,getLangByLabelGroups('FollowUp','message_delete') ,[], config('httpcodes.success'));
 		     	
         }
@@ -614,7 +591,7 @@ class FollowUpsController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
+        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.user.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_show') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {

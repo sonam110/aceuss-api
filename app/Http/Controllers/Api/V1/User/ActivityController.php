@@ -176,14 +176,22 @@ class ActivityController extends Controller
 				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
-			if(!empty($request->start_date))
+			if($request->old==1 && empty($request->start_date))
 			{
-				$activityCounts->where('start_date',">=" ,$request->start_date);
+				$activityCounts->whereDate('start_date', date('Y-m-d'));
 			}
-			if(!empty($request->end_date))
+			else
 			{
-				$activityCounts->where('start_date',"<=" ,$request->end_date);
+				if(!empty($request->start_date))
+				{
+					$activityCounts->whereDate('start_date',">=" ,$request->start_date);
+				}
+				if(!empty($request->end_date))
+				{
+					$activityCounts->where('start_date',"<=" ,$request->end_date);
+				}
 			}
+			
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
@@ -197,34 +205,6 @@ class ActivityController extends Controller
 				$activityCounts = $activityCounts->whereRaw($whereRaw2);
 			}
 			$activityCounts = $activityCounts->first();
-
-			////////pending Counts
-			$pendingActivityCounts = Activity::where('status',0)->where('is_latest_entry', 1);
-			if($user->user_type_id =='2'){
-
-			}
-			elseif($user->user_type_id =='3'){
-				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-				$pendingActivityCounts = $pendingActivityCounts->whereIn('activities.id', $agnActivity);
-
-			}
-			else{
-				$pendingActivityCounts =  $pendingActivityCounts->whereIn('activities.branch_id',$allChilds);
-			}
-
-			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
-			{
-				$pendingActivityCounts->where(function ($q) use ($user) {
-					$q->where('activities.patient_id', $user->id)
-					->orWhere('activities.patient_id', $user->parent_id);
-				});
-			}
-			$whereRaw2 = $this->getWhereRawFromRequestOther($request);
-			if($whereRaw2 != '') { 
-				$pendingActivityCounts = $pendingActivityCounts->whereRaw($whereRaw2);
-			}
-			$pendingActivityCounts = $pendingActivityCounts->count();
-
 
             ////////Journal & Deviation
 			$jour_and_devi = Activity::select('id')->whereDate('start_date', date('Y-m-d'))->where('is_latest_entry', 1);
@@ -288,8 +268,7 @@ class ActivityController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage),
 
-					'total_pending' => $pendingActivityCounts,
-					// 'total_pending_1' => $activityCounts->total_pending,
+					'total_pending' => $activityCounts->total_pending,
 					'total_done' => $activityCounts->total_done,
 					'total_not_done' => $activityCounts->total_not_done,
 					'total_not_applicable' => $activityCounts->total_not_applicable,
@@ -1408,24 +1387,6 @@ class ActivityController extends Controller
     		$w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
     	}
 
-    	if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
-
-    		if ($w != '') {$w = $w . " AND ";}
-
-    		if ($request->start_date != '')
-    		{
-    			$w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
-    		}
-    		if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
-    		{
-
-    			$w = $w . " AND ";
-    		}
-    		if ($request->end_date != '')
-    		{
-    			$w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
-    		}
-    	}
     	if (is_null($request->input('title')) == false) {
     		if ($w != '') {$w = $w . " AND ";}
     		$w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";

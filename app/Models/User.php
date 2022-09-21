@@ -117,7 +117,13 @@ class User extends Authenticatable
         'schedule_start_date',
         'report_verify',
         'verification_method',
-        'contact_person_number'
+        'contact_person_number',
+        'is_family_member',
+        'is_caretaker',
+        'is_contact_person',
+        'is_guardian',
+        'is_other',
+        'is_other_name',
     ];
 
     /**

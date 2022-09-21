@@ -93,7 +93,9 @@ class CallbackController extends Controller
 
             if($from=='IP-approval')
             {
-                $getPerson = PersonalInfoDuringIp::select('id','personal_number')->find($person_id);
+                $getUserID = PersonalInfoDuringIp::select('user_id')->find($person_id);
+
+                $getPerson = User::select('id','personal_number')->find($getUserID->user_id);
                 if($getPerson)
                 {
                     $personalNumber = $getPerson->personal_number;
@@ -300,8 +302,13 @@ class CallbackController extends Controller
         }
         else
         {
-            $getPerson = PersonalInfoDuringIp::select('id','personal_number')->find($person_id);
-            \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+            $getUserID = PersonalInfoDuringIp::select('user_id')->find($person_id);
+            $getPerson = PersonalInfoDuringIp::select('id','personal_number')->find($getUserID->user_id);
+            if($getPerson)
+            {
+                \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+            }
+            
             return view('not-verified');
         }
     }
