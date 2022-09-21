@@ -61,7 +61,7 @@ class SettingController extends Controller
                 
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             

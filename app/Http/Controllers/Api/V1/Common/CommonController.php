@@ -71,6 +71,7 @@ class CommonController extends Controller
 
 			return prepareResult(true,getLangByLabelGroups('permission','message_list'),$query,'200');
 		} catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], '500');
 			
 		}
@@ -110,6 +111,7 @@ class CommonController extends Controller
 			return prepareResult(true,getLangByLabelGroups('User','message_list'),$query,'200');
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], '500');
 			
 		}
@@ -145,6 +147,7 @@ class CommonController extends Controller
 			return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,'200');
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], '500');
 			
 		}
@@ -201,6 +204,7 @@ class CommonController extends Controller
 			return prepareResult(true,getLangByLabelGroups('User','message_password_change'),$updatePass,'200');
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], '500');
 
 		}

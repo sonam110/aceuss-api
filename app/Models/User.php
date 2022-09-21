@@ -240,7 +240,12 @@ class User extends Authenticatable
          return $this->hasMany(AgencyWeeklyHour::class,'user_id','id');
     }
 
-     public function persons()
+    public function persons()
+    {
+         return $this->hasMany(self::class,'parent_id','id');
+    }
+
+    public function personsWithIp()
     {
          return $this->hasMany(PersonalInfoDuringIp::class,'patient_id','id');
     }

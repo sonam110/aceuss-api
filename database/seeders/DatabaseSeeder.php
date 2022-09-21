@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         \DB::unprepared(file_get_contents(storage_path('db-backups/permissions.sql')));
         \DB::unprepared(file_get_contents(storage_path('db-backups/user_type_has_permissions.sql')));
         \DB::unprepared(file_get_contents(storage_path('db-backups/role_has_permissions.sql')));
+        \DB::unprepared(file_get_contents(storage_path('db-backups/bookmark_masters.sql')));
     }
 }

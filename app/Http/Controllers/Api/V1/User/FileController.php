@@ -42,6 +42,7 @@ class FileController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -78,6 +79,7 @@ class FileController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -118,6 +120,7 @@ class FileController extends Controller
 		       
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -136,6 +139,7 @@ class FileController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -163,6 +167,7 @@ class FileController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_approve') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -179,6 +184,7 @@ class FileController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$file, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

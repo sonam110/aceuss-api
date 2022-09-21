@@ -63,6 +63,7 @@ class CommentController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$addComment, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -102,6 +103,7 @@ class CommentController extends Controller
 		    return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

@@ -63,6 +63,7 @@ class ModuleController extends Controller
 		    return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -95,7 +96,7 @@ class ModuleController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$Module, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -114,6 +115,7 @@ class ModuleController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -155,7 +157,7 @@ class ModuleController extends Controller
 		       
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -176,6 +178,7 @@ class ModuleController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -229,7 +232,7 @@ class ModuleController extends Controller
                 
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));  
         }
@@ -262,6 +265,7 @@ class ModuleController extends Controller
             return prepareResult(true,getLangByLabelGroups('Module','message_assigne') ,$assignemodules, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }

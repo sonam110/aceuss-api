@@ -79,6 +79,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
         }
     }
@@ -98,6 +99,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_delete'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -117,6 +119,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_restore'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

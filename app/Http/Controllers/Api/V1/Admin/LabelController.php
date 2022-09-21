@@ -68,6 +68,7 @@ class LabelController extends Controller
 			return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 			
 		}
@@ -110,7 +111,7 @@ class LabelController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -133,7 +134,7 @@ class LabelController extends Controller
 			}
 			 return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$checkId, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -170,7 +171,7 @@ class LabelController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$label, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -199,7 +200,7 @@ class LabelController extends Controller
 		   return prepareResult(false, getLangByLabelGroups('BcCommon','message_unauthorized'), [],config('httpcodes.unauthorized'));
 			
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}

@@ -159,7 +159,7 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
        }
    }
@@ -272,6 +272,7 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -315,6 +316,7 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -356,6 +358,7 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -395,6 +398,7 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -469,10 +473,9 @@ class UserLoginController extends Controller
             }
         }
         catch(Exception $exception) {
+	       logException($exception);
            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
-           
-            
-        }
+       }
     }
 
     /*---------------User------------------------------------*/
@@ -510,6 +513,7 @@ class UserLoginController extends Controller
             return prepareResult(true,getLangByLabelGroups('User','message_show') ,$userDetail, config('httpcodes.success'));
                 
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
                 
         }
@@ -542,6 +546,7 @@ class UserLoginController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
                 
         }

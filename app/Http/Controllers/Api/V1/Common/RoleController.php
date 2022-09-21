@@ -90,7 +90,9 @@ class RoleController extends Controller
                 $query = $query->get();
             }
             return prepareResult(true,getLangByLabelGroups('role','message_list'),$query,'200');
-        } catch(Exception $exception) {
+        } 
+        catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
     }
@@ -138,7 +140,7 @@ class RoleController extends Controller
             
             return prepareResult(true,getLangByLabelGroups('role','message_create') ,$role, '200');
         } catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -159,6 +161,7 @@ class RoleController extends Controller
             }
             return prepareResult(false, getLangByLabelGroups('role','message_record_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
+	       logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
     }
@@ -200,7 +203,7 @@ class RoleController extends Controller
             }
             return prepareResult(false, getLangByLabelGroups('role','message_role_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
-            \Log::error($exception);
+	       logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -222,7 +225,9 @@ class RoleController extends Controller
             }
             return prepareResult(false, getLangByLabelGroups('role','message_role_not_found'), [],config('httpcodes.not_found'));
             
-        } catch(Exception $exception) {
+        } 
+        catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

@@ -41,7 +41,7 @@ class ProfileController extends Controller
             return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
-        	\Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             

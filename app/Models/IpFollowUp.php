@@ -94,7 +94,7 @@ class IpFollowUp extends Model
     public function getWitnessListAttribute()
     {
         if(is_null($this->witness)== false && is_array(json_decode($this->witness)) && sizeof(json_decode($this->witness)) >0){
-            $witnessList = PersonalInfoDuringIp::select('id','name','email')->whereIn('id',json_decode($this->witness))->get();
+            $witnessList = PersonalInfoDuringIp::with('user:id,name,email,personal_number,avatar')->whereIn('user_id', json_decode($this->witness))->get();
             return (!empty($witnessList)) ? $witnessList : null;
         }
     }

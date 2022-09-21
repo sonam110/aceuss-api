@@ -180,7 +180,7 @@ class RequestApprovalController extends Controller
         
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -217,6 +217,7 @@ class RequestApprovalController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	        logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
@@ -278,6 +279,7 @@ class RequestApprovalController extends Controller
                 
             }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -300,6 +302,7 @@ class RequestApprovalController extends Controller
             
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

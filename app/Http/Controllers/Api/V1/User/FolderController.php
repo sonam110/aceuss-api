@@ -48,6 +48,7 @@ class FolderController extends Controller
             return prepareResult(true,getLangByLabelGroups('Folder','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -65,6 +66,7 @@ class FolderController extends Controller
             return prepareResult(true,getLangByLabelGroups('Folder','message_parent_list'),$folderParent,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -105,6 +107,7 @@ class FolderController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('Folder','message_create') ,$folder, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -149,6 +152,7 @@ class FolderController extends Controller
 		       
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -169,6 +173,7 @@ class FolderController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }

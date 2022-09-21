@@ -55,6 +55,7 @@ class ParagraphController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -79,7 +80,7 @@ class ParagraphController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -111,7 +112,7 @@ class ParagraphController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$Paragraph, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -129,6 +130,7 @@ class ParagraphController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

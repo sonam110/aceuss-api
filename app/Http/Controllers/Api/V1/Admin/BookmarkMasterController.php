@@ -52,6 +52,7 @@ class BookmarkMasterController extends Controller
 		    return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -86,7 +87,7 @@ class BookmarkMasterController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$BookmarkMaster, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -104,6 +105,7 @@ class BookmarkMasterController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_show'),$bookmark_master, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -143,7 +145,7 @@ class BookmarkMasterController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$BookmarkMaster, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -164,6 +166,7 @@ class BookmarkMasterController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }

@@ -31,6 +31,7 @@ class BookMarkController extends Controller
             return prepareResult(true,getLangByLabelGroups('Bookmark','message_list'),$returnObj,config('httpcodes.success')); 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -75,6 +76,7 @@ class BookMarkController extends Controller
             }
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

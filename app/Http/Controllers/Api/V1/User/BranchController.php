@@ -121,7 +121,7 @@ class BranchController extends Controller
             return prepareResult(true,getLangByLabelGroups('Branch','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -187,7 +187,7 @@ class BranchController extends Controller
                 
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             

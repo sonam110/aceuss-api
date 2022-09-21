@@ -68,6 +68,7 @@ class JournalActionController extends Controller
         
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -114,7 +115,7 @@ class JournalActionController extends Controller
             return prepareResult(true,getLangByLabelGroups('JournalAction','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -185,7 +186,7 @@ class JournalActionController extends Controller
               
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -206,6 +207,7 @@ class JournalActionController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -227,6 +229,7 @@ class JournalActionController extends Controller
             return prepareResult(true,getLangByLabelGroups('JournalAction','message_show') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -289,6 +292,7 @@ class JournalActionController extends Controller
             return prepareResult(true,getLangByLabelGroups('JournalAction','message_sign') ,$journalAction, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }

@@ -74,6 +74,7 @@ class CompanyController extends Controller
             return prepareResult(true,getLangByLabelGroups('CompanyWorkShift','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -118,6 +119,7 @@ class CompanyController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('CompanyWorkShift','message_create') ,$companyWorkShift, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -136,6 +138,7 @@ class CompanyController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -186,6 +189,7 @@ class CompanyController extends Controller
 			  
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -205,6 +209,7 @@ class CompanyController extends Controller
          	return prepareResult(true,getLangByLabelGroups('CompanyWorkShift','message_delete') ,[], config('httpcodes.success'));
          }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
@@ -272,7 +277,7 @@ class CompanyController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('LicenceKey','message_updated') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }

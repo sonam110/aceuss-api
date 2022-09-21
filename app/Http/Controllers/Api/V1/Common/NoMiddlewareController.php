@@ -46,6 +46,7 @@ class NoMiddlewareController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));     
         } 
     }
@@ -57,6 +58,7 @@ class NoMiddlewareController extends Controller
             $query = ActivityOption::get();;
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         } 
     }
@@ -88,6 +90,7 @@ class NoMiddlewareController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));       
         }
     }
@@ -104,6 +107,7 @@ class NoMiddlewareController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_show'),$checkSettings, config('httpcodes.success'));     
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error')); 
         }
     }
@@ -139,7 +143,7 @@ class NoMiddlewareController extends Controller
             }
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -187,6 +191,7 @@ class NoMiddlewareController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('permission','message_list'),$query,'200');
         } catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
     }

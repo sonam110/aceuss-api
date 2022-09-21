@@ -75,6 +75,7 @@ class OVHourController extends Controller
             return prepareResult(true,getLangByLabelGroups('OVHour','message_list') ,$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -177,7 +178,7 @@ class OVHourController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_create') ,$data, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -199,7 +200,7 @@ class OVHourController extends Controller
             }
              return prepareResult(true,getLangByLabelGroups('OVHour','message_show')  ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -250,7 +251,7 @@ class OVHourController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_update') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -275,7 +276,7 @@ class OVHourController extends Controller
             OVHour::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_delete') ,[], config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }

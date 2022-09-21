@@ -63,6 +63,7 @@ class CategoryMasterController extends Controller
             return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -115,6 +116,7 @@ class CategoryMasterController extends Controller
           
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -172,6 +174,7 @@ class CategoryMasterController extends Controller
             return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_child_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -223,7 +226,7 @@ class CategoryMasterController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -280,7 +283,7 @@ class CategoryMasterController extends Controller
 		       
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -301,6 +304,7 @@ class CategoryMasterController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -319,6 +323,7 @@ class CategoryMasterController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }

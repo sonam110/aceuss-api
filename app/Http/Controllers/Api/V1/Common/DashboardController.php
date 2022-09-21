@@ -159,6 +159,7 @@ class DashboardController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  
     }
@@ -303,6 +304,7 @@ class DashboardController extends Controller
             
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
+	            logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }  
     }

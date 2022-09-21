@@ -139,6 +139,7 @@ class CompanyAccountController extends Controller
             return prepareResult(true,getLangByLabelGroups('Company','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -313,7 +314,7 @@ class CompanyAccountController extends Controller
             return prepareResult(true,getLangByLabelGroups('Company','message_create') ,$userdetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -336,6 +337,7 @@ class CompanyAccountController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -437,7 +439,7 @@ class CompanyAccountController extends Controller
                 
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -457,6 +459,7 @@ class CompanyAccountController extends Controller
             return prepareResult(true, getLangByLabelGroups('Company','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -490,6 +493,7 @@ class CompanyAccountController extends Controller
             return prepareResult(true,getLangByLabelGroups('Company','message_stats') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }

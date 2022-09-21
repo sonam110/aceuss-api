@@ -291,6 +291,7 @@ class ActivityController extends Controller
 
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 
@@ -589,7 +590,7 @@ class ActivityController extends Controller
             }
         }
         catch(Exception $exception) {
-        	\Log::error($exception);
+			logException($exception);
         	DB::rollback();
         	return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
@@ -880,7 +881,7 @@ class ActivityController extends Controller
             }
         }
         catch(Exception $exception) {
-        	\Log::error($exception);
+			logException($exception);
         	DB::rollback();
         	return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
@@ -917,6 +918,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
@@ -949,6 +951,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_approve') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
@@ -965,6 +968,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_show') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
@@ -1021,7 +1025,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_assign') ,$activityAssigne, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
-    		\Log::error($exception);
+			logException($exception);
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
@@ -1067,6 +1071,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_log') ,$query, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
@@ -1217,7 +1222,7 @@ class ActivityController extends Controller
     		return prepareResult(true,$display_message ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
-    		\Log::error($exception);
+			logException($exception);
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
@@ -1239,6 +1244,7 @@ class ActivityController extends Controller
     		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
     }
@@ -1256,6 +1262,7 @@ class ActivityController extends Controller
     		return prepareResult(true, getLangByLabelGroups('Activity','message_tag_added') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
     }
@@ -1308,6 +1315,7 @@ class ActivityController extends Controller
     		return prepareResult(true, getLangByLabelGroups('Activity','message_mark_not_applicable') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
+			logException($exception);
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
     }

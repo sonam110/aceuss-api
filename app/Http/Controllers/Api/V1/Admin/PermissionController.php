@@ -48,6 +48,7 @@ class PermissionController extends Controller
 
             return prepareResult(true,getLangByLabelGroups('Permission','message_list'),$query,config('httpcodes.success'));
         } catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -82,7 +83,7 @@ class PermissionController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('permission','message_create') ,$permission, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }

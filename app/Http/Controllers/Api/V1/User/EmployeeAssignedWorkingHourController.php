@@ -51,6 +51,7 @@ class EmployeeAssignedWorkingHourController extends Controller
             return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -90,7 +91,7 @@ class EmployeeAssignedWorkingHourController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_create') ,$empAssWorkHour, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -111,6 +112,7 @@ class EmployeeAssignedWorkingHourController extends Controller
                  
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -152,7 +154,7 @@ class EmployeeAssignedWorkingHourController extends Controller
 			    
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -171,6 +173,7 @@ class EmployeeAssignedWorkingHourController extends Controller
          	return prepareResult(true,getLangByLabelGroups('EmployeeAssignedWorkingHour','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }

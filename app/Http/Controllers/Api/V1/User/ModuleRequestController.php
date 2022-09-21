@@ -63,6 +63,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -103,7 +104,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -135,7 +136,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_update') ,$moduleRequest, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -153,6 +154,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_delete') ,[], config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
 		}
 	}
@@ -168,6 +170,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_show') ,$checkId, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
 		}
@@ -218,7 +221,7 @@ class ModuleRequestController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_change_status') ,$moduleRequest, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}

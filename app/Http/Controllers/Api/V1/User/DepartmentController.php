@@ -57,6 +57,7 @@ class DepartmentController extends Controller
             return prepareResult(true,getLangByLabelGroups('Department','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -99,7 +100,7 @@ class DepartmentController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('Department','message_create') ,$department, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -159,6 +160,7 @@ class DepartmentController extends Controller
                  
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -206,7 +208,7 @@ class DepartmentController extends Controller
 			    
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -227,6 +229,7 @@ class DepartmentController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }

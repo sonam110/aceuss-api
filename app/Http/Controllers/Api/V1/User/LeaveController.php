@@ -90,6 +90,7 @@ class LeaveController extends Controller
 			return prepareResult(true,getLangByLabelGroups('Leave','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+	logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -316,7 +317,7 @@ class LeaveController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Leave','message_create') ,$data, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -332,7 +333,7 @@ class LeaveController extends Controller
 			}
 			return prepareResult(true,getLangByLabelGroups('Leave','message_view') ,$checkId, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -356,7 +357,7 @@ class LeaveController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Leave','message_update') ,$leave, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -378,7 +379,7 @@ class LeaveController extends Controller
 			Schedule::where('id',$id)->delete();
 			return prepareResult(true,getLangByLabelGroups('Leave','message_delete') ,[], config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -395,6 +396,7 @@ class LeaveController extends Controller
 			return prepareResult(true,getLangByLabelGroups('Leave','message_list'),$dates,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+	logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
 		}
@@ -560,7 +562,7 @@ class LeaveController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -601,7 +603,7 @@ class LeaveController extends Controller
 
 			return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -733,7 +735,7 @@ class LeaveController extends Controller
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_create') ,$leaves, config('httpcodes.success'));
 		} catch (\Throwable $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -992,7 +994,7 @@ class LeaveController extends Controller
 		}
 		catch (\Throwable $exception) 
 		{
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -1012,6 +1014,7 @@ class LeaveController extends Controller
 			return prepareResult(true,getLangByLabelGroups('Leave','message_list'),$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+	logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}

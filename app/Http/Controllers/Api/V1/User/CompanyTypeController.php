@@ -63,6 +63,7 @@ class CompanyTypeController extends Controller
             return prepareResult(true,getLangByLabelGroups('CompanyType','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -96,7 +97,7 @@ class CompanyTypeController extends Controller
             return prepareResult(true,getLangByLabelGroups('CompanyType','message_create') ,$companyType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -115,6 +116,7 @@ class CompanyTypeController extends Controller
             return prepareResult(true,getLangByLabelGroups('CompanyType','message_show') ,$companyType, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
@@ -155,7 +157,7 @@ class CompanyTypeController extends Controller
         }
         catch(Exception $exception) 
         {
-             \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             

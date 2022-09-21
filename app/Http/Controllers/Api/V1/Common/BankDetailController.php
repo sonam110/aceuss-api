@@ -53,6 +53,7 @@ class BankDetailController extends Controller
             return prepareResult(true,getLangByLabelGroups('Bank','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -96,7 +97,7 @@ class BankDetailController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('Bank','message_create') ,$bankDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -116,6 +117,7 @@ class BankDetailController extends Controller
             return prepareResult(true,getLangByLabelGroups('Bank','message_show'),$bankDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
@@ -162,7 +164,7 @@ class BankDetailController extends Controller
 			  
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -181,6 +183,7 @@ class BankDetailController extends Controller
          	return prepareResult(true,getLangByLabelGroups('Bank','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }

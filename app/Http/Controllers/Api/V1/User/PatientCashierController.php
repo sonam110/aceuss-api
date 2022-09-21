@@ -110,6 +110,7 @@ class PatientCashierController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -148,7 +149,7 @@ class PatientCashierController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -166,6 +167,7 @@ class PatientCashierController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_export') ,['url' => env('APP_URL').'export/cashier/'.$rand.'.xlsx'], config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }

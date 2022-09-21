@@ -102,6 +102,7 @@ class ManageLicenceController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -148,7 +149,7 @@ class ManageLicenceController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -170,7 +171,7 @@ class ManageLicenceController extends Controller
             }
              return prepareResult(true,getLangByLabelGroups('BcCommon','message_show') ,$checkId, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -225,7 +226,7 @@ class ManageLicenceController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$keyMgmt, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -301,7 +302,7 @@ class ManageLicenceController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$licenceKeyData, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -349,7 +350,7 @@ class ManageLicenceController extends Controller
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_cancel') ,$user, config('httpcodes.success'));
         } catch (\Throwable $exception) {
-            \Log::error($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }

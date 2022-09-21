@@ -72,6 +72,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,"ScheduleTemplate list",$query,config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
 	}
@@ -102,7 +103,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_create') ,$scheduleTemplate, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -139,7 +140,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_update') ,$scheduleTemplate, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}
@@ -157,6 +158,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_delete') ,[], config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
 		}
 	}
@@ -172,6 +174,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_view') ,$checkId, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
+			logException($exception);
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
 		}
@@ -266,7 +269,7 @@ class ScheduleTemplateController extends Controller
 			return prepareResult(true,getLangByLabelGroups('ScheduleTemplate','message_change_status') ,$scheduleTemplate, config('httpcodes.success'));
 		}
 		catch(Exception $exception) {
-			\Log::error($exception);
+			logException($exception);
 			DB::rollback();
 			return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 		}

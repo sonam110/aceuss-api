@@ -50,7 +50,7 @@ class SalaryController extends Controller
 	        return prepareResult(true, getLangByLabelGroups('Salary','message_update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -77,6 +77,7 @@ class SalaryController extends Controller
             return prepareResult(true, getLangByLabelGroups('Salary','message_update') ,$salaryDetail, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));   
         }
     }

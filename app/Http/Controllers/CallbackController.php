@@ -303,7 +303,7 @@ class CallbackController extends Controller
         else
         {
             $getUserID = PersonalInfoDuringIp::select('user_id')->find($person_id);
-            $getPerson = PersonalInfoDuringIp::select('id','personal_number')->find($getUserID->user_id);
+            $getPerson = User::select('id','personal_number')->find($getUserID->user_id);
             if($getPerson)
             {
                 \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));

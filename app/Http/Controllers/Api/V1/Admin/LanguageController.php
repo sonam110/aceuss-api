@@ -50,6 +50,7 @@ class LanguageController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -90,7 +91,7 @@ class LanguageController extends Controller
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$language, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
-    		\Log::error($exception);
+    		logException($exception);
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
@@ -136,7 +137,7 @@ class LanguageController extends Controller
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('BcCommon','message_update') ,$language, config('httpcodes.success'));
     	} catch (\Throwable $exception) {
-    		\Log::error($exception);
+    		logException($exception);
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}
@@ -165,7 +166,7 @@ class LanguageController extends Controller
 
     		return prepareResult(true,getLangByLabelGroups('BcCommon','message_deleted') ,[], config('httpcodes.success'));
     	} catch (\Throwable $exception) {
-    		\Log::error($exception);
+    		logException($exception);
     		DB::rollback();
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
     	}

@@ -147,11 +147,13 @@ class FollowUpsController extends Controller
             return prepareResult(true,getLangByLabelGroups('FollowUp','message_list'),$query,config('httpcodes.success'));
 	    }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         DB::beginTransaction();
         try {
 	    	$user = getUser();
@@ -216,104 +218,6 @@ class FollowUpsController extends Controller
                         actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
                         //------------------------------//
             		 	
-                        /*-----------------Persons Informationn ----------------*/
-                        if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
-                            foreach ($request->persons as $key => $value) {
-                                if(!empty($value['name']))
-                                {
-                                    $is_user = false;
-                                    if(@$value['is_family_member'] == true){
-                                        $user_type_id ='8';
-                                        $is_user = true;
-                                    }
-                                    if(@$value['is_caretaker'] == true){
-                                        $user_type_id ='7';
-                                        $is_user = true;
-                                    }
-                                    if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                                        $user_type_id ='10';
-                                        $is_user = true;
-                                    }
-                                    if(@$value['is_contact_person'] == true){
-                                        $user_type_id ='9';
-                                        $is_user = true;
-                                    }
-                                    if(is_null(@$value['id']) == false){
-                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getUser = User::where('email',$personalInfo->user->email)->first();
-                                    } else{
-                                        $personalInfo = new PersonalInfoDuringIp;
-                                    }
-                                    $personalInfo->patient_id = $ipCheck->user_id;
-                                    $personalInfo->ip_id = $request->ip_id ;
-                                    $personalInfo->follow_up_id = $ipFollowups->id ;
-                                    $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                                    $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                                    $personalInfo->how_helped = @$value['how_helped'];
-                                    $personalInfo->save() ;
-
-                                    /*-----Create Account /Entry in user table*/
-                                    if($is_user == true) {
-                                        $top_most_parent_id = auth()->user()->top_most_parent_id;
-                                        $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                                        if(empty($checkAlreadyUser)) {
-                                            $getUserType = UserType::find($user_type_id);
-                                            $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
-
-                                            if(!empty($getUser)){
-                                                $userSave = User::find($getUser->id);
-                                            } else {
-                                                $userSave = new User;
-                                                $userSave->unique_id = generateRandomNumber();
-                                            }
-                                            $userSave->user_type_id = $user_type_id;
-                                            $userSave->branch_id = getBranchId();
-                                            $userSave->role_id =  $roleInfo->id;
-                                            $userSave->parent_id = $user->id;
-                                            $userSave->top_most_parent_id = $top_most_parent_id;
-                                            $userSave->name = @$value['name'] ;
-                                            $userSave->email = @$value['email'] ;
-                                            $userSave->password = Hash::make('12345678');
-                                            $userSave->contact_number = @$value['contact_number'];
-                                            $userSave->country_id = @$value['country_id'];
-                                            $userSave->city = @$value['city'];
-                                            $userSave->postal_area = @$value['postal_area'];
-                                            $userSave->zipcode = @$value['zipcode'];
-                                            $userSave->full_address = @$value['full_address'] ;
-                                            $userSave->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                                            $userSave->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                                            $userSave->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                                            $userSave->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                                            $userSave->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                                            $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : 0 ;
-                                            $userSave->save(); 
-
-                                            //update personal_info_during_ips
-                                            $personalInfo->user_id = $userSave->id;
-                                            $personalInfo->save();
-
-                                            if(!empty($user_type_id))
-                                            {
-                                               $role = $roleInfo;
-                                               $userSave->assignRole($role->name);
-                                            }     
-                                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                                    $variables = ([
-                                                    'name' => $userSave->name,
-                                                    'email' => $userSave->email,
-                                                    'contact_number' => $userSave->contact_number,
-                                                    'city' => $userSave->city,
-                                                    'zipcode' => $userSave->zipcode,
-                                                    ]);   
-                                                $emailTem = EmailTemplate::where('id','2')->first();           
-                                                $content = mailTemplateContent($emailTem->content,$variables);
-                                                Mail::to($userSave->email)->send(new WelcomeMail($content));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
 
                         /*----------------Question Data--------------------*/
                         if(is_array($request->questions)  && sizeof($request->questions) > 0 ){
@@ -340,7 +244,7 @@ class FollowUpsController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -433,105 +337,6 @@ class FollowUpsController extends Controller
                         }
                         $ipfollowupsId[] = $ipFollowups->id;
                         
-                        /*-----------------Persons Informationn ----------------*/
-                        if(is_array($request->persons)  && sizeof($request->persons) > 0 ){
-                            foreach ($request->persons as $key => $value) {
-                                if(!empty($value['name']))
-                                {
-                                    $is_user = false;
-                                    if(@$value['is_family_member'] == true){
-                                        $user_type_id ='8';
-                                        $is_user = true;
-                                    }
-                                    if(@$value['is_caretaker'] == true){
-                                        $user_type_id ='7';
-                                        $is_user = true;
-                                    }
-                                    if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                                        $user_type_id ='10';
-                                        $is_user = true;
-                                    }
-                                    if(@$value['is_contact_person'] == true){
-                                        $user_type_id ='9';
-                                        $is_user = true;
-                                    }
-                                    if(is_null(@$value['id']) == false){
-                                        $personalInfo = PersonalInfoDuringIp::find(@$value['id']);
-                                        $getUser = User::where('email',$personalInfo->user->email)->first();
-                                    } else{
-                                        $personalInfo = new PersonalInfoDuringIp;
-                                    }
-                                    $personalInfo->ip_id = $request->ip_id;
-                                    $personalInfo->follow_up_id = $ipFollowups->id ;
-                                    $personalInfo->patient_id =$ipCheck->user_id;
-                                    $personalInfo->is_presented = (@$value['is_presented'] == true) ? @$value['is_presented'] : 0 ;
-                                    $personalInfo->is_participated = (@$value['is_participated'] == true) ? @$value['is_participated'] : 0 ;
-                                    $personalInfo->how_helped = @$value['how_helped'];
-                                    $personalInfo->save();
-
-                                    /*-----Create Account /Entry in user table*/
-                                    if($is_user == true) {
-                                        $top_most_parent_id = auth()->user()->top_most_parent_id;
-                                        $checkAlreadyUser = User::where('email',@$value['email'])->first();
-                                        if(empty($checkAlreadyUser)) {
-                                            $getUserType = UserType::find($user_type_id);
-                                            $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
-
-                                            if(!empty($getUser)){
-                                                $userSave = User::find($getUser->id);
-                                            } else {
-                                                $userSave = new User;
-                                                $userSave->unique_id = generateRandomNumber();
-                                            }
-                                            $userSave->user_type_id = $user_type_id;
-                                            $userSave->branch_id = getBranchId();
-                                            $userSave->role_id =  $roleInfo->id;
-                                            $userSave->parent_id = $user->id;
-                                            $userSave->top_most_parent_id = $top_most_parent_id;
-                                            $userSave->name = @$value['name'] ;
-                                            $userSave->email = @$value['email'] ;
-                                            $userSave->password = Hash::make('12345678');
-                                            $userSave->contact_number = @$value['contact_number'];
-                                            $userSave->country_id = @$value['country_id'];
-                                            $userSave->city = @$value['city'];
-                                            $userSave->postal_area = @$value['postal_area'];
-                                            $userSave->zipcode = @$value['zipcode'];
-                                            $userSave->full_address = @$value['full_address'];
-                                            $userSave->is_family_member = (@$value['is_family_member'] == true) ? @$value['is_family_member'] : 0 ;
-                                            $userSave->is_caretaker = (@$value['is_caretaker'] == true) ? @$value['is_caretaker'] : 0 ;
-                                            $userSave->is_contact_person = (@$value['is_contact_person'] == true) ? @$value['is_contact_person'] : 0 ;
-                                            $userSave->is_guardian = (@$value['is_guardian'] == true) ? @$value['is_guardian'] : 0 ;
-                                            $userSave->is_other = (@$value['is_other'] == true) ? @$value['is_other'] : 0 ;
-                                            $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : 0 ;
-                                            $userSave->save();
-                                            
-                                            //update personal_info_during_ips
-                                            $personalInfo->user_id = $userSave->id;
-                                            $personalInfo->save();
-                                            
-                                            if(env('IS_MAIL_ENABLE',false) == true){ 
-                                                    $variables = ([
-                                                    'name' => $userSave->name,
-                                                    'email' => $userSave->email,
-                                                    'contact_number' => $userSave->contact_number,
-                                                    'city' => $userSave->city,
-                                                    'zipcode' => $userSave->zipcode,
-                                                    ]);   
-                                                $emailTem = EmailTemplate::where('id','2')->first();           
-                                                $content = mailTemplateContent($emailTem->content,$variables);
-                                                Mail::to($userSave->email)->send(new WelcomeMail($content));
-                                            }
-                                            if(!empty($user_type_id))
-                                            {
-                                               $role = $roleInfo;
-                                               $userSave->assignRole($role->name);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
                        
                          /*----------------Question Data--------------------*/
                         if(is_array($request->questions)  && sizeof($request->question) > 0 ){
@@ -559,7 +364,7 @@ class FollowUpsController extends Controller
 			  
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -580,6 +385,7 @@ class FollowUpsController extends Controller
 		     	
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -591,10 +397,11 @@ class FollowUpsController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.user.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
+        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_show') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -624,6 +431,7 @@ class FollowUpsController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_approve') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -645,7 +453,7 @@ class FollowUpsController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->follow_up_id;
-            $checkId= IpFollowUp::where('id',$id)->first();
+            $checkId = IpFollowUp::where('id',$id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
@@ -671,7 +479,19 @@ class FollowUpsController extends Controller
             $ipFollowups->witness = $witness;
             $ipFollowups->more_witness = $more_witness;
             $ipFollowups->save();
-            if(is_array($request->question_answer) ){
+
+            //withness added
+            foreach ($request->witness as $key => $value) 
+            {
+                $followupWitness = new PersonalInfoDuringIp;
+                $followupWitness->ip_id = $checkId->ip_id;
+                $followupWitness->user_id = $value;
+                $followupWitness->follow_up_id = $id;
+                $followupWitness->save();
+            }
+
+            if(is_array($request->question_answer))
+            {
                 foreach ($request->question_answer as $key => $ans) {
                     if(!empty($ans['answer']))
                     {
@@ -698,6 +518,7 @@ class FollowUpsController extends Controller
         
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -742,6 +563,7 @@ class FollowUpsController extends Controller
             return prepareResult(true,getLangByLabelGroups('FollowUp','message_log') ,$query, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

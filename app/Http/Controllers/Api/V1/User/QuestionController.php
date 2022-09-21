@@ -80,6 +80,7 @@ class QuestionController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$group_questions,'200');
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -112,6 +113,7 @@ class QuestionController extends Controller
              return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$question, '200');
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -131,6 +133,7 @@ class QuestionController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), '500');
             
         }
@@ -166,6 +169,7 @@ class QuestionController extends Controller
                
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -185,6 +189,7 @@ class QuestionController extends Controller
                 
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

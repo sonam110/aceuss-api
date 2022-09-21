@@ -232,6 +232,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -291,7 +292,7 @@ class JournalController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('Journal','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -360,7 +361,7 @@ class JournalController extends Controller
 	        return prepareResult(true,getLangByLabelGroups('Journal','message_update') ,$data, config('httpcodes.success'));
 		}
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -381,6 +382,7 @@ class JournalController extends Controller
 			    
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
             
         }
@@ -401,6 +403,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_show') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -464,6 +467,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_sign') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             \Log::info($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
@@ -509,7 +513,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_print') ,$url, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -536,6 +540,7 @@ class JournalController extends Controller
             return prepareResult(true,getLangByLabelGroups('Journal','message_active') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }

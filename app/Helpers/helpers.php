@@ -31,6 +31,18 @@ function getUser() {
     return auth('api')->user();
 }
 
+function userInfo($user_id) {
+    return User::find($user_id);
+}
+
+function returnBoolean($bool=null) {
+    return ($bool) ? 1 : 0;
+}
+
+function logException($exception)
+{
+    return \Log::error($exception);
+}
 
 //==================== For Api ================//
 

@@ -244,6 +244,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -321,7 +322,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_create') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -342,6 +343,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_show') ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -414,7 +416,7 @@ class DeviationController extends Controller
               
         }
         catch(Exception $exception) {
-             \Log::error($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -433,6 +435,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }
     }
@@ -481,6 +484,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_approve') ,$deviation, config('httpcodes.success'));
         }
         catch(Exception $exception) {
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -504,7 +508,7 @@ class DeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('Deviation','message_print') ,$url, config('httpcodes.success'));
         }
         catch(Exception $exception) {
-            \Log::error($exception);
+	        logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
