@@ -54,11 +54,12 @@ class DefaultEntrySeeder extends Seeder
 
 
         ActivityOption::truncate();
-        $ActivityOption1 = ActivityOption::create(['id' => '1','option'=>'Efforts managed with staff on time']);
-        $ActivityOption1 = ActivityOption::create(['id' => '2','option'=>'Efforts managed with staff not on time','is_journal' => '1','is_deviation'=>'0']);
-        $ActivityOption2 = ActivityOption::create(['id' => '3','option'=>'Could fix himself','is_journal' => '1','is_deviation'=>'0']);
-        $ActivityOption3 = ActivityOption::create(['id' => '4','option'=>'The customer did not want','is_journal' => '1','is_deviation'=>'0']);
-        $ActivityOption4 = ActivityOption::create(['id' => '5','option'=>'Staff could not','is_journal' => '1','is_deviation'=>'1']);
+        
+        ActivityOption::create(['id' => '1','option'=>'completed-by-staff-on-time']);
+        ActivityOption::create(['id' => '2','option'=>'completed-by-staff-not-on-time','is_journal' => '1','is_deviation'=>'0']);
+        ActivityOption::create(['id' => '3','option'=>'completed-by-patient-itself','is_journal' => '1','is_deviation'=>'0']);
+        ActivityOption::create(['id' => '4','option'=>'patient-did-not-want','is_journal' => '1','is_deviation'=>'0']);
+        ActivityOption::create(['id' => '5','option'=>'not-done-by-employee','is_journal' => '1','is_deviation'=>'1']);
 
 
         Module::create(['id' => '1','name'=>'Activity']);

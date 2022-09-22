@@ -202,49 +202,64 @@
         <tr>
             <td colspan="4" class="sub-title"><strong>Relatives & Caretakers</strong></td>
         </tr>
-        @foreach($ip->patient->persons as $pKey => $person)
+        @foreach($ip->persons as $pKey => $person)
         <tr>
             <td colspan="4" class="sub-title"><strong>Person # {{$pKey + 1}}</strong></td>
         </tr>
         <tr>
             <td class="title"><strong>Full Name</strong></td>
-            <td class="value">{{$person->name}}</td>
+            <td class="value">{{$person->user->name}}</td>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{$person->personal_number}}</td>
+            <td class="value">{{$person->user->personal_number}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{$person->email}}</td>
+            <td class="value">{{$person->user->email}}</td>
             <td class="title"><strong>Phone </strong></td>
-            <td class="value">{{$person->contact_number}}</td>
+            <td class="value">{{$person->user->contact_number}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Address </strong></td>
-            <td class="value">{{$person->full_address}}</td>
+            <td class="value">{{$person->user->full_address}}</td>
             <td class="title"><strong>Person Type </strong></td>
             <td class="value">
-                @if($person->is_family_member==1)
+                @if($person->user->is_family_member==1)
                     Family Member<br>
                 @endif
-                @if($person->is_caretaker==1)
+                @if($person->user->is_caretaker==1)
                     Caretaker<br>
                 @endif
-                @if($person->is_contact_person==1)
+                @if($person->user->is_contact_person==1)
                     Contact Person<br>
                 @endif
-                @if($person->is_guardian==1)
+                @if($person->user->is_guardian==1)
                     Guardian<br>
                 @endif
-                @if($person->is_family_member==1)
+                @if($person->user->is_family_member==1)
                     Family Member<br>
                 @endif
-                @if($person->is_other==1)
+                @if($person->user->is_other==1)
                     {{$person->is_other_name}}
                 @endif
             </td>
         </tr>
+
+        <tr>
+            <td class="title"><strong>Presented</strong></td>
+            <td class="value">{{($person->is_presented=='1') ? 'Yes': 'No'}}</td>
+            <td class="title"><strong>Participated </strong></td>
+            <td class="value">{{($person->is_participated=='1') ? 'Yes': 'No'}}</td>
+        </tr>
+
+        @if($person->is_participated=='1')
+        <tr>
+            <td class="title"><strong>How Helped</strong></td>
+            <td class="value" colspan="2">{{ $person->how_helped }}</td>
+        </tr>
+        @endif
+
         @endforeach
     </table>
 

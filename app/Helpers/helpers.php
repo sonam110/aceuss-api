@@ -32,7 +32,7 @@ function getUser() {
 }
 
 function userInfo($user_id) {
-    return User::find($user_id);
+    return User::withoutGlobalScope('top_most_parent_id')->find($user_id);
 }
 
 function returnBoolean($bool=null) {
@@ -542,7 +542,6 @@ function companySetting($company_id){
 
 function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates)
 {
-   
     $from = Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
     $start_from = $from->format('Y-m-d');
@@ -574,6 +573,44 @@ function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_t
         }
     }
     
+    return $dateTimeFrame;
+}
+
+function taskDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates)
+{
+    $from = Carbon::parse($start_date);
+    $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
+    $start_from = $from->format('Y-m-d');
+    $end_to = $to->format('Y-m-d');
+    $dateTimeFrame = []; 
+    
+    if($is_repeat == true)
+    {
+        if($repetition_type == '1'){
+            for($d = $from; $d->lte($to); $d->addDay($every)) {
+                $dateTimeFrame[] = $d->format('Y-m-d');
+            }
+        }
+        elseif($repetition_type == '2') {
+           $dateTimeFrame  = $repeat_dates;
+        }
+        elseif($repetition_type == '3') {
+             $dateTimeFrame  = $repeat_dates;
+           
+        }   
+        elseif($repetition_type == '4') {
+            $dateTimeFrame  = $repeat_dates;
+        } 
+        else {
+            $dateTimeFrame[] = $from->format('Y-m-d');
+        }
+        
+    } else {
+        $dateTimeFrame[] = $from->format('Y-m-d');
+        /*for($d = $from; $d->lte($to); $d->addDay()) {
+            $dateTimeFrame[] = $d->format('Y-m-d');
+        }*/
+    }
     return $dateTimeFrame;
 }
 

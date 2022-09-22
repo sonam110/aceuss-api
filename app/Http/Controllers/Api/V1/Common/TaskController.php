@@ -193,7 +193,7 @@ class TaskController extends Controller
 		    $end_date = $request->end_date;
             $every = '1';
 
-            $dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
+            $dateValidate =  Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d');
             
             if(!empty($request->end_date)){
                 $validator = Validator::make($request->all(),[     
@@ -229,7 +229,7 @@ class TaskController extends Controller
 
             }
             
-		    $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+		    $repeatedDates = taskDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
             $group_id = generateRandomNumber();
             $branch_id = getBranchId();
 		    $task_ids = [];
@@ -256,7 +256,7 @@ class TaskController extends Controller
                                 $task->repetition_type = $request->repetition_type; 
                                 $task->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
                                 $task->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
-                                $task->end_date = $date;
+                                $task->end_date = empty($request->repetition_type) ? $request->end_date : $date;
                                 $task->end_time = $time['end'];
     						    $task->remind_before_start = ($request->remind_before_start) ? 1  : 0;
     				            $task->before_minutes = $request->before_minutes;
@@ -367,7 +367,7 @@ class TaskController extends Controller
 		   $end_date = $request->end_date;
             $every = '1';
 
-            $dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
+            $dateValidate =  Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d');
             
             if(!empty($request->end_date)){
                 $validator = Validator::make($request->all(),[     
@@ -408,7 +408,7 @@ class TaskController extends Controller
                 return prepareResult(false, getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             $old_end_date = $checkId->end_date;
-            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            $repeatedDates = taskDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
             $group_id = $checkId->group_id;
             $branch_id = $checkId->branch_id;
 		    $task_ids = [];
@@ -436,7 +436,7 @@ class TaskController extends Controller
                                 $task->repetition_type = $request->repetition_type; 
                                 $task->how_many_time_array = ($request->how_many_time_array) ? json_encode($request->how_many_time_array) :null;
                                 $task->repeat_dates = ($request->repeat_dates) ? json_encode($request->repeat_dates) :null;
-                                $task->end_date = $date;
+                                $task->end_date = empty($request->repetition_type) ? $request->end_date : $date;
                                 $task->end_time = $time['end'];
     						    $task->remind_before_start = ($request->remind_before_start) ? 1  : 0;
     				            $task->before_minutes = $request->before_minutes;

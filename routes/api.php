@@ -232,6 +232,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('ip-template-list','User\PatientController@ipTemplateList');
 		Route::post('ip-followups-print/{ip_id}', 'User\PatientController@ipFollowupsPrint');
 		Route::post('ip-action','User\PatientController@ipAction');
+		Route::post('ip-print/{ip_id}', 'User\PatientController@ipPrint');
 
 		/*--------------Person add-------------------------*/
 		Route::post('patient-person-list','Common\PersonController@patientPersonList');
