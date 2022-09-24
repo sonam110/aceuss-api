@@ -507,6 +507,7 @@ class JournalController extends Controller
             $journals = $journals->where('is_signed', 1)->get();
             $filename = $request->patient_id."-".time().".pdf";
             $data['journals'] = $journals;
+            $data['print_reason'] = $request->reason;
             $pdf = PDF::loadView('print-journal', $data);
             $pdf->save('reports/journals/'.$filename);
             $url = env('CDN_DOC_URL').'reports/journals/'.$filename;

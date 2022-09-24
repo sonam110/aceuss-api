@@ -47,6 +47,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
 use App\Models\Stampling;
 use App\Models\Schedule;
+use App\Models\PatientEmployee;
 
 class User extends Authenticatable
 {
@@ -449,6 +450,16 @@ class User extends Authenticatable
     public function stamplings()
     {
          return $this->hasMany(Stampling::class,'top_most_parent_id','id');
+    }
+
+    public function patientEmployees()
+    {
+        return $this->hasMany(PatientEmployee::class,'patient_id','id');
+    }
+
+    public function employeePatients()
+    {
+        return $this->hasMany(PatientEmployee::class,'employee_id','id');
     }
 
 }

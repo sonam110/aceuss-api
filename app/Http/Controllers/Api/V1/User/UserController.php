@@ -12,6 +12,7 @@ use App\Models\PersonalInfoDuringIp;
 use App\Models\UserType;
 use App\Models\AgencyWeeklyHour;
 use App\Models\PatientInformation;
+use App\Models\PatientEmployee;
 use Validator;
 use Auth;
 use DB;
@@ -77,7 +78,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
     		->where('users.top_most_parent_id',$this->top_most_parent_id)
     		->withoutGlobalScope('top_most_parent_id')
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role')
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')
     		->withCount('employees','patients','leaves','vacations');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
@@ -336,7 +337,19 @@ class UserController extends Controller
     			$patientInfo->period = $request->period;
     			$patientInfo->save();
 
-    		}
+                //Assigned Employee
+                if(is_array($request->assigned_employee))
+                {
+                    foreach($request->assigned_employee as $key => $employee)
+                    {
+
+                        $patientEmployee = new PatientEmployee;
+                        $patientEmployee->patient_id = $user->id;
+                        $patientEmployee->employee_id = $employee;
+                        $patientEmployee->save();
+                    }
+                }
+            }
     		if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false){ 
     			$content = ([
     				'company_id' => $user->top_most_parent_id,
@@ -519,10 +532,24 @@ class UserController extends Controller
     				$datesData->end_date = $value[1];
     				$datesData->save();
     			}
-    		}
+
+                //Assigned Patient
+                if(is_array($request->assigned_patiens))
+                {
+                    foreach($request->assigned_patiens as $key => $patient)
+                    {
+                        $patientEmployee = new PatientEmployee;
+                        $patientEmployee->patient_id = $patient;
+                        $patientEmployee->employee_id = $user->id;
+                        $patientEmployee->save();
+                    }
+                }
+            }
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
-    		$user['assignedWork'] = $user->assignedWork;
+            $user['assignedWork'] = $user->assignedWork;
+            $user['assigned_patiens'] = $request->assigned_patiens;
+    		$user['assigned_employee'] = $request->assigned_employee;
     		return prepareResult(true,getLangByLabelGroups('User','message_create') ,$user, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
@@ -541,7 +568,7 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
-    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','role')->first();
+    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')->first();
     		if($user->user_type_id == 6)
     		{
                 // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
@@ -563,6 +590,19 @@ class UserController extends Controller
     			$used_total_patient_hours = 0;
     		}
     		$userShow->used_total_patient_hours = $used_total_patient_hours;
+
+            $assigned_patiens = [];
+            foreach ($userShow->employeePatients as $key => $patient) {
+                $assigned_patiens[] = $patient->patient_id;
+            }
+
+            $assigned_employee = [];
+            foreach ($userShow->patientEmployees as $key => $employee) {
+                $assigned_employee[] = $employee->employee_id;
+            }
+
+            $userShow['assigned_patiens'] = $assigned_patiens;
+            $userShow['assigned_employee'] = $assigned_employee;
     		return prepareResult(true,getLangByLabelGroups('User','message_show'),$userShow, config('httpcodes.success'));
 
     	}
@@ -670,7 +710,8 @@ class UserController extends Controller
     		}
 
 
-    		if($request->user_type_id == '6'){
+    		if($request->user_type_id == '6')
+            {
     			$checkPatientAlready = PatientInformation::where('patient_id',$user->id)->first();
     			if(is_object($checkPatientAlready)){
     				$patientInfo =  PatientInformation::find($checkPatientAlready->id);
@@ -707,6 +748,20 @@ class UserController extends Controller
     			$patientInfo->number_of_hours = $request->number_of_hours;
     			$patientInfo->period = $request->period;
     			$patientInfo->save();
+
+                //Assigned Employee
+                //removed preassigned employee
+                PatientEmployee::where('patient_id', $user->id)->delete();
+                if(is_array($request->assigned_employee))
+                {
+                    foreach($request->assigned_employee as $key => $employee)
+                    {
+                        $patientEmployee = new PatientEmployee;
+                        $patientEmployee->patient_id = $user->id;
+                        $patientEmployee->employee_id = $employee;
+                        $patientEmployee->save();
+                    }
+                }
 
     		}
 
@@ -820,9 +875,28 @@ class UserController extends Controller
                 }
     		}
 
+            if($request->user_type_id == '3')
+            {
+                //Assigned Patient
+                //removed preassigned employee
+                PatientEmployee::where('employee_id', $user->id)->delete();
+                if(is_array($request->assigned_patiens))
+                {
+                    foreach($request->assigned_patiens as $key => $patient)
+                    {
+                        $patientEmployee = new PatientEmployee;
+                        $patientEmployee->patient_id = $patient;
+                        $patientEmployee->employee_id = $user->id;
+                        $patientEmployee->save();
+                    }
+                }
+            }
+
     		DB::commit();
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
     		$user['assignedWork'] = $user->assignedWork;
+            $user['assigned_patiens'] = $request->assigned_patiens;
+            $user['assigned_employee'] = $request->assigned_employee;
     		return prepareResult(true,getLangByLabelGroups('User','message_update'),$user, config('httpcodes.success'));
 
     	}
@@ -864,7 +938,10 @@ class UserController extends Controller
     		Deviation::where('patient_id',$user->id)->delete();
     		PersonalInfoDuringIp::where('patient_id',$user->id)->delete();
     		IpFollowUp::where('top_most_parent_id',$user->id)->delete();
-    		User::where('top_most_parent_id',$user->id)->delete();
+            User::where('top_most_parent_id',$user->id)->delete();
+    		PatientEmployee::where('patient_id',$user->id)
+                ->orWhere('employee_id', $user->id)
+                ->delete();
     		$userDelete = $user->delete();
     		return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
     	}
@@ -1246,5 +1323,27 @@ class UserController extends Controller
     		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
 
     	}
+    }
+
+    public function revokePatientEmployee(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'patient_id' => 'required|exists:users,id', 
+            'employee_id' => 'required|exists:users,id'
+        ]);
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+
+        try 
+        {
+            $data = PatientEmployee::where('patient_id', $request->patient_id)
+                ->where('employee_id', $request->employee_id)
+                ->delete();
+            return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
+        } catch (\Throwable $exception) {
+            logException($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+        }
     }
 }

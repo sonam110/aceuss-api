@@ -360,6 +360,16 @@
         </table>
         @endif
     @endif
+
+    <hr>
+    <table class="header table table-striped">
+        <tr>
+            <td class="title"><strong>Printed By: {{auth()->user()->name}}</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Reason: {{$print_reason}}</strong></td>
+        </tr>
+    </table>
 </body>
 <htmlpagefooter name="page-footer">
 </htmlpagefooter>

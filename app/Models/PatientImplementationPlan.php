@@ -14,6 +14,7 @@ use App\Models\RequestForApproval;
 use App\Models\IpFollowUp;
 use App\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+
 class PatientImplementationPlan extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;

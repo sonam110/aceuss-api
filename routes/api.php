@@ -208,6 +208,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 	   	Route::post('trashed-users', [App\Http\Controllers\Api\V1\User\UserController::class, 'trashedUsers']);
 		Route::apiResource('user', User\UserController::class)->only(['store','destroy','show', 'update']);
 		Route::post('user-email-update', [App\Http\Controllers\Api\V1\User\UserController::class, 'emailUpdate']);
+		Route::post('revoke-patient-employee', [App\Http\Controllers\Api\V1\User\UserController::class, 'revokePatientEmployee']);
 
 	   	Route::get('get-licence-status', [App\Http\Controllers\Api\V1\User\UserController::class, 'getLicenceStatus']);
 
