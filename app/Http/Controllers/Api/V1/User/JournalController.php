@@ -44,8 +44,9 @@ class JournalController extends Controller
             $query = Journal::select('journals.*')
                 ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
                 ->withCount('journalActions')
-                ->orderBy('journals.date', 'DESC')->orderBy('journals.time', 'DESC');
-
+                //->orderByRaw('date(date) DESC')
+                //->orderByRaw('time(time) DESC');
+                ->orderBy('created_at', 'DESC');
             if(in_array($user->user_type_id, [2,3,4,5,11]))
             {
 
@@ -477,13 +478,12 @@ class JournalController extends Controller
     {
         try {
             $user = getUser();
-            $checkUser = User::where('id',$request->patient_id)
-                ->first();
-            if (!is_object($checkUser)) {
-                return prepareResult(false,getLangByLabelGroups('Patient','record_not_found'), [],config('httpcodes.not_found'));
-            }
 
             $journals = Journal::where('patient_id', $request->patient_id);
+            if(!empty($request->journal_id))
+            {
+                $journals->where('id', $request->journal_id);
+            }
             if(!empty($request->from_date) && !empty($request->end_date))
             {
                 $journals->whereDate('created_at', '>=', $request->from_date)->whereDate('created_at', '<=', $request->end_date);
@@ -496,15 +496,16 @@ class JournalController extends Controller
             {
                 $journals->whereDate('created_at', '<=', $request->end_date);
             }
-            if($request->print_with_secret=='yes')
-            {
-                $journals->where('is_secret', 1);
-            }
-            else
+            if($request->print_with_secret!='yes')
             {
                 $journals->where('is_secret', 0);
             }
-            $journals = $journals->where('is_signed', 1)->get();
+
+            $journals = $journals->where('is_signed', 1)
+                ->get();
+            if (!is_object($journals)) {
+                return prepareResult(false,getLangByLabelGroups('Patient','record_not_found'), [],config('httpcodes.not_found'));
+            }
             $filename = $request->patient_id."-".time().".pdf";
             $data['journals'] = $journals;
             $data['print_reason'] = $request->reason;

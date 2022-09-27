@@ -700,8 +700,10 @@ function weekDaysBetween($requiredDays, $start, $end,$every)
     return $result;
 }
 
-function getBranchId(){
-    if(Auth::check()){
+function getBranchId()
+{
+    if(Auth::check())
+    {
         if(auth()->user()->user_type_id=='11') {
             $branch_id = auth()->user()->id;
         }
@@ -718,15 +720,14 @@ function getBranchId(){
 }
 
 
-function checkAssignModule($module_id){
+function checkAssignModule($module_id)
+{
     if(Auth::check()){
         $checkModule = AssigneModule::where('user_id',auth()->user()->top_most_parent_id)->where('module_id',$module_id)->first();
         $is_assign = ($checkModule) ? true :false;
         return $is_assign;
     }
     return null;
-
-
 }
 
 function journal($activity_id)
@@ -748,9 +749,9 @@ function journal($activity_id)
     $journal->is_secret = 0;
     $journal->save();
 
-    if($journal){
+    if($journal) {
         return $journal->id;
-    }else {
+    } else {
         return null;
     }
 }
@@ -785,7 +786,7 @@ function deviation($activity_id)
     $deviation->date_time = $date.' '.$time;
     $deviation->description = $activity->description;
     $deviation->activity_note = $activity->comment;
-    $deviation->immediate_action = 'N/A';
+    $deviation->immediate_action = null;
     $deviation->critical_range = 1;
     $deviation->is_secret = 0;
     $deviation->is_signed = 0;
@@ -799,7 +800,8 @@ function deviation($activity_id)
     }
 }
 
-function dates($value) {
+function dates($value) 
+{
     $s = $value%60;
     $m = floor(($value %3600)/60);
     $h = floor(($value %86400)/3600);
@@ -808,6 +810,7 @@ function dates($value) {
     $data = "$h:$m:$s";
     return $data;
 }
+
 function getDuration($totalDuration,$type="0")
 {
     $duration = "";

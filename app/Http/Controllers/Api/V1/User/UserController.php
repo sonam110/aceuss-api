@@ -911,8 +911,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
     	try {
-
-    		$id = $user->id;
+            $id = $user->id;
     		$checkId = User::where('id',$id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));

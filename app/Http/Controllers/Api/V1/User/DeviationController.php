@@ -22,7 +22,7 @@ class DeviationController extends Controller
         $this->middleware('permission:deviation-edit', ['only' => ['update']]);
         $this->middleware('permission:deviation-read', ['only' => ['show']]);
         $this->middleware('permission:deviation-delete', ['only' => ['destroy']]);
-        //$this->middleware('permission:deviation-print', ['only' => ['printDeviation']]);
+        $this->middleware('permission:deviation-print', ['only' => ['printDeviation']]);
         
     }
 
@@ -380,7 +380,6 @@ class DeviationController extends Controller
 
             $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
 
-            $deviation->activity_id = $request->activity_id;
             $deviation->branch_id = $getBranch->branch_id;
             $deviation->patient_id = $request->patient_id;
             $deviation->category_id = $request->category_id;
@@ -489,19 +488,41 @@ class DeviationController extends Controller
         }
     }
     
-    public function printDeviation(Request $request, $id)
+    public function printDeviation(Request $request)
     {
         try {
             $user = getUser();
-            $checkId = Deviation::where('id',$id)
-                ->first();
-            if (!is_object($checkId)) {
+            
+            $deviations = Deviation::where('patient_id', $request->patient_id);
+            if(!empty($request->deviation_id))
+            {
+                $deviations->where('id', $request->deviation_id);
+            }
+            if(!empty($request->from_date) && !empty($request->end_date))
+            {
+                $deviations->whereDate('date_time', '>=', $request->from_date)->whereDate('date_time', '<=', $request->end_date);
+            }
+            elseif(!empty($request->from_date) && empty($request->end_date))
+            {
+                $deviations->whereDate('date_time', '>=', $request->from_date);
+            }
+            elseif(empty($request->from_date) && !empty($request->end_date))
+            {
+                $deviations->whereDate('date_time', '<=', $request->end_date);
+            }
+            if($request->print_with_secret!='yes')
+            {
+                $deviations->where('is_secret', 0);
+            }
+            $deviations = $deviations->where('is_signed', 1)->get();
+
+            if (!is_object($deviations)) {
                 return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
-            $deviation = Deviation::where('id', $id)->first();
-            $filename = $id."-".time().".pdf";
-            $data['deviation'] = $deviation;
+            $filename = $request->patient_id."-".time().".pdf";
+            $data['deviations'] = $deviations;
+            $data['print_reason'] = $request->reason;
             $pdf = PDF::loadView('print-deviation', $data);
             $pdf->save('reports/deviations/'.$filename);
             $url = env('CDN_DOC_URL').'reports/deviations/'.$filename;

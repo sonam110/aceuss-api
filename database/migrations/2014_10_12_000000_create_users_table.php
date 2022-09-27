@@ -64,7 +64,7 @@ class CreateUsersTable extends Migration
             $table->string('password_token')->nullable();
             $table->boolean('is_file_required')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_secret')->default('0')->comment('1:Yes,0:No');
-            $table->boolean('status')->default('1')->comment('1:Active,0:Inactive,2:deleted');
+            $table->boolean('status')->default('1')->comment('1:Active,0:Inactive,2:deleted,3:tempInactive');
             $table->boolean('is_fake')->default('0')->comment('1:Yes,0:No');
             $table->boolean('is_password_change')->default('0')->comment('1:Yes,0:No');
             $table->text('documents')->nullable();

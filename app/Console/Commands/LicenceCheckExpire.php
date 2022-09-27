@@ -46,6 +46,20 @@ class LicenceCheckExpire extends Command
             $licenceUpdate = User::find($getLicence->top_most_parent_id);
             $licenceUpdate->licence_status = 0;
             $licenceUpdate->save();
+
+            //update other table
+            $getLicence->cancelled_by = 1;
+            $getLicence->is_expired = 1;
+            $getLicence->reason_for_cancellation = 'auto expired';
+            $getLicence->save();
+
+            // Subscription update
+            Subscription::where('user_id', $getLicence->top_most_parent_id)
+                ->where('status',1)
+                ->update([
+                    'status' => 0,
+                    'end_date' => $package_expire_at
+                ]);
         }
 
         return true;

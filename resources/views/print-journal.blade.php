@@ -63,7 +63,7 @@
 <body>
     @foreach($journals as $key => $journal)
     <h2>
-        <center><span class="main-title">Journal - {{$key+1}}</span></center>
+        <center><span class="main-title">Journal - {{$key+1}} <br><small style="font-size: 10px;">{{($journal->is_secret==1) ? '(Secret)': null}}</small></span></center>
     </h2>
     <div>
     <center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------

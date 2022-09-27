@@ -293,6 +293,7 @@ class PatientController extends Controller
                         $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                         $patientPlan->created_by = $user->id;
                         $patientPlan->is_latest_entry = 1;
+                        $patientPlan->approval_comment = $request->approval_comment;
                         $patientPlan->save();
 
                         /*--notify-user-ip-created--*/
@@ -465,6 +466,7 @@ class PatientController extends Controller
                             $getIpInfo->edited_by = $user->id;
                             $getIpInfo->is_latest_entry = 1;
                             $patientPlan->created_at = Carbon::now();
+                            $patientPlan->approval_comment = $request->approval_comment;
                             $getIpInfo->save();
                             
                         }
@@ -507,6 +509,7 @@ class PatientController extends Controller
                             $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                             $patientPlan->edited_by = $user->id;
                             $patientPlan->is_latest_entry = 1;
+                            $patientPlan->approval_comment = $request->approval_comment;
                             $patientPlan->save();
                         }
 

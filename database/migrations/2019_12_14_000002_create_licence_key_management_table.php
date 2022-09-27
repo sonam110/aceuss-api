@@ -27,6 +27,7 @@ class CreateLicenceKeyManagementTable extends Migration
             $table->date('active_from')->nullable()->comment('licence_key activation date');
             $table->date('expire_at')->comment('expiry date');
             $table->boolean('is_used')->default(0);
+            $table->boolean('is_expired')->default(0);
             $table->text('reason_for_cancellation')->nullable();
 
             $table->timestamps();

@@ -46,9 +46,6 @@ class SettingController extends Controller
             $user->company_email = $request->company_email;
             $user->company_contact = $request->company_contact;
             $user->company_address = $request->company_address;
-            $user->contact_person_name = $request->contact_person_name;
-            $user->contact_person_email = $request->contact_person_email;
-            $user->contact_person_phone = $request->contact_person_phone;
             $user->company_website = $request->company_website;
             $user->before_minute = $request->before_minute;
             $user->extra_hour_rate = $request->extra_hour_rate;
@@ -56,6 +53,11 @@ class SettingController extends Controller
             $user->relaxation_time = $request->relaxation_time;
             $user->follow_up_reminder = ($request->follow_up_reminder) ? 1:0 ;
             $user->save();
+
+            $companyInfo = $user->companyInfo;
+            $companyInfo->postal_area = $request->postal_area;
+            $companyInfo->zipcode = $request->zipcode;
+            $companyInfo->save();
              DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$user, config('httpcodes.success'));
                 

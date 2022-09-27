@@ -35,9 +35,7 @@ class CompanyAccountController extends Controller
         $this->middleware('permission:companies-add', ['only' => ['store']]);
         $this->middleware('permission:companies-edit', ['only' => ['update']]);
         $this->middleware('permission:companies-read', ['only' => ['show']]);
-        $this->middleware('permission:companies-delete', ['only' => ['destroy']]);
-        
-       
+        $this->middleware('permission:companies-delete', ['only' => ['destroy']]); 
     }
 
     public function companies(Request $request)
@@ -46,7 +44,7 @@ class CompanyAccountController extends Controller
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $user = getUser();
             $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number', 'users.contact_person_name', 'users.contact_person_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five','users.establishment_year')
-            ->where('users.status','1')
+            ->whereIn('users.status',['1','3'])
             ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')
             ->withCount(
                 [
@@ -181,8 +179,11 @@ class CompanyAccountController extends Controller
             $user->user_type_id = '2';
             $user->role_id = '2';
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
+
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->personal_number = $request->personal_number;
+
             $user->password = Hash::make($request->password);
             $user->contact_number = $request->contact_number;
             $user->organization_number = $request->organization_number;
@@ -202,8 +203,8 @@ class CompanyAccountController extends Controller
             $user->contract_value = $request->contract_value;
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $user->contact_person_name = $request->contact_person_name;
-            $user->contact_person_number = $request->contact_person_number;
+            $user->contact_person_name = $request->name;
+            $user->contact_person_number = $request->email;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
@@ -217,12 +218,12 @@ class CompanyAccountController extends Controller
             /*------Company Settings---------------*/
             $addSettings = new CompanySetting;
             $addSettings->user_id = $user->id;
-            $addSettings->company_name = $request->name;
-            $addSettings->company_email = $request->email;
+            $addSettings->company_name = $request->company_name;
+            $addSettings->company_email = $request->company_email;
             $addSettings->company_contact = $request->contact_number;
             $addSettings->company_address = $request->full_address;
-            $addSettings->contact_person_name = $request->contact_person_name;
-            $addSettings->contact_person_email = $request->contact_person_email;
+            $addSettings->contact_person_name = $request->name;
+            $addSettings->contact_person_email = $request->email;
             $addSettings->contact_person_phone = $request->contact_person_phone;
             $addSettings->company_website = $request->company_website;
             $addSettings->save();
@@ -302,8 +303,8 @@ class CompanyAccountController extends Controller
             if(env('IS_MAIL_ENABLE', false) == true){ 
                 $content = ([
                     'company_id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'name' => $request->name,
+                    'email' => $request->email,
                     'id' => $user->id,
                 ]);  
                 Mail::to($user->email)->send(new WelcomeMail($content));
@@ -329,7 +330,7 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+            $userShow = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
 
@@ -374,6 +375,7 @@ class CompanyAccountController extends Controller
             
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : null;
             $user->name = $request->name;
+            $user->personal_number = $request->personal_number;
             $user->contact_number = $request->contact_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
@@ -390,7 +392,7 @@ class CompanyAccountController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->status = ($request->status) ? $request->status: 1 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $user->contact_person_name = $request->contact_person_name;
+            $user->contact_person_name = $request->name;
             $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
@@ -432,7 +434,21 @@ class CompanyAccountController extends Controller
             }
 
             DB::commit();
-            $userdetail = User::select('users.*')->where('status','1')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+
+            //temporary inactive
+            if($request->status==3)
+            {
+                User::where('top_most_parent_id', $user->id)
+                ->update(['status' => 3]);
+            }
+            elseif($request->status==1)
+            {
+                User::where('top_most_parent_id', $user->id)
+                ->where('status', 3)
+                ->update(['status' => 1]);
+            }
+
+            $userdetail = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
             return prepareResult(true,getLangByLabelGroups('Company','message_update'),$userdetail, config('httpcodes.success'));
@@ -454,8 +470,13 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-            $updateStatus = User::where('id',$id)->update(['status'=>'2']);
-            $userDelete = User::where('id',$id)->delete();
+            if($user->id==1)
+            {
+                return prepareResult(false,getLangByLabelGroups('User','message_unauthorized'), [], config('httpcodes.unauthorized'));
+            }
+
+            $updateStatus = User::where('top_most_parent_id', $id)->update(['status'=>'2']);
+
             return prepareResult(true, getLangByLabelGroups('Company','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {

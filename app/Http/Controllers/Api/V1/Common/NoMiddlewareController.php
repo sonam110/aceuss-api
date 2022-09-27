@@ -100,7 +100,7 @@ class NoMiddlewareController extends Controller
         try {
             $userInfo = getUser();
             
-            $checkSettings = CompanySetting::select(array('company_settings.*', DB::raw("(SELECT organization_number from users WHERE users.id = ".$user_id.") organization_number")))->where('user_id',$user_id)->first();
+            $checkSettings = CompanySetting::select(array('company_settings.*', DB::raw("(SELECT organization_number from users WHERE users.id = ".$user_id.") organization_number")))->where('user_id',$user_id)->with('companyInfo:id,city,postal_area,zipcode')->first();
             if(!is_object($checkSettings)){
                  return prepareResult(false,'User not found',[], config('httpcodes.bad_request')); 
             }

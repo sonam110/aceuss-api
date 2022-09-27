@@ -38,7 +38,7 @@ class TaskController extends Controller
             }
             $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')
                 ->where('is_latest_entry',1)
-                ->with('actionBy:id,name','branch:id,name');
+                ->with('actionBy:id,name','branch:id,name','createdBy:id,name');
             if($user->user_type_id =='2'){
                 
                 // $query = $query->orderBy('id','DESC');
@@ -138,7 +138,7 @@ class TaskController extends Controller
                 $perPage = $request->perPage;
                 $page = $request->input('page', 1);
                 $total = $query->count();
-                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->with('assignEmployee.employee:id,name,email,contact_number')->get();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 
                 $pagination =  [
                     'data' => $result,
@@ -153,7 +153,7 @@ class TaskController extends Controller
             }
             else
             {
-                $query = $query->with('assignEmployee.employee:id,name,email,contact_number')->get();
+                $query = $query->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
                 // $data = [
                 //     $query = $query,
                 //     'total_completed' => $taskCounts->first()->total_done,
@@ -329,7 +329,7 @@ class TaskController extends Controller
                 
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
-                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
+                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 				return prepareResult(true,getLangByLabelGroups('Task','message_create') ,$taskList, config('httpcodes.success'));
 
 			}else{
@@ -494,7 +494,7 @@ class TaskController extends Controller
 				}
 			
 				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
-                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number')->get();
+                    ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 				return prepareResult(true,getLangByLabelGroups('Task','message_update') ,$taskList, config('httpcodes.success'));
 
 			}else{
@@ -534,7 +534,7 @@ class TaskController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-        	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name')->first();
+        	$task = Task::where('id',$id)->with('assignEmployee.employee:id,name,email,contact_number','CategoryType:id,name','Category:id,name','Subcategory:id,name','actionBy:id,name','createdBy:id,name')->first();
 	        return prepareResult(true,getLangByLabelGroups('Task','message_show') ,$task, config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -735,7 +735,7 @@ class TaskController extends Controller
             
             DB::commit();
             $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
-                    ->where('id',$request->task_id)->with('assignEmployee.employee:id,name,email,contact_number')->first();
+                    ->where('id',$request->task_id)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->first();
             return prepareResult(true,getLangByLabelGroups('Task','message_action') ,$taskList, config('httpcodes.success'));
            
         

@@ -67,7 +67,9 @@
     <div>
     <center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     </center></div>
-
+    @php
+        $deviation = $deviations[0];
+    @endphp
     @if($deviation->Patient)
     <table class="header table table-striped">
         <tr>
@@ -325,6 +327,13 @@
     @endif
     @endif
 
+    @foreach($deviations as $key => $deviation)
+    <h2>
+        <center><span class="main-title">#{{$key+1}}</span></center>
+    </h2>
+    <div>
+    <center>------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    </center></div>
     <table class="header table table-striped">
         <tr>
             <td colspan="2" class="sub-title"><strong>Deviation Info</strong></td>
@@ -376,6 +385,17 @@
         <tr>
             <td class="title"><strong>Signed By</strong></td>
             <td class="value">{{($deviation->is_signed) ? $deviation->Employee->name : 'Not signed yet' }}</td>
+        </tr>
+    </table>
+    @endforeach
+
+    <hr>
+    <table class="header table table-striped">
+        <tr>
+            <td class="title"><strong>Printed By: {{auth()->user()->name}}</strong></td>
+        </tr>
+        <tr>
+            <td class="title"><strong>Reason: {{$print_reason}}</strong></td>
         </tr>
     </table>
 

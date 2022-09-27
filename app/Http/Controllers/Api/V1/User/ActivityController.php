@@ -206,6 +206,37 @@ class ActivityController extends Controller
 			}
 			$activityCounts = $activityCounts->first();
 
+			$activityUpcomingCounts = Activity::select([
+				\DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_pending'),
+				\DB::raw('COUNT(IF(status = 3, 0, NULL)) as total_not_applicable'),
+			])->where('is_latest_entry', 1);
+
+
+			if($user->user_type_id =='2'){
+
+			}
+			elseif($user->user_type_id =='3'){
+				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+				$activityUpcomingCounts = $activityUpcomingCounts->whereIn('activities.id', $agnActivity);
+
+			}
+			else{
+				$activityUpcomingCounts =  $activityUpcomingCounts->whereIn('activities.branch_id',$allChilds);
+			}
+
+			$activityUpcomingCounts->whereDate('start_date',">=" , date('Y-m-d'));
+			
+
+			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+			{
+				$activityUpcomingCounts->where(function ($q) use ($user) {
+					$q->where('activities.patient_id', $user->id)
+					->orWhere('activities.patient_id', $user->parent_id);
+				});
+			}
+			
+			$activityUpcomingCounts = $activityUpcomingCounts->first();
+
             ////////Journal & Deviation
 			$jour_and_devi = Activity::select('id')->whereDate('start_date', date('Y-m-d'))->where('is_latest_entry', 1);
 			if($user->user_type_id =='2'){
@@ -268,10 +299,10 @@ class ActivityController extends Controller
 					'per_page' => $perPage,
 					'last_page' => ceil($total / $perPage),
 
-					'total_pending' => $activityCounts->total_pending,
+					'total_pending' => $activityUpcomingCounts->total_pending,
 					'total_done' => $activityCounts->total_done,
 					'total_not_done' => $activityCounts->total_not_done,
-					'total_not_applicable' => $activityCounts->total_not_applicable,
+					'total_not_applicable' => $activityUpcomingCounts->total_not_applicable,
 					'today_created_journal' => $today_created_journal,
 					'today_created_deviation' => $today_created_deviation,
 					'total_activities_time_passed' => $datePassedActivityCounts->total_activities_time_passed

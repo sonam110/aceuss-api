@@ -73,6 +73,7 @@ class CreatePatientImplementationPlansTable extends Migration
             $table->text('documents')->nullable();
             $table->text('reason_for_editing')->nullable();
             $table->date('approved_date')->nullable();
+            $table->text('approval_comment')->nullable();
             $table->date('action_date')->nullable();
             $table->text('comment')->nullable();
             $table->boolean('status')->default(0);

@@ -13,6 +13,9 @@ use App\Models\CategoryMaster;
 use App\Models\Activity;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
+use App\Models\Deviation;
+use App\Models\Journal;
+
 class Task extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
@@ -67,6 +70,10 @@ class Task extends Model
     {
         return $this->belongsTo(CategoryType::class,'type_id','id');
     }
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class,'created_by','id');
+    }
     public function Category()
     {
         return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id');
@@ -106,6 +113,12 @@ class Task extends Model
         }
         if($this->type_id == '5'){
             $result['follow_up'] = IpFollowUp::select('id','title','description','start_date','start_time','end_date','end_time')->where('id',$this->resource_id)->first();
+        }
+        if($this->type_id == '4'){
+            $result['deviation'] = Deviation::select('id','activity_id','patient_id','description','activity_note','is_signed','date_time')->with('Patient:id,name')->where('id', $this->resource_id)->first();
+        }
+        if($this->type_id == '6'){
+            $result['journal'] = Journal::select('id','activity_id','patient_id','description','date','time','is_signed','is_secret','is_active')->with('Patient:id,name')->where('id', $this->resource_id)->first();
         }
 
         return $result ;
