@@ -34,6 +34,7 @@ class CreateCompanySettingsTable extends Migration
             $table->float('extra_hour_rate')->nullable()->default(0);;
             $table->float('ob_hour_rate')->nullable()->default(0);;
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

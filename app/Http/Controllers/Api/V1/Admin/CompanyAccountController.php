@@ -30,12 +30,11 @@ class CompanyAccountController extends Controller
 {
     public function __construct()
     {
-
-        $this->middleware('permission:companies-browse',['except' => ['show']]);
-        $this->middleware('permission:companies-add', ['only' => ['store']]);
-        $this->middleware('permission:companies-edit', ['only' => ['update']]);
-        $this->middleware('permission:companies-read', ['only' => ['show']]);
-        $this->middleware('permission:companies-delete', ['only' => ['destroy']]); 
+        $this->middleware('permission:companies-browse',['except' => ['show', 'companySettingList']]);
+        $this->middleware('permission:companies-add', ['only' => ['store','companySettingList']]);
+        $this->middleware('permission:companies-edit', ['only' => ['update','companySettingList']]);
+        $this->middleware('permission:companies-read', ['only' => ['show','companySettingList']]);
+        $this->middleware('permission:companies-delete', ['only' => ['destroy','companySettingList']]); 
     }
 
     public function companies(Request $request)
@@ -45,7 +44,7 @@ class CompanyAccountController extends Controller
             $user = getUser();
             $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number', 'users.contact_person_name', 'users.contact_person_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five','users.establishment_year')
             ->whereIn('users.status',['1','3'])
-            ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')
+            ->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')
             ->withCount(
                 [
                     'tasks' => function ($query) use ($date) {
@@ -63,7 +62,7 @@ class CompanyAccountController extends Controller
                     'patients','employees','assignedModule','branchs'
                 ]
             )
-            ->where('users.role_id','2')
+            ->where('users.user_type_id','2')
             ->orderBy('users.id', 'DESC');
 
             if(!empty($request->company_type_id))
@@ -204,7 +203,7 @@ class CompanyAccountController extends Controller
             $user->is_file_required = ($request->is_file_required) ? 1:0 ;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->name;
-            $user->contact_person_number = $request->email;
+            $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
@@ -226,6 +225,7 @@ class CompanyAccountController extends Controller
             $addSettings->contact_person_email = $request->email;
             $addSettings->contact_person_phone = $request->contact_person_phone;
             $addSettings->company_website = $request->company_website;
+            $addSettings->company_logo = env('APP_URL').'uploads/no-image.png';
             $addSettings->save();
             if($addSettings)
             {
@@ -309,7 +309,7 @@ class CompanyAccountController extends Controller
                 ]);  
                 Mail::to($user->email)->send(new WelcomeMail($content));
             }
-            $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+            $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('Company','message_create') ,$userdetail, config('httpcodes.success'));
@@ -330,9 +330,9 @@ class CompanyAccountController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-            $userShow = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+            $userShow = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
-                ->first();;
+                ->first();
 
             return prepareResult(true,getLangByLabelGroups('Company','message_show') ,$userShow, config('httpcodes.success'));
                 
@@ -448,7 +448,7 @@ class CompanyAccountController extends Controller
                 ->update(['status' => 1]);
             }
 
-            $userdetail = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
+            $userdetail = User::select('users.*')->whereIn('status',['1','3'])->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
                 ->first();;
             return prepareResult(true,getLangByLabelGroups('Company','message_update'),$userdetail, config('httpcodes.success'));
@@ -477,6 +477,7 @@ class CompanyAccountController extends Controller
 
             $updateStatus = User::where('top_most_parent_id', $id)->update(['status'=>'2']);
 
+            CompanySetting::where('user_id', $id)->delete();
             return prepareResult(true, getLangByLabelGroups('Company','message_delete'),[], config('httpcodes.success'));
         }
         catch(Exception $exception) {
@@ -492,7 +493,7 @@ class CompanyAccountController extends Controller
         { 
             $data_of = !empty($request->data_of) ? $request->data_of : 7;
             $date = date('Y-m-d',strtotime('-'. $data_of));
-            $user = User::find($id);
+            $user = User::with('companySetting')->find($id);
             if (!is_object($user)) {
                 return prepareResult(false,getLangByLabelGroups('Company','message_record_not_found'), [],config('httpcodes.not_found'));
             }
@@ -520,5 +521,43 @@ class CompanyAccountController extends Controller
         }
     }
 
+
+    public function companySettingList(Request $request)
+    {
+        try {
+            $query = CompanySetting::select('*');
+            if(!empty($request->company_name))
+            {
+                $query->where('users.company_name', 'LIKE', '%'.$request->company_name.'%');
+            }
+
+            if(!empty($request->perPage))
+            {
+                $perPage = $request->perPage;
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                return prepareResult(true,getLangByLabelGroups('Company','message_list'),$pagination,config('httpcodes.success'));
+            }
+            else
+            {
+                $query = $query->get();
+            }
+            return prepareResult(true,getLangByLabelGroups('Company','message_list'),$query,config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            logException($exception);
+            return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+            
+        }
+    }
     
 }

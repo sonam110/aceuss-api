@@ -42,7 +42,10 @@ class SettingController extends Controller
             }
             $user->user_id = $userInfo->id;
             $user->company_name = $request->company_name;
-            $user->company_logo = $request->company_logo;
+            if(!empty($request->company_logo))
+            {
+                $user->company_logo = $request->company_logo;
+            }
             $user->company_email = $request->company_email;
             $user->company_contact = $request->company_contact;
             $user->company_address = $request->company_address;

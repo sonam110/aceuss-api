@@ -430,6 +430,9 @@ class DeviationController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
+            if ($checkId->is_signed==1) {
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_signed_deviation_cannot_be_deleted'), [],config('httpcodes.not_found'));
+            }
             Deviation::where('id',$id)->delete();
             return prepareResult(true,getLangByLabelGroups('Deviation','message_delete') ,[], config('httpcodes.success'));
         }
@@ -490,6 +493,15 @@ class DeviationController extends Controller
     
     public function printDeviation(Request $request)
     {
+        $validator = Validator::make($request->all(),[  
+            'patient_id' => 'required|exists:users,id',     
+        ],
+        [  
+            'patient_id' =>  getLangByLabelGroups('common','patient_is_required'),     
+        ]);
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
         try {
             $user = getUser();
             

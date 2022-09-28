@@ -48,7 +48,7 @@ class FileUploadController extends Controller
 
                     if($request->store_in_db==1)
                     {
-                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id,$request->company_ids, $request->all_company);
+                        $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id,$request->company_ids, $request->all_company, $fileSize);
                     }
                     
                     
@@ -75,7 +75,7 @@ class FileUploadController extends Controller
                 $file->move($destinationPath, $fileName);
                 if($request->store_in_db==1)
                 {
-                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id, $request->company_ids, $request->all_company);
+                    $this->storeFileInDB($request->title, env('CDN_DOC_URL').$destinationPath.$fileName, 1, $request->user_type_id, $request->company_ids, $request->all_company, $fileSize);
                 }
                 
                 $fileInfo = [
@@ -93,7 +93,7 @@ class FileUploadController extends Controller
         }
     }
 
-    private function storeFileInDB($title, $file_path, $is_public, $user_type_id=null,$company_ids=null, $all_company)
+    private function storeFileInDB($title, $file_path, $is_public, $user_type_id=null,$company_ids=null, $all_company, $file_size)
     {
         if(!empty($user_type_id))
         {
@@ -104,6 +104,7 @@ class FileUploadController extends Controller
                 $filesave->is_public = $is_public;
                 $filesave->created_by = auth()->id();
                 $filesave->user_type_id = $usertype;
+                $filesave->file_size = round(($file_size/(1024*1024)), 2); // in MB
                 $filesave->save();
             }
         }
@@ -117,6 +118,7 @@ class FileUploadController extends Controller
             $filesave->created_by = auth()->id();
             $filesave->company_ids = json_encode($comIds);
             $filesave->top_most_parent_id = auth()->user()->top_most_parent_id;
+            $filesave->file_size = round(($file_size/(1024*1024)), 2); // in MB
             $filesave->save();
         }
         elseif(!empty($company_ids))
@@ -133,6 +135,7 @@ class FileUploadController extends Controller
             $filesave->created_by = auth()->id();
             $filesave->company_ids = json_encode($comIds);
             $filesave->top_most_parent_id = auth()->user()->top_most_parent_id;
+            $filesave->file_size = round(($file_size/(1024*1024)), 2); // in MB
             $filesave->save();
         }
         else
@@ -143,6 +146,7 @@ class FileUploadController extends Controller
             $filesave->file_path = $file_path;
             $filesave->is_public = $is_public;
             $filesave->created_by = auth()->id();
+            $filesave->file_size = round(($file_size/(1024*1024)), 2); // in MB
             $filesave->save();
         }
         

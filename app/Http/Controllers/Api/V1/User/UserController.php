@@ -78,7 +78,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
     		->where('users.top_most_parent_id',$this->top_most_parent_id)
     		->withoutGlobalScope('top_most_parent_id')
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','companySetting:id,company_name,company_logo,company_email,company_address,company_website,establishment_year')
     		->withCount('employees','patients','leaves','vacations');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
@@ -549,7 +549,8 @@ class UserController extends Controller
     		$user['branch'] = $user->branch()->select('id', 'name')->first();
             $user['assignedWork'] = $user->assignedWork;
             $user['assigned_patiens'] = $request->assigned_patiens;
-    		$user['assigned_employee'] = $request->assigned_employee;
+            $user['assigned_employee'] = $request->assigned_employee;
+    		$user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_create') ,$user, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
@@ -603,6 +604,7 @@ class UserController extends Controller
 
             $userShow['assigned_patiens'] = $assigned_patiens;
             $userShow['assigned_employee'] = $assigned_employee;
+            $userShow['company_setting'] = $userShow->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_show'),$userShow, config('httpcodes.success'));
 
     	}
@@ -897,6 +899,7 @@ class UserController extends Controller
     		$user['assignedWork'] = $user->assignedWork;
             $user['assigned_patiens'] = $request->assigned_patiens;
             $user['assigned_employee'] = $request->assigned_employee;
+            $user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_update'),$user, config('httpcodes.success'));
 
     	}

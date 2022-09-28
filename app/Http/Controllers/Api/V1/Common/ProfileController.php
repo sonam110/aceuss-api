@@ -37,6 +37,14 @@ class ProfileController extends Controller
             $user->full_address = $request->full_address;
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
+
+            if(!empty($request->company_logo))
+            {
+                $companySetting = $user->companySetting;
+                $companySetting->company_logo = $request->company_logo;
+                $companySetting->save();
+            }
+
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('UserValidation','message_update'),$user, config('httpcodes.success'));
 	    }

@@ -154,9 +154,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(self::class, 'top_most_parent_id', 'id')->withoutGlobalScope('top_most_parent_id');
     }
-     public function companySetting()
+    public function companySetting()
     {
-        return $this->belongsTo(CompanySetting::class,'user_id','id');
+        return $this->belongsTo(CompanySetting::class,'id','user_id');
     }
     
     public function UserType()

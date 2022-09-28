@@ -51,7 +51,7 @@ class ManageLicenceController extends Controller
                 $query = $query->where('is_used', 1);
             }
 
-            if($request->is_used == "No")
+            if($request->is_used == "no" || $request->is_used == "No")
             {
                 $query = $query->where('is_used', 0);
             }
@@ -65,7 +65,7 @@ class ManageLicenceController extends Controller
             {
                 $query->where('expire_at','<=', $request->expire_at);
             }
-
+            
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -80,8 +80,8 @@ class ManageLicenceController extends Controller
                     foreach ($modules as $key => $module) {
                         $mod[] = Module::find($module);
                     }
-                    $value['company']=User::find($value->top_most_parent_id);
-                    $value['package']=json_decode($value->package_details);
+                    $value['company'] = User::with('companySetting:id,user_id,company_name,company_logo,company_email')->find($value->top_most_parent_id);
+                    $value['package'] = json_decode($value->package_details);
                     $value['module'] = $mod;
                     $data[] = $value;
                 }
@@ -102,7 +102,7 @@ class ManageLicenceController extends Controller
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -334,21 +334,21 @@ class ManageLicenceController extends Controller
 
                 $expireLicenceKey = LicenceKeyManagement::where('id',$licenceKeyData->id)
                     ->update([
-                    	'expire_at' => $package_expire_at,
+                        'expire_at' => $package_expire_at,
                         'cancelled_by' => Auth::id(), 
-                    	'is_expired' => 1, 
-                    	'reason_for_cancellation' => $request->reason_for_cancellation
+                        'is_expired' => 1, 
+                        'reason_for_cancellation' => $request->reason_for_cancellation
                     ]);
 
                 Subscription::where('user_id',$id)
                 ->where('status',1)
                 ->update([
-                	'status' => 0,
-                	'end_date' => $package_expire_at
+                    'status' => 0,
+                    'end_date' => $package_expire_at
                 ]);
 
                 $user->update([
-                	'licence_status' => 0,
+                    'licence_status' => 0,
                     'licence_end_date'=> $package_expire_at
                 ]);
 

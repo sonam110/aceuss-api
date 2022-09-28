@@ -416,6 +416,7 @@ class LabelSeeder extends Seeder
     			'message_sign'=>'Journal Action Sign status changed!',
     		],
     		"Deviation" => [
+                "message_signed_deviation_cannot_be_deleted" => "Signed deviation cannot be deleted",  
     			"message_id" => "Id is required",  
     			'message_category_id' => 'Category id field is required',   
     			'message_sub_category_id' => 'Subcategory field is required',   
@@ -460,6 +461,7 @@ class LabelSeeder extends Seeder
     		],
     		'common' => [
     			'cant_delete' => 'You cannot delete this record.',
+                'patient_is_required' => 'Please select patient before print report.',
     		],
     		'Leave' => [
     			'message_list'=>'Leaves List',

@@ -25,6 +25,7 @@ class CreateAdminFilesTable extends Migration
             $table->text('title');
             $table->string('file_path');
             $table->boolean('is_public')->default(1);
+            $table->text('file_size')->nullable();
             $table->integer('user_type_id')->nullable();
             $table->text('company_ids')->nullable()->comment('if admin wants to share this file to selected company');
             $table->timestamps();

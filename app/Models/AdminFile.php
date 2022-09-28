@@ -20,7 +20,7 @@ class AdminFile extends Model
     protected $appends = ['assign_to_company_info'];
     
     protected $fillable = [
-        'top_most_parent_id','title','file_path','is_public','created_by','user_type_id','company_ids'
+        'top_most_parent_id','title','file_path','is_public','created_by','user_type_id','company_ids','file_size'
     ];
 
     public function UserType()

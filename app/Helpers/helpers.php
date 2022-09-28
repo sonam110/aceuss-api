@@ -21,6 +21,7 @@ use App\Models\CategoryMaster;
 use App\Models\CompanyWorkShift;
 use App\Models\OVHour;
 use App\Models\OauthAccessTokens;
+use App\Models\PatientEmployee;
 use Edujugon\PushNotification\PushNotification;
 use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
@@ -1556,4 +1557,20 @@ function schedule($user_id,$top_most_parent_id,$date,$shift_start_time,$shift_en
     $schedule->save();
 
     return $schedule;
+}
+
+function getAllowUserList($permission)
+{
+    if(auth()->user()->user_type_id=='3')
+    {
+        //employee
+    }
+    elseif(auth()->user()->user_type_id=='6')
+    {
+        //patient
+    }
+    $getList = PatientEmployee::where('patient_id', auth()->id())
+        ->orWhere('employee_id', auth()->id)
+        ->get();
+    return $getList;
 }

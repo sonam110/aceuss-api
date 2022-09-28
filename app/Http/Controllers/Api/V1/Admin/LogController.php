@@ -17,7 +17,7 @@ class LogController extends Controller
     public function smsLog(Request $request)
     {
         try {
-            $query = SmsLog::select('*')->with('company:id,name')->orderBy('created_at', 'DESC');
+            $query = SmsLog::select('*')->with('company:id,name','company.companySetting:id,user_id,company_name,company_logo,company_email')->orderBy('created_at', 'DESC');
             if(!empty($request->top_most_parent_id))
             {
                 $query->where('top_most_parent_id', $request->top_most_parent_id);
@@ -78,7 +78,7 @@ class LogController extends Controller
     public function mobileBankIdLog(Request $request)
     {
         try {
-            $query = MobileBankIdLoginLog::select('*')->with('company:id,name')->orderBy('created_at', 'DESC');
+            $query = MobileBankIdLoginLog::select('*')->with('company:id,name','company.companySetting:id,user_id,company_name,company_logo,company_email')->orderBy('created_at', 'DESC');
             if(!empty($request->top_most_parent_id))
             {
                 $query->where('top_most_parent_id', $request->top_most_parent_id);
