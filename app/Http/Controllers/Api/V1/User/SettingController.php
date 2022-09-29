@@ -60,6 +60,8 @@ class SettingController extends Controller
             $companyInfo = $user->companyInfo;
             $companyInfo->postal_area = $request->postal_area;
             $companyInfo->zipcode = $request->zipcode;
+            $companyInfo->city = $request->city;
+            $companyInfo->organization_number = $request->organization_number;
             $companyInfo->save();
              DB::commit();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_update'),$user, config('httpcodes.success'));

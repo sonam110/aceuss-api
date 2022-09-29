@@ -36,6 +36,8 @@ class CreateUsersTable extends Migration
             $table->integer('role_id')->nullable();
             $table->text('company_type_id')->nullable();
             $table->integer('branch_id')->nullable();
+            $table->string('branch_name')->nullable();
+            $table->string('branch_email')->nullable();
             $table->string('govt_id')->nullable();
             $table->string('name')->nullable();
             $table->string('email')->unique()->nullable();

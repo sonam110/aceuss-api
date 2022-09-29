@@ -27,14 +27,13 @@ class ProfileController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->country_id = $request->country_id;
-            $user->city = $request->city;
-            $user->postal_area = $request->postal_area;
             $user->contact_number = $request->contact_number;
-            $user->gender = $request->gender;
             $user->personal_number = $request->personal_number;
-            $user->organization_number = $request->organization_number;
-            $user->zipcode = $request->zipcode;
-            $user->full_address = $request->full_address;
+            $user->gender = $request->gender;
+            if(!empty($request->contact_person_number))
+            {
+                $user->contact_person_number = $request->contact_person_number;
+            }
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
             $user->save();
 

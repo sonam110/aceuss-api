@@ -41,8 +41,8 @@ class PatientCashiersExport implements FromCollection, WithHeadings
     	return $patientCashiers->map(function ($data, $key) {
             return [
                 'Top Most Parent Id' =>User::find($data->top_most_parent_id)->name,
-                'Branch Id' =>User::find($data->branch_id)->name,
-                'Patient Id' =>User::find($data->patient_id)->name,
+                'Branch Id' => User::find($data->branch_id)->branch_name,
+                'Patient Id' => User::find($data->patient_id)->name,
                 'Date' => $data->date,
 	            'Amount' =>$data->amount,
 	            'Receipt No.' =>$data->receipt_no,

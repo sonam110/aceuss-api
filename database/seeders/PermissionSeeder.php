@@ -435,18 +435,26 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'files-upload-for-usertype', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-upload-for-usertype','belongs_to'=>'1']);
 
-        Permission::create(['name' => 'packages-view-company', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-view-company','belongs_to'=>'1']);
-        Permission::create(['name' => 'journal-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'journal-print','belongs_to'=>'1']);
-        Permission::create(['name' => 'deviation-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'deviation-print','belongs_to'=>'1']);
-        Permission::create(['name' => 'licences-assign', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-assign','belongs_to'=>'1']);
-        Permission::create(['name' => 'licences-expire', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-expire','belongs_to'=>'1']);
-        Permission::create(['name' => 'result', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'result','belongs_to'=>'1']);
-        Permission::create(['name' => 'stampling-browse', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-browse','belongs_to'=>'1']);
-        Permission::create(['name' => 'stampling-add', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'stampling-edit', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-edit','belongs_to'=>'1']);
-        Permission::create(['name' => 'stampling-delete', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-delete','belongs_to'=>'1']);
-        Permission::create(['name' => 'stampling-read', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-read','belongs_to'=>'1']);
-        Permission::create(['name' => 'investigation', 'guard_name' => 'api','group_name'=>'investigation','se_name'=>'investigation','belongs_to'=>'1']);       
+        Permission::create(['name' => 'packages-view-company', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-view-company','belongs_to'=>'2']);
+        Permission::create(['name' => 'journal-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'journal-print','belongs_to'=>'2']);
+        Permission::create(['name' => 'deviation-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'deviation-print','belongs_to'=>'2']);
+        Permission::create(['name' => 'licences-assign', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-assign','belongs_to'=>'2']);
+        Permission::create(['name' => 'licences-expire', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-expire','belongs_to'=>'2']);
+        Permission::create(['name' => 'result', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'result','belongs_to'=>'2']);
+        Permission::create(['name' => 'stampling-browse', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-browse','belongs_to'=>'2']);
+        Permission::create(['name' => 'stampling-add', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-add','belongs_to'=>'2']);
+        Permission::create(['name' => 'stampling-edit', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-edit','belongs_to'=>'2']);
+        Permission::create(['name' => 'stampling-delete', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-delete','belongs_to'=>'2']);
+        Permission::create(['name' => 'stampling-read', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-read','belongs_to'=>'2']);
+        Permission::create(['name' => 'investigation', 'guard_name' => 'api','group_name'=>'investigation','se_name'=>'investigation','belongs_to'=>'2']); 
+
+        //new permissions
+        Permission::create(['name' => 'visible-all-patients-ip', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-ip','belongs_to'=>'2']);
+        Permission::create(['name' => 'visible-all-patients-activity', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-activity','belongs_to'=>'2']);
+        Permission::create(['name' => 'visible-all-patients-journal', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-journal','belongs_to'=>'2']);
+        Permission::create(['name' => 'visible-all-patients-deviation', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-deviation','belongs_to'=>'2']);
+        Permission::create(['name' => 'visible-all-patients-task', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-task','belongs_to'=>'2']);
+        Permission::create(['name' => 'visible-all-patients-cashier', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-cashier','belongs_to'=>'2']);  
 
     }
 }

@@ -397,7 +397,7 @@ class FollowUpsController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('FollowUp','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
+        	$ipFollowups = IpFollowUp::where('id',$id)->with('persons.user.Country','questions','PatientImplementationPlan.patient','ActionByUser:id,name,email')->first();
 	        return prepareResult(true,getLangByLabelGroups('FollowUp','message_show') ,$ipFollowups, config('httpcodes.success'));
         }
         catch(Exception $exception) {

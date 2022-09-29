@@ -74,6 +74,8 @@ class User extends Authenticatable
         'dept_id',
         'govt_id',
         'branch_id',
+        'branch_name',
+        'branch_email',
         'name',
         'email',
         'email_verified_at',

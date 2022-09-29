@@ -38,7 +38,7 @@ class TaskController extends Controller
             }
             $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')
                 ->where('is_latest_entry',1)
-                ->with('actionBy:id,name','branch:id,name','createdBy:id,name');
+                ->with('actionBy:id,name','branch:id,name,branch_name','createdBy:id,name');
             if($user->user_type_id =='2'){
                 
                 // $query = $query->orderBy('id','DESC');

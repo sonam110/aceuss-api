@@ -56,7 +56,7 @@ class PatientController extends Controller
 
             $query = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','ipFollowUps','branch:id,name')
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','ipFollowUps','branch:id,name,branch_name')
             ->with(
                 ['patient' => function ($query) {
                     $query->withCount(['patientPlan','patientActivity']);
@@ -361,7 +361,7 @@ class PatientController extends Controller
                 $patientImpPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
                 ->where('patient_implementation_plans.is_latest_entry',1)
                 ->whereIn('id',$impPlan_ids)
-                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient', 'persons.user:id,name,gender,email,branch_id,contact_number,personal_number,country_id,full_address,avatar','persons.user','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient', 'persons.user:id,name,gender,email,branch_id,contact_number,personal_number,country_id,full_address,avatar','persons.user','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name')
                 ->withCount('ipFollowUps','activities', 'persons')
                 ->with(
                     ['patient' => function ($query) {
@@ -579,7 +579,7 @@ class PatientController extends Controller
                 DB::commit();
                 $patientImpPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
                     ->where('id', $parent_id)
-                    ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient', 'persons.user:id,name,gender,email,branch_id,contact_number,personal_number,country_id,full_address,avatar','persons.user','children','assignEmployee:id,ip_id,user_id','branch:id,name')
+                    ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient', 'persons.user:id,name,gender,email,branch_id,contact_number,personal_number,country_id,full_address,avatar','persons.user','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name')
                     ->withCount('ipFollowUps','activities', 'persons')
                     ->with(
                         ['patient' => function ($query) {
@@ -637,7 +637,7 @@ class PatientController extends Controller
             $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
             ->where('patient_implementation_plans.is_latest_entry',1)
             ->where('id',$id)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name','persons')
+            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name', 'persons.user.Country')
             ->withCount('ipFollowUps','activities')
             ->with(
                 ['patient' => function ($query) {

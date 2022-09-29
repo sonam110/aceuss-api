@@ -30,7 +30,7 @@ class PatientCashierController extends Controller
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
             
-            $query = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')->orderBy('id','DESC');
+            $query = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name,branch_name')->orderBy('id','DESC');
 
             if($user->user_type_id !='2') {
                 $query =  $query->whereIn('branch_id',$allChilds);
@@ -143,7 +143,7 @@ class PatientCashierController extends Controller
             $patient_cashier->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $patient_cashier->save();
             DB::commit();
-            $data = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name')
+            $data = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name,branch_name')
                 ->where('id', $patient_cashier->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$data, config('httpcodes.success'));

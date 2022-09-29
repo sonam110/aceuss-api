@@ -46,7 +46,7 @@ class ActivityController extends Controller
 			}
 
 			$whereRaw = $this->getWhereRawFromRequest($request);
-			$query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email,avatar','assignEmployee.employee:id,name,email,avatar','branch:id,name')->withCount('comments')
+			$query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email,avatar','assignEmployee.employee:id,name,email,avatar','branch:id,name,branch_name')->withCount('comments')
 			->where('is_latest_entry', 1);
 
 			if($user->user_type_id =='2') {
@@ -612,7 +612,7 @@ class ActivityController extends Controller
             		}
             	}
             	DB::commit();
-            	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email,avatar','assignEmployee.employee:id,name,email,avatar','branch:id,name')->withCount('comments')
+            	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email,avatar','assignEmployee.employee:id,name,email,avatar','branch:id,name,branch_name')->withCount('comments')
             	->whereIn('id',$activity_ids)
             	->get();
             	return prepareResult(true,getLangByLabelGroups('Activity','message_create') ,$activityList, config('httpcodes.success'));
@@ -903,7 +903,7 @@ class ActivityController extends Controller
             		}
             	}
             	DB::commit();
-            	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name')->withCount('comments')
+            	$activityList = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','assignEmployee.employee:id,name,email','branch:id,name,branch_name')->withCount('comments')
             	->whereIn('id',$activity_ids)
             	->get();
             	return prepareResult(true,getLangByLabelGroups('Activity','message_create') ,$activityList, config('httpcodes.success'));

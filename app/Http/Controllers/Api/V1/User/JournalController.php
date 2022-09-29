@@ -42,7 +42,7 @@ class JournalController extends Controller
             }
             
             $query = Journal::select('journals.*')
-                ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
+                ->with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name,branch_name')
                 ->withCount('journalActions')
                 //->orderByRaw('date(date) DESC')
                 //->orderByRaw('time(time) DESC');
@@ -277,7 +277,7 @@ class JournalController extends Controller
 
             /*-----------notify-user-journal-created--------------------*/
             $exra_params = ['patient_id'=>$journal->patient_id];
-            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
+            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number','branch_name')->where('id',getBranchId())->first();
             $data_id =  $journal->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'journal')->first();
             $variable_data = [
@@ -392,7 +392,7 @@ class JournalController extends Controller
     public function show($id){
         try {
 	    	$user = getUser();
-        	$checkId= Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name')
+        	$checkId= Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name,branch_name')
                 ->withCount('journalActions')
                 ->where('id',$id)
                 ->first();

@@ -36,7 +36,7 @@ class DeviationController extends Controller
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
 
-            $query = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
+            $query = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name,branch_name')
             ->orderBy('deviations.date_time', 'DESC');
 
             if(in_array($user->user_type_id, [2,3,4,5,11]))
@@ -316,7 +316,7 @@ class DeviationController extends Controller
             //------------------------------------------------//
             DB::commit();
 
-            $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
+            $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name,branch_name')
                 ->where('id', $deviation->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('Deviation','message_create') ,$data, config('httpcodes.success'));
@@ -408,7 +408,7 @@ class DeviationController extends Controller
             $deviation->save();
 
             DB::commit();
-            $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name')
+            $data = Deviation::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name,gender,personal_number,email,contact_number,patient_type_id,full_address,custom_unique_id,user_color','Employee:id,name','completedBy:id,name','branch:id,name,branch_name')
                 ->where('id', $deviation->id)
                 ->first();
             return prepareResult(true,getLangByLabelGroups('Deviation','message_update') ,$data, config('httpcodes.success'));
@@ -528,7 +528,7 @@ class DeviationController extends Controller
             }
             $deviations = $deviations->where('is_signed', 1)->get();
 
-            if (!is_object($deviations)) {
+            if ($deviations->count()<1) {
                 return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 

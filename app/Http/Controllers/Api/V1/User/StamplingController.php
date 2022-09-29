@@ -44,7 +44,7 @@ class StamplingController extends Controller
 			    $child_ids[] = $value->id;
 			}
 
-			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,company_type_id','schedule');
+			$query = Stampling::orderBy('created_at', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id','schedule');
 
 			// $query = Stampling::orderBy('created_at', 'DESC')->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch');
 			if(!empty($request->user_id))
@@ -314,7 +314,7 @@ class StamplingController extends Controller
 				return prepareResult(true,getLangByLabelGroups('Stampling','message_Invalid_Type') ,['type invalid'], config('httpcodes.success'));
 			}
 
-			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
+			$stampling = Stampling::where('id',$stampling->id)->with('user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id')->first();
 			$stampling->upcoming_schedule = $upcomingSchedule;
 
 			DB::commit();
@@ -350,7 +350,7 @@ class StamplingController extends Controller
 	{
 		try 
 		{
-			$stampling = Stampling::where('id',$id)->with('schedule','user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,company_type_id')->first();
+			$stampling = Stampling::where('id',$id)->with('schedule','user:id,name,gender,branch_id,user_type_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id')->first();
 			if (!is_object($stampling)) {
 				return prepareResult(false,getLangByLabelGroups('Stampling','message_record_not_found'), [],config('httpcodes.not_found'));
 			}

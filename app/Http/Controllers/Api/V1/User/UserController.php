@@ -78,7 +78,7 @@ class UserController extends Controller
     			DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
     		->where('users.top_most_parent_id',$this->top_most_parent_id)
     		->withoutGlobalScope('top_most_parent_id')
-    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','companySetting:id,company_name,company_logo,company_email,company_address,company_website,establishment_year')
+    		->with('TopMostParent:id,user_type_id,name,email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name,branch_name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','companySetting:id,company_name,company_logo,company_email,company_address,company_website')
     		->withCount('employees','patients','leaves','vacations');
     		if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
     		{
@@ -246,11 +246,13 @@ class UserController extends Controller
     		else
     		{
     			$roleInfo = Role::where('id',$request->role_id)->first();
-    		}
+    		}            
 
     		$user = new User;
     		$user->unique_id = generateRandomNumber();
-    		$user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
+            $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
+            $user->branch_name = $request->branch_name;
+            $user->branch_email = $request->branch_email;
     		$user->custom_unique_id = $request->custom_unique_id;
     		$user->user_type_id = $request->user_type_id;
     		$user->role_id = $roleInfo->id;
@@ -550,7 +552,7 @@ class UserController extends Controller
             $user['assignedWork'] = $user->assignedWork;
             $user['assigned_patiens'] = $request->assigned_patiens;
             $user['assigned_employee'] = $request->assigned_employee;
-    		$user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
+    		$user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_create') ,$user, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
@@ -569,7 +571,7 @@ class UserController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
     		}
-    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')->first();
+    		$userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')->first();
     		if($user->user_type_id == 6)
     		{
                 // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
@@ -604,7 +606,7 @@ class UserController extends Controller
 
             $userShow['assigned_patiens'] = $assigned_patiens;
             $userShow['assigned_employee'] = $assigned_employee;
-            $userShow['company_setting'] = $userShow->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
+            $userShow['company_setting'] = $userShow->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_show'),$userShow, config('httpcodes.success'));
 
     	}
@@ -663,6 +665,8 @@ class UserController extends Controller
     		$user->role_id = $roleInfo->id;
     		$user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
     		$user->branch_id = $request->branch_id ? $request->branch_id : $userInfo->top_most_parent_id;
+            $user->branch_name = $request->branch_name;
+            $user->branch_email = $request->branch_email;
     		$user->govt_id = $request->govt_id;
     		$user->dept_id = $request->dept_id;
     		$user->country_id = $request->country_id;
@@ -895,11 +899,11 @@ class UserController extends Controller
             }
 
     		DB::commit();
-    		$user['branch'] = $user->branch()->select('id', 'name')->first();
+    		$user['branch'] = $user->branch()->select('id', 'name', 'branch_name')->first();
     		$user['assignedWork'] = $user->assignedWork;
             $user['assigned_patiens'] = $request->assigned_patiens;
             $user['assigned_employee'] = $request->assigned_employee;
-            $user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website','establishment_year')->first();
+            $user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website')->first();
     		return prepareResult(true,getLangByLabelGroups('User','message_update'),$user, config('httpcodes.success'));
 
     	}
