@@ -59,6 +59,8 @@ class SettingController extends Controller
 
             $companyInfo = $user->companyInfo;
             $companyInfo->postal_area = $request->postal_area;
+            $companyInfo->branch_name = $request->company_name;
+            $companyInfo->branch_email = $request->company_email;
             $companyInfo->zipcode = $request->zipcode;
             $companyInfo->city = $request->city;
             $companyInfo->organization_number = $request->organization_number;

@@ -206,6 +206,10 @@ class CompanyAccountController extends Controller
             $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+
+            $user->branch_name = $request->company_name;
+            $user->branch_email = $request->company_email;
+
             $user->save();
 
 
