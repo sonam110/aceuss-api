@@ -64,6 +64,9 @@ class BranchController extends Controller
             $user->user_type_id = '11';
             $user->unique_id = generateRandomNumber();
             $user->role_id = $roleInfo->id;
+            $user->branch_name = $request->branch_name;
+            $user->branch_email = $request->branch_email;
+            $user->personal_number = $request->personal_number;
             $user->company_type_id = ($request->company_type_id) ? json_encode($request->company_type_id) : $userInfo->company_type_id;
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->top_most_parent_id = $top_most_parent_id;
@@ -165,6 +168,8 @@ class BranchController extends Controller
             $user->category_id = (!empty($request->category_id)) ? $request->category_id : $userInfo->category_id;
             $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
             $user->name = $request->name;
+            $user->branch_name = $request->branch_name;
+            $user->personal_number = $request->personal_number;
             $user->contact_number = $request->contact_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;

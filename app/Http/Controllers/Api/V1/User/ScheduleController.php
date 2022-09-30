@@ -39,7 +39,9 @@ class ScheduleController extends Controller
 	{
 		try 
 		{
-			$query = Schedule::orderBy('created_at', 'DESC')->with('user:id,name,gender','patient:id,name,branch_id')->where('is_active',1);
+			$query = Schedule::orderBy('created_at', 'DESC')
+				->with('user:id,name,gender','patient:id,name,branch_id')
+				->where('is_active', 1);
 
 			if($request->leave_applied == '0')
 			{
