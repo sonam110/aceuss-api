@@ -486,7 +486,7 @@ class LeaveController extends Controller
 					$shift_end_time = $leave->shift_end_time;
 
 					$shift_type = $leave->shift_type;
-					$result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
+					$result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$user->id);
 
 					$schedule = new Schedule;
 					$schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -634,7 +634,7 @@ class LeaveController extends Controller
 				$shift_end_time = $leave->shift_end_time;
 
 				$shift_type = $leave->shift_type;
-				$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra',$shift_type);
+				$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,'extra',$shift_type,Auth::id());
 
 				$schedule = new Schedule;
 				$schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -644,7 +644,7 @@ class LeaveController extends Controller
 				$schedule->parent_id = $leave->id;
 				$schedule->created_by = Auth::id();
 				$schedule->slot_assigned_to = null;
-				$schedule->employee_assigned_working_hour_id = $leave->assignedWork_id;
+				$schedule->employee_assigned_working_hour_id = $result['assignedWork_id'];
 				$schedule->schedule_template_id = $leave->schedule_template_id;
 				$schedule->schedule_type = $leave->schedule_type;
 				$schedule->shift_date = $leave->shift_date;
@@ -789,7 +789,7 @@ class LeaveController extends Controller
 					$shift_start_time = $schedule->shift_start_time;
 					$shift_end_time = $schedule->shift_end_time;
 					$shift_type = $schedule->shift_type;
-					$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
+					$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$leave['assign_emp']);
 
 					$assSchedule = new Schedule;
 					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
@@ -800,7 +800,7 @@ class LeaveController extends Controller
 					$assSchedule->created_by = Auth::id();
 					$assSchedule->slot_assigned_to = null;
 					$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
-					$assSchedule->schedule_template_id = $schedule->schedule_template_id;
+					$assSchedule->schedule_template_id = $result['assignedWork_id'];
 					$assSchedule->schedule_type = $schedule->schedule_type;
 					$assSchedule->shift_date = $schedule->shift_date;
 					$assSchedule->group_id = $schedule->group_id;
@@ -874,7 +874,7 @@ class LeaveController extends Controller
 							$shift_start_time = $schedule->shift_start_time;
 							$shift_end_time = $schedule->shift_end_time;
 							$shift_type = $schedule->shift_type;
-							$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type);
+							$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type.$leave['assign_emp']);
 
 							$assSchedule = new Schedule;
 							$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
@@ -884,7 +884,7 @@ class LeaveController extends Controller
 							$assSchedule->parent_id = $schedule->id;
 							$assSchedule->created_by = Auth::id();
 							$assSchedule->slot_assigned_to = null;
-							$assSchedule->employee_assigned_working_hour_id = $schedule->assignedWork_id;
+							$assSchedule->employee_assigned_working_hour_id = $result['assignedWork_id'];
 							$assSchedule->schedule_template_id = $schedule->schedule_template_id;
 							$assSchedule->schedule_type = $schedule->schedule_type;
 							$assSchedule->shift_date = $schedule->shift_date;

@@ -154,7 +154,7 @@ class StamplingController extends Controller
 					$rest_end_time = $request->rest_end_time;
 
 					$stampling_type = 'walkin';
-					$result = scheduleWorkCalculation($date,$in_time,$request->expected_out_time,'extra',null,$rest_start_time,$rest_end_time);
+					$result = scheduleWorkCalculation($date,$in_time,$request->expected_out_time,'extra',null,$rest_start_time,$rest_end_time,Auth::id());
 
 					$schedule 							= new Schedule;
 					$schedule->top_most_parent_id 		= $user->top_most_parent_id;
@@ -164,7 +164,7 @@ class StamplingController extends Controller
 					$schedule->parent_id 				= NULL;
 					$schedule->created_by 				= Auth::id();
 					$schedule->slot_assigned_to 		= null;
-					$schedule->employee_assigned_working_hour_id= NULL;
+					$schedule->employee_assigned_working_hour_id = $result['assignedWork_id'];
 					$schedule->schedule_template_id 	= $schedule_template->id;
 					$schedule->schedule_type 			= 'extra';
 					$schedule->shift_date 				= $date;
