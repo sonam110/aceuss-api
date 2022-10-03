@@ -157,6 +157,16 @@ class PatientCashierController extends Controller
 
     public function patientCashiersExport(Request $request)
     {
+        $validator = Validator::make($request->all(),[  
+            'patient_id' => 'required|exists:users,id',     
+        ],
+        [  
+            'patient_id' =>  getLangByLabelGroups('common','patient_is_required'),     
+        ]);
+        if ($validator->fails()) {
+            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+        
         try{
 
             $rand = rand(0,1000);

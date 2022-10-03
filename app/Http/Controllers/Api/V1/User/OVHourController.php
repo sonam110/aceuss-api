@@ -29,14 +29,20 @@ class OVHourController extends Controller
         try {
 
             $query = OVHour::orderBy('id', 'DESC');
-            if(!empty($request->date))
+            
+            if(!empty($request->group_by))
             {
-                $query->where('date',$request->date);
+                $query->groupBy('group_token');
             }
 
             if(!empty($request->title))
             {
                 $query->where('title', 'LIKE', '%'.$request->title.'%');
+            }
+
+            if(!empty($request->group_token))
+            {
+                $query->where('group_token', $request->group_token);
             }
 
             if(!empty($request->start_time))
@@ -48,10 +54,26 @@ class OVHourController extends Controller
                 $query->where('end_time',"<=" ,$request->end_time);
             }
 
+            if((empty($request->date)) && (empty($request->end_date)))
+            {
+                $query->whereDate('date', '>=', date('Y-m-d'));
+            }
+
             if(!empty($request->date))
             {
-                $query->where('date',$request->date);
+                $query->whereDate('date', '>=',$request->date);
             }
+
+            if(!empty($request->end_date))
+            {
+                $query->whereDate('date', '<=',$request->end_date);
+            }
+
+            if(!empty($request->ob_type))
+            {
+                $query->where('ob_type', $request->ob_type);
+            }
+
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -160,12 +182,17 @@ class OVHourController extends Controller
             {
                 $dates = $request->dates;
             }
-
+            $group_token = generateRandomNumber(10);
             foreach ($dates as $key => $date) 
             {
                 $ovHour = new OVHour;
+                $ovHour->group_token = ($request->is_repeat == 1) ? $group_token : generateRandomNumber(8);
                 $ovHour->title = $request->title;
                 $ovHour->date = $date;
+                if($request->is_repeat == 1)
+                {
+                    $ovHour->end_date = $end_to;
+                }
                 $ovHour->ob_type = $request->ob_type;
                 $ovHour->start_time = $request->start_time;
                 $ovHour->end_time = $request->end_time;
@@ -174,7 +201,7 @@ class OVHourController extends Controller
                 $ovhour_ids[] = $ovHour->id;
             } 
 
-            $data = OVHour::whereIn('id',$ovhour_ids)->get();
+            $data = OVHour::whereIn('id',$ovhour_ids)->groupBy('group_token')->get();
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_create') ,$data, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -241,13 +268,29 @@ class OVHourController extends Controller
         DB::beginTransaction();
         try {
             $ovHour = OVHour::find($id);
-            $ovHour->title = $request->title;
-            $ovHour->date = $request->date;
-            $ovHour->ob_type = $request->ob_type;
-            $ovHour->start_time = $request->start_time;
-            $ovHour->end_time = $request->end_time;
-            $ovHour->entry_mode = $request->entry_mode;
-            $ovHour->save();
+            if(!empty($ovHour->end_date))
+            {
+                $update = OVHour::where('group_token', $ovHour->group_token)
+                ->whereDate('date','>', date('Y-m-d'))
+                ->update([
+                    'title' => $request->title,
+                    'ob_type' => $request->ob_type,
+                    'start_time' => $request->start_time,
+                    'end_time' => $request->end_time,
+                    'title' => $request->title,
+                ]);
+                $ovHour = OVHour::find($id);
+            }
+            else
+            {
+                $ovHour->title = $request->title;
+                $ovHour->date = $request->date;
+                $ovHour->ob_type = $request->ob_type;
+                $ovHour->start_time = $request->start_time;
+                $ovHour->end_time = $request->end_time;
+                $ovHour->entry_mode = $request->entry_mode;
+                $ovHour->save();
+            }
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_update') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {

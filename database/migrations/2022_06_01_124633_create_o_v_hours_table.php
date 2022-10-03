@@ -17,10 +17,12 @@ class CreateOVHoursTable extends Migration
             $table->id();
             $table->unsignedBigInteger('top_most_parent_id')->nullable();
             $table->foreign('top_most_parent_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('group_token', 30);
             $table->string('title');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->date('date')->nullable();
+            $table->date('end_date')->nullable()->comment('Only fill when is_range=1 first_column');
             $table->string('ob_type')->nullable();
             $table->string('entry_mode', 25);
             $table->timestamps();
