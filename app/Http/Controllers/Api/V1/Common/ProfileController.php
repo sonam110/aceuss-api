@@ -30,11 +30,13 @@ class ProfileController extends Controller
             $user->contact_number = $request->contact_number;
             $user->personal_number = $request->personal_number;
             $user->gender = $request->gender;
+            $user->postal_area = !empty($request->postal_area) ? $request->postal_area : $user->postal_area;
+            $user->zipcode = !empty($request->zipcode) ? $request->zipcode : $user->zipcode;
             if(!empty($request->contact_person_number))
             {
                 $user->contact_person_number = $request->contact_person_number;
             }
-            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar : env('NO_IMG_PATH');
             $user->save();
 
             if(!empty($request->company_logo))
