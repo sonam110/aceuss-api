@@ -298,7 +298,7 @@ class UserController extends Controller
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $user->contact_person_name = $request->contact_person_name;
             $user->contact_person_number = $request->contact_person_number;
-            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar : env('NO_IMG_PATH');
             $user->save();
             if($roleInfo)
             {
@@ -697,7 +697,7 @@ class UserController extends Controller
             $user->step_four = (!empty($request->step_four)) ? $request->step_four:0;
             $user->step_five = (!empty($request->step_five)) ? $request->step_five:0;
             $user->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
-            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : $user->documents;
             $user->contact_person_name = $request->contact_person_name;
             $user->contact_person_number = $request->contact_person_number;
             if(!empty($request->avatar))

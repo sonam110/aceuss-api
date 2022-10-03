@@ -183,7 +183,7 @@ class BranchController extends Controller
             $user->contact_person_number = $request->contact_person_number;
             $user->contact_person_name = $request->contact_person_name;
             $user->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode : 'Web';
-            $user->documents = is_array($request->documents) ? json_encode($request->documents) : null;
+            $user->documents = is_array($request->documents) ? json_encode($request->documents) : $user->documents;
             $user->save();
 
             DB::commit();

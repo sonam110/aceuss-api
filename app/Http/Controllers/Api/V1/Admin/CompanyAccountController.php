@@ -93,9 +93,9 @@ class CompanyAccountController extends Controller
             {
                 $query->where('users.status', 1);
             }
-            elseif($request->status=='no')
+            elseif($request->status=='no' || $request->status=='3')
             {
-                $query->where('users.status', 0);
+                $query->whereIn('users.status', [0,3]);
             }
 
             if(!empty($request->licence_end_date))
@@ -205,7 +205,7 @@ class CompanyAccountController extends Controller
             $user->contact_person_name = $request->name;
             $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
-            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar : env('NO_IMG_PATH');
 
             $user->branch_name = $request->company_name;
             $user->branch_email = $request->company_email;
@@ -399,7 +399,7 @@ class CompanyAccountController extends Controller
             $user->contact_person_name = $request->name;
             $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
-            $user->avatar = (!empty($request->avatar)) ? $request->avatar :'https://aceuss.3mad.in/uploads/no-image.png';
+            $user->avatar = (!empty($request->avatar)) ? $request->avatar : $user->avatar;
             $user->save();
             if(!empty($request->package_id)){
                 $validator = Validator::make($request->all(),[ 
