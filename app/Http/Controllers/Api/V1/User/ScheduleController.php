@@ -248,7 +248,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration']);
 
 				$pagination =  [
 					'data' => $result,
@@ -261,7 +261,7 @@ class ScheduleController extends Controller
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration']);
 			}
 
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
@@ -292,7 +292,7 @@ class ScheduleController extends Controller
 			$group_id = generateRandomNumber();
 			foreach ($request->schedules as $key => $value) 
 			{
-				$date = date('Y-m-d',strtotime($value['date']));
+				$date = date('Y-m-d',strtotime($value['date']));			
 				if(!empty($value['type']) && $value['type'] == 'delete')
 				{
 					$schedules = Schedule::where('shift_date',$date)->where('schedule_template_id',$request->schedule_template_id)->delete();
@@ -300,17 +300,6 @@ class ScheduleController extends Controller
 				else
 				{
 					$start_date = $value['date'];
-					$assignedWork_id = null;
-					$assignedWork = null;
-					if(!empty($shift['user_id']))
-					{
-						$user = User::find($shift['user_id']);
-						if(!empty($user->assignedWork))
-						{
-							$assignedWork = $user->assignedWork;
-							$assignedWork_id = $assignedWork->id;
-						}
-					}
 					foreach($value['shifts'] as $key=>$shift)
 					{
 						if(empty($shift['type']))
@@ -352,7 +341,7 @@ class ScheduleController extends Controller
 							$shift_start_time = $shift['shift_start_time'];
 							$shift_end_time = $shift['shift_end_time'];
 
-							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type,$rest_start_time,$rest_end_time);
+							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type,$rest_start_time,$rest_end_time,$shift['employee_id']);
 							if($shift['type'] == 'add')
 							{
 								$schedule = new Schedule;
@@ -369,7 +358,7 @@ class ScheduleController extends Controller
 							$schedule->parent_id = $request->parent_id;
 							$schedule->created_by = Auth::id();
 							$schedule->slot_assigned_to = null;
-							$schedule->employee_assigned_working_hour_id = $assignedWork_id;
+							$schedule->employee_assigned_working_hour_id = $result['assignedWork_id'];
 							$schedule->schedule_template_id = $request->schedule_template_id;
 							$schedule->schedule_type = $shift['schedule_type'];
 							$schedule->shift_date = $date;
@@ -605,14 +594,15 @@ class ScheduleController extends Controller
 				$obe = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('ob_work_duration');
 				$emergency = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('emergency_work_duration');
 				$vacation = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('vacation_duration');
-
-				$data['labels'][] = $value->user->name;
-				$data['total_hours'][] = $schduled + $extra + $obe + $emergency;
-				$data['regular_hours'][] = $schduled;
-				$data['extra_hours'][] = $extra;
-				$data['obe_hours'][] = $obe;
-				$data['emergency_hours'][] = $emergency;
-				$data['vacation_hours'][] = $vacation;
+                
+                $total_hours = round((($schduled + $extra + $obe + $emergency)/60), 2);
+				$data['labels'][] = $value->user->name.'('.$total_hours.')';
+				$data['total_hours'][] = $total_hours;
+				$data['regular_hours'][] = round(($schduled/60), 2);
+				$data['extra_hours'][] = round(($extra/60), 2);
+				$data['obe_hours'][] = round(($obe/60), 2);
+				$data['emergency_hours'][] = round(($emergency/60), 2);
+				$data['vacation_hours'][] = round(($vacation/60), 2);
 			}
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_report'),$data,config('httpcodes.success'));
 		}
@@ -829,18 +819,18 @@ class ScheduleController extends Controller
 					\DB::raw('SUM(vacation_duration) as vacation_hours')
 				]);
 				$query->whereDate('shift_date', $date); 
-				$query->where('status', 1); 
+				$query->where('is_active', 1); 
 				$query->where('user_id', $request->user_id);        
 				$result = $query->first();
 
-				$total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
+				$total = round((($result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours)/60), 2);
 
 				$total_hours[] = $total;
-				$regular_hours[] = $result->regular_hours;
-				$extra_hours[] = $result->extra_hours;
-				$obe_hours[] = $result->obe_hours;
-				$emergency_hours[] = $result->emergency_hours;
-				$vacation_hours[] = $result->vacation_hours;
+				$regular_hours[] = round(($result->regular_hours/60), 2);
+				$extra_hours[] = round(($result->extra_hours/60), 2);
+				$obe_hours[] = round(($result->obe_hours/60), 2);
+				$emergency_hours[] = round(($result->emergency_hours/60), 2);
+				$vacation_hours[] = round(($result->vacation_hours/60), 2);
 			}
 		}
 		else
@@ -858,18 +848,18 @@ class ScheduleController extends Controller
 					\DB::raw('SUM(vacation_duration) as vacation_hours')
 				]);
 				$query->whereDate('shift_date', $date); 
-				$query->where('status', 1); 
+				$query->where('is_active', 1); 
 				$query->where('user_id', $request->user_id);        
 				$result = $query->first();
 
-				$total = $result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours;
+				$total = round((($result->regular_hours + $result->extra_hours + $result->obe_hours + $result->emergency_hours + $result->vacation_hours)/60), 2);
 
 				$total_hours[] = $total;
-				$regular_hours[] = $result->regular_hours;
-				$extra_hours[] = $result->extra_hours;
-				$obe_hours[] = $result->obe_hours;
-				$emergency_hours[] = $result->emergency_hours;
-				$vacation_hours[] = $result->vacation_hours;
+				$regular_hours[] = round(($result->regular_hours/60), 2);
+				$extra_hours[] = round(($result->extra_hours/60), 2);
+				$obe_hours[] = round(($result->obe_hours/60), 2);
+				$emergency_hours[] = round(($result->emergency_hours/60), 2);
+				$vacation_hours[] = round(($result->vacation_hours/60), 2);
 			}
 		}
 
@@ -1014,7 +1004,7 @@ class ScheduleController extends Controller
 				$data[] = [
 					"date" => $shift_date,
 					"schedules" => $schedules,
-					"scheduled work duration" => $scheduled_work_duration,
+					"scheduled_work_duration" => $scheduled_work_duration,
 					"extra_work_duration" => $extra_work_duration,
 					"ob_work_duration" => $ob_work_duration,
 					"emergency_work_duration" => $emergency_work_duration,

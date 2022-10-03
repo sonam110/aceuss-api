@@ -17,7 +17,7 @@ class AddClmToPermissionsTable extends Migration
             $table->string('group_name')->after('guard_name');
             $table->string('se_name')->after('group_name')->unique();
             $table->text('description')->after('se_name')->nullable();
-            $table->tinyInteger('belongs_to')->default(1)->after('description')->comment('1:Admin,2:Company,3:Other');
+            $table->tinyInteger('belongs_to')->default(1)->after('description')->comment('1:Admin,2:Store,3:Other');
             $table->string('entry_mode')->nullable();
 
         });

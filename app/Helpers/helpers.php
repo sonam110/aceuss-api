@@ -1463,7 +1463,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 }
 
 
-function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null)
+function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null,$user_id = null)
 {
     $result = [];
     $ob = getObDuration($date,$start_time,$end_time,$rest_start_time,$rest_end_time);
@@ -1474,41 +1474,71 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     {
         $rest_duration = timeDifference($rest_start_time,$rest_end_time);
     }
+    $monday = date("Y-m-d", strtotime('monday this week', strtotime($date)));
+    $sunday = date("Y-m-d", strtotime('sunday this week', strtotime($date)));
 
-    if($schedule_type == 'basic')
+
+    $assigned_minutes = null;
+    $assignedWork_id = null;
+    $worked_minutes = null;
+    if(!empty($user_id))
     {
+        $user = User::find($user_id);
+        $assignedWork = $user->assignedWork;
+        if(!empty($assignedWork))
+        {
+            $assigned_minutes = ($assignedWork->assigned_working_hour_per_week)*60;
+            $assignedWork_id = $assignedWork->id;
+        }
+        // $worked_minutes = Schedule::where('user_id',$shift['user_id'])->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->sum(\DB::raw('scheduled_work_duration + extra_work_duration'));
+        $worked_minutes = App\Models\Schedule::where('user_id',$user_id)->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->sum('scheduled_work_duration');
+    } 
+
+    // if($schedule_type == 'basic')
+    // {
         $scheduled_duration = timeDifference($start_time,$end_time) - $rest_duration;
+        $scheduled_duration = $scheduled_duration - $ob_duration;
         $extra_duration =  0;
-        $countable_emergency_duration = 0;
-        $countable_scheduled_duration = $scheduled_duration - $ob_duration;
-        $countable_extra_duration = 0;
+        if(($worked_minutes + $scheduled_duration) > $assigned_minutes)
+        {
+            $extra_duration = ($worked_minutes + $scheduled_duration) - $assigned_minutes;
+        }
+
+        if($extra_duration > 0)
+        {
+            $scheduled_duration = $scheduled_duration - $extra_duration;
+        }
+        
+        $emergency_duration = 0;
         if($shift_type == 'emergency')
         {
-            $countable_emergency_duration = $countable_scheduled_duration;
-            $countable_scheduled_duration = 0;
+            $emergency_duration = $scheduled_duration + $extra_duration;
+            $scheduled_duration = 0;
+            $extra_duration = 0;
         }
-    }
-    else
-    {
-        $scheduled_duration = 0;
-        $countable_emergency_duration = 0;
-        $extra_duration =  timeDifference($start_time,$end_time) - $rest_duration;
-        $countable_scheduled_duration = 0;
-        $countable_extra_duration = $extra_duration - $ob_duration;
-        if($shift_type == 'emergency')
-        {
-            $countable_emergency_duration = $countable_extra_duration;
-            $countable_extra_duration = 0;
-        }
-    }
+    // }
+    // else
+    // {
+    //     $scheduled_duration = 0;
+    //     $emergency_duration = 0;
+    //     $extra_duration =  timeDifference($start_time,$end_time) - $rest_duration;
+    //     $scheduled_duration = 0;
+    //     $extra_duration = $extra_duration - $ob_duration;
+    //     if($shift_type == 'emergency')
+    //     {
+    //         $emergency_duration = $extra_duration;
+    //         $extra_duration = 0;
+    //     }
+    // }
 
     $result['ob_type'] = $ob['type'];
     $result['ob_start_time'] = $ob['start_time'];
     $result['ob_end_time'] = $ob['end_time'];
-    $result['scheduled_work_duration'] = $countable_scheduled_duration;
-    $result['emergency_work_duration'] = $countable_emergency_duration;
+    $result['scheduled_work_duration'] = $scheduled_duration;
+    $result['emergency_work_duration'] = $emergency_duration;
     $result['ob_work_duration'] = $ob_duration;
-    $result['extra_work_duration'] = $countable_extra_duration;
+    $result['extra_work_duration'] = $extra_duration;
+    $result['assignedWork_id'] = $assignedWork_id;
     return $result;
 }
 
