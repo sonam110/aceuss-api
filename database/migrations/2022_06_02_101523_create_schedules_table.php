@@ -80,12 +80,15 @@ class CreateSchedulesTable extends Migration
             $table->string('ob_start_time')->nullable();
             $table->string('ob_end_time')->nullable();
 
+            $table->string('ob_red_start_time')->nullable();
             $table->string('ob_red_end_time')->nullable();
-            $table->string('ob_end_time')->nullable();
+            $table->string('ob_red_work_duration')->default(0)->nullable();
             $table->string('ob_weekend_start_time')->nullable();
             $table->string('ob_weekend_end_time')->nullable();
+            $table->string('ob_weekend_work_duration')->default(0)->nullable();
             $table->string('ob_weekday_start_time')->nullable();
             $table->string('ob_weekday_end_time')->nullable();
+            $table->string('ob_weekday_work_duration')->default(0)->nullable();
 
 
             $table->boolean('approved_by_company')->default(0)->nullable();

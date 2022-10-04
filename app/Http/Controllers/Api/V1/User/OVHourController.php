@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\OVHour;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use App\Imports\ObeHoursImport;
 use Illuminate\Support\Facades\Validator;
@@ -189,7 +190,7 @@ class OVHourController extends Controller
                 $ovHour->group_token = ($request->is_repeat == 1) ? $group_token : generateRandomNumber(8);
                 $ovHour->title = $request->title;
                 $ovHour->date = $date;
-                if($request->is_repeat == 1)
+                if($request->is_range == 1)
                 {
                     $ovHour->end_date = $end_to;
                 }
@@ -203,7 +204,7 @@ class OVHourController extends Controller
 
             $schedules = Schedule::where('shift_start_time','>=',date('Y-m-d H:i'))->get();
             foreach ($schedules as $key => $schedule) {
-                # code...
+               $data =  scheduleWorkCalculation($schedule->shift_date,$schedule->shift_start_time,$schedule->shift_end_time,$schedule->schedule_type,$schedule->shift_type,$schedule->rest_start_time,$schedule->rest_end_time,$schedule->user_id,$schedule->assigneWork_id);
             }
 
             $data = OVHour::whereIn('id',$ovhour_ids)->groupBy('group_token')->get();

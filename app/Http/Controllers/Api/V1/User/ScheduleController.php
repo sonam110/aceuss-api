@@ -406,6 +406,18 @@ class ScheduleController extends Controller
 							$schedule->ob_end_time = $result['ob_end_time'];
 							$schedule->status = 0;
 							$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
+
+							$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+							$schedule->ob_red_start_time = $result['ob_red_start_time'];
+							$schedule->ob_red_end_time = $result['ob_red_end_time'];
+
+							$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+							$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+							$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+
+							$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+							$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+							$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 							$schedule->save();
 
 							if(!empty($shift['user_id']))
