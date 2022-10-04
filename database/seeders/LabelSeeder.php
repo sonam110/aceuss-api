@@ -522,6 +522,7 @@ class LabelSeeder extends Seeder
     			'message_stats'=>'Company Statistics Fetched!',
     		],
     		'User' => [
+                'account_creation_limit_reached'=>' Account creation limit reached, Please contact to admin to increase limit.',
     			'message_list'=>' Users List Fetched',
     			'message_create'=>' User Created Successfully!',
     			'message_update'=>' User Updated Successfully!',

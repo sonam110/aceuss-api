@@ -59,7 +59,6 @@ class UserController extends Controller
 
     public function users(Request $request)
     {
-        dd(checkEmpPartientCount(2, 3));
         try {
             $user = getUser();
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
@@ -164,6 +163,15 @@ class UserController extends Controller
 
     public function store(Request $request) 
     {
+        if(in_array($request->user_type_id, [3,6]))
+        {
+            $checkAccess = checkEmpPartientCount($this->top_most_parent_id, $request->user_type_id);
+            if(!$checkAccess)
+            {
+                return prepareResult(false,getLangByLabelGroups('BcCommon','account_creation_limit_reached') ,$user, config('httpcodes.unauthorized'));
+            }
+        }
+        
         DB::beginTransaction();
         try {
 
