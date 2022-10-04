@@ -35,7 +35,13 @@ class ScheduleTemplateController extends Controller
 		try 
 		{
 			$user = getUser();
-			$query = ScheduleTemplate::orderBy('id', 'DESC')->with('templateData');
+			$query = ScheduleTemplate::orderBy('id', 'DESC')
+				->with('templateData');
+			if(!empty($request->hide_deactivated))
+			{
+				$query->whereNull('deactivation_date');
+			}
+
 			if(!empty($request->title))
 			{
 				$query->where('title','like', '%'.$request->title.'%');
