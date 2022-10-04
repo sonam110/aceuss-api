@@ -59,6 +59,7 @@ class UserController extends Controller
 
     public function users(Request $request)
     {
+        dd(checkEmpPartientCount(2, 3));
         try {
             $user = getUser();
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
