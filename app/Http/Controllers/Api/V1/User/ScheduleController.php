@@ -248,7 +248,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration', 'ob_red_start_time', 'ob_red_end_time', 'ob_weekend_start_time', 'ob_weekend_end_time', 'ob_weekday_start_time', 'ob_weekday_end_time']);
 
 				$pagination =  [
 					'data' => $result,
@@ -261,7 +261,7 @@ class ScheduleController extends Controller
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration', 'ob_red_start_time', 'ob_red_end_time', 'ob_weekend_start_time', 'ob_weekend_end_time', 'ob_weekday_start_time', 'ob_weekday_end_time']);
 			}
 
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
@@ -1009,7 +1009,11 @@ class ScheduleController extends Controller
 					"ob_work_duration" => $ob_work_duration,
 					"emergency_work_duration" => $emergency_work_duration,
 					"vacation_duration" => $vacation_duration,
-					"total_hour"=>$total_hours
+					"total_hour"=>$total_hours,
+					"ob_red_total_hours"=> rand(10,25),
+					"ob_weekend_total_hours"=> rand(10,25),
+					"ob_weekday_total_hours"=> rand(10,25),
+					"sleeping_emergency_total_hours"=> rand(0,10),
 				];
 			}
 			return prepareResult(true,  getLangByLabelGroups('Schedule','message_employee_hours'),$data, config('httpcodes.success'));

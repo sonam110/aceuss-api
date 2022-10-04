@@ -201,6 +201,11 @@ class OVHourController extends Controller
                 $ovhour_ids[] = $ovHour->id;
             } 
 
+            $schedules = Schedule::where('shift_start_time','>=',date('Y-m-d H:i'))->get();
+            foreach ($schedules as $key => $schedule) {
+                # code...
+            }
+
             $data = OVHour::whereIn('id',$ovhour_ids)->groupBy('group_token')->get();
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_create') ,$data, config('httpcodes.success'));

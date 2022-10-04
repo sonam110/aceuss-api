@@ -27,6 +27,7 @@ use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
 use App\Events\EventNotification;
 use Str as Str;
+use App\Models\LicenceKeyManagement;
 
 function getUser() {
     return auth('api')->user();
@@ -1603,4 +1604,37 @@ function getAllowUserList($permission)
         ->orWhere('employee_id', auth()->id)
         ->get();
     return $getList;
+}
+
+
+function checkEmpPartientCount($top_most_parent_id, $user_type_id)
+{
+    //3 for employees, 6 for patients
+
+    $allowed = false;
+    $top_most_parent_lic_key = User::select('licence_key')
+    ->withoutGlobalScope('top_most_parent_id')
+    ->find($top_most_parent_id);
+    if($top_most_parent_lic_key)
+    {
+        $getLicences = LicenceKeyManagement::where('licence_key', $top_most_parent_lic_key->licence_key)
+            ->whereDate('expire_at', '>=', date('Y-m-d'))
+            ->first();
+        if($getLicences)
+        {
+            $packageInfo = json_decode($getLicences->package_details, true);
+            $allowedCounts = ($user_type_id==3) ? $packageInfo['number_of_employees'] : $packageInfo['number_of_patients'];
+            
+            $userCounts = User::where('user_type_id', $user_type_id)
+            ->where('top_most_parent_id', $top_most_parent_id)
+            ->withoutGlobalScope('top_most_parent_id')
+            ->count();
+
+            if($userCounts<$allowedCounts)
+            {
+                $allowed = true;
+            }
+        }
+    }
+    return $allowed;
 }
