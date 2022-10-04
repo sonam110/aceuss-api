@@ -40,10 +40,18 @@ class ScheduleController extends Controller
 		try 
 		{
 			$query = Schedule::orderBy('created_at', 'DESC')
-				->with('user:id,name,gender','patient:id,name,branch_id')
-				->where('is_active', 1);
+				->with('user:id,name,gender','patient:id,name,branch_id');
 
-			if($request->leave_applied == '0')
+			if($request->is_active == '0' || $request->is_active == 'no')
+			{
+				$query->where('is_active', 0);
+			}
+			if($request->is_active == '1')
+			{
+				$query->where('is_active', 1);
+			}
+
+			if($request->leave_applied == '0' || $request->leave_applied == 'no')
 			{
 				$query->where('leave_applied' ,0);
 			}
@@ -51,6 +59,7 @@ class ScheduleController extends Controller
 			{
 				$query->where('leave_applied' ,1);
 			}
+
 			if(!empty($request->shift_id))
 			{
 				$query->where('shift_id' ,$request->shift_id);
@@ -111,7 +120,7 @@ class ScheduleController extends Controller
 			{
 				$query->where('leave_group_id','like','%'.$request->leave_group_id.'%');
 			}
-			if($request->status == '0')
+			if($request->status == '0' || $request->status == 'no')
 			{
 				$query->where('status' ,0);
 			}
@@ -156,8 +165,16 @@ class ScheduleController extends Controller
 		{
 			$query = Schedule::orderBy('created_at', 'DESC')
 			->with('user:id,name,gender','patient:id,name,branch_id')
-			->where('is_active',1)
 			->with('user:id,user_type_id,name,branch_id','user.branch:id,name,branch_name','patient:id,user_type_id,name,branch_id','patient.branch:id,name,branch_name');
+
+			if($request->is_active == '0' || $request->is_active == 'no')
+			{
+				$query->where('is_active', 0);
+			}
+			if($request->is_active == '1')
+			{
+				$query->where('is_active', 1);
+			}
 
 			if(!empty($request->shift_id))
 			{
@@ -379,7 +396,7 @@ class ScheduleController extends Controller
 							$schedule->leave_approved_date_time = null;
 							$schedule->leave_notified_to = null;
 							$schedule->notified_group = null;
-							$schedule->is_active = 1;
+							$schedule->is_active = ScheduleTemplate::find($request->schedule_template_id)->status;
 							$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
 							$schedule->extra_work_duration = $result['extra_work_duration'];
 							$schedule->emergency_work_duration = $result['emergency_work_duration'];
