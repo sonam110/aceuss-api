@@ -190,6 +190,17 @@ class StamplingController extends Controller
 					$schedule->emergency_work_duration 	= $result['emergency_work_duration'];
 					$schedule->ob_work_duration 		= $result['ob_work_duration'];
 					$schedule->ob_type 					= $result['ob_type'];
+					$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+					$schedule->ob_red_start_time = $result['ob_red_start_time'];
+					$schedule->ob_red_end_time = $result['ob_red_end_time'];
+
+					$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+					$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+					$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+
+					$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+					$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+					$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 					$schedule->status 					= $request->status ? $request->status :0;
 					$schedule->entry_mode 				= $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();

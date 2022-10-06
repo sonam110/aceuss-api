@@ -203,7 +203,7 @@ class LeaveController extends Controller
 						$schedule->ob_type = null;
 						$schedule->ob_start_time = null;
 						$schedule->ob_end_time = null;
-						$schedule->vacation_duration = 24;
+						$schedule->vacation_duration = 24*60;
 						$schedule->status = 0;
 						$schedule->schedule_type = 'basic';
 						$schedule->created_by = Auth::id();
@@ -290,7 +290,7 @@ class LeaveController extends Controller
 							$schedule->ob_type = null;
 							$schedule->ob_start_time = null;
 							$schedule->ob_end_time = null;
-							$schedule->vacation_duration = 24;
+							$schedule->vacation_duration = 24*60;
 							$schedule->status = 0;
 							$schedule->schedule_type = 'basic';
 							$schedule->created_by = Auth::id();
@@ -486,7 +486,7 @@ class LeaveController extends Controller
 					$shift_end_time = $leave->shift_end_time;
 
 					$shift_type = $leave->shift_type;
-					$result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$user->id);
+					$result = scheduleWorkCalculation($leave->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$user->id,$leave->assignedWork_id);
 
 					$schedule = new Schedule;
 					$schedule->top_most_parent_id = $leave->top_most_parent_id;
@@ -523,6 +523,17 @@ class LeaveController extends Controller
 					$schedule->ob_type = $result['ob_type'];
 					$schedule->ob_start_time = $result['ob_start_time'];
 					$schedule->ob_end_time = $result['ob_end_time'];
+					$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+					$schedule->ob_red_start_time = $result['ob_red_start_time'];
+					$schedule->ob_red_end_time = $result['ob_red_end_time'];
+
+					$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+					$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+					$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+
+					$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+					$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+					$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 					$schedule->status = $request->status ? $request->status :0;
 					$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 					$schedule->save();
@@ -671,6 +682,17 @@ class LeaveController extends Controller
 				$schedule->ob_type = $result['ob_type'];
 				$schedule->ob_start_time = $result['ob_start_time'];
 				$schedule->ob_end_time = $result['ob_end_time'];
+				$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+				$schedule->ob_red_start_time = $result['ob_red_start_time'];
+				$schedule->ob_red_end_time = $result['ob_red_end_time'];
+
+				$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+				$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+				$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+
+				$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+				$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+				$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 				$schedule->status = $leave->status;
 				$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 				$schedule->save();
@@ -874,7 +896,7 @@ class LeaveController extends Controller
 							$shift_start_time = $schedule->shift_start_time;
 							$shift_end_time = $schedule->shift_end_time;
 							$shift_type = $schedule->shift_type;
-							$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type.$leave['assign_emp']);
+							$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$leave['assign_emp']);
 
 							$assSchedule = new Schedule;
 							$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
@@ -910,6 +932,17 @@ class LeaveController extends Controller
 							$assSchedule->ob_type = $result['ob_type'];
 							$assSchedule->ob_start_time = $result['ob_start_time'];
 							$assSchedule->ob_end_time = $result['ob_end_time'];
+							$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+							$schedule->ob_red_start_time = $result['ob_red_start_time'];
+							$schedule->ob_red_end_time = $result['ob_red_end_time'];
+
+							$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+							$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+							$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+
+							$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+							$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+							$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 							$assSchedule->status = $schedule->status;
 							$assSchedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 							$assSchedule->save();
@@ -964,7 +997,7 @@ class LeaveController extends Controller
 						$schedule->ob_type = null;
 						$schedule->ob_start_time = null;
 						$schedule->ob_end_time = null;
-						$schedule->vacation_duration = 24;
+						$schedule->vacation_duration = 24*60;
 						$schedule->schedule_type = 'basic';
 						$schedule->created_by = Auth::id();
 						$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';

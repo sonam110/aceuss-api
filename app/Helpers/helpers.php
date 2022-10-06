@@ -1403,6 +1403,10 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
         {
             $red_ob['duration'] = 0;
         }
+        elseif(($red_obtime1 >= $time2) && ($red_obtime2 >= $time2))
+        {
+            $red_ob['duration'] = 0;
+        }
         elseif(($red_obtime1 >= $time2) && ($red_obtime2 <= $time2))
         {
             $red_ob['duration'] = 0;
@@ -1430,6 +1434,10 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
             $resttime2 = strtotime($rest_end_time);
 
             if(($red_obtime1 <= $resttime1) && ($red_obtime2 <= $resttime1))
+            {
+                $rest_red_ob_duration = 0;
+            }
+            elseif(($red_obtime1 >= $resttime2) && ($red_obtime2 >= $resttime2))
             {
                 $rest_red_ob_duration = 0;
             }
@@ -1477,8 +1485,6 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
         $weekend_ob['type'] = $weekend_data->ob_type;
         $weekend_ob['start_time'] = $weekend_data->start_time;
         $weekend_ob['end_time'] = $weekend_data->end_time;
-        $time1 = strtotime($time1);
-        $time2 = strtotime($time2);
         $rest_ob_duration = 0;
 
         $weekend_obtime1 = strtotime($date.' '.$weekend_data->start_time);
@@ -1491,27 +1497,31 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 
         if(($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time1))
         {
-            $weekend_ob['duration'] = 0;
+        	$weekend_ob['duration'] = 0;
+        }
+        elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 >= $time2))
+        {
+        	$weekend_ob['duration'] = 0;
         }
         elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 <= $time2))
         {
-            $weekend_ob['duration'] = 0;
+        	$weekend_ob['duration'] = 0;
         }
         elseif(($weekend_obtime1 >= $time1) && ($weekend_obtime2 <= $time2))
         {
-            $weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
+        	$weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
         }
         elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 >= $time2)) 
         {
-            $weekend_ob['duration'] = ($time2 - $time1)/60;
+        	$weekend_ob['duration'] = ($time2 - $time1)/60;
         }
         elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time2)) 
         {
-            $weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
+        	$weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
         }
         elseif (($weekend_obtime1 >= $time1) && ($weekend_obtime2 >= $time2)) 
         {
-            $weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
+        	$weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
         }
 
         if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
@@ -1520,6 +1530,10 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
             $resttime2 = strtotime($rest_end_time);
 
             if(($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 <= $resttime1))
+            {
+                $rest_weekend_ob_duration = 0;
+            }
+            elseif(($weekend_obtime1 >= $resttime2) && ($weekend_obtime2 >= $resttime2))
             {
                 $rest_weekend_ob_duration = 0;
             }
@@ -1549,11 +1563,12 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
     }
     else
     {
-        $red_ob['type']= null;
-        $red_ob['duration'] = 0;
-        $red_ob['start_time'] = null;
-        $red_ob['end_time'] = null;
+        $weekend_ob['type']= null;
+        $weekend_ob['duration'] = 0;
+        $weekend_ob['start_time'] = null;
+        $weekend_ob['end_time'] = null;
     }
+
 
     //-------------------------------------week-day--------------------//
     $weekday_ob = [];
@@ -1566,8 +1581,6 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
         $weekday_ob['type'] = $weekday_data->ob_type;
         $weekday_ob['start_time'] = $weekday_data->start_time;
         $weekday_ob['end_time'] = $weekday_data->end_time;
-        $time1 = strtotime($time1);
-        $time2 = strtotime($time2);
         $rest_ob_duration = 0;
 
         $weekday_obtime1 = strtotime($date.' '.$weekday_data->start_time);
@@ -1579,6 +1592,10 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
         }
 
         if(($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time1))
+        {
+            $weekday_ob['duration'] = 0;
+        }
+        elseif(($weekday_obtime1 >= $time2) && ($weekday_obtime2 >= $time2))
         {
             $weekday_ob['duration'] = 0;
         }
@@ -1609,6 +1626,10 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
             $resttime2 = strtotime($rest_end_time);
 
             if(($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 <= $resttime1))
+            {
+                $rest_weekday_ob_duration = 0;
+            }
+            elseif(($weekday_obtime1 >= $resttime2) && ($weekday_obtime2 >= $resttime2))
             {
                 $rest_weekday_ob_duration = 0;
             }
@@ -1650,7 +1671,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null,$user_id = null,$assignedWork_id = null)
 {
     $result = [];
-    $ob =  getObDuration($date,$start_time,$end_time,$rest_start_time,$rest_end_time);
+    $ob = getObDuration($date,$start_time,$end_time,$rest_start_time,$rest_end_time);
     $ob_duration = $ob['red_ob']['duration'] + $ob['weekend_ob']['duration'] + $ob['weekday_ob']['duration'];
     $rest_duration = 0;
 

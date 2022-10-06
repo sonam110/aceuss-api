@@ -40,7 +40,7 @@ class ScheduleController extends Controller
 		try 
 		{
 			$query = Schedule::orderBy('created_at', 'DESC')
-				->with('user:id,name,gender','patient:id,name,branch_id');
+				->with('user:id,name,gender','user.assignedWork','patient:id,name,branch_id');
 
 			if($request->is_active == '0' || $request->is_active == 'no')
 			{
@@ -265,7 +265,7 @@ class ScheduleController extends Controller
 				$perPage = $request->perPage;
 				$page = $request->input('page', 1);
 				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration', 'ob_red_start_time', 'ob_red_end_time', 'ob_weekend_start_time', 'ob_weekend_end_time', 'ob_weekday_start_time', 'ob_weekday_end_time']);
+				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration','ob_red_start_time','ob_red_end_time','ob_weekend_start_time','ob_weekend_end_time','ob_weekday_start_time','ob_weekday_end_time','ob_red_work_duration','ob_weekend_work_duration','ob_weekday_work_duration']);
 
 				$pagination =  [
 					'data' => $result,
@@ -278,7 +278,7 @@ class ScheduleController extends Controller
 			}
 			else
 			{
-				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration', 'ob_red_start_time', 'ob_red_end_time', 'ob_weekend_start_time', 'ob_weekend_end_time', 'ob_weekday_start_time', 'ob_weekday_end_time']);
+				$query = $query->get(['id','schedule_template_id','shift_id','shift_name','shift_color','shift_type','shift_date','shift_start_time','shift_end_time','rest_start_time','rest_end_time','schedule_type','patient_id','user_id','verified_by_employee','approved_by_company','leave_applied','leave_approved','scheduled_work_duration','extra_work_duration','emergency_work_duration','ob_work_duration','vacation_duration', 'ob_red_start_time', 'ob_red_end_time', 'ob_weekend_start_time', 'ob_weekend_end_time', 'ob_weekday_start_time', 'ob_weekday_end_time','ob_red_work_duration','ob_weekend_work_duration','ob_weekday_work_duration']);
 			}
 
 			return prepareResult(true,getLangByLabelGroups('Schedule','message_list'),$query,config('httpcodes.success'));
@@ -1018,16 +1018,29 @@ class ScheduleController extends Controller
 
 			foreach ($dates as $key => $shift_date) 
 			{
-				$schedules = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration','approved_by_company','verified_by_employee']);
+				$schedules = Schedule::whereDate('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->get(['id','shift_id','schedule_template_id','schedule_type','patient_id','shift_start_time','shift_end_time','scheduled_work_duration','extra_work_duration','ob_work_duration','emergency_work_duration','vacation_duration','approved_by_company','verified_by_employee']);
+
+				$scheduleReport = Schedule::select(
+	                DB::raw('SUM(scheduled_work_duration) as scheduled_work_duration'),
+	                DB::raw('SUM(extra_work_duration) as extra_work_duration'),
+	                DB::raw('SUM(emergency_work_duration) as emergency_work_duration'),
+	                DB::raw('SUM(ob_work_duration) as ob_work_duration'),
+	                DB::raw('SUM(vacation_duration) as vacation_duration'),
+	                DB::raw('SUM(ob_work_duration) as ob_work_duration'),
+	            )
+	            ->whereDate('shift_date',$shift_date)
+	            ->where('user_id',$request->user_id)
+	            ->where('is_active',1)
+	            ->first();
 
 				// foreach ($schedules as $key => $value) {
 				// 	$value->hours = $value->scheduled_work_duration + $value->emergency_work_duration + $value->ob_work_duration + $value->extra_work_duration;
 				// }
-				$scheduled_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('scheduled_work_duration');
-				$extra_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('extra_work_duration');
-				$emergency_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('emergency_work_duration');
-				$ob_work_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('ob_work_duration');
-				$vacation_duration = Schedule::where('shift_date',$shift_date)->where('user_id',$request->user_id)->where('is_active',1)->sum('vacation_duration');
+				$scheduled_work_duration = $scheduleReport->scheduled_work_duration;
+				$extra_work_duration = $scheduleReport->extra_work_duration;
+				$emergency_work_duration = $scheduleReport->emergency_work_duration;
+				$ob_work_duration = $scheduleReport->ob_work_duration;
+				$vacation_duration = $scheduleReport->vacation_duration;
 				$total_hours = $scheduled_work_duration + $extra_work_duration + $emergency_work_duration + $ob_work_duration + $vacation_duration;
 
 				$data[] = [
@@ -1113,10 +1126,13 @@ class ScheduleController extends Controller
 							{
 								$patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
 							}
-							$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-							$completedHours = $patientAssignedHours->completed_hours + $workedHours;
-							$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
-							$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+							if(!empty($patientAssignedHours))
+							{
+								$workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+								$completedHours = $patientAssignedHours->completed_hours + $workedHours;
+								$remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+								$patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+							}
 						}
 						$schedule->update(['status'=>1,'approved_by_company'=>1]);
 					}
