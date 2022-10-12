@@ -47,8 +47,17 @@ class StatisticsDeviationController extends Controller
                 });
             }
             
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-deviation');
+                    $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                }
+                else
+                {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                } 
             }
 
             if(!empty($request->patient_id))
@@ -126,9 +135,18 @@ class StatisticsDeviationController extends Controller
                         ->orWhere('patient_id', $user->parent_id);
                     });
                 }
-                
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-deviation');
+                        $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    } 
                 }
 
                 if(!empty($request->patient_id))
@@ -185,8 +203,17 @@ class StatisticsDeviationController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-deviation');
+                        $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    } 
                 }
 
                 if(!empty($request->patient_id))
@@ -252,8 +279,17 @@ class StatisticsDeviationController extends Controller
                 });
             }
 
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-deviation');
+                    $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                }
+                else
+                {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                } 
             }
 
             if(!empty($request->patient_id))

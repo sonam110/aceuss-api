@@ -154,6 +154,10 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'employees-delete', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-delete','belongs_to'=>'2']);
 
+        Permission::create(['name' => 'employees-change-pwd', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-change-pwd','belongs_to'=>'2']);
+
+        Permission::create(['name' => 'employees-assign-hours', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-assign-hours','belongs_to'=>'2']);
+
         Permission::create(['name' => 'patients-browse', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-browse','belongs_to'=>'2']);
 
         Permission::create(['name' => 'patients-add', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-add','belongs_to'=>'2']);
@@ -164,7 +168,7 @@ class PermissionSeeder extends Seeder
         
         Permission::create(['name' => 'patients-delete', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-delete','belongs_to'=>'2']);
 
-       
+       Permission::create(['name' => 'patients-change-pwd', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-change-pwd','belongs_to'=>'2']);
 
         Permission::create(['name' => 'departments-browse', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-browse','belongs_to'=>'2']);
 
@@ -453,8 +457,8 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'visible-all-patients-activity', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-activity','belongs_to'=>'2']);
         Permission::create(['name' => 'visible-all-patients-journal', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-journal','belongs_to'=>'2']);
         Permission::create(['name' => 'visible-all-patients-deviation', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-deviation','belongs_to'=>'2']);
-        Permission::create(['name' => 'visible-all-patients-task', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-task','belongs_to'=>'2']);
         Permission::create(['name' => 'visible-all-patients-cashier', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-cashier','belongs_to'=>'2']);  
+        Permission::create(['name' => 'visible-all-patients', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients','belongs_to'=>'2']);  
 
     }
 }

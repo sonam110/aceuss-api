@@ -1812,18 +1812,28 @@ function schedule($user_id,$top_most_parent_id,$date,$shift_start_time,$shift_en
 
 function getAllowUserList($permission)
 {
-    if(auth()->user()->user_type_id=='3')
+    $user = auth()->user();
+    $getList = false;
+    if(!$user->hasPermissionTo($permission) && $user->user_type_id==3)
     {
-        //employee
+        $getList = PatientEmployee::where('employee_id', $user->id)
+            ->pluck('patient_id')->toArray();
+
+        $gl_patients = User::where('company_type_id', 'LIKE','%1%')
+            ->pluck('id')->toArray();
+
+        $branchs = User::where('branch_id', $user->branch_id)
+            ->pluck('id')->toArray();
+
+        $getList = array_merge($getList, $gl_patients, $branchs);
     }
-    elseif(auth()->user()->user_type_id=='6')
+    else
     {
-        //patient
+        $getList = User::where('branch_id', $user->branch_id)
+            ->pluck('id')->toArray();
     }
-    $getList = PatientEmployee::where('patient_id', auth()->id())
-        ->orWhere('employee_id', auth()->id)
-        ->get();
-    return $getList;
+    $getList[] = $user->id;
+    return array_unique($getList);
 }
 
 

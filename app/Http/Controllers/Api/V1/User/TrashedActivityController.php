@@ -22,17 +22,28 @@ class TrashedActivityController extends Controller
             
             $whereRaw = $this->getWhereRawFromRequest($request);
             $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')->onlyTrashed();
-            if($user->user_type_id =='2'){
+            if($user->user_type_id =='2')
+            {
                 $query = $query->orderBy('id','DESC');
-            } else{
+            }
+            elseif($user->user_type_id =='3') 
+            {
+                if($user->hasPermissionTo('visible-all-patients-activity'))
+                {
+                    $user_records = getAllowUserList('visible-all-patients-activity');
+                    $query->whereIn('activities.patient_id', $user_records);
+                }
+                else
+                {
+                    $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
+                    $query = $query->whereIn('id', $agnActivity);
+                }
+            } 
+            else
+            {
                 $query =  $query->whereIn('branch_id',$allChilds);
             }
 
-            if($user->user_type_id =='3'){
-                $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
-                $query = $query->whereIn('id', $agnActivity);
-
-            }
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
                 $query->where(function ($q) use ($user) {

@@ -32,8 +32,17 @@ class PatientCashierController extends Controller
             
             $query = PatientCashier::with('Patient:id,name,gender','CreatedBy:id,name','Branch:id,name,branch_name')->orderBy('id','DESC');
 
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-cashier');
+                    $query->whereIn('patient_cashiers.patient_id', $user_records);
+                }
+                else
+                {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
             }
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))

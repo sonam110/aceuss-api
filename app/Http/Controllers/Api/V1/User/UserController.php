@@ -82,7 +82,7 @@ class UserController extends Controller
             ->withCount('employees','patients','leaves','vacations');
             if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
             {
-                $query =  $query->where('users.id', '!=',$user->id);
+                //$query =  $query->where('users.id', '!=',$user->id);
             }
             else
             {
@@ -96,6 +96,9 @@ class UserController extends Controller
 
             if($user->user_type_id =='2') {
                 $query = $query->orderBy('users.id','DESC');
+            } elseif($user->user_type_id =='3') {
+                $user_records = getAllowUserList('visible-all-patients');
+                $query->whereIn('users.id', $user_records);
             } else{
                 $query =  $query->whereIn('users.branch_id',$allChilds);
             }

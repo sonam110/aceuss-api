@@ -72,6 +72,9 @@ class PatientController extends Controller
 
             if($user->user_type_id =='2'){
                 $query = $query->orderBy('patient_implementation_plans.id','DESC');
+            } elseif($user->user_type_id =='3') {
+                $user_records = getAllowUserList('visible-all-patients-ip');
+                $query->whereIn('patient_implementation_plans.user_id', $user_records);
             } else{
                 $query =  $query->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }
@@ -170,6 +173,9 @@ class PatientController extends Controller
             }
             if($user->user_type_id =='2'){
 
+            } elseif($user->user_type_id =='3') {
+                $user_records = getAllowUserList('visible-all-patients-ip');
+                $query->whereIn('patient_implementation_plans.user_id', $user_records);
             } else{
                 $ipCounts =  $ipCounts->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }

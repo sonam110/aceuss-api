@@ -56,8 +56,17 @@ class DeviationController extends Controller
                 });
             }
             
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-deviation');
+                    $query->whereIn('deviations.patient_id', $user_records);
+                }
+                else
+                {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
             }
 
             if(!empty($request->with_or_without_activity))
@@ -175,8 +184,17 @@ class DeviationController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $deviationCounts->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-deviation');
+                        $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $deviationCounts->whereIn('branch_id',$allChilds);
+                    }   
                 }
                 if(!empty($request->branch_id))
                 {
@@ -389,7 +407,7 @@ class DeviationController extends Controller
             $deviation->immediate_action = $request->immediate_action;
             $deviation->probable_cause_of_the_incident = $request->probable_cause_of_the_incident;
             $deviation->suggestion_to_prevent_event_again = $request->suggestion_to_prevent_event_again;
-            $deviation->related_factor = $request->related_factor;
+            $deviation->related_factor = !empty($request->related_factor) ? $request->related_factor : $deviation->related_factor;
             $deviation->critical_range = $request->critical_range;
             $deviation->follow_up = $request->follow_up;
             $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;

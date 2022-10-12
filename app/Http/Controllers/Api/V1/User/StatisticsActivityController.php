@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\ActivityAssigne;
 use App\Models\PatientImplementationPlan;
 use Illuminate\Http\Request;
 
@@ -64,8 +65,25 @@ class StatisticsActivityController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        if($user->hasPermissionTo('visible-all-patients-activity'))
+                        {
+                            $user_records = getAllowUserList('visible-all-patients-activity');
+                            $query->whereIn('activities.patient_id', $user_records);
+                        }
+                        else
+                        {
+                            $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+                            $query = $query->whereIn('activities.id',$agnActivity);
+                        }
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))
@@ -127,8 +145,25 @@ class StatisticsActivityController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        if($user->hasPermissionTo('visible-all-patients-activity'))
+                        {
+                            $user_records = getAllowUserList('visible-all-patients-activity');
+                            $query->whereIn('activities.patient_id', $user_records);
+                        }
+                        else
+                        {
+                            $agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+                            $query = $query->whereIn('activities.id',$agnActivity);
+                        }
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))
@@ -205,8 +240,24 @@ class StatisticsActivityController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        if($user->hasPermissionTo('visible-all-patients-activity'))
+                        {
+                            $user_records = getAllowUserList('visible-all-patients-activity');
+                            $query->whereIn('activities.patient_id', $user_records);
+                        }
+                        else
+                        {
+                            $query =  $query->whereIn('branch_id',$allChilds);
+                        }
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))
@@ -248,8 +299,24 @@ class StatisticsActivityController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        if($user->hasPermissionTo('visible-all-patients-activity'))
+                        {
+                            $user_records = getAllowUserList('visible-all-patients-activity');
+                            $query->whereIn('activities.patient_id', $user_records);
+                        }
+                        else
+                        {
+                            $query =  $query->whereIn('branch_id',$allChilds);
+                        }
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))

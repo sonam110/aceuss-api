@@ -400,7 +400,26 @@ class CompanyAccountController extends Controller
             $user->contact_person_number = $request->contact_person_number;
             $user->documents = json_encode($request->documents);
             $user->avatar = (!empty($request->avatar)) ? $request->avatar : $user->avatar;
+
+            $user->branch_name = $request->company_name;
+            $user->branch_email = $request->company_email;
+
             $user->save();
+
+            $addSettings = $user->companySetting;
+            if($addSettings)
+            {
+                $addSettings->company_name = $request->company_name;
+                $addSettings->company_email = $request->company_email;
+                $addSettings->company_contact = $request->contact_number;
+                $addSettings->company_address = $request->full_address;
+                $addSettings->contact_person_name = $request->name;
+                $addSettings->contact_person_email = $request->email;
+                $addSettings->contact_person_phone = $request->contact_person_phone;
+                $addSettings->company_website = $request->company_website;
+                $addSettings->save();
+            }
+
             if(!empty($request->package_id)){
                 $validator = Validator::make($request->all(),[ 
                     "package_id"    => "required|exists:packages,id",

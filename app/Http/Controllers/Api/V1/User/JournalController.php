@@ -64,8 +64,17 @@ class JournalController extends Controller
                 });
             }
             
-            if($user->user_type_id !='2') {
-                $query->whereIn('journals.branch_id',$allChilds);
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-journal');
+                    $query->whereIn('journals.patient_id', $user_records);
+                }
+                else
+                {
+                    $query->whereIn('journals.branch_id',$allChilds);
+                }
             }
 
             if(!empty($request->activity_id))
@@ -166,7 +175,15 @@ class JournalController extends Controller
                 }
                 
                 if($user->user_type_id !='2') {
-                    $journalCounts->whereIn('journals.branch_id',$allChilds);
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-journal');
+                        $journalCounts->whereIn('journals.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $journalCounts->whereIn('journals.branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->activity_id))

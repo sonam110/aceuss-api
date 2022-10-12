@@ -35,15 +35,18 @@ class QuestionController extends Controller
             $user = getUser();
             $group_questions  =[];
             $whereRaw = $this->getWhereRawFromRequest($request);
+            
             if($whereRaw != '') { 
-                // $query = Question::where('top_most_parent_id',$this->top_most_parent_id)->whereRaw($whereRaw)->orWhereNull('top_most_parent_id')->groupBy('group_name')->orderBy('id', 'DESC');
-
-                $query = Question::where('top_most_parent_id',$this->top_most_parent_id)->orWhereNull('top_most_parent_id')->groupBy('group_name')->orderBy('id', 'DESC');
-               
+                $query = Question::where('top_most_parent_id',$this->top_most_parent_id)->orWhereNull('top_most_parent_id')->orderBy('id', 'DESC');
             } else {
-                $query = Question::where('top_most_parent_id',$this->top_most_parent_id)->orWhereNull('top_most_parent_id')->groupBy('group_name')->orderBy('id', 'DESC');
-                 
+                $query = Question::where('top_most_parent_id',$this->top_most_parent_id)->orWhereNull('top_most_parent_id')->orderBy('id', 'DESC');
             }
+            
+            if(empty($request->group_by))
+            {
+                $query->groupBy('group_name');
+            }
+            
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;
@@ -59,28 +62,33 @@ class QuestionController extends Controller
                     'last_page' => ceil($total / $perPage)
                 ];
                 $query = $pagination;
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'), $query,'200');
             }
             else
             {
                 $query = $query->get();
+                foreach ($query as $key => $group) {
+                   $questionList = Question::where('group_name',$group->group_name);
+                   if(!empty($request->is_visible))
+                   {
+                       $questionList->where('is_visible', $request->is_visible);
+                   }
+                   $questionList = $questionList->get();
+                   if($questionList->count()>0)
+                   {
+                       $group_questions[] = [
+                        "group_name" => $group->group_name,
+                        "questions" => $questionList,
+                       ];
+                   }
+                }
+                return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$group_questions,'200');
             }
-
-            foreach ($query as $key => $group) {
-               $questionList = Question::where('group_name',$group->group_name)->where('is_visible', $request->is_visible)->get();
-               if($questionList->count()>0)
-               {
-                   $group_questions[]=[
-                    "group_name" => $group->group_name,
-                    "questions" => $questionList,
-                   ];
-               }
-            }
-
-
-            return prepareResult(true,getLangByLabelGroups('BcCommon','message_list'),$group_questions,'200');
+            
+            
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -113,7 +121,7 @@ class QuestionController extends Controller
              return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$question, '200');
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -133,7 +141,7 @@ class QuestionController extends Controller
                 
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),$exception->getMessage(), '500');
             
         }
@@ -169,7 +177,7 @@ class QuestionController extends Controller
                
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
@@ -189,7 +197,7 @@ class QuestionController extends Controller
                 
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }

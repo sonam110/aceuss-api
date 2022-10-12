@@ -52,12 +52,21 @@ class ActivityController extends Controller
 			if($user->user_type_id =='2') {
 
 			}
-			elseif($user->user_type_id =='3') {
-				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-				$query = $query->whereIn('activities.id',$agnActivity);
-
+			elseif($user->user_type_id =='3') 
+			{
+				if($user->hasPermissionTo('visible-all-patients-activity'))
+				{
+					$user_records = getAllowUserList('visible-all-patients-activity');
+                	$query->whereIn('activities.patient_id', $user_records);
+				}
+				else
+				{
+					$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+					$query = $query->whereIn('activities.id',$agnActivity);
+				}
 			}
-			else {
+			else 
+			{
 				$query =  $query->whereIn('activities.branch_id',$allChilds);
 			}
 
@@ -76,11 +85,11 @@ class ActivityController extends Controller
 
 			if(!empty($request->start_date))
 			{
-				$query->where('start_date',">=" ,$request->start_date);
+				$query->whereDate('start_date',">=" ,$request->start_date);
 			}
 			if(!empty($request->end_date))
 			{
-				$query->where('end_date',"<=" ,$request->end_date);
+				$query->whereDate('end_date',"<=" ,$request->end_date);
 			}
 
 			if(!empty($request->patient))
@@ -125,16 +134,26 @@ class ActivityController extends Controller
 			])
 			->where('is_latest_entry', 1)
 			->where('status', 0)
-			->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
+			//->where(\DB::raw("CONCAT(`start_date`, ' ', `start_time`)"), '<=', date('Y-m-d H:i:s'));
+			->whereDate('start_date', '<', date('Y-m-d'));
 			if($user->user_type_id =='2'){
 
 			}
-			elseif($user->user_type_id =='3'){
-				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-				$datePassedActivityCounts = $datePassedActivityCounts->whereIn('activities.id', $agnActivity);
-
+			elseif($user->user_type_id =='3')
+			{
+				if($user->hasPermissionTo('visible-all-patients-activity'))
+				{
+					$user_records = getAllowUserList('visible-all-patients-activity');
+                	$datePassedActivityCounts->whereIn('activities.patient_id', $user_records);
+				}
+				else
+				{
+					$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+					$datePassedActivityCounts = $datePassedActivityCounts->whereIn('activities.id', $agnActivity);
+				}
 			}
-			else{
+			else
+			{
 				$datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
@@ -167,12 +186,21 @@ class ActivityController extends Controller
 			if($user->user_type_id =='2'){
 
 			}
-			elseif($user->user_type_id =='3'){
-				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-				$activityCounts = $activityCounts->whereIn('activities.id', $agnActivity);
-
+			elseif($user->user_type_id =='3')
+			{
+				if($user->hasPermissionTo('visible-all-patients-activity'))
+				{
+					$user_records = getAllowUserList('visible-all-patients-activity');
+                	$activityCounts->whereIn('activities.patient_id', $user_records);
+				}
+				else
+				{
+					$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+					$activityCounts = $activityCounts->whereIn('activities.id', $agnActivity);
+				}
 			}
-			else{
+			else
+			{
 				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
@@ -215,12 +243,21 @@ class ActivityController extends Controller
 			if($user->user_type_id =='2'){
 
 			}
-			elseif($user->user_type_id =='3'){
-				$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
-				$activityUpcomingCounts = $activityUpcomingCounts->whereIn('activities.id', $agnActivity);
-
+			elseif($user->user_type_id =='3')
+			{
+				if($user->hasPermissionTo('visible-all-patients-activity'))
+				{
+					$user_records = getAllowUserList('visible-all-patients-activity');
+                	$activityUpcomingCounts->whereIn('activities.patient_id', $user_records);
+				}
+				else
+				{
+					$agnActivity  = ActivityAssigne::where('activity_assignes.user_id',$user->id)->pluck('activity_id');
+					$activityUpcomingCounts = $activityUpcomingCounts->whereIn('activities.id', $agnActivity);
+				}
 			}
-			else{
+			else
+			{
 				$activityUpcomingCounts =  $activityUpcomingCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
@@ -245,10 +282,18 @@ class ActivityController extends Controller
 				$jour_and_devi =  $jour_and_devi->whereIn('id',$allChilds);
 			}
 
-			if($user->user_type_id =='3'){
-				$agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
-				$jour_and_devi = $jour_and_devi->whereIn('id', $agnActivity);
-
+			if($user->user_type_id =='3')
+			{
+				if($user->hasPermissionTo('visible-all-patients-activity'))
+				{
+					$user_records = getAllowUserList('visible-all-patients-activity');
+                	$jour_and_devi->whereIn('activities.patient_id', $user_records);
+				}
+				else
+				{
+					$agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
+					$jour_and_devi = $jour_and_devi->whereIn('id', $agnActivity);
+				}
 			}
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
@@ -767,6 +812,25 @@ class ActivityController extends Controller
             				{
             					// Activity::where('id',$id)->update(['is_latest_entry'=>0]);
             					$activity = Activity::find($id);
+
+            					if($request->time_update_series=='yes')
+            					{
+            						$updateTime = Activity::where('group_id', $activity->group_id)
+    									->whereDate('start_date', '>', date('Y-m-d'))
+    									->update([
+											'start_time' => $time['start'],
+											'end_time' => $time['end'],
+										]);
+            					}
+
+            					if($request->title_update_series=='yes')
+            					{
+            						$updateTime = Activity::where('group_id', $activity->group_id)
+    									->whereDate('start_date', '>', date('Y-m-d'))
+    									->update([
+											'title' => $request->title
+										]);
+            					}
 
             					$activityLog = $activity->replicate();
 

@@ -45,9 +45,18 @@ class StatisticsJournalController extends Controller
                         ->orWhere('patient_id', $user->parent_id);
                 });
             }
-            
-            if($user->user_type_id !='2') {
-                $query =  $query->whereIn('branch_id',$allChilds);
+
+            if($user->user_type_id !='2') 
+            {
+                if($user->user_type_id =='3') 
+                {
+                    $user_records = getAllowUserList('visible-all-patients-journal');
+                    $query->whereIn('journals.patient_id', $user_records);
+                }
+                else
+                {
+                    $query =  $query->whereIn('branch_id',$allChilds);
+                }
             }
 
             if(!empty($request->patient_id))
@@ -124,8 +133,17 @@ class StatisticsJournalController extends Controller
                     });
                 }
                 
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-journal');
+                        $query->whereIn('journals.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))
@@ -178,9 +196,18 @@ class StatisticsJournalController extends Controller
                             ->orWhere('patient_id', $user->parent_id);
                     });
                 }
-                
-                if($user->user_type_id !='2') {
-                    $query =  $query->whereIn('branch_id',$allChilds);
+
+                if($user->user_type_id !='2') 
+                {
+                    if($user->user_type_id =='3') 
+                    {
+                        $user_records = getAllowUserList('visible-all-patients-journal');
+                        $query->whereIn('journals.patient_id', $user_records);
+                    }
+                    else
+                    {
+                        $query =  $query->whereIn('branch_id',$allChilds);
+                    }
                 }
 
                 if(!empty($request->patient_id))
