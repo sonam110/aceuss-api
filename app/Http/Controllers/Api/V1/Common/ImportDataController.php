@@ -52,10 +52,16 @@ class ImportDataController extends Controller
         foreach($excalRow as $key => $patient)
         {
             $checkEmail = User::where('email', $patient['email'])->withoutGlobalScope('top_most_parent_id')->first();
+            $checkUnique = User::where('custom_unique_id', $patient['patient_unique_id'])->withoutGlobalScope('top_most_parent_id')->first();
             if($checkEmail)
             {
                 $errorShow = true;
                 $error .= 'ROW no. '.($key + 1). ' is invalid because '. $patient['email'].' email is already exist.<br>'; 
+            }
+            elseif($checkUnique)
+            {
+                $errorShow = true;
+                $error .= 'ROW no. '.($key + 1). ' is invalid because '. $patient['patient_unique_id'].' patient unique ID is already exist.<br>'; 
             }
             else
             {

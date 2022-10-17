@@ -17,7 +17,15 @@ class StatisticsJournalController extends Controller
         try {
             $user = getUser();
             if(!empty($user->branch_id)) {
-                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
@@ -104,11 +112,18 @@ class StatisticsJournalController extends Controller
 
                 $user = getUser();
                 if(!empty($user->branch_id)) {
-                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    if($user->user_type_id==11)
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                        $allChilds[] = $user->id;
+                    }
+                    else
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    }
                 } else {
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }
-                
                 $query = Journal::select([
                     \DB::raw('COUNT(id) as total_journal'),
                     \DB::raw('COUNT(IF(is_signed = 1, 0, NULL)) as total_signed'),
@@ -168,7 +183,15 @@ class StatisticsJournalController extends Controller
                 
                 $user = getUser();
                 if(!empty($user->branch_id)) {
-                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    if($user->user_type_id==11)
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                        $allChilds[] = $user->id;
+                    }
+                    else
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    }
                 } else {
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }

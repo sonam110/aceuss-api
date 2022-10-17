@@ -32,7 +32,15 @@ class TaskController extends Controller
         try {
 	        $user = getUser();
             if(!empty($user->branch_id)) {
-                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
@@ -61,14 +69,22 @@ class TaskController extends Controller
                 ->where('type_id', 7);
             }
 
+            if(!empty($request->title))
+            {
+                $title = $request->title;
+                $query->where(function ($q) use ($title) {
+                    $q->where('tasks.title', 'LIKE', '%'.$title.'%')
+                        ->orWhere('tasks.description', 'LIKE', '%'.$title.'%');
+                });
+            }
+
            
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
-                $query =  $query->whereRaw($whereRaw)
-                ->orderBy('id', 'DESC');
-            } else {
-                $query = $query->orderBy('id', 'DESC');
+                $query =  $query->whereRaw($whereRaw);
             }
+
+            $query = $query->orderBy('tasks.start_date', 'ASC')->orderBy('tasks.start_time', 'ASC');
 
             if(!empty($request->activity_id))
             {
@@ -364,7 +380,8 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-		   $end_date = $request->end_date;
+		    
+            $end_date = $request->end_date;
             $every = '1';
 
             $dateValidate =  Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d');
@@ -388,11 +405,11 @@ class TaskController extends Controller
                     if ($validator->fails()) {
                         return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                     }
-
                 }
-
             } 
-            if($request->remind_before_start ){
+
+            if($request->remind_before_start )
+            {
                 $validator = Validator::make($request->all(),[     
                     "before_minutes"    => "required",
                     // "before_is_text_notify"  => "required",        
@@ -442,7 +459,8 @@ class TaskController extends Controller
     				            $task->before_minutes = $request->before_minutes;
     				            $task->before_is_text_notify = ($request->before_is_text_notify) ? 1  : 0;
     				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1  : 0;
-    				            $task->created_by =$user->id;
+                                $task->created_by = $user->id;
+    				            $task->status = !empty($request->status) ? $request->status : 0;
                                 $task->is_latest_entry = 1;
     						    $task->save();
 
@@ -497,7 +515,7 @@ class TaskController extends Controller
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 				return prepareResult(true,getLangByLabelGroups('Task','message_update') ,$taskList, config('httpcodes.success'));
 
-			}else{
+			} else {
                  return prepareResult(false,'No date found',[], config('httpcodes.bad_request'));
             }
         }
@@ -696,7 +714,7 @@ class TaskController extends Controller
                 $receivers_ids[] = $task->top_most_parent_id;
             }
             if($is_action_perform == false){
-                return prepareResult(false,getLangByLabelGroups('Task','message_unauthorized'),[], config('httpcodes.bad_request')); 
+                return prepareResult(false,getLangByLabelGroups('BcCommon','message_unauthorized'),[], config('httpcodes.bad_request')); 
             }
 
             $task->status = $request->status;
@@ -741,7 +759,7 @@ class TaskController extends Controller
         
         }
         catch(Exception $exception) {
-	       logException($exception);
+	        logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
@@ -793,20 +811,6 @@ class TaskController extends Controller
             {
                 $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
             }
-            
-          
-           
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
-
-             
-        }
-        if (is_null($request->input('title')) == false) {
-            if ($w != '') {$w = $w . " OR ";}
-             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
-             
         }
         if (is_null($request->dateRange) == false) {
         	$now = Carbon::now();

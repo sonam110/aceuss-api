@@ -41,7 +41,8 @@ class LabelSeeder extends Seeder
     			'message_english_cannot_be_deleted'=>'English language cannot be deleted!',
     			'message_subscription_already_expired'=>'Subscription already Expired!',
     			'message_stats'=>'Statistics Fetched!',
-    			'message_cancel'=>'Cancelled succesfully!',
+                'message_cancel'=>'Cancelled succesfully!',
+    			'branch_not_assigned_to_you_cant_access_data'=>'Selected branch not assigned to you, so you cant switch the branch.',
     		],
     		'BcValidation' => [
     			'message_user_type_id_required'=>'Title required!',

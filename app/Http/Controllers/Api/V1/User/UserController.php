@@ -63,7 +63,15 @@ class UserController extends Controller
             $user = getUser();
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             if(!empty($user->branch_id)) {
-                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
@@ -91,8 +99,6 @@ class UserController extends Controller
                     ->orWhere('users.id', $user->parent_id);
                 });
             }
-
-
 
             if($user->user_type_id =='2') {
                 $query = $query->orderBy('users.id','DESC');
@@ -379,7 +385,7 @@ class UserController extends Controller
 
             $notified_company = User::find($user->top_most_parent_id);
             $data_id =  $user->id;
-            if($user->user_type_id == 3)
+            if($user->user_type_id == 3 || $user->user_type_id == 16)
             {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'employee-created')->first();
             }
@@ -583,7 +589,7 @@ class UserController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email')->first();
+            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','branchEmployees:id,employee_id,branch_id','branchEmployees.employee:id,name','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name')->first();
             if($user->user_type_id == 6)
             {
                 // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
@@ -1160,9 +1166,17 @@ class UserController extends Controller
             $user = getUser();
             $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             if(!empty($user->branch_id)) {
-                $allChilds = userTrashedChildBranches(\App\Models\User::find($user->branch_id));
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
             } else {
-                $allChilds = userTrashedChildBranches(\App\Models\User::find($user->id));
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
             $query = User::onlyTrashed()->select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id','users.avatar', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five','users.report_verify','users.verification_method', 
                 DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1 AND start_date >= ".$date.") ipCount"), 

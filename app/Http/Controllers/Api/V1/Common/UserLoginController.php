@@ -95,7 +95,7 @@ class UserLoginController extends Controller
                                     }
                                 }
                         
-                                $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','language:id,title,value', 'branch:id,branch_id,branch_name')->first();    
+                                $user = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','language:id,title,value', 'branch:id,branch_id,branch_name','employeeBranches.branch:id,name,branch_name')->first();    
                                 $user['access_token'] = $token;
                                 $user['user_type']    = @Auth::user()->UserType->name;
                                 $user['roles']    = @Auth::user()->roles[0]->name;

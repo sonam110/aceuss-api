@@ -212,6 +212,13 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('user-email-update', [App\Http\Controllers\Api\V1\User\UserController::class, 'emailUpdate']);
 		Route::post('revoke-patient-employee', [App\Http\Controllers\Api\V1\User\UserController::class, 'revokePatientEmployee']);
 
+		//employee branch
+		Route::post('assign-employee-to-branches', [App\Http\Controllers\Api\V1\User\EmployeeBranchController::class, 'assignEmployeeToBranches']);
+		Route::post('assigned-employee-to-branches', [App\Http\Controllers\Api\V1\User\EmployeeBranchController::class, 'assignedEmployeeToBranches']);
+		Route::post('assigned-branch-to-employees', [App\Http\Controllers\Api\V1\User\EmployeeBranchController::class, 'assignedBranchToEmployees']);
+		Route::post('switch-branch', [App\Http\Controllers\Api\V1\User\EmployeeBranchController::class, 'switchBranch']);
+
+
 	   	Route::get('get-licence-status', [App\Http\Controllers\Api\V1\User\UserController::class, 'getLicenceStatus']);
 
 	   	Route::post('get-company-assigned-packages', [App\Http\Controllers\Api\V1\User\UserController::class, 'getCompanyAssignedPackages']);

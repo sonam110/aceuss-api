@@ -32,6 +32,7 @@ class DashboardController extends Controller
                 $data['packageCount'] = Package::count();
                 $data['moduelCount'] = Module::count();
                 $data['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
+                $data['employeeCount'] = User::where('user_type_id', '16')->count();
                 $data['taskCount'] = Task::whereIn('top_most_parent_id',[null,$user->id])->where('is_latest_entry', 1)->count();
                 $data['licenceCount'] = User::whereNotNull('licence_key')->count();
             }
@@ -64,6 +65,7 @@ class DashboardController extends Controller
                 $user = getUser();
                 if(!empty($user->branch_id)) {
                     $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    $allChilds[] = $user->id;
                 } else {
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }
@@ -128,7 +130,15 @@ class DashboardController extends Controller
             {
                 $user = getUser();
                 if(!empty($user->branch_id)) {
-                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    if($user->user_type_id==11)
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                        $allChilds[] = $user->id;
+                    }
+                    else
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    }
                 } else {
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }

@@ -25,7 +25,15 @@ class PatientCashierController extends Controller
         try {
             $user = getUser();
             if(!empty($user->branch_id)) {
-                $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }

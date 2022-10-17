@@ -48,6 +48,7 @@ use App\Traits\TopMostParentId;
 use App\Models\Stampling;
 use App\Models\Schedule;
 use App\Models\PatientEmployee;
+use App\Models\EmployeeBranch;
 
 class User extends Authenticatable
 {
@@ -462,6 +463,16 @@ class User extends Authenticatable
     public function employeePatients()
     {
         return $this->hasMany(PatientEmployee::class,'employee_id','id');
+    }
+
+    public function branchEmployees()
+    {
+        return $this->hasMany(EmployeeBranch::class,'branch_id','id');
+    }
+
+    public function employeeBranches()
+    {
+        return $this->hasMany(EmployeeBranch::class,'employee_id','id');
     }
 
 }

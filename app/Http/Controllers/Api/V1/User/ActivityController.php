@@ -40,10 +40,18 @@ class ActivityController extends Controller
 		{
 			$user = getUser();
 			if(!empty($user->branch_id)) {
-				$allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
-			} else {
-				$allChilds = userChildBranches(\App\Models\User::find($user->id));
-			}
+                if($user->user_type_id==11)
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                    $allChilds[] = $user->id;
+                }
+                else
+                {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                }
+            } else {
+                $allChilds = userChildBranches(\App\Models\User::find($user->id));
+            }
 
 			$whereRaw = $this->getWhereRawFromRequest($request);
 			$query = Activity::select('activities.*')->with('Category:id,name','Subcategory:id,name','Patient','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email,avatar','assignEmployee.employee:id,name,email,avatar','branch:id,name,branch_name')->withCount('comments')

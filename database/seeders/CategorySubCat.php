@@ -784,13 +784,15 @@ välja och köpa en specifik sak eller att besluta att ',
                 ]
             ],*/
         ];
+
+
         foreach ($data as $key => $category) {
             $categoryMaster = new CategoryMaster;
             $categoryMaster->top_most_parent_id = 1;
             $categoryMaster->created_by = 1;
             $categoryMaster->parent_id = null;
             $categoryMaster->category_type_id = ($category['name']=='Ej utförd insatser') ? 4 : 2;
-            $categoryMaster->name = $category['name'];
+            $categoryMaster->name = preg_replace('/\s+/', ' ', $category['name']);
             $categoryMaster->category_color = "#ff0000";
             $categoryMaster->is_global = '1';
             $categoryMaster->entry_mode = 'Web';
@@ -801,7 +803,7 @@ välja och köpa en specifik sak eller att besluta att ',
                 $subcategory->top_most_parent_id = 1;
                 $subcategory->created_by = 1;
                 $subcategory->category_type_id = ($category['name']=='Ej utförd insatser') ? 4 : 2;
-                $subcategory->name = $subcat['name'];
+                $subcategory->name = preg_replace('/\s+/', ' ', $subcat['name']);
                 $subcategory->category_color = "#ff0000";
                 $subcategory->is_global = '1';
                 $subcategory->entry_mode = 'Web';
