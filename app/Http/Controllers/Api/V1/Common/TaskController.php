@@ -44,7 +44,7 @@ class TaskController extends Controller
             } else {
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
-            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id','tasks.status', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')
+            $query = Task::select('tasks.id','tasks.type_id','tasks.parent_id','tasks.resource_id','tasks.title','tasks.description','tasks.status','tasks.branch_id','tasks.id', 'tasks.updated_at','tasks.created_by','tasks.file','tasks.start_date','tasks.start_time','tasks.end_date','tasks.end_time','tasks.comment','tasks.action_by')
                 ->where('is_latest_entry',1)
                 ->with('actionBy:id,name','branch:id,name,branch_name','createdBy:id,name');
             if($user->user_type_id =='2'){
@@ -109,8 +109,8 @@ class TaskController extends Controller
             }
 
             $taskCounts = Task::select([
-                \DB::raw('COUNT(IF(status = 1, 0, NULL)) as total_done'),
-                \DB::raw('COUNT(IF(status = 0, 0, NULL)) as total_not_done')
+                \DB::raw('COUNT(IF(tasks.status = 1, 0, NULL)) as total_done'),
+                \DB::raw('COUNT(IF(tasks.status = 0, 0, NULL)) as total_not_done')
             ])->where('is_latest_entry',1);
 
             if($user->user_type_id =='2'){
@@ -344,7 +344,7 @@ class TaskController extends Controller
 
                 
 			
-				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
+				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 				return prepareResult(true,getLangByLabelGroups('Task','message_create') ,$taskList, config('httpcodes.success'));
 
@@ -511,7 +511,7 @@ class TaskController extends Controller
 					}
 				}
 			
-				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date','comment')
+				$taskList = Task::select('id','type_id','parent_id','resource_id','title','description','status','branch_id', 'updated_at','created_by','start_date','end_date','comment')
                     ->whereIn('id',$task_ids)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->get();
 				return prepareResult(true,getLangByLabelGroups('Task','message_update') ,$taskList, config('httpcodes.success'));
 
@@ -752,7 +752,7 @@ class TaskController extends Controller
             }
             
             DB::commit();
-            $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id','id','status', 'updated_at','created_by','start_date','end_date')
+            $taskList = Task::select('id','type_id','parent_id','title','description','status','branch_id', 'updated_at','created_by','start_date','end_date')
                     ->where('id',$request->task_id)->with('assignEmployee.employee:id,name,email,contact_number','createdBy:id,name')->first();
             return prepareResult(true,getLangByLabelGroups('Task','message_action') ,$taskList, config('httpcodes.success'));
            
@@ -770,9 +770,9 @@ class TaskController extends Controller
     private function getWhereRawFromRequest(Request $request) 
     {
         $w = '';
-        if (is_null($request->input('status')) == false) {
+        if (is_null($request->input('tasks.status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+            $w = $w . "(" . "tasks.status = "."'" .$request->input('tasks.status')."'".")";
         }
         if (is_null($request->input('resource_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}

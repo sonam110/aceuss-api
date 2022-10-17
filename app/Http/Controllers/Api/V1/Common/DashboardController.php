@@ -25,8 +25,9 @@ class DashboardController extends Controller
     {
         try {
             $user = getUser();
+            
             $data = [];
-            if($user->user_type_id == 1)
+            if($user->user_type_id == '1' || $user->user_type_id == '16')
             {
                 $data['companyCount'] = User::where('user_type_id','2')->count();
                 $data['packageCount'] = Package::count();

@@ -435,6 +435,7 @@ class UserController extends Controller
                         if(!empty($value['name']))
                         {
                             $is_user = true;
+                            $user_type_id = null;
                             if(@$value['is_family_member'] == true){
                                 $user_type_id ='8';
                                 $is_user = true;
@@ -464,7 +465,7 @@ class UserController extends Controller
                             if($is_user == true) {
                                 $top_most_parent_id = auth()->user()->top_most_parent_id;
                                 $checkAlreadyUser = User::where('email', @$value['email'])->first();
-                                if(empty($checkAlreadyUser)) {
+                                if(empty($checkAlreadyUser) && !empty($user_type_id)) {
                                     $getUserType = UserType::find($user_type_id);
                                     $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
                                     
@@ -862,23 +863,30 @@ class UserController extends Controller
                                 $userSave->role_id =  $roleInfo->id;
                                 $userSave->parent_id = $user->id;
                                 $userSave->top_most_parent_id = $top_most_parent_id;
-                                $userSave->name = @$value['name'] ;
-                                $userSave->email = @$value['email'] ;
-                                $userSave->password = Hash::make('12345678');
-                                $userSave->contact_number = @$value['contact_number'];
-                                $userSave->country_id = @$value['country_id'];
-                                $userSave->city = @$value['city'];
-                                $userSave->postal_area = @$value['postal_area'];
-                                $userSave->zipcode = @$value['zipcode'];
-                                $userSave->full_address = @$value['full_address'];
-                                $userSave->is_family_member = returnBoolean(@$value['is_family_member']);
-                                $userSave->is_caretaker = returnBoolean(@$value['is_caretaker']);
-                                $userSave->is_contact_person = returnBoolean(@$value['is_contact_person']);
-                                $userSave->is_guardian = returnBoolean(@$value['is_guardian']);
-                                $userSave->is_other = returnBoolean(@$value['is_other']);
-                                $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : 0 ;
-                                $userSave->save(); 
-
+                            } 
+                            else
+                            {
+                                $userSave = $checkAlreadyUser;
+                            }
+                            $userSave->name = @$value['name'] ;
+                            $userSave->email = @$value['email'] ;
+                            $userSave->password = Hash::make('12345678');
+                            $userSave->contact_number = @$value['contact_number'];
+                            $userSave->country_id = @$value['country_id'];
+                            $userSave->city = @$value['city'];
+                            $userSave->postal_area = @$value['postal_area'];
+                            $userSave->zipcode = @$value['zipcode'];
+                            $userSave->full_address = @$value['full_address'];
+                            $userSave->is_family_member = returnBoolean(@$value['is_family_member']);
+                            $userSave->is_caretaker = returnBoolean(@$value['is_caretaker']);
+                            $userSave->is_contact_person = returnBoolean(@$value['is_contact_person']);
+                            $userSave->is_guardian = returnBoolean(@$value['is_guardian']);
+                            $userSave->is_other = returnBoolean(@$value['is_other']);
+                            $userSave->is_other_name = (@$value['is_other_name']) ? @$value['is_other_name'] : null ;
+                            $userSave->save(); 
+                            
+                            if(empty($checkAlreadyUser)) 
+                            {
                                 if(!empty($user_type_id))
                                 {
                                     $role = $roleInfo;

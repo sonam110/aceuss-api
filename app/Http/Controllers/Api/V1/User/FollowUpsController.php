@@ -212,18 +212,21 @@ class FollowUpsController extends Controller
 
                         /*--notify-user-followup-created--*/
                         $notifyUser = User::find($ipCheck->user_id);
-                        $data_id =  $ipFollowups->id;
-                        $notification_template = EmailTemplate::where('mail_sms_for', 'followup-created')->first();
-                        $variable_data = [
-                            '{{name}}' => $notifyUser->name,
-                            '{{created_by}}' => Auth::User()->name,
-                            '{{title}}' => $ipFollowups->title,
-                            '{{start_date}}' => $ipFollowups->start_date,
-                            '{{start_time}}' => $ipFollowups->start_time,
-                            '{{end_date}}' => $ipFollowups->end_date,
-                            '{{end_time}}' => $ipFollowups->end_time
-                        ];
-                        actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        if($notifyUser)
+                        {
+                            $data_id =  $ipFollowups->id;
+                            $notification_template = EmailTemplate::where('mail_sms_for', 'followup-created')->first();
+                            $variable_data = [
+                                '{{name}}' => $notifyUser->name,
+                                '{{created_by}}' => Auth::User()->name,
+                                '{{title}}' => $ipFollowups->title,
+                                '{{start_date}}' => $ipFollowups->start_date,
+                                '{{start_time}}' => $ipFollowups->start_time,
+                                '{{end_date}}' => $ipFollowups->end_date,
+                                '{{end_time}}' => $ipFollowups->end_time
+                            ];
+                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        }
                         //------------------------------//
             		 	
 

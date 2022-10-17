@@ -625,7 +625,7 @@ class ScheduleController extends Controller
 				$vacation = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('vacation_duration');
                 
                 $total_hours = round((($schduled + $extra + $obe + $emergency)/60), 2);
-				$data['labels'][] = $value->user->name.'('.$total_hours.')';
+				$data['labels'][] = ($value->user) ? $value->user->name.'('.$total_hours.')' : ' ('.$total_hours.')';
 				$data['total_hours'][] = $total_hours;
 				$data['regular_hours'][] = round(($schduled/60), 2);
 				$data['extra_hours'][] = round(($extra/60), 2);

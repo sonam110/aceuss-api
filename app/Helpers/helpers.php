@@ -38,7 +38,7 @@ function userInfo($user_id) {
 }
 
 function returnBoolean($bool=null) {
-    return ($bool) ? 1 : 0;
+    return ($bool==1 || $bool==true) ? 1 : 0;
 }
 
 function logException($exception)
