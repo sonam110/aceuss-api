@@ -46,7 +46,7 @@ class PatientCashiersExport implements FromCollection, WithHeadings
                 'Date' => $data->date,
 	            'Amount' =>$data->amount,
 	            'Receipt No.' =>$data->receipt_no,
-	            'type' =>($data->type==1) ? 'IN' : 'O'U,
+	            'type' =>($data->type==1) ? 'IN' : 'OUT',
 	            'file' =>$data->file,
 	            'comment' =>$data->comment
             ];
