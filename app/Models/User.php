@@ -159,7 +159,7 @@ class User extends Authenticatable
     }
     public function companySetting()
     {
-        return $this->belongsTo(CompanySetting::class,'id','user_id');
+        return $this->belongsTo(CompanySetting::class,'id','user_id')->withTrashed();
     }
     
     public function UserType()

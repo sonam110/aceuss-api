@@ -80,7 +80,7 @@ class ManageLicenceController extends Controller
                     foreach ($modules as $key => $module) {
                         $mod[] = Module::find($module);
                     }
-                    $value['company'] = User::with('companySetting:id,user_id,company_name,company_logo,company_email')->find($value->top_most_parent_id);
+                    $value['company'] = User::with('companySetting:id,user_id,company_name,company_logo,company_email')->withTrashed()->find($value->top_most_parent_id);
                     $value['package'] = json_decode($value->package_details);
                     $value['module'] = $mod;
                     $data[] = $value;
