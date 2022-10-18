@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Deviation;
 use Illuminate\Http\Request;
 use Validator;
+use Carbon\Carbon;
 use Auth;
 use DB;
 use Exception;
@@ -267,13 +268,14 @@ class StatisticsDeviationController extends Controller
 
     public function getMonthWiseReport(Request $request)
     {
-        $datalabels = [];
+        $period = now()->startOfMonth()->subMonths(6)->monthsUntil(now());
         $data = [];
-        for($i = 6; $i>=1; $i--)
+        $datalabels = [];
+        foreach ($period as $date)
         {
-            $month = date('m',strtotime('-'.($i-1).' months'));
-            $datalabels[] = \Carbon\Carbon::parse('2020-'.$month.'-01')->format('M');
-
+            $datalabels[] = $date->shortMonthName.' '.Carbon::parse('01-01-'.$date->year)->format('y');
+            $month = $date->month;
+            $year = $date->year;
             $user = getUser();
             if(!empty($user->branch_id)) {
                 if($user->user_type_id==11)
@@ -329,10 +331,15 @@ class StatisticsDeviationController extends Controller
                 $query->where('patient_id', $request->patient_id);
             }
             $query->whereRaw('MONTH(date_time) = '.$month);         
+            $query->whereRaw('YEAR(date_time) = '.$year);         
             $result = $query->first();
             $data[] = $result->total_deviation;
         }
-        $returnObj = ['datalabels'=>$datalabels,'data'=>$data];
+
+        $returnObj = [
+            'datalabels' => $datalabels,
+            'data' => $data
+        ];
         return prepareResult(true,getLangByLabelGroups('CompanyType','message_stats'),$returnObj,config('httpcodes.success'));
     }
 }

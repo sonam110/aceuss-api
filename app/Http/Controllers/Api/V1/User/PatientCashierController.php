@@ -47,6 +47,10 @@ class PatientCashierController extends Controller
                     $user_records = getAllowUserList('visible-all-patients-cashier');
                     $query->whereIn('patient_cashiers.patient_id', $user_records);
                 }
+                elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+                {
+                    
+                }
                 else
                 {
                     $query =  $query->whereIn('branch_id',$allChilds);
@@ -59,6 +63,13 @@ class PatientCashierController extends Controller
                     $q->where('patient_id', $user->id)
                         ->orWhere('patient_id', $user->parent_id);
                 });
+            }
+            else
+            {
+                if(!empty($request->patient_id))
+                {
+                    $query->where('patient_id', $request->patient_id);
+                }
             }
 
             if(!empty($request->branch_id))
@@ -80,10 +91,7 @@ class PatientCashierController extends Controller
                 $query->where('amount', '<=',$request->amount_to);
             }
 
-            if(!empty($request->patient_id))
-            {
-                $query->where('patient_id', $request->patient_id);
-            }
+            
 
             if(!empty($request->type))
             {
