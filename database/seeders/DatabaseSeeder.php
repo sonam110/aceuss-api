@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DefaultEntrySeeder::class);
         $this->call(AgencySeeder::class);
         $this->call(MailSmsTemplateSeeder::class);
-        $this->call(RoleSeeder::class);
+        //$this->call(RoleSeeder::class);
         //$this->call(PermissionSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(UserTypePermissionSeeder::class);
@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LabelSeeder::class);
 
         \DB::unprepared(file_get_contents(storage_path('db-backups/permissions.sql')));
+        \DB::unprepared(file_get_contents(storage_path('db-backups/roles.sql')));
         \DB::unprepared(file_get_contents(storage_path('db-backups/user_type_has_permissions.sql')));
         \DB::unprepared(file_get_contents(storage_path('db-backups/role_has_permissions.sql')));
         \DB::unprepared(file_get_contents(storage_path('db-backups/bookmark_masters.sql')));

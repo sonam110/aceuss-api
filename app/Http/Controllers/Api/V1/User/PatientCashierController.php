@@ -16,7 +16,7 @@ class PatientCashierController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:patient_cashiers',['except' => ['show']]);
+        $this->middleware('permission:patient_cashiers');
         $this->middleware('permission:patient_cashier-add', ['only' => ['store']]);
     }
 

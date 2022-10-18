@@ -31,29 +31,29 @@ class ModuleRequestController extends Controller
 		{
 			$user = getUser();
 			$query = ModuleRequest::orderBy('id', 'DESC')->with('user:id,name');
-			if($user->user_type_id == 3)
+			if($user->user_type_id != 1 && $user->user_type_id != 16)
 			{
-				$query->where('user_id',Auth::id());
+				$query->where(function ($q) {
+	                $q->where('user_id', auth()->id())
+	                    ->orWhere('user_id', auth()->user()->top_most_parent_id);
+	            });
 			}
-			if(!empty($request->status))
-			{
-				$query->where('status', $request->status);
-			}
+
 			if(!empty($request->perPage))
 			{
 				$perPage = $request->perPage;
-				$page = $request->input('page', 1);
-				$total = $query->count();
-				$result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+                $page = $request->input('page', 1);
+                $total = $query->count();
+                $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
-				$pagination =  [
-					'data' => $result,
-					'total' => $total,
-					'current_page' => $page,
-					'per_page' => $perPage,
-					'last_page' => ceil($total / $perPage),
-				];
-				$quesry = $pagination;
+                $pagination =  [
+                    'data' => $result,
+                    'total' => $total,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'last_page' => ceil($total / $perPage)
+                ];
+                $query = $pagination;
 			}
 			else
 			{
@@ -110,7 +110,8 @@ class ModuleRequestController extends Controller
 		}
 	}
 
-	public function update(Request $request,$id){
+	public function update(Request $request,$id)
+	{
 		DB::beginTransaction();
 		try 
 		{

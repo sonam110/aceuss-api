@@ -436,6 +436,14 @@ class UserController extends Controller
                         {
                             $is_user = true;
                             $user_type_id = null;
+                            if(@$value['is_other'] == true){
+                                $user_type_id ='15';
+                                $is_user = true;
+                            }
+                            if(@$value['is_guardian'] == true){
+                                $user_type_id ='12';
+                                $is_user = true;
+                            }
                             if(@$value['is_family_member'] == true){
                                 $user_type_id ='8';
                                 $is_user = true;
@@ -444,20 +452,13 @@ class UserController extends Controller
                                 $user_type_id ='7';
                                 $is_user = true;
                             }
-                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                                $user_type_id ='10';
-                                $is_user = true;
-                            }
+                            
                             if(@$value['is_contact_person'] == true){
                                 $user_type_id ='9';
                                 $is_user = true;
                             }
-                            if(@$value['is_guardian'] == true){
-                                $user_type_id ='12';
-                                $is_user = true;
-                            }
-                            if(@$value['is_other'] == true){
-                                $user_type_id ='15';
+                            if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                                $user_type_id ='10';
                                 $is_user = true;
                             }
 
@@ -821,6 +822,15 @@ class UserController extends Controller
                     if(!empty($value['name']))
                     {
                         $is_user = false;
+                        $user_type_id = null;
+                        if(@$value['is_other'] == true){
+                            $user_type_id ='15';
+                            $is_user = true;
+                        }
+                        if(@$value['is_guardian'] == true){
+                            $user_type_id ='12';
+                            $is_user = true;
+                        }
                         if(@$value['is_family_member'] == true){
                             $user_type_id ='8';
                             $is_user = true;
@@ -829,23 +839,15 @@ class UserController extends Controller
                             $user_type_id ='7';
                             $is_user = true;
                         }
-                        if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
-                            $user_type_id ='10';
-                            $is_user = true;
-                        }
+                        
                         if(@$value['is_contact_person'] == true){
                             $user_type_id ='9';
                             $is_user = true;
                         }
-                        if(@$value['is_guardian'] == true){
-                            $user_type_id ='12';
+                        if((@$value['is_caretaker'] == true) && (@$value['is_family_member'] == true )){
+                            $user_type_id ='10';
                             $is_user = true;
                         }
-                        if(@$value['is_other'] == true){
-                            $user_type_id ='15';
-                            $is_user = true;
-                        }
-
 
                         /*-----Create Account /Entry in user table*/
                         if($is_user == true) {
@@ -901,6 +903,19 @@ class UserController extends Controller
                                     ]);    
                                     Mail::to($userSave->email)->send(new WelcomeMail($content));
                                 }
+                            }
+                            else
+                            {
+                                if(!empty($user_type_id))
+                                {
+                                    $getUserType = UserType::find($user_type_id);
+                                    $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
+
+                                    $role = $roleInfo;
+                                    //Delete old role
+                                    \DB::table('model_has_roles')->where('model_id', $userSave->id)->delete();
+                                    $userSave->assignRole($role->name);
+                                }  
                             }
                         }
                     }

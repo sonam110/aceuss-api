@@ -14,451 +14,2675 @@ class PermissionSeeder extends Seeder
      */
     public function run()
     {
-
+      app()['cache']->forget('spatie.permission.cache');
       
-       app()['cache']->forget('spatie.permission.cache');
-       // create roles and assign existing permissions
-        Permission::create(['name' => 'companies-browse', 'guard_name' => 'api','group_name'=>'companies','se_name'=>'companies-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companies-read', 'guard_name' => 'api','group_name'=>'companies','se_name'=>'companies-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companies-add', 'guard_name' => 'api','group_name'=>'companies','se_name'=>'companies-create','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companies-edit', 'guard_name' => 'api','group_name'=>'companies','se_name'=>'companies-edit','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companies-delete', 'guard_name' => 'api','group_name'=>'companies','se_name'=>'companies-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'role-browse', 'guard_name' => 'api','group_name'=>'role','se_name'=>'role-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'role-read', 'guard_name' => 'api','group_name'=>'role','se_name'=>'role-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'role-add', 'guard_name' => 'api','group_name'=>'role','se_name'=>'role-add','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'role-edit', 'guard_name' => 'api','group_name'=>'role','se_name'=>'role-edit','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'role-delete', 'guard_name' => 'api','group_name'=>'role','se_name'=>'role-delete','belongs_to'=>'3']);
-
-
-         Permission::create(['name' => 'dashboard-browse', 'guard_name' => 'api','group_name'=>'dashboard','se_name'=>'dashboard-browse','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'notifications-browse', 'guard_name' => 'api','group_name'=>'notifications','se_name'=>'notifications-browse','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'notifications-add', 'guard_name' => 'api','group_name'=>'notifications','se_name'=>'notifications-add','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'notifications-edit', 'guard_name' => 'api','group_name'=>'notifications','se_name'=>'notifications-edit','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'notifications-delete', 'guard_name' => 'api','group_name'=>'notifications','se_name'=>'notifications-delete','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'requests-browse', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-browse','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'requests-add', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-add','belongs_to'=>'3']);
-         Permission::create(['name' => 'requests-read', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'requests-edit', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'requests-delete', 'guard_name' => 'api','group_name'=>'requests','se_name'=>'requests-delete','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'users-browse', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'users-add', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-add','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'users-read', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'users-edit', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'users-delete', 'guard_name' => 'api','group_name'=>'users','se_name'=>'users-delete','belongs_to'=>'3']);
-
-      
-
-        Permission::create(['name' => 'categories-browse', 'guard_name' => 'api','group_name'=>'categories','se_name'=>'categories-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'categories-add', 'guard_name' => 'api','group_name'=>'categories','se_name'=>'categories-add','belongs_to'=>'3']);
-        Permission::create(['name' => 'categories-read', 'guard_name' => 'api','group_name'=>'categories','se_name'=>'categories-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'categories-edit', 'guard_name' => 'api','group_name'=>'categories','se_name'=>'categories-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'categories-delete', 'guard_name' => 'api','group_name'=>'categories','se_name'=>'categories-delete','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'licences-browse', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'licences-add', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'licences-read', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'licences-edit', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'licences-delete', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'modules-browse', 'guard_name' => 'api','group_name'=>'modules','se_name'=>'modules-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'modules-add', 'guard_name' => 'api','group_name'=>'modules','se_name'=>'modules-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'modules-read', 'guard_name' => 'api','group_name'=>'modules','se_name'=>'modules-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'modules-edit', 'guard_name' => 'api','group_name'=>'modules','se_name'=>'modules-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'modules-delete', 'guard_name' => 'api','group_name'=>'modules','se_name'=>'modules-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'packages-browse', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'packages-add', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'packages-read', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'packages-edit', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'packages-delete', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-delete','belongs_to'=>'1']);
-
-
-        Permission::create(['name' => 'userType-browse', 'guard_name' => 'api','group_name'=>'userType','se_name'=>'userType-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'userType-add', 'guard_name' => 'api','group_name'=>'userType','se_name'=>'userType-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'userType-read', 'guard_name' => 'api','group_name'=>'userType','se_name'=>'userType-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'userType-edit', 'guard_name' => 'api','group_name'=>'userType','se_name'=>'userType-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'userType-delete', 'guard_name' => 'api','group_name'=>'userType','se_name'=>'userType-delete','belongs_to'=>'1']);
-
-         Permission::create(['name' => 'companyType-browse', 'guard_name' => 'api','group_name'=>'companyType','se_name'=>'companyType-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companyType-add', 'guard_name' => 'api','group_name'=>'companyType','se_name'=>'companyType-add','belongs_to'=>'1']);
-        Permission::create(['name' => 'companyType-read', 'guard_name' => 'api','group_name'=>'companyType','se_name'=>'companyType-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'companyType-edit', 'guard_name' => 'api','group_name'=>'companyType','se_name'=>'companyType-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'companyType-delete', 'guard_name' => 'api','group_name'=>'companyType','se_name'=>'companyType-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'settings-browse', 'guard_name' => 'api','group_name'=>'settings','se_name'=>'settings-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'settings-add', 'guard_name' => 'api','group_name'=>'settings','se_name'=>'settings-add','belongs_to'=>'3']);
-        Permission::create(['name' => 'settings-read', 'guard_name' => 'api','group_name'=>'settings','se_name'=>'settings-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'settings-edit', 'guard_name' => 'api','group_name'=>'settings','se_name'=>'settings-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'settings-delete', 'guard_name' => 'api','group_name'=>'settings','se_name'=>'settings-delete','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'adminEmployee-browse', 'guard_name' => 'api','group_name'=>'adminEmployee','se_name'=>'adminEmployee-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'adminEmployee-add', 'guard_name' => 'api','group_name'=>'adminEmployee','se_name'=>'adminEmployee-add','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'adminEmployee-read', 'guard_name' => 'api','group_name'=>'adminEmployee','se_name'=>'adminEmployee-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'adminEmployee-edit', 'guard_name' => 'api','group_name'=>'adminEmployee','se_name'=>'adminEmployee-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'adminEmployee-delete', 'guard_name' => 'api','group_name'=>'adminEmployee','se_name'=>'adminEmployee-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'employees-browse', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'employees-add', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-add','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'employees-read', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'employees-edit', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'employees-delete', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'employees-change-pwd', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-change-pwd','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'employees-assign-hours', 'guard_name' => 'api','group_name'=>'employees','se_name'=>'employees-assign-hours','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'patients-browse', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'patients-add', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-add','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'patients-read', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'patients-edit', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'patients-delete', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-delete','belongs_to'=>'2']);
-
-       Permission::create(['name' => 'patients-change-pwd', 'guard_name' => 'api','group_name'=>'patients','se_name'=>'patients-change-pwd','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'departments-browse', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'departments-add', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'departments-read', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'departments-edit', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'departments-delete', 'guard_name' => 'api','group_name'=>'departments','se_name'=>'departments-delete','belongs_to'=>'2']);
-
-       
-        Permission::create(['name' => 'journal-browse', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-add', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'journal-read', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-edit', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'journal-delete', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'journal-action', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-action','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'journal-stats-view', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'journal-stats-view','belongs_to'=>'2']);
-
-       
-        Permission::create(['name' => 'deviation-browse', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'deviation-add', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'deviation-read', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'deviation-edit', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'deviation-delete', 'guard_name' => 'api','group_name'=>'deviation','se_name'=>'deviation-delete','belongs_to'=>'2']);
-
-        
-        Permission::create(['name' => 'schedule-browse', 'guard_name' => 'api','group_name'=>'schedule','se_name'=>'schedule-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-add', 'guard_name' => 'api','group_name'=>'schedule','se_name'=>'schedule-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'schedule-read', 'guard_name' => 'api','group_name'=>'schedule','se_name'=>'schedule-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-edit', 'guard_name' => 'api','group_name'=>'schedule','se_name'=>'schedule-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'schedule-delete', 'guard_name' => 'api','group_name'=>'schedule','se_name'=>'schedule-delete','belongs_to'=>'2']);
-
-
-        Permission::create(['name' => 'persons-browse', 'guard_name' => 'api','group_name'=>'persons','se_name'=>'persons-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'persons-add', 'guard_name' => 'api','group_name'=>'persons','se_name'=>'persons-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'persons-read', 'guard_name' => 'api','group_name'=>'persons','se_name'=>'persons-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'persons-edit', 'guard_name' => 'api','group_name'=>'persons','se_name'=>'persons-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'persons-delete', 'guard_name' => 'api','group_name'=>'persons','se_name'=>'persons-delete','belongs_to'=>'2']);
-
-       
-        Permission::create(['name' => 'workShift-browse', 'guard_name' => 'api','group_name'=>'workShift','se_name'=>'workShift-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'workShift-add', 'guard_name' => 'api','group_name'=>'workShift','se_name'=>'workShift-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'workShift-read', 'guard_name' => 'api','group_name'=>'workShift','se_name'=>'workShift-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'workShift-edit', 'guard_name' => 'api','group_name'=>'workShift','se_name'=>'workShift-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'workShift-delete', 'guard_name' => 'api','group_name'=>'workShift','se_name'=>'workShift-delete','belongs_to'=>'2']);
-
-
-        Permission::create(['name' => 'branch-browse', 'guard_name' => 'api','group_name'=>'branch','se_name'=>'branch-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'branch-add', 'guard_name' => 'api','group_name'=>'branch','se_name'=>'branch-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'branch-read', 'guard_name' => 'api','group_name'=>'branch','se_name'=>'branch-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'branch-edit', 'guard_name' => 'api','group_name'=>'branch','se_name'=>'branch-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'branch-delete', 'guard_name' => 'api','group_name'=>'branch','se_name'=>'branch-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'ip-browse', 'guard_name' => 'api','group_name'=>'ip','se_name'=>'ip-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'ip-add', 'guard_name' => 'api','group_name'=>'ip','se_name'=>'ip-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'ip-read', 'guard_name' => 'api','group_name'=>'ip','se_name'=>'ip-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'ip-edit', 'guard_name' => 'api','group_name'=>'ip','se_name'=>'ip-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'ip-delete', 'guard_name' => 'api','group_name'=>'ip','se_name'=>'ip-delete','belongs_to'=>'2']);
-
-     
-        Permission::create(['name' => 'followup-browse', 'guard_name' => 'api','group_name'=>'followup','se_name'=>'followup-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'followup-add', 'guard_name' => 'api','group_name'=>'followup','se_name'=>'followup-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'followup-read', 'guard_name' => 'api','group_name'=>'followup','se_name'=>'followup-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'followup-edit', 'guard_name' => 'api','group_name'=>'followup','se_name'=>'followup-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'followup-delete', 'guard_name' => 'api','group_name'=>'followup','se_name'=>'followup-delete','belongs_to'=>'2']);
-
-       
-        Permission::create(['name' => 'activity-browse', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'activity-add', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'activity-read', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'activity-edit', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'activity-delete', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-delete','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'activity-stats', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'activity-stats','belongs_to'=>'2']);
-
-          
-        Permission::create(['name' => 'reports-delete', 'guard_name' => 'api','group_name'=>'reports','se_name'=>'reports-delete','belongs_to'=>'3']);
-
-
-        Permission::create(['name' => 'words-browse', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'words-add', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-add','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'words-read', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'words-edit', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'words-delete', 'guard_name' => 'api','group_name'=>'words','se_name'=>'words-delete','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'paragraphs-browse', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'paragraphs-add', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-add','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'paragraphs-read', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'paragraphs-edit', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'paragraphs-delete', 'guard_name' => 'api','group_name'=>'paragraphs','se_name'=>'paragraphs-delete','belongs_to'=>'3']);
-        
-
-        Permission::create(['name' => 'task-browse', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-browse','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'task-add', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-add','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'task-read', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-read','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'task-edit', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-edit','belongs_to'=>'3']);
-        
-        Permission::create(['name' => 'task-delete', 'guard_name' => 'api','group_name'=>'task','se_name'=>'task-delete','belongs_to'=>'3']);
-
-        Permission::create(['name' => 'internalCom-read', 'guard_name' => 'api','group_name'=>'command','se_name'=>'internalCom-read','belongs_to'=>'2']);
-
-         Permission::create(['name' => 'EmailTemplate-browse', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-browse','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'EmailTemplate-add', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-add','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'EmailTemplate-read', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'EmailTemplate-edit', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-edit','belongs_to'=>'1']);
-        
-        Permission::create(['name' => 'EmailTemplate-delete', 'guard_name' => 'api','group_name'=>'EmailTemplate','se_name'=>'EmailTemplate-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'questions-browse', 'guard_name' => 'api','group_name'=>'questions','se_name'=>'questions-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'questions-add', 'guard_name' => 'api','group_name'=>'questions','se_name'=>'questions-add','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'questions-read', 'guard_name' => 'api','group_name'=>'questions','se_name'=>'questions-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'questions-edit', 'guard_name' => 'api','group_name'=>'questions','se_name'=>'questions-edit','belongs_to'=>'2']);
-        
-        Permission::create(['name' => 'questions-delete', 'guard_name' => 'api','group_name'=>'questions','se_name'=>'questions-delete','belongs_to'=>'2']);
-
-
-         Permission::create(['name' => 'isCategoryEditPermission-edit', 'guard_name' => 'api','group_name'=>'isCategoryEditPermission','se_name'=>'isCategoryEditPermission-edit','belongs_to'=>'2']);
-
-         Permission::create(['name' => 'calendar-browse', 'guard_name' => 'api','group_name'=>'calendar','se_name'=>'calendar-browse','belongs_to'=>'2']);
-
-         Permission::create(['name' => 'patientimport-add', 'guard_name' => 'api','group_name'=>'import','se_name'=>'patientimport-add','belongs_to'=>'2']);
-
-
-         Permission::create(['name' => 'files-browse', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-browse','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'files-read', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-read','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'files-edit', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-edit','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'files-add', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-add','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'files-delete', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-delete','belongs_to'=>'3']);
-
-         Permission::create(['name' => 'import-language', 'guard_name' => 'api','group_name'=>'language','se_name'=>'import-language','belongs_to'=>'1']);
-         
-         Permission::create(['name' => 'trashed-activites', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites','belongs_to'=>'2']);
-         Permission::create(['name' => 'trashed-activites-permanent-delete', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-permanent-delete','belongs_to'=>'2']);
-         Permission::create(['name' => 'trashed-activites-restore', 'guard_name' => 'api','group_name'=>'activity','se_name'=>'trashed-activites-restore','belongs_to'=>'2']);
-
-
-        Permission::create(['name' => 'bookmark-read', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'bookmark-add', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'bookmark-edit', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'bookmark-delete', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'bookmark-browse', 'guard_name' => 'api','group_name'=>'bookmark','se_name'=>'bookmark-browse','belongs_to'=>'2']);
-
-         
-
-        Permission::create(['name' => 'label-read', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-read','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'label-add', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-create','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'label-edit', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-edit','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'label-delete', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-delete','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'label-browse', 'guard_name' => 'api','group_name'=>'label','se_name'=>'label-browse','belongs_to'=>'1']); 
-
-        Permission::create(['name' => 'patient_cashiers', 'guard_name' => 'api','group_name'=>'patient_cashiers','se_name'=>'patient_cashiers','belongs_to'=>'2']); 
-
-        Permission::create(['name' => 'patient_cashier-add', 'guard_name' => 'api','group_name'=>'patient_cashiers','se_name'=>'patient_cashier-add','belongs_to'=>'2']); 
-
-
-        //--------added group schedule-template---------------------//
-        Permission::create(['name' => 'schedule-template-read', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-template-add', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-template-edit', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-template-delete', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'schedule-template-browse', 'guard_name' => 'api','group_name'=>'schedule-template','se_name'=>'schedule-template-browse','belongs_to'=>'2']);
-
-        //--------added group hours-approval---------------------//
-        Permission::create(['name' => 'hours-approval-read', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'hours-approval-add', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'hours-approval-edit', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'hours-approval-delete', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'hours-approval-browse', 'guard_name' => 'api','group_name'=>'hours-approval','se_name'=>'hours-approval-browse','belongs_to'=>'2']);
-
-        //------------------group-leave-added----------------//
-        Permission::create(['name' => 'leave-read', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'leave-add', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-create','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'leave-edit', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-edit','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'leave-delete', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-delete','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'leave-browse', 'guard_name' => 'api','group_name'=>'leave','se_name'=>'leave-browse','belongs_to'=>'2']);
-
-        //------------------group-Log-added----------------//
-        Permission::create(['name' => 'smsLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'smsLog-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'bankIdLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'bankIdLog-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'activityLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'activityLog-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'activityLog-read', 'guard_name' => 'api','group_name'=>'log','se_name'=>'activityLog-read','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'fileLog-browse', 'guard_name' => 'api','group_name'=>'log','se_name'=>'fileLog-browse','belongs_to'=>'2']);
-
-        Permission::create(['name' => 'files-upload-for-usertype', 'guard_name' => 'api','group_name'=>'files','se_name'=>'files-upload-for-usertype','belongs_to'=>'1']);
-
-        Permission::create(['name' => 'packages-view-company', 'guard_name' => 'api','group_name'=>'packages','se_name'=>'packages-view-company','belongs_to'=>'2']);
-        Permission::create(['name' => 'journal-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'journal-print','belongs_to'=>'2']);
-        Permission::create(['name' => 'deviation-print', 'guard_name' => 'api','group_name'=>'print','se_name'=>'deviation-print','belongs_to'=>'2']);
-        Permission::create(['name' => 'licences-assign', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-assign','belongs_to'=>'2']);
-        Permission::create(['name' => 'licences-expire', 'guard_name' => 'api','group_name'=>'licences','se_name'=>'licences-expire','belongs_to'=>'2']);
-        Permission::create(['name' => 'result', 'guard_name' => 'api','group_name'=>'journal','se_name'=>'result','belongs_to'=>'2']);
-        Permission::create(['name' => 'stampling-browse', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-browse','belongs_to'=>'2']);
-        Permission::create(['name' => 'stampling-add', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-add','belongs_to'=>'2']);
-        Permission::create(['name' => 'stampling-edit', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-edit','belongs_to'=>'2']);
-        Permission::create(['name' => 'stampling-delete', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-delete','belongs_to'=>'2']);
-        Permission::create(['name' => 'stampling-read', 'guard_name' => 'api','group_name'=>'stampling','se_name'=>'stampling-read','belongs_to'=>'2']);
-        Permission::create(['name' => 'investigation', 'guard_name' => 'api','group_name'=>'investigation','se_name'=>'investigation','belongs_to'=>'2']); 
-
-        //new permissions
-        Permission::create(['name' => 'visible-all-patients-ip', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-ip','belongs_to'=>'2']);
-        Permission::create(['name' => 'visible-all-patients-activity', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-activity','belongs_to'=>'2']);
-        Permission::create(['name' => 'visible-all-patients-journal', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-journal','belongs_to'=>'2']);
-        Permission::create(['name' => 'visible-all-patients-deviation', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-deviation','belongs_to'=>'2']);
-        Permission::create(['name' => 'visible-all-patients-cashier', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients-cashier','belongs_to'=>'2']);  
-        Permission::create(['name' => 'visible-all-patients', 'guard_name' => 'api','group_name'=>'special-permission','se_name'=>'visible-all-patients','belongs_to'=>'2']);  
-
-    }
+      $permissions = '{
+       "permissions": [
+         {
+           "id": "1",
+           "name": "companies-browse",
+           "guard_name": "api",
+           "group_name": "companies",
+           "se_name": "companies-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "2",
+           "name": "companies-read",
+           "guard_name": "api",
+           "group_name": "companies",
+           "se_name": "companies-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "3",
+           "name": "companies-add",
+           "guard_name": "api",
+           "group_name": "companies",
+           "se_name": "companies-create",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "4",
+           "name": "companies-edit",
+           "guard_name": "api",
+           "group_name": "companies",
+           "se_name": "companies-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "5",
+           "name": "companies-delete",
+           "guard_name": "api",
+           "group_name": "companies",
+           "se_name": "companies-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "6",
+           "name": "role-browse",
+           "guard_name": "api",
+           "group_name": "role",
+           "se_name": "role-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "7",
+           "name": "role-read",
+           "guard_name": "api",
+           "group_name": "role",
+           "se_name": "role-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "8",
+           "name": "role-add",
+           "guard_name": "api",
+           "group_name": "role",
+           "se_name": "role-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "9",
+           "name": "role-edit",
+           "guard_name": "api",
+           "group_name": "role",
+           "se_name": "role-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "10",
+           "name": "role-delete",
+           "guard_name": "api",
+           "group_name": "role",
+           "se_name": "role-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "11",
+           "name": "dashboard-browse",
+           "guard_name": "api",
+           "group_name": "dashboard",
+           "se_name": "dashboard-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "12",
+           "name": "notifications-browse",
+           "guard_name": "api",
+           "group_name": "notifications",
+           "se_name": "notifications-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "13",
+           "name": "notifications-add",
+           "guard_name": "api",
+           "group_name": "notifications",
+           "se_name": "notifications-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "14",
+           "name": "notifications-edit",
+           "guard_name": "api",
+           "group_name": "notifications",
+           "se_name": "notifications-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "15",
+           "name": "notifications-delete",
+           "guard_name": "api",
+           "group_name": "notifications",
+           "se_name": "notifications-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "16",
+           "name": "requests-browse",
+           "guard_name": "api",
+           "group_name": "requests",
+           "se_name": "requests-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "17",
+           "name": "requests-add",
+           "guard_name": "api",
+           "group_name": "requests",
+           "se_name": "requests-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "18",
+           "name": "requests-read",
+           "guard_name": "api",
+           "group_name": "requests",
+           "se_name": "requests-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "19",
+           "name": "requests-edit",
+           "guard_name": "api",
+           "group_name": "requests",
+           "se_name": "requests-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "20",
+           "name": "requests-delete",
+           "guard_name": "api",
+           "group_name": "requests",
+           "se_name": "requests-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "21",
+           "name": "users-browse",
+           "guard_name": "api",
+           "group_name": "users",
+           "se_name": "users-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "22",
+           "name": "users-add",
+           "guard_name": "api",
+           "group_name": "users",
+           "se_name": "users-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "23",
+           "name": "users-read",
+           "guard_name": "api",
+           "group_name": "users",
+           "se_name": "users-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "24",
+           "name": "users-edit",
+           "guard_name": "api",
+           "group_name": "users",
+           "se_name": "users-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "25",
+           "name": "users-delete",
+           "guard_name": "api",
+           "group_name": "users",
+           "se_name": "users-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "26",
+           "name": "categories-browse",
+           "guard_name": "api",
+           "group_name": "categories",
+           "se_name": "categories-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "27",
+           "name": "categories-add",
+           "guard_name": "api",
+           "group_name": "categories",
+           "se_name": "categories-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "28",
+           "name": "categories-read",
+           "guard_name": "api",
+           "group_name": "categories",
+           "se_name": "categories-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "29",
+           "name": "categories-edit",
+           "guard_name": "api",
+           "group_name": "categories",
+           "se_name": "categories-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "30",
+           "name": "categories-delete",
+           "guard_name": "api",
+           "group_name": "categories",
+           "se_name": "categories-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "31",
+           "name": "licences-browse",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "32",
+           "name": "licences-add",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "33",
+           "name": "licences-read",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "34",
+           "name": "licences-edit",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "35",
+           "name": "licences-delete",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "36",
+           "name": "modules-browse",
+           "guard_name": "api",
+           "group_name": "modules",
+           "se_name": "modules-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "37",
+           "name": "modules-add",
+           "guard_name": "api",
+           "group_name": "modules",
+           "se_name": "modules-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "38",
+           "name": "modules-read",
+           "guard_name": "api",
+           "group_name": "modules",
+           "se_name": "modules-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "39",
+           "name": "modules-edit",
+           "guard_name": "api",
+           "group_name": "modules",
+           "se_name": "modules-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "40",
+           "name": "modules-delete",
+           "guard_name": "api",
+           "group_name": "modules",
+           "se_name": "modules-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "41",
+           "name": "packages-browse",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "42",
+           "name": "packages-add",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "43",
+           "name": "packages-read",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "44",
+           "name": "packages-edit",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "45",
+           "name": "packages-delete",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "46",
+           "name": "userType-browse",
+           "guard_name": "api",
+           "group_name": "userType",
+           "se_name": "userType-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "47",
+           "name": "userType-add",
+           "guard_name": "api",
+           "group_name": "userType",
+           "se_name": "userType-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "48",
+           "name": "userType-read",
+           "guard_name": "api",
+           "group_name": "userType",
+           "se_name": "userType-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "49",
+           "name": "userType-edit",
+           "guard_name": "api",
+           "group_name": "userType",
+           "se_name": "userType-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "50",
+           "name": "userType-delete",
+           "guard_name": "api",
+           "group_name": "userType",
+           "se_name": "userType-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "51",
+           "name": "companyType-browse",
+           "guard_name": "api",
+           "group_name": "companyType",
+           "se_name": "companyType-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "52",
+           "name": "companyType-add",
+           "guard_name": "api",
+           "group_name": "companyType",
+           "se_name": "companyType-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "53",
+           "name": "companyType-read",
+           "guard_name": "api",
+           "group_name": "companyType",
+           "se_name": "companyType-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "54",
+           "name": "companyType-edit",
+           "guard_name": "api",
+           "group_name": "companyType",
+           "se_name": "companyType-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "55",
+           "name": "companyType-delete",
+           "guard_name": "api",
+           "group_name": "companyType",
+           "se_name": "companyType-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "56",
+           "name": "settings-browse",
+           "guard_name": "api",
+           "group_name": "settings",
+           "se_name": "settings-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "57",
+           "name": "settings-add",
+           "guard_name": "api",
+           "group_name": "settings",
+           "se_name": "settings-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "58",
+           "name": "settings-read",
+           "guard_name": "api",
+           "group_name": "settings",
+           "se_name": "settings-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "59",
+           "name": "settings-edit",
+           "guard_name": "api",
+           "group_name": "settings",
+           "se_name": "settings-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "60",
+           "name": "settings-delete",
+           "guard_name": "api",
+           "group_name": "settings",
+           "se_name": "settings-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "61",
+           "name": "adminEmployee-browse",
+           "guard_name": "api",
+           "group_name": "adminEmployee",
+           "se_name": "adminEmployee-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "62",
+           "name": "adminEmployee-add",
+           "guard_name": "api",
+           "group_name": "adminEmployee",
+           "se_name": "adminEmployee-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "63",
+           "name": "adminEmployee-read",
+           "guard_name": "api",
+           "group_name": "adminEmployee",
+           "se_name": "adminEmployee-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "64",
+           "name": "adminEmployee-edit",
+           "guard_name": "api",
+           "group_name": "adminEmployee",
+           "se_name": "adminEmployee-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "65",
+           "name": "adminEmployee-delete",
+           "guard_name": "api",
+           "group_name": "adminEmployee",
+           "se_name": "adminEmployee-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "66",
+           "name": "employees-browse",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "67",
+           "name": "employees-add",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "68",
+           "name": "employees-read",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "69",
+           "name": "employees-edit",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "70",
+           "name": "employees-delete",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "71",
+           "name": "patients-browse",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "72",
+           "name": "patients-add",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "73",
+           "name": "patients-read",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "74",
+           "name": "patients-edit",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "75",
+           "name": "patients-delete",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "76",
+           "name": "departments-browse",
+           "guard_name": "api",
+           "group_name": "departments",
+           "se_name": "departments-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "77",
+           "name": "departments-add",
+           "guard_name": "api",
+           "group_name": "departments",
+           "se_name": "departments-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "78",
+           "name": "departments-read",
+           "guard_name": "api",
+           "group_name": "departments",
+           "se_name": "departments-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "79",
+           "name": "departments-edit",
+           "guard_name": "api",
+           "group_name": "departments",
+           "se_name": "departments-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "80",
+           "name": "departments-delete",
+           "guard_name": "api",
+           "group_name": "departments",
+           "se_name": "departments-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "81",
+           "name": "journal-browse",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "82",
+           "name": "journal-add",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "83",
+           "name": "journal-read",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "84",
+           "name": "journal-edit",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "85",
+           "name": "journal-delete",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "86",
+           "name": "journal-action",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-action",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "87",
+           "name": "journal-stats-view",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "journal-stats-view",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "88",
+           "name": "deviation-browse",
+           "guard_name": "api",
+           "group_name": "deviation",
+           "se_name": "deviation-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "89",
+           "name": "deviation-add",
+           "guard_name": "api",
+           "group_name": "deviation",
+           "se_name": "deviation-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "90",
+           "name": "deviation-read",
+           "guard_name": "api",
+           "group_name": "deviation",
+           "se_name": "deviation-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "91",
+           "name": "deviation-edit",
+           "guard_name": "api",
+           "group_name": "deviation",
+           "se_name": "deviation-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "92",
+           "name": "deviation-delete",
+           "guard_name": "api",
+           "group_name": "deviation",
+           "se_name": "deviation-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "93",
+           "name": "schedule-browse",
+           "guard_name": "api",
+           "group_name": "schedule",
+           "se_name": "schedule-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "94",
+           "name": "schedule-add",
+           "guard_name": "api",
+           "group_name": "schedule",
+           "se_name": "schedule-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "95",
+           "name": "schedule-read",
+           "guard_name": "api",
+           "group_name": "schedule",
+           "se_name": "schedule-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "96",
+           "name": "schedule-edit",
+           "guard_name": "api",
+           "group_name": "schedule",
+           "se_name": "schedule-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "97",
+           "name": "schedule-delete",
+           "guard_name": "api",
+           "group_name": "schedule",
+           "se_name": "schedule-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "98",
+           "name": "persons-browse",
+           "guard_name": "api",
+           "group_name": "persons",
+           "se_name": "persons-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "99",
+           "name": "persons-add",
+           "guard_name": "api",
+           "group_name": "persons",
+           "se_name": "persons-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "100",
+           "name": "persons-read",
+           "guard_name": "api",
+           "group_name": "persons",
+           "se_name": "persons-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "101",
+           "name": "persons-edit",
+           "guard_name": "api",
+           "group_name": "persons",
+           "se_name": "persons-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "102",
+           "name": "persons-delete",
+           "guard_name": "api",
+           "group_name": "persons",
+           "se_name": "persons-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "103",
+           "name": "workShift-browse",
+           "guard_name": "api",
+           "group_name": "workShift",
+           "se_name": "workShift-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "104",
+           "name": "workShift-add",
+           "guard_name": "api",
+           "group_name": "workShift",
+           "se_name": "workShift-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "105",
+           "name": "workShift-read",
+           "guard_name": "api",
+           "group_name": "workShift",
+           "se_name": "workShift-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "106",
+           "name": "workShift-edit",
+           "guard_name": "api",
+           "group_name": "workShift",
+           "se_name": "workShift-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "107",
+           "name": "workShift-delete",
+           "guard_name": "api",
+           "group_name": "workShift",
+           "se_name": "workShift-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "108",
+           "name": "branch-browse",
+           "guard_name": "api",
+           "group_name": "branch",
+           "se_name": "branch-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "109",
+           "name": "branch-add",
+           "guard_name": "api",
+           "group_name": "branch",
+           "se_name": "branch-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "110",
+           "name": "branch-read",
+           "guard_name": "api",
+           "group_name": "branch",
+           "se_name": "branch-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "111",
+           "name": "branch-edit",
+           "guard_name": "api",
+           "group_name": "branch",
+           "se_name": "branch-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "112",
+           "name": "branch-delete",
+           "guard_name": "api",
+           "group_name": "branch",
+           "se_name": "branch-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "113",
+           "name": "ip-browse",
+           "guard_name": "api",
+           "group_name": "ip",
+           "se_name": "ip-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "114",
+           "name": "ip-add",
+           "guard_name": "api",
+           "group_name": "ip",
+           "se_name": "ip-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "115",
+           "name": "ip-read",
+           "guard_name": "api",
+           "group_name": "ip",
+           "se_name": "ip-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "116",
+           "name": "ip-edit",
+           "guard_name": "api",
+           "group_name": "ip",
+           "se_name": "ip-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "117",
+           "name": "ip-delete",
+           "guard_name": "api",
+           "group_name": "ip",
+           "se_name": "ip-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "118",
+           "name": "followup-browse",
+           "guard_name": "api",
+           "group_name": "followup",
+           "se_name": "followup-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "119",
+           "name": "followup-add",
+           "guard_name": "api",
+           "group_name": "followup",
+           "se_name": "followup-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "120",
+           "name": "followup-read",
+           "guard_name": "api",
+           "group_name": "followup",
+           "se_name": "followup-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "121",
+           "name": "followup-edit",
+           "guard_name": "api",
+           "group_name": "followup",
+           "se_name": "followup-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "122",
+           "name": "followup-delete",
+           "guard_name": "api",
+           "group_name": "followup",
+           "se_name": "followup-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "123",
+           "name": "activity-browse",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "124",
+           "name": "activity-add",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "125",
+           "name": "activity-read",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "126",
+           "name": "activity-edit",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "127",
+           "name": "activity-delete",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "128",
+           "name": "activity-stats",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "activity-stats",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "129",
+           "name": "reports-delete",
+           "guard_name": "api",
+           "group_name": "reports",
+           "se_name": "reports-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "130",
+           "name": "words-browse",
+           "guard_name": "api",
+           "group_name": "words",
+           "se_name": "words-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "131",
+           "name": "words-add",
+           "guard_name": "api",
+           "group_name": "words",
+           "se_name": "words-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "132",
+           "name": "words-read",
+           "guard_name": "api",
+           "group_name": "words",
+           "se_name": "words-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "133",
+           "name": "words-edit",
+           "guard_name": "api",
+           "group_name": "words",
+           "se_name": "words-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:12",
+           "updated_at": "2022-07-14 06:40:12",
+           "entry_mode": null
+         },
+         {
+           "id": "134",
+           "name": "words-delete",
+           "guard_name": "api",
+           "group_name": "words",
+           "se_name": "words-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "135",
+           "name": "paragraphs-browse",
+           "guard_name": "api",
+           "group_name": "paragraphs",
+           "se_name": "paragraphs-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "136",
+           "name": "paragraphs-add",
+           "guard_name": "api",
+           "group_name": "paragraphs",
+           "se_name": "paragraphs-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "137",
+           "name": "paragraphs-read",
+           "guard_name": "api",
+           "group_name": "paragraphs",
+           "se_name": "paragraphs-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "138",
+           "name": "paragraphs-edit",
+           "guard_name": "api",
+           "group_name": "paragraphs",
+           "se_name": "paragraphs-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "139",
+           "name": "paragraphs-delete",
+           "guard_name": "api",
+           "group_name": "paragraphs",
+           "se_name": "paragraphs-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "140",
+           "name": "task-browse",
+           "guard_name": "api",
+           "group_name": "task",
+           "se_name": "task-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "141",
+           "name": "task-add",
+           "guard_name": "api",
+           "group_name": "task",
+           "se_name": "task-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "142",
+           "name": "task-read",
+           "guard_name": "api",
+           "group_name": "task",
+           "se_name": "task-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "143",
+           "name": "task-edit",
+           "guard_name": "api",
+           "group_name": "task",
+           "se_name": "task-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "144",
+           "name": "task-delete",
+           "guard_name": "api",
+           "group_name": "task",
+           "se_name": "task-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "145",
+           "name": "internalCom-read",
+           "guard_name": "api",
+           "group_name": "command",
+           "se_name": "internalCom-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "146",
+           "name": "EmailTemplate-browse",
+           "guard_name": "api",
+           "group_name": "EmailTemplate",
+           "se_name": "EmailTemplate-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "147",
+           "name": "EmailTemplate-add",
+           "guard_name": "api",
+           "group_name": "EmailTemplate",
+           "se_name": "EmailTemplate-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "148",
+           "name": "EmailTemplate-read",
+           "guard_name": "api",
+           "group_name": "EmailTemplate",
+           "se_name": "EmailTemplate-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "149",
+           "name": "EmailTemplate-edit",
+           "guard_name": "api",
+           "group_name": "EmailTemplate",
+           "se_name": "EmailTemplate-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "150",
+           "name": "EmailTemplate-delete",
+           "guard_name": "api",
+           "group_name": "EmailTemplate",
+           "se_name": "EmailTemplate-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "151",
+           "name": "questions-browse",
+           "guard_name": "api",
+           "group_name": "questions",
+           "se_name": "questions-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "152",
+           "name": "questions-add",
+           "guard_name": "api",
+           "group_name": "questions",
+           "se_name": "questions-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "153",
+           "name": "questions-read",
+           "guard_name": "api",
+           "group_name": "questions",
+           "se_name": "questions-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "154",
+           "name": "questions-edit",
+           "guard_name": "api",
+           "group_name": "questions",
+           "se_name": "questions-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "155",
+           "name": "questions-delete",
+           "guard_name": "api",
+           "group_name": "questions",
+           "se_name": "questions-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "156",
+           "name": "isCategoryEditPermission-edit",
+           "guard_name": "api",
+           "group_name": "isCategoryEditPermission",
+           "se_name": "isCategoryEditPermission-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "157",
+           "name": "calendar-browse",
+           "guard_name": "api",
+           "group_name": "calendar",
+           "se_name": "calendar-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "158",
+           "name": "patientimport-add",
+           "guard_name": "api",
+           "group_name": "import",
+           "se_name": "patientimport-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "159",
+           "name": "files-browse",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-browse",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "160",
+           "name": "files-read",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-read",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "161",
+           "name": "files-edit",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-edit",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "162",
+           "name": "files-add",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-add",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "163",
+           "name": "files-delete",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-delete",
+           "description": null,
+           "belongs_to": "3",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "164",
+           "name": "import-language",
+           "guard_name": "api",
+           "group_name": "language",
+           "se_name": "import-language",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "165",
+           "name": "trashed-activites",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "trashed-activites",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "166",
+           "name": "trashed-activites-permanent-delete",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "trashed-activites-permanent-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "167",
+           "name": "trashed-activites-restore",
+           "guard_name": "api",
+           "group_name": "activity",
+           "se_name": "trashed-activites-restore",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "168",
+           "name": "bookmark-read",
+           "guard_name": "api",
+           "group_name": "bookmark",
+           "se_name": "bookmark-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "169",
+           "name": "bookmark-add",
+           "guard_name": "api",
+           "group_name": "bookmark",
+           "se_name": "bookmark-create",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "170",
+           "name": "bookmark-edit",
+           "guard_name": "api",
+           "group_name": "bookmark",
+           "se_name": "bookmark-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "171",
+           "name": "bookmark-delete",
+           "guard_name": "api",
+           "group_name": "bookmark",
+           "se_name": "bookmark-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "172",
+           "name": "bookmark-browse",
+           "guard_name": "api",
+           "group_name": "bookmark",
+           "se_name": "bookmark-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "173",
+           "name": "label-read",
+           "guard_name": "api",
+           "group_name": "label",
+           "se_name": "label-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "174",
+           "name": "label-add",
+           "guard_name": "api",
+           "group_name": "label",
+           "se_name": "label-create",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "175",
+           "name": "label-edit",
+           "guard_name": "api",
+           "group_name": "label",
+           "se_name": "label-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "176",
+           "name": "label-delete",
+           "guard_name": "api",
+           "group_name": "label",
+           "se_name": "label-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:13",
+           "updated_at": "2022-07-14 06:40:13",
+           "entry_mode": null
+         },
+         {
+           "id": "177",
+           "name": "label-browse",
+           "guard_name": "api",
+           "group_name": "label",
+           "se_name": "label-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "178",
+           "name": "patient_cashiers",
+           "guard_name": "api",
+           "group_name": "patient_cashiers",
+           "se_name": "patient_cashiers",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "179",
+           "name": "patient_cashier-add",
+           "guard_name": "api",
+           "group_name": "patient_cashiers",
+           "se_name": "patient_cashier-add",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "180",
+           "name": "schedule-template-read",
+           "guard_name": "api",
+           "group_name": "schedule-template",
+           "se_name": "schedule-template-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "181",
+           "name": "schedule-template-add",
+           "guard_name": "api",
+           "group_name": "schedule-template",
+           "se_name": "schedule-template-create",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "182",
+           "name": "schedule-template-edit",
+           "guard_name": "api",
+           "group_name": "schedule-template",
+           "se_name": "schedule-template-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "183",
+           "name": "schedule-template-delete",
+           "guard_name": "api",
+           "group_name": "schedule-template",
+           "se_name": "schedule-template-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "184",
+           "name": "schedule-template-browse",
+           "guard_name": "api",
+           "group_name": "schedule-template",
+           "se_name": "schedule-template-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "185",
+           "name": "hours-approval-read",
+           "guard_name": "api",
+           "group_name": "hours-approval",
+           "se_name": "hours-approval-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "186",
+           "name": "hours-approval-add",
+           "guard_name": "api",
+           "group_name": "hours-approval",
+           "se_name": "hours-approval-create",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "187",
+           "name": "hours-approval-edit",
+           "guard_name": "api",
+           "group_name": "hours-approval",
+           "se_name": "hours-approval-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "188",
+           "name": "hours-approval-delete",
+           "guard_name": "api",
+           "group_name": "hours-approval",
+           "se_name": "hours-approval-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "189",
+           "name": "hours-approval-browse",
+           "guard_name": "api",
+           "group_name": "hours-approval",
+           "se_name": "hours-approval-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "190",
+           "name": "leave-read",
+           "guard_name": "api",
+           "group_name": "leave",
+           "se_name": "leave-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "191",
+           "name": "leave-add",
+           "guard_name": "api",
+           "group_name": "leave",
+           "se_name": "leave-create",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "192",
+           "name": "leave-edit",
+           "guard_name": "api",
+           "group_name": "leave",
+           "se_name": "leave-edit",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "193",
+           "name": "leave-delete",
+           "guard_name": "api",
+           "group_name": "leave",
+           "se_name": "leave-delete",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "194",
+           "name": "leave-browse",
+           "guard_name": "api",
+           "group_name": "leave",
+           "se_name": "leave-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "195",
+           "name": "smsLog-browse",
+           "guard_name": "api",
+           "group_name": "Log",
+           "se_name": "smsLog-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "196",
+           "name": "bankIdLog-browse",
+           "guard_name": "api",
+           "group_name": "Log",
+           "se_name": "bankIdLog-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "197",
+           "name": "activityLog-browse",
+           "guard_name": "api",
+           "group_name": "Log",
+           "se_name": "activityLog-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "198",
+           "name": "fileLog-browse",
+           "guard_name": "api",
+           "group_name": "Log",
+           "se_name": "fileLog-browse",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "199",
+           "name": "activityLog-read",
+           "guard_name": "api",
+           "group_name": "Log",
+           "se_name": "activityLog-read",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:14",
+           "updated_at": "2022-07-14 06:40:14",
+           "entry_mode": null
+         },
+         {
+           "id": "200",
+           "name": "files-upload-for-usertype",
+           "guard_name": "api",
+           "group_name": "files",
+           "se_name": "files-upload-for-usertype",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-07-20 08:15:25",
+           "updated_at": "2022-07-20 08:15:25",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "201",
+           "name": "packages-view-company",
+           "guard_name": "api",
+           "group_name": "packages",
+           "se_name": "packages-view-company",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:33:10",
+           "updated_at": "2022-09-09 12:33:10",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "202",
+           "name": "journal-print",
+           "guard_name": "api",
+           "group_name": "print",
+           "se_name": "journal-print",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:35:22",
+           "updated_at": "2022-09-09 12:35:22",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "203",
+           "name": "deviation-print",
+           "guard_name": "api",
+           "group_name": "print",
+           "se_name": "deviation-print",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:36:00",
+           "updated_at": "2022-09-09 12:36:00",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "204",
+           "name": "licences-assign",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-assign",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:38:47",
+           "updated_at": "2022-09-09 12:38:47",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "205",
+           "name": "licences-expire",
+           "guard_name": "api",
+           "group_name": "licences",
+           "se_name": "licences-expire",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:39:07",
+           "updated_at": "2022-09-09 12:39:07",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "206",
+           "name": "result",
+           "guard_name": "api",
+           "group_name": "journal",
+           "se_name": "result",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-09 12:43:54",
+           "updated_at": "2022-09-09 12:43:54",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "207",
+           "name": "stampling-browse",
+           "guard_name": "api",
+           "group_name": "stampling",
+           "se_name": "stampling-browse",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 11:55:56",
+           "updated_at": "2022-09-10 11:55:56",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "208",
+           "name": "stampling-add",
+           "guard_name": "api",
+           "group_name": "stampling",
+           "se_name": "stampling-add",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 11:56:18",
+           "updated_at": "2022-09-10 11:56:18",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "209",
+           "name": "stampling-edit",
+           "guard_name": "api",
+           "group_name": "stampling",
+           "se_name": "stampling-edit",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 11:56:41",
+           "updated_at": "2022-09-10 11:56:41",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "210",
+           "name": "stampling-delete",
+           "guard_name": "api",
+           "group_name": "stampling",
+           "se_name": "stampling-delete",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 11:57:51",
+           "updated_at": "2022-09-10 11:57:51",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "211",
+           "name": "stampling-read",
+           "guard_name": "api",
+           "group_name": "stampling",
+           "se_name": "stampling-read",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 11:58:12",
+           "updated_at": "2022-09-10 11:58:12",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "212",
+           "name": "investigation",
+           "guard_name": "api",
+           "group_name": "investigation",
+           "se_name": "investigation",
+           "description": null,
+           "belongs_to": "1",
+           "created_at": "2022-09-10 13:52:40",
+           "updated_at": "2022-09-10 13:52:40",
+           "entry_mode": "Web"
+         },
+         {
+           "id": "213",
+           "name": "visible-all-patients-ip",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients-ip",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "214",
+           "name": "visible-all-patients-activity",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients-activity",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "215",
+           "name": "visible-all-patients-journal",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients-journal",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "216",
+           "name": "visible-all-patients-deviation",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients-deviation",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "218",
+           "name": "visible-all-patients-cashier",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients-cashier",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "219",
+           "name": "visible-all-patients",
+           "guard_name": "api",
+           "group_name": "special-permission",
+           "se_name": "visible-all-patients",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:10",
+           "updated_at": "2022-07-14 06:40:10",
+           "entry_mode": null
+         },
+         {
+           "id": "220",
+           "name": "employees-change-pwd",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-change-pwd",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "221",
+           "name": "employees-assign-hours",
+           "guard_name": "api",
+           "group_name": "employees",
+           "se_name": "employees-assign-hours",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         },
+         {
+           "id": "222",
+           "name": "patients-change-pwd",
+           "guard_name": "api",
+           "group_name": "patients",
+           "se_name": "patients-change-pwd",
+           "description": null,
+           "belongs_to": "2",
+           "created_at": "2022-07-14 06:40:11",
+           "updated_at": "2022-07-14 06:40:11",
+           "entry_mode": null
+         }
+       ]
+      }';
+
+      $jsonData = json_decode($permissions, true);
+      foreach($jsonData['permissions'] as $permission)
+      {
+         $addPermission = new Permission;
+         $addPermission->name = $permission['name'];
+         $addPermission->guard_name = $permission['guard_name'];
+         $addPermission->group_name = $permission['group_name'];
+         $addPermission->se_name = $permission['se_name'];
+         $addPermission->belongs_to = $permission['belongs_to'];
+         $addPermission->save();
+      }
+   }
 }

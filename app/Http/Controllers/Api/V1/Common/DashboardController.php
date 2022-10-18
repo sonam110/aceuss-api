@@ -43,6 +43,7 @@ class DashboardController extends Controller
                 $data['patientCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','6')->count();
                 $data['branchCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','11')->count();
                 $data['departmentCount'] = Department::where('top_most_parent_id',$user->id)->count();
+
                 $data['activityCount'] = Activity::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
                 $data['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
                 $data['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
@@ -71,20 +72,50 @@ class DashboardController extends Controller
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }
                 
+                $assignedActivity =  ActivityAssigne::select(
+                        \DB::raw('COUNT(activity_assignes.id) as activityCount'),
+                        \DB::raw('COUNT(IF(activity_assignes.status = 0, 0, NULL)) as activityPendingCount'),
+                        \DB::raw('COUNT(IF(activity_assignes.status = 1, 0, NULL)) as activityCompleteCount'),
+                        \DB::raw('COUNT(IF(activity_assignes.status = 2, 0, NULL)) as activityNotDoneCount'),
+                        \DB::raw('COUNT(IF(activity_assignes.status = 3, 0, NULL)) as activityNotApplicableCount')
+                    )
+                    ->join('activities', 'activities.id', '=', 'activity_assignes.activity_id')
+                    ->where('activity_assignes.user_id',$user->id)
+                    ->where('activities.is_latest_entry', 1)
+                    ->whereNull('activities.deleted_at')
+                    ->first();
+                $data['activityCount'] = $assignedActivity->activityCount;
+                $data['activityPendingCount'] = $assignedActivity->activityPendingCount;
+                $data['activityCompleteCount'] = $assignedActivity->activityCompleteCount;
+                $data['activityNotDoneCount'] = $assignedActivity->activityNotDoneCount;
+                $data['activityNotApplicableCount'] = $assignedActivity->activityNotApplicableCount;
 
-                $data['activityCount'] = ActivityAssigne::where('user_id',$user->id)->count();
-                $data['activityPendingCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','0')->count();
-                $data['activityCompleteCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','1')->count();
-                $data['activityNotDoneCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','2')->count();
-                $data['activityNotApplicableCount'] = ActivityAssigne::where('user_id',$user->id)->where('status','3')->count();
-                $data['taskCount'] = AssignTask::where('user_id',$user->id)->count();
-                $data['AssignTaskCompleteCount'] = AssignTask::where('user_id',$user->id)->where('status','1')->count();
-                $data['AssignTaskPendingCount'] = AssignTask::where('user_id',$user->id)->where('status','0')->count();
-                
-                $data['ipCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['ipPendingCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
+                $assignedTask =  AssignTask::select(
+                        \DB::raw('COUNT(assign_tasks.id) as taskCount'),
+                        \DB::raw('COUNT(IF(assign_tasks.status = 0, 0, NULL)) as AssignTaskPendingCount'),
+                        \DB::raw('COUNT(IF(assign_tasks.status = 1, 0, NULL)) as AssignTaskCompleteCount')
+                    )
+                    ->join('tasks', 'tasks.id', '=', 'assign_tasks.task_id')
+                    ->where('assign_tasks.user_id',$user->id)
+                    ->where('tasks.is_latest_entry', 1)
+                    ->whereNull('tasks.deleted_at')
+                    ->first();
+                $data['taskCount'] = $assignedTask->taskCount;
+                $data['AssignTaskCompleteCount'] = $assignedTask->AssignTaskCompleteCount;
+                $data['AssignTaskPendingCount'] = $assignedTask->AssignTaskPendingCount;
 
+
+                $ipInfo =  PatientImplementationPlan::select(
+                        \DB::raw('COUNT(id) as ipCount'),
+                        \DB::raw('COUNT(IF(status = 0, 0, NULL)) as ipPendingCount'),
+                        \DB::raw('COUNT(IF(status = 1, 0, NULL)) as ipCompleteCount')
+                    )
+                    ->whereIn('branch_id',$allChilds)
+                    ->where('is_latest_entry', 1)
+                    ->first();
+                $data['ipCount'] = $ipInfo->ipCount;
+                $data['ipCompleteCount'] = $ipInfo->ipCompleteCount;
+                $data['ipPendingCount'] = $ipInfo->ipPendingCount;
             }
             elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
@@ -170,7 +201,7 @@ class DashboardController extends Controller
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
-	            logException($exception);
+                logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));   
         }  
     }
@@ -315,7 +346,7 @@ class DashboardController extends Controller
             
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {
-	            logException($exception);
+                logException($exception);
                 return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
         }  
     }
