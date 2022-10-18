@@ -114,6 +114,16 @@ class UserController extends Controller
             } else {
                 $query = $query->orderBy('users.id', 'DESC');
             }
+
+            if(!empty($request->name))
+            {
+                $name = $request->name;
+                $query->where(function($q) use ($name) {
+                    $q->where('name', 'LIKE', '%'.$name.'%')
+                    ->orWhere('branch_name', 'LIKE', '%'.$name.'%');
+                });
+            }
+
             if(!empty($request->joining_date))
             {
                 $query->where('users.joining_date','<', $request->joining_date);
@@ -1152,11 +1162,7 @@ class UserController extends Controller
         //  if ($w != '') {$w = $w . " AND ";}
         //  $w = $w . "(" . "patient_type_id = "."'" .$request->input('patient_type_id')."'".")";
         // }
-        if (is_null($request->input('name')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "users.name like '%" .trim(strtolower($request->input('name'))) . "%')";
-
-        }
+        
         if (is_null($request->input('email')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "users.email like '%" .trim(strtolower($request->input('email'))) . "%')";
@@ -1328,6 +1334,16 @@ class UserController extends Controller
             {
                 $query->where('users.joining_date','<', $request->joining_date);
             }
+
+            if(!empty($request->name))
+            {
+                $name = $request->name;
+                $query->where(function($q) use ($name) {
+                    $q->where('name', 'LIKE', '%'.$name.'%')
+                    ->orWhere('branch_name', 'LIKE', '%'.$name.'%');
+                });
+            }
+
             if(!empty($request->employee_type))
             {
                 $query->where('users.employee_type', $request->employee_type);
