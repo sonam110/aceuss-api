@@ -101,6 +101,7 @@ class CreateActivitiesTable extends Migration
             $table->tinyInteger('is_compulsory')->default('0')->comment('1:Yes,0:No');
             $table->string('entry_mode')->nullable();
             $table->string('activity_tag')->nullable();
+            $table->string('repetition_comment')->nullable();
             $table->text('action_comment')->nullable()->comment('for delete');
             $table->boolean('is_latest_entry')->default(1);
             $table->timestamps();

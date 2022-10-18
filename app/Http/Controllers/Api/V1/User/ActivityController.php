@@ -565,6 +565,7 @@ class ActivityController extends Controller
             					$activity->message = $request->message;
             					$activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             					$activity->is_latest_entry = 1;
+            					$activity->repetition_comment = $repetition_comment;
             					$activity->save();
             					$activity_ids[] = $activity->id;
             					if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
@@ -812,6 +813,28 @@ class ActivityController extends Controller
             $branch_id = User::select('branch_id')->find($request->patient_id)->branch_id;
             $activity_ids = [];
             $parent_id  = (empty($checkId->parent_id)) ? $id : $checkId->parent_id;
+
+            //delete not perform activity if group update
+            if($request->date_update_series=='yes')
+            {
+            	$actStartDate = date('Y-m-d', strtotime('1 days'));
+            	if(strtotime($request->start_date) > strtotime(date('Y-m-d')))
+            	{
+            		$actStartDate = $request->start_date;
+            	}
+            	$actEndDate = $end_date;
+            	$forDeleteAct = Activity::whereDate('start_date', '>=', $actStartDate)
+            		->whereDate('start_date', '<=', $actEndDate)
+            		->where('group_id', $checkId->group_id)
+            		->get();
+            	foreach ($forDeleteAct as $key => $act) {
+            		ActivityAssigne::where('activity_id', $act->id)->delete();
+            		ActivityTimeLog::where('activity_id', $act->id)->delete();
+            		$act->delete();
+            	}
+            }
+            
+
             if(!empty($repeatedDates)) {
             	foreach ($repeatedDates as $key1 => $date) {
             		if(is_array($request->how_many_time_array)  && sizeof($request->how_many_time_array) > 0 ){
@@ -819,7 +842,16 @@ class ActivityController extends Controller
             				if(!empty($time['start']))
             				{
             					// Activity::where('id',$id)->update(['is_latest_entry'=>0]);
-            					$activity = Activity::find($id);
+            					if($request->date_update_series=='yes')
+            					{
+            						$activity = new Activity;
+            					}
+            					else
+            					{
+            						$activity = Activity::find($id);
+
+            						$activityLog = $activity->replicate();
+            					}
 
             					if($request->time_update_series=='yes')
             					{
@@ -839,8 +871,6 @@ class ActivityController extends Controller
 											'title' => $request->title
 										]);
             					}
-
-            					$activityLog = $activity->replicate();
 
             					// $activity = new Activity;
             					$activity->ip_id = $request->ip_id;
@@ -889,6 +919,7 @@ class ActivityController extends Controller
             					$activity->external_comment = $request->external_comment;
             					$activity->message = $request->message;
             					$activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
+            					$activity->repetition_comment = $repetition_comment;
             					$activity->is_latest_entry = 1;
             					$activity->save();
 
