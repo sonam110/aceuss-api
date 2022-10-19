@@ -3348,6 +3348,8 @@ class LabelSeeder extends Seeder
                 "assign-branch"=> "Assign Branch",
                 "change-series-date"=> "Change Series Date",
                 "repetition-comment"=> "Repetition Comment",
+                "branch_assigned_success"=>"Branch assigned successfully",
+                "assigned_branches"=>"Assigned Branches",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',

@@ -105,6 +105,9 @@ class UserController extends Controller
             } elseif($user->user_type_id =='3') {
                 $user_records = getAllowUserList('visible-all-patients');
                 $query->whereIn('users.id', $user_records);
+            } elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
+            {
+                
             } else{
                 $query =  $query->whereIn('users.branch_id',$allChilds);
             }
@@ -348,8 +351,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = $request->from_timing;
-                $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->from_timing = date("H:i", strtotime($request->from_timing));
+                $patientInfo->to_timing = date("H:i", strtotime($request->to_timing));
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;
@@ -767,8 +770,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = $request->from_timing;
-                $patientInfo->to_timing = $request->to_timing;
+                $patientInfo->from_timing = date("H:i", strtotime($request->from_timing));
+                $patientInfo->to_timing = date("H:i", strtotime($request->to_timing));
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;

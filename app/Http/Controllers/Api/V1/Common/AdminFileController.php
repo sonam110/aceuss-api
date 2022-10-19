@@ -171,7 +171,7 @@ class AdminFileController extends Controller
             
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     } 
@@ -197,7 +197,7 @@ class AdminFileController extends Controller
             
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
         }
     }
@@ -205,9 +205,23 @@ class AdminFileController extends Controller
     public function fileAccessHistory(Request $request)
     {
         try {
+            $user = getUser();
             $query = FileAccessLog::orderBy('created_at', 'DESC')
-             ->where('top_most_parent_id', auth()->user()->top_most_parent_id)
             ->with('TopMostParent:id,name','user:id,name','adminFile:id,title,file_path');
+
+            if(in_array($user->user_type_id, [1,16]))
+            {
+                $query->withoutGlobalScope('top_most_parent_id');
+            }
+            elseif(in_array($user->user_type_id, [2,11]))
+            {
+                $query->where('top_most_parent_id', auth()->user()->top_most_parent_id);
+            }
+            else
+            {
+                $query->where('user_id', $user->id);
+            }
+            
 
             if(!empty($request->perPage))
             {
