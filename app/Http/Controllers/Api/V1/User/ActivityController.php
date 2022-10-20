@@ -1108,7 +1108,8 @@ class ActivityController extends Controller
     	}
     }
 
-    public function activityAssignments(Request $request){
+    public function activityAssignments(Request $request)
+    {
     	DB::beginTransaction();
     	try {
     		$user = getUser();
@@ -1124,7 +1125,7 @@ class ActivityController extends Controller
     			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     		}
 
-    		$checkId= Activity::where('id',$request->activity_id)->first();
+    		$checkId = Activity::where('id',$request->activity_id)->first();
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
     		}
@@ -1157,6 +1158,38 @@ class ActivityController extends Controller
     		DB::commit();
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
     		return prepareResult(true,getLangByLabelGroups('Activity','message_assign') ,$activityAssigne, config('httpcodes.success'));
+    	}
+    	catch(Exception $exception) {
+			logException($exception);
+    		DB::rollback();
+    		return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
+
+    	}
+    }
+
+    public function activityEmployeeRemove(Request $request)
+    {
+    	try {
+    		$user = getUser();
+    		$validator = Validator::make($request->all(),[
+    			'activity_id' => 'required|exists:activities,id',   
+    			'user_id' => 'required|exists:users,id',    
+    		],
+    		[
+    			'activity_id' => getLangByLabelGroups('Activity','message_activity_id'),   
+    			'user_id' => getLangByLabelGroups('Activity','message_user_id'),    
+    		]);
+    		if ($validator->fails()) {
+    			return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
+    		}
+
+    		$checkId = Activity::where('id', $request->activity_id)->first();
+    		if (!is_object($checkId)) {
+    			return prepareResult(false,getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
+    		}
+
+    		$check_already = ActivityAssigne::where('user_id',$request->user_id)->where('activity_id',$request->activity_id)->delete();
+    		return prepareResult(true,getLangByLabelGroups('mobile_web','message_removed_successfully') ,[], config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
 			logException($exception);

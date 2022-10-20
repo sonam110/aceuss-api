@@ -108,7 +108,7 @@ class EmployeeBranchController extends Controller
 
             $assignedBranches = EmployeeBranch::select('id','employee_id','branch_id')
                 ->where('branch_id', $request->branch_id)
-                ->with('branch:id,name,branch_name,branch_email', 'employee:id,name')
+                ->with('branch:id,name,branch_name,branch_email', 'employee:id,name,email')
                 ->get();
 
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_list') ,$assignedBranches, config('httpcodes.success'));

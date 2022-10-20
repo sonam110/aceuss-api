@@ -268,6 +268,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('activity-multi-delete', [App\Http\Controllers\Api\V1\User\ActivityController::class, 'activityMultiDelete']);
 
 		Route::post('activity_assignments','User\ActivityController@activityAssignments');
+		Route::post('activity-employee-remove','User\ActivityController@activityEmployeeRemove');
 		Route::post('activity-edit-history','User\ActivityController@activityEditHistory');
 
 		Route::post('activity-action','User\ActivityController@activityAction');

@@ -86,12 +86,16 @@ class PersonController extends Controller
     {
         try {
             $user = getUser();
-        	$checkId = PersonalInfoDuringIp::where('id', $id)->first();
-			if (!is_object($checkId)) {
+        	$userRec = User::find($id);
+			if (!is_object($userRec)) {
                 return prepareResult(false, getLangByLabelGroups('BcCommon','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
-        	$personDelete = PersonalInfoDuringIp::where('id', $id)->delete();
+            $checkId = PersonalInfoDuringIp::where('user_id', $id)->delete();
+            $userRec->email = $userRec->email.'#deleted';
+            $userRec->personal_number = $userRec->personal_number.'#deleted';
+            $userRec->save();
+            $userRec->delete();
          	return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));
 		}
         catch(Exception $exception) {

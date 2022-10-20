@@ -78,6 +78,18 @@ class TaskController extends Controller
                 });
             }
 
+            if(!empty($request->status))
+            {
+                if($request->status==1)
+                {
+                    $query->where('status', $request->status);
+                }
+                elseif($request->status=='no')
+                {
+                    $query->where('status', '0');
+                }
+            }
+
            
 	        $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
@@ -770,10 +782,6 @@ class TaskController extends Controller
     private function getWhereRawFromRequest(Request $request) 
     {
         $w = '';
-        if (is_null($request->input('tasks.status')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "tasks.status = "."'" .$request->input('tasks.status')."'".")";
-        }
         if (is_null($request->input('resource_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "resource_id = "."'" .$request->input('resource_id')."'".")";
@@ -782,18 +790,7 @@ class TaskController extends Controller
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "type_id = "."'" .$request->input('type_id')."'".")";
         }
-        // if (is_null($request->input('category_id')) == false) {
-        //     if ($w != '') {$w = $w . " AND ";}
-        //     $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
-        // }
-        // if (is_null($request->input('branch_id')) == false) {
-        //     if ($w != '') {$w = $w . " AND ";}
-        //     $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
-        // }
-        // if (is_null($request->input('created_by')) == false) {
-        //     if ($w != '') {$w = $w . " AND ";}
-        //     $w = $w . "(" . "created_by = "."'" .$request->input('created_by')."'".")";
-        // }
+        
         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
            
             if ($w != '') {$w = $w . " AND ";}
