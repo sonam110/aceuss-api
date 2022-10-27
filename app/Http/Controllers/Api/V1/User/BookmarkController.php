@@ -12,7 +12,7 @@ use Exception;
 use DB;
 use Carbon\Carbon;
 
-class BookMarkController extends Controller
+class BookmarkController extends Controller
 {
     public function bookmarks(Request $request)
     {
