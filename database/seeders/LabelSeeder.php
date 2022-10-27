@@ -3360,6 +3360,7 @@ class LabelSeeder extends Seeder
                 "change-series-date"=> "Change Series Date",
                 "repetition-comment"=> "Repetition Comment",
                 "click-to-remove"=> "Click on the button to remove assigned employee.",
+                "bad_words_used"=> "Bad words used", 
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',

@@ -219,4 +219,5 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `group_name`, `se_name`, 
 (219, 'visible-all-patients', 'api', 'special-permission', 'visible-all-patients', NULL, 2, '2022-07-14 06:40:10', '2022-07-14 06:40:10', NULL),
 (220, 'employees-change-pwd', 'api', 'employees', 'employees-change-pwd', NULL, 2, '2022-07-14 06:40:11', '2022-07-14 06:40:11', NULL),
 (221, 'employees-assign-hours', 'api', 'employees', 'employees-assign-hours', NULL, 2, '2022-07-14 06:40:11', '2022-07-14 06:40:11', NULL),
-(222, 'patients-change-pwd', 'api', 'patients', 'patients-change-pwd', NULL, 2, '2022-07-14 06:40:11', '2022-07-14 06:40:11', NULL);
+(222, 'patients-change-pwd', 'api', 'patients', 'patients-change-pwd', NULL, 2, '2022-07-14 06:40:11', '2022-07-14 06:40:11', NULL),
+(223, 'deviation-stats-view', 'api', 'deviation', 'deviation-stats-view', NULL, 1, '2022-10-18 16:44:31', '2022-10-18 16:44:31', 'Web');
