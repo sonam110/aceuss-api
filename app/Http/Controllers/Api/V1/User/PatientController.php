@@ -313,13 +313,16 @@ class PatientController extends Controller
                         /*--notify-user-ip-created--*/
                         $data_id =  $patientPlan->id;
                         $notifyUser = User::find($patientPlan->user_id);
-                        $notification_template = EmailTemplate::where('mail_sms_for', 'ip-created')->first();
-                        $variable_data = [
-                            '{{name}}' => $notifyUser->name,
-                            '{{created_by}}' => Auth::User()->name,
-                            '{{title}}' => $patientPlan->title
-                        ];
-                        actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        if($notifyUser)
+                        {
+                            $notification_template = EmailTemplate::where('mail_sms_for', 'ip-created')->first();
+                            $variable_data = [
+                                '{{name}}' => $notifyUser->name,
+                                '{{created_by}}' => Auth::User()->name,
+                                '{{title}}' => $patientPlan->title
+                            ];
+                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                        }
                         //------------------------------//
 
                         $impPlan_ids[] = $patientPlan->id;

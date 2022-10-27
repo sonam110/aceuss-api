@@ -21,6 +21,7 @@ class DepartmentController extends Controller
         $this->middleware('permission:departments-delete', ['only' => ['destroy']]);
         
     }
+
 	public function departments(Request $request)
     {
         try {
@@ -64,7 +65,8 @@ class DepartmentController extends Controller
     	
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         DB::beginTransaction();
         try {
 	    	$user = getUser();
