@@ -49,17 +49,12 @@ use App\Models\Stampling;
 use App\Models\Schedule;
 use App\Models\PatientEmployee;
 use App\Models\EmployeeBranch;
+use mervick\aesEverywhere\AES256;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable,HasRoles,SoftDeletes,LogsActivity,TopMostParentId;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var string[]
-
-     */
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
     protected $appends = ['company_types','patient_types','on_vacation'];
@@ -130,21 +125,11 @@ class User extends Authenticatable
         'is_other_name',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
+    
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -152,6 +137,51 @@ class User extends Authenticatable
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+
+    public function getNameAttribute($value)
+    {
+        if(env('ENC_DEC', false))
+        {
+            return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+        }
+        return $value;
+    }
+
+    public function getEmailAttribute($value)
+    {
+        if(env('ENC_DEC', false))
+        {
+            return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+        }
+        return $value;
+    }
+
+    public function getContactNumberAttribute($value)
+    {
+        if(env('ENC_DEC', false))
+        {
+            return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+        }
+        return $value;
+    }
+
+    public function getPersonalNumberAttribute($value)
+    {
+        if(env('ENC_DEC', false))
+        {
+            return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+        }
+        return $value;
+    }
+
+    public function getFullAddressAttribute($value)
+    {
+        if(env('ENC_DEC', false))
+        {
+            return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+        }
+        return $value;
+    }
     
     public function companyinfo()
     {

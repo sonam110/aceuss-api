@@ -108,8 +108,8 @@ class notifySend extends Command
                     {
                         $notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
                         $variable_data = [
-                            '{{name}}'              => $getUser->name,
-                            '{{assigned_by}}'       => Auth::User()->name,
+                            '{{name}}'              => aceussDecrypt($getUser->name),
+                            '{{assigned_by}}'       => aceussDecrypt(Auth::User()->name),
                             '{{activity_title}}'    => $activity->title,
                             '{{start_date}}'        => $activity->start_date,
                             '{{start_time}}'        => $activity->start_time
@@ -123,8 +123,8 @@ class notifySend extends Command
                     $obj  =[
                         "type"=> 'activity',
                         "user_id"=> $getUser->id,
-                        "name"=> $getUser->name,
-                        "email"=> $getUser->email,
+                        "name"=> aceussDecrypt($getUser->name),
+                        "email"=> aceussDecrypt($getUser->email),
                         "user_type"=> $getUser->user_type_id,
                         "title"=> $activity->title,
                         "patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,

@@ -79,30 +79,30 @@
         @if($deviation->Patient->is_secret==0)
         <tr>
             <td class="title"><strong>Name</strong></td>
-            <td class="value">{{($deviation->Patient) ? $deviation->Patient->name : null}}</td>
+            <td class="value">{{($deviation->Patient) ? aceussDecrypt($deviation->Patient->name) : null}}</td>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{($deviation->Patient) ? $deviation->Patient->personal_number : null}}</td>
+            <td class="value">{{($deviation->Patient) ? aceussDecrypt($deviation->Patient->personal_number) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Patient ID</strong></td>
             <td class="value">{{($deviation->Patient) ? $deviation->Patient->custom_unique_id : null}}</td>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{($deviation->Patient) ? $deviation->Patient->email : null}}</td>
+            <td class="value">{{($deviation->Patient) ? aceussDecrypt($deviation->Patient->email) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Gender</strong></td>
             <td class="value">{{($deviation->Patient) ? $deviation->Patient->gender : null}}</td>
             <td class="title"><strong>Contact Number</strong></td>
-            <td class="value">{{($deviation->Patient) ? $deviation->Patient->contact_number : null}}</td>
+            <td class="value">{{($deviation->Patient) ? aceussDecrypt($deviation->Patient->contact_number) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
             </td>
-                {{($deviation->Patient) ? $deviation->Patient->full_address : null}},
+                {{($deviation->Patient) ? aceussDecrypt($deviation->Patient->full_address) : null}},
                 {{($deviation->Patient) ? $deviation->Patient->city : null}},
                 {{($deviation->Patient) ? $deviation->Patient->postal_area : null}},
                 {{($deviation->Patient) ? $deviation->Patient->zipcode : null}}
@@ -125,21 +125,21 @@
         </tr>
         <tr>
             <td class="title"><strong>Full Name</strong></td>
-            <td class="value">{{$person->name}}</td>
+            <td class="value">{{aceussDecrypt($person->name)}}</td>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{$person->personal_number}}</td>
+            <td class="value">{{aceussDecrypt($person->personal_number)}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{$person->email}}</td>
+            <td class="value">{{aceussDecrypt($person->email)}}</td>
             <td class="title"><strong>Phone </strong></td>
-            <td class="value">{{$person->contact_number}}</td>
+            <td class="value">{{aceussDecrypt($person->contact_number)}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Address </strong></td>
-            <td class="value">{{$person->full_address}}</td>
+            <td class="value">{{aceussDecrypt($person->full_address)}}</td>
             <td class="title"><strong>Person Type </strong></td>
             <td class="value">
                 @if($person->is_family_member==1)
@@ -384,7 +384,7 @@
         </tr>
         <tr>
             <td class="title"><strong>Signed By</strong></td>
-            <td class="value">{{($deviation->is_signed) ? $deviation->Employee->name : 'Not signed yet' }}</td>
+            <td class="value">{{($deviation->is_signed) ? aceussDecrypt($deviation->Employee->name) : 'Not signed yet' }}</td>
         </tr>
     </table>
     @endforeach
@@ -392,7 +392,7 @@
     <hr>
     <table class="header table table-striped">
         <tr>
-            <td class="title"><strong>Printed By: {{auth()->user()->name}}</strong></td>
+            <td class="title"><strong>Printed By: {{aceussDecrypt(auth()->user()->name)}}</strong></td>
         </tr>
         <tr>
             <td class="title"><strong>Reason: {{$print_reason}}</strong></td>

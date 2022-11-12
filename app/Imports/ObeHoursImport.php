@@ -16,13 +16,16 @@ class ObeHoursImport implements ToModel,WithHeadingRow
 
     public function model(array $row)
     {
-        $ovHour = new OVHour;
-        $ovHour->title = $row['title'];
-        $ovHour->date = $row['date'];
-        $ovHour->ob_type = $row['ob_type'];
-        $ovHour->start_time = $row['start_time'];
-        $ovHour->end_time = $row['end_time'];
-        $ovHour->save();
+        if (isset($row['title'])) 
+        {
+            $ovHour = new OVHour;
+            $ovHour->title = $row['title'];
+            $ovHour->date = $row['date'];
+            $ovHour->ob_type = $row['ob_type'];
+            $ovHour->start_time = $row['start_time'];
+            $ovHour->end_time = $row['end_time'];
+            $ovHour->save();
+        }
         return;
     }
 }

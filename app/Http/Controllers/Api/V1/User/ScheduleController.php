@@ -441,17 +441,17 @@ class ScheduleController extends Controller
 							}
 
 						    //----notify-emp-for-schedule-assigned---//
-							if(!empty($shift['user_id']))
+							if(!empty($shift['user_id']) && $user)
 							{
 								$data_id =  $schedule->id;
 								$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
 								$variable_data = [
-									'{{name}}'          => $user->name,
+									'{{name}}'          => aceussDecrypt($user->name),
 									'{{schedule_title}}'=> $schedule->title,
 									'{{date}}'          => $schedule->shift_date,
 									'{{start_time}}'    => $schedule->shift_start_time,
 									'{{end_time}}'      => $schedule->shift_end_time,
-									'{{assigned_by}}'   => Auth::User()->name
+									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
 								actionNotification($user,$data_id,$notification_template,$variable_data);
 							}
@@ -578,15 +578,18 @@ class ScheduleController extends Controller
 				$user = User::find($schedule->user_id);
 				$data_id =  $schedule->id;
 				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-				$variable_data = [
-					'{{name}}'          => $user->name,
-					'{{schedule_title}}'=> $schedule->title,
-					'{{date}}'          => $schedule->shift_date,
-					'{{start_time}}'    => $schedule->shift_start_time,
-					'{{end_time}}'      => $schedule->shift_end_time,
-					'{{assigned_by}}'   => Auth::User()->name
-				];
-				actionNotification($user,$data_id,$notification_template,$variable_data);
+				if($user)
+				{
+					$variable_data = [
+						'{{name}}'          => aceussDecrypt($user->name),
+						'{{schedule_title}}'=> $schedule->title,
+						'{{date}}'          => $schedule->shift_date,
+						'{{start_time}}'    => $schedule->shift_start_time,
+						'{{end_time}}'      => $schedule->shift_end_time,
+						'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
+					];
+					actionNotification($user,$data_id,$notification_template,$variable_data);
+				}
                 //----------------------------------------//
 
 				
@@ -625,7 +628,7 @@ class ScheduleController extends Controller
 				$vacation = Schedule::where('user_id',$value->user_id)->where('is_active',1)->sum('vacation_duration');
                 
                 $total_hours = round((($schduled + $extra + $obe + $emergency)/60), 2);
-				$data['labels'][] = ($value->user) ? $value->user->name.'('.$total_hours.')' : ' ('.$total_hours.')';
+				$data['labels'][] = ($value->user) ? aceussDecrypt($value->user->name).'('.$total_hours.')' : ' ('.$total_hours.')';
 				$data['total_hours'][] = $total_hours;
 				$data['regular_hours'][] = round(($schduled/60), 2);
 				$data['extra_hours'][] = round(($extra/60), 2);
@@ -1097,18 +1100,18 @@ class ScheduleController extends Controller
 						return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 					}
 					$user = User::find($schedule->user_id);
-					if($user->report_verify == 'yes')
+					if($user->report_verify == 'yes' && $user)
 					{
 			            //----notify-employee-schedule-approved----//
 						$data_id =  $id;
 						$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-approved')->first();
 						$variable_data = [
-							'{{name}}'  => $user->name,
+							'{{name}}'  => aceussDecrypt($user->name),
 							'{{schedule_title}}'=>$schedule->title,
 							'{{date}}' => $schedule->shift_date,
 							'{{start_time}}'=> $schedule->shift_start_time,
 							'{{end_time}}'=> $schedule->shift_end_time,
-							'{{approved_by}}'=> Auth::user()->name
+							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
 						actionNotification($user,$data_id,$notification_template,$variable_data);
 			            //--------------------------------------//
@@ -1212,15 +1215,18 @@ class ScheduleController extends Controller
 						'shift_end_time'=> $schedule->shift_end_time,];
 					$data_id =  $id;
 					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
-					$variable_data = [
-						'{{name}}'  => $company->name,
-						'{{schedule_title}}'=>$schedule->title,
-						'{{date}}' => $schedule->shift_date,
-						'{{start_time}}'=> $schedule->shift_start_time,
-						'{{end_time}}'=> $schedule->shift_end_time,
-						'{{verified_by}}'=> Auth::user()->name
-					];
-					actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
+					if($company)
+					{
+						$variable_data = [
+							'{{name}}'  => aceussDecrypt($company->name),
+							'{{schedule_title}}'=>$schedule->title,
+							'{{date}}' => $schedule->shift_date,
+							'{{start_time}}'=> $schedule->shift_start_time,
+							'{{end_time}}'=> $schedule->shift_end_time,
+							'{{verified_by}}'=> aceussDecrypt(Auth::user()->name)
+						];
+						actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
+					}
 		            //--------------------------------------//
 				}
 			}
@@ -1409,7 +1415,7 @@ class ScheduleController extends Controller
 
 			$data = [];
 			foreach ($patient_ids as $key => $patient_id) {
-				// $patient_name = User::find($patient_id)->name;
+				// $patient_name = aceussDecrypt(User::find($patient_id)->name);
 				$data[$patient_id]['patient_assigned_hours'] = (AgencyWeeklyHour::where('user_id',$patient_id)
 					->sum('assigned_hours'))*60;
 				$data[$patient_id]['patient_completed_hours'] = (Schedule::select([

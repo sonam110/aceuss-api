@@ -37,6 +37,8 @@ use App\Models\PatientImplementationPlan;
 use App\Models\IpFollowUp;
 use App\Models\Journal;
 use App\Models\Deviation;
+use App\Models\EmployeeBranch;
+use App\Models\PatientCashier;
 
 class UserController extends Controller
 {
@@ -76,17 +78,17 @@ class UserController extends Controller
                 $allChilds = userChildBranches(\App\Models\User::find($user->id));
             }
             $query = User::select('users.id','users.unique_id','users.custom_unique_id','users.user_type_id', 'users.company_type_id','users.patient_type_id','users.avatar', 'users.category_id', 'users.top_most_parent_id', 'users.parent_id','users.branch_id','users.country_id','users.city', 'users.dept_id', 'users.govt_id','users.name','users.branch_name','users.branch_email', 'users.email', 'users.email_verified_at','users.contact_number','users.user_color', 'users.gender','users.organization_number', 'users.personal_number','users.joining_date','users.is_fake','users.is_secret','users.employee_type','users.is_password_change','users.status','users.step_one','users.step_two','users.step_three','users.step_four','users.step_five','users.report_verify','users.verification_method', 
-                DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND is_latest_entry = 1 AND start_date >= ".$date.") ipCount"), 
-                DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id ) assignActivityCount"), 
-                DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id  AND is_latest_entry = 1 AND start_date >= ".$date.") patientActivityCount"), 
-                DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id ) assignTaskCount"), 
-                DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND is_latest_entry = 1 AND start_date >= ".$date.") patientTaskCount"), 
-                DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id ) personCount"), 
-                DB::raw("(SELECT count(*) from journals WHERE journals.patient_id = users.id ) journals_count"), 
-                DB::raw("(SELECT count(*) from deviations WHERE deviations.patient_id = users.id ) deviations_count"))
+                DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.user_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") ipCount"), 
+                DB::raw("(SELECT count(*) from activity_assignes WHERE activity_assignes.user_id = users.id AND deleted_at IS NULL) assignActivityCount"), 
+                DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") patientActivityCount"), 
+                DB::raw("(SELECT count(*) from assign_tasks WHERE assign_tasks.user_id = users.id AND deleted_at IS NULL) assignTaskCount"), 
+                DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") patientTaskCount"), 
+                DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id AND deleted_at IS NULL) personCount"), 
+                DB::raw("(SELECT count(*) from journals WHERE (journals.patient_id = users.id OR journals.emp_id = users.id) AND deleted_at IS NULL) journals_count"), 
+                DB::raw("(SELECT count(*) from deviations WHERE (deviations.patient_id = users.id OR deviations.emp_id = users.id) AND deleted_at IS NULL) deviations_count"))
             ->where('users.top_most_parent_id',$this->top_most_parent_id)
             ->withoutGlobalScope('top_most_parent_id')
-            ->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name,branch_name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','companySetting:id,company_name,company_logo,company_email,company_address,company_website')
+            ->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','Parent:id,name','UserType:id,name','Country','agencyHours','PatientInformation','persons.Country','branch:id,name,branch_name','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','companySetting:id,company_name,company_logo,company_email,company_address,company_website','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name')
             ->withCount('employees','patients','leaves','vacations');
             if(in_array($user->user_type_id, [1,2,3,4,5,11,16]))
             {
@@ -383,21 +385,30 @@ class UserController extends Controller
                     }
                 }
             }
-            if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false){ 
+            if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false && $user){ 
                 $content = ([
                     'company_id' => $user->top_most_parent_id,
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'name' => aceussDecrypt($user->name),
+                    'email' => aceussDecrypt($user->email),
                     'id' => $user->id,
                     // 'password'=>$request->password
                 ]);   
-                Mail::to($user->email)->send(new WelcomeMail($content));
+                Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
 
             //----------notify-company-user-added--------//
 
             $notified_company = User::find($user->top_most_parent_id);
             $data_id =  $user->id;
+
+            if($user->user_type_id==3)
+            {
+                $assignBranch = new EmployeeBranch;
+                $assignBranch->employee_id = $data_id;
+                $assignBranch->branch_id = $user->branch_id;
+                $assignBranch->save();
+            }
+
             if($user->user_type_id == 3 || $user->user_type_id == 16)
             {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'employee-created')->first();
@@ -410,11 +421,14 @@ class UserController extends Controller
             }
             $extra_param = ['name'=>$user->name];
 
-            $variable_data = [
-                '{{name}}'          => $notified_company->name,
-                '{{user_name}}'     => $user->name
-            ];
-            actionNotification($notified_company,$data_id,$notification_template,$variable_data,$extra_param);
+            if($user)
+            {
+                $variable_data = [
+                    '{{name}}'          => aceussDecrypt($notified_company->name),
+                    '{{user_name}}'     => aceussDecrypt($user->name)
+                ];
+                actionNotification($notified_company,$data_id,$notification_template,$variable_data,$extra_param);
+            }
             //----------------------------------------//
 
             /*-------------patient weekly Hours-----------------------*/
@@ -492,6 +506,7 @@ class UserController extends Controller
                                     $userSave->top_most_parent_id = $top_most_parent_id;
                                     $userSave->name = @$value['name'] ;
                                     $userSave->email = @$value['email'] ;
+                                    $userSave->personal_number = @$value['personal_number'] ;
                                     $userSave->password = Hash::make('12345678');
                                     $userSave->contact_number = @$value['contact_number'];
                                     $userSave->country_id = @$value['country_id'];
@@ -581,7 +596,7 @@ class UserController extends Controller
                 }
             }
             DB::commit();
-            $user['branch'] = $user->branch()->select('id', 'name')->first();
+            $user['branch'] = $user->branch()->select('id', 'name','branch_name')->first();
             $user['assignedWork'] = $user->assignedWork;
             $user['assigned_patiens'] = $request->assigned_patiens;
             $user['assigned_employee'] = $request->assigned_employee;
@@ -604,7 +619,7 @@ class UserController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','branchEmployees:id,employee_id,branch_id','branchEmployees.employee:id,name','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name')->first();
+            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','branchEmployees:id,employee_id,branch_id','branchEmployees.employee:id,name','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name,branch_email')->first();
             if($user->user_type_id == 6)
             {
                 // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
@@ -885,6 +900,7 @@ class UserController extends Controller
                             }
                             $userSave->name = @$value['name'] ;
                             $userSave->email = @$value['email'] ;
+                            $userSave->personal_number = @$value['personal_number'] ;
                             $userSave->password = Hash::make('12345678');
                             $userSave->contact_number = @$value['contact_number'];
                             $userSave->country_id = @$value['country_id'];
@@ -973,7 +989,7 @@ class UserController extends Controller
     {
         try {
             $id = $user->id;
-            $checkId = User::where('id',$id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
+            $checkId = User::where('id',$id)->where('top_most_parent_id', $this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
             }
@@ -983,25 +999,39 @@ class UserController extends Controller
                 return prepareResult(false,getLangByLabelGroups('User','message_unauthorized'), [], config('httpcodes.unauthorized'));
             }
 
-            $updateStatus = $user->update(['status'=>'2']);
-            Task::where('top_most_parent_id',$user->id)->delete();
-            Activity::where('top_most_parent_id',$user->id)->delete();
-            AssigneModule::where('user_id',$user->id)->delete();
-            ActivityAssigne::where('user_id',$user->id)->delete();
-            AssignTask::where('user_id',$user->id)->delete();
-            EmployeeAssignedWorkingHour::where('emp_id',$user->id)->delete();
-            Schedule::where('user_id',$user->id)->delete();
-            Schedule::where('user_id',$user->id)->delete();
-            Stampling::where('user_id',$user->id)->delete();
-            PatientImplementationPlan::where('top_most_parent_id',$user->id)->delete();
-            Journal::where('patient_id',$user->id)->delete();
-            Deviation::where('patient_id',$user->id)->delete();
-            PersonalInfoDuringIp::where('patient_id',$user->id)->delete();
-            IpFollowUp::where('top_most_parent_id',$user->id)->delete();
-            User::where('top_most_parent_id',$user->id)->delete();
-            PatientEmployee::where('patient_id',$user->id)
-                ->orWhere('employee_id', $user->id)
-                ->delete();
+            $updateStatus = $user->update(['status'=>2]);
+            if(in_array($user->user_type_id, [2,11]))
+            {
+                User::where('top_most_parent_id', $user->id)->update(['status'=> 3]);
+            }
+            elseif(in_array($user->user_type_id, [3]))
+            {
+                Task::where('type_id', 8)->where('resource_id', $user->id)->delete();
+                AssignTask::where('user_id',$user->id)->delete();
+                PatientEmployee::where('employee_id', $user->id)
+                    ->delete();
+                ActivityAssigne::where('user_id',$user->id)->delete();
+                Schedule::where('user_id',$user->id)->delete();
+                Stampling::where('user_id',$user->id)->delete();
+            }
+            elseif(in_array($user->user_type_id, [6]))
+            {
+                Task::where('type_id', 7)->where('resource_id', $user->id)->delete();
+                AssignTask::where('user_id',$user->id)->delete();
+                Activity::where('patient_id',$user->id)->delete();
+                ActivityAssigne::where('user_id',$user->id)->delete();
+                Schedule::where('patient_id',$user->id)->delete();
+                Stampling::where('user_id',$user->id)->delete();
+                PatientImplementationPlan::where('user_id',$user->id)->delete();
+                Journal::where('patient_id',$user->id)->delete();
+                Deviation::where('patient_id',$user->id)->delete();
+                PersonalInfoDuringIp::where('patient_id',$user->id)->delete();
+                IpFollowUp::where('patient_id',$user->id)->delete();
+                User::where('parent_id', $user->id)->update(['status'=> 3]);
+                PatientEmployee::where('patient_id',$user->id)
+                    ->delete();
+                PatientCashier::where('patient_id',$user->id)->delete();
+            }
             $userDelete = $user->delete();
             return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
         }

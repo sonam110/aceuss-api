@@ -25,7 +25,6 @@ class CategoryMasterController extends Controller
     
     public function categories(Request $request)
     {
-        
         try {
 	        $user = getUser();
 	    	$whereRaw = $this->getWhereRawFromRequest($request);
@@ -298,7 +297,8 @@ class CategoryMasterController extends Controller
                 return prepareResult(false,getLangByLabelGroups('CategoryMaster','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             
-        	$categoryMaster = CategoryMaster::where('id',$id)->delete();
+            $categoryMaster = CategoryMaster::where('id',$id)->delete();
+        	$subCategoryMaster = CategoryMaster::where('parent_id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('CategoryMaster','message_delete') ,[], config('httpcodes.success'));
 		     	
 			    

@@ -72,9 +72,11 @@ class PatientController extends Controller
             )
             ->withCount(
                 ['ipFollowUps' => function ($query) use ($date) {
-                    $query->where('start_date','>=',$date);
+                    $query->where('start_date','>=',$date)
+                    ->where('is_latest_entry', 1);
                 },'activities' => function ($query) use ($date) {
-                    $query->where('start_date','>=',$date);
+                    $query->where('start_date','>=',$date)
+                    ->where('is_latest_entry', 1);
                 }, 'persons']
             );
 
@@ -149,7 +151,7 @@ class PatientController extends Controller
 
             if(!empty($request->start_date) && !empty($request->end_date))
             {
-                $query->whereDate('patient_implementation_plans.start_date', '>=', $request->start_date)->whereDate('end_date', '<=', $request->end_date);
+                $query->whereDate('patient_implementation_plans.start_date', '>=', $request->start_date)->whereDate('patient_implementation_plans.end_date', '<=', $request->end_date);
             }
             elseif(!empty($request->start_date) && empty($request->end_date))
             {
@@ -317,8 +319,8 @@ class PatientController extends Controller
                         {
                             $notification_template = EmailTemplate::where('mail_sms_for', 'ip-created')->first();
                             $variable_data = [
-                                '{{name}}' => $notifyUser->name,
-                                '{{created_by}}' => Auth::User()->name,
+                                '{{name}}' => aceussDecrypt($notifyUser->name),
+                                '{{created_by}}' => aceussDecrypt(Auth::User()->name),
                                 '{{title}}' => $patientPlan->title
                             ];
                             actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
@@ -632,6 +634,7 @@ class PatientController extends Controller
             Activity::where('ip_id', $id)->delete();
             IpTemplate::where('ip_id', $id)->delete();
             IpFollowUpCreation::where('ip_id', $id)->delete();
+            IpFollowUp::where('ip_id', $id)->delete();
             return prepareResult(true,getLangByLabelGroups('IP','message_delete') ,[], config('httpcodes.success'));
                 
                 
@@ -655,7 +658,13 @@ class PatientController extends Controller
             ->where('patient_implementation_plans.is_latest_entry',1)
             ->where('id',$id)
             ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name', 'persons.user.Country')
-            ->withCount('ipFollowUps','activities')
+            ->withCount(
+                ['ipFollowUps' => function ($query) {
+                    $query->where('is_latest_entry', 1);
+                },'activities' => function ($query) {
+                    $query->where('is_latest_entry', 1);
+                }, 'persons']
+            )
             ->with(
                 ['patient' => function ($query) {
                     $query->withCount(['patientPlan','patientActivity']);
@@ -733,11 +742,14 @@ class PatientController extends Controller
             $notifyUser = User::find($request->user_id);
             $data_id =  $ipAssigne->ip_id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'ip-assigned')->first();
-            $variable_data = [
-                '{{name}}' => $notifyUser->name,
-                '{{assigned_by}}' => Auth::User()->name
-            ];
-            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+            if($notifyUser)
+            {
+                $variable_data = [
+                    '{{name}}' => aceussDecrypt($notifyUser->name),
+                    '{{assigned_by}}' => aceussDecrypt(Auth::User()->name)
+                ];
+                actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+            }
             //------------------------------//
             $ipAssigneEmp = IpAssigneToEmployee::where('id',$ipAssigne->id)->with('User:id,name','PatientImplementationPlan')->first();
             return prepareResult(true,getLangByLabelGroups('IP','message_assigne') ,$ipAssigneEmp, config('httpcodes.success'));

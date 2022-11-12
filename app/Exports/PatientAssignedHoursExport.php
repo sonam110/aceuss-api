@@ -42,7 +42,7 @@ class PatientAssignedHoursExport implements FromCollection, WithHeadings
     		$total_hours = $scheduled_work_duration + $extra_work_duration + $emergency_work_duration + $ob_work_duration + $vacation_duration;
             return [
             	'Date' => $data->shift_date,
-                'Patient Name' =>$data->patient->name,
+                'Patient Name' => aceussDecrypt($data->patient->name),
 	            'Total Hour' => $total_hours
             ];
     	});

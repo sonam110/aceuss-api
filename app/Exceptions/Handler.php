@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -50,10 +51,20 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if($exception instanceof \Illuminate\Auth\AuthenticationException ){
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response(['success' => false, 'message' =>'Record not found.', "code" => 404], 404);
+            }
+        });
+        
+        $this->renderable(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
+            if ($request->is('api/*')) {
+                return response(['success' => false, 'message' =>'permission not defined. Please contact to admin.', "code" => 403], 403);
+            }
+        });
 
-             return response(['success' => false, 'message' =>'Unauthenticated', "code" => 401], 401);
-
+        if($exception instanceof \Illuminate\Auth\AuthenticationException ) {
+            return response(['success' => false, 'message' =>'Unauthenticated', "code" => 401], 401);
         }
 
         if ($exception instanceof \League\OAuth2\Server\Exception\OAuthServerException && $exception->getCode() == 9) {

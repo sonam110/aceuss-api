@@ -334,11 +334,14 @@ class DeviationController extends Controller
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
             $data_id =  $deviation->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'deviation')->first();
-            $variable_data = [
-                '{{name}}'              => $user->name,
-                '{{created_by}}'        => Auth::User()->name,
-            ];
-            actionNotification($user,$data_id,$notification_template,$variable_data);
+            if($user)
+            {
+                    $variable_data = [
+                    '{{name}}'              => aceussDecrypt($user->name),
+                    '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
+                ];
+                actionNotification($user,$data_id,$notification_template,$variable_data);
+            }
             //------------------------------------------------//
             DB::commit();
 

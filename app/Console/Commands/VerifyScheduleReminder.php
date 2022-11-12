@@ -63,7 +63,7 @@ class VerifyScheduleReminder extends Command
     				{
     					$notification_template = EmailTemplate::where('mail_sms_for', 'verify-schedule-reminder')->first();
     					$variable_data = [
-    						'{{name}}'              => $user->name
+    						'{{name}}' => aceussDecrypt($user->name)
     					];
     					actionNotification($user,$user->id,$notification_template,$variable_data);
     				}

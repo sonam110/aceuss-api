@@ -3361,6 +3361,14 @@ class LabelSeeder extends Seeder
                 "repetition-comment"=> "Repetition Comment",
                 "click-to-remove"=> "Click on the button to remove assigned employee.",
                 "bad_words_used"=> "Bad words used", 
+                "selected_patient" => "Selected Patient",
+                "update-branch"=> "Update Branch",
+                "bank-id-usage"=> "Bank Id Usage",
+                "sms-usage"=> "SMS Usage",
+                "ip-not-completed"=> "No. of IP incomplete",
+                "from_amount"=> "From Amount",
+                "to_amount"=> "To Amount",
+                "comment_is_required"=> "Comment is required"
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',

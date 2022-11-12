@@ -97,17 +97,17 @@
                               <table cellspacing="0" border="0" cellpadding="0" width="100%" style="padding: 15px 0px 0px 0px; font-family: 'Roboto Condensed', sans-serif; color: #000;">
                                 <tr>
                                   <td>Name</td>
-                                  <td>{{ $getUser->name }}</td>
+                                  <td>{{ aceussDecrypt($getUser->name) }}</td>
                                 </tr>
                           
 
                                 <tr>
                                   <td>Email</td>
-                                  <td>{{ $getUser->email }}</td>
+                                  <td>{{ aceussDecrypt($getUser->email) }}</td>
                                 </tr>
                                 <tr>
                                   <td>Contact No</td>
-                                  <td>{{ $getUser->contact_number }}</td>
+                                  <td>{{ aceussDecrypt($getUser->contact_number) }}</td>
                                 </tr>
                                 
                                 <tr>
@@ -117,7 +117,7 @@
                                 
                                 <tr>
                                   <td>Address</td>
-                                  <td>{{ $getUser->full_adddress }}</td>
+                                  <td>{{ aceussDecrypt($getUser->full_adddress) }}</td>
                                 </tr>
                                 <tr>
                                   <td>zipcode</td>

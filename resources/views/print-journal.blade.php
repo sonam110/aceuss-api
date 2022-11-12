@@ -113,30 +113,30 @@
             @if($journal->Patient->is_secret==0)
             <tr>
                 <td class="title" width="25%"><strong>Name</strong></td>
-                <td class="value" width="25%">{{($journal->Patient) ? $journal->Patient->name : null}}</td>
+                <td class="value" width="25%">{{($journal->Patient) ? aceussDecrypt($journal->Patient->name) : null}}</td>
                 <td class="title" width="25%"><strong>Personal Number</strong></td>
-                <td class="value" width="25%">{{($journal->Patient) ? $journal->Patient->personal_number : null}}</td>
+                <td class="value" width="25%">{{($journal->Patient) ? aceussDecrypt($journal->Patient->personal_number) : null}}</td>
             </tr>
 
             <tr>
                 <td class="title"><strong>Patient ID</strong></td>
                 <td class="value">{{($journal->Patient) ? $journal->Patient->custom_unique_id : null}}</td>
                 <td class="title"><strong>Email</strong></td>
-                <td class="value">{{($journal->Patient) ? $journal->Patient->email : null}}</td>
+                <td class="value">{{($journal->Patient) ? aceussDecrypt($journal->Patient->email) : null}}</td>
             </tr>
 
             <tr>
                 <td class="title"><strong>Gender</strong></td>
                 <td class="value">{{($journal->Patient) ? $journal->Patient->gender : null}}</td>
                 <td class="title"><strong>Contact Number</strong></td>
-                <td class="value">{{($journal->Patient) ? $journal->Patient->contact_number : null}}</td>
+                <td class="value">{{($journal->Patient) ? aceussDecrypt($journal->Patient->contact_number) : null}}</td>
             </tr>
 
             <tr>
                 <td class="title"><strong>Full address</strong></td>
                 <td class="value" colspan="3">
                 </td>
-                    {{($journal->Patient) ? $journal->Patient->full_address : null}},
+                    {{($journal->Patient) ? aceussDecrypt($journal->Patient->full_address) : null}},
                     {{($journal->Patient) ? $journal->Patient->city : null}},
                     {{($journal->Patient) ? $journal->Patient->postal_area : null}},
                     {{($journal->Patient) ? $journal->Patient->zipcode : null}}
@@ -159,21 +159,21 @@
             </tr>
             <tr>
                 <td class="title" width="25%"><strong>Full Name</strong></td>
-                <td class="value" width="25%">{{$person->name}}</td>
+                <td class="value" width="25%">{{aceussDecrypt($person->name)}}</td>
                 <td class="title" width="25%"><strong>Personal Number</strong></td>
-                <td class="value" width="25%">{{$person->personal_number}}</td>
+                <td class="value" width="25%">{{aceussDecrypt($person->personal_number)}}</td>
             </tr>
 
             <tr>
                 <td class="title"><strong>Email</strong></td>
-                <td class="value">{{$person->email}}</td>
+                <td class="value">{{aceussDecrypt($person->email)}}</td>
                 <td class="title"><strong>Phone </strong></td>
-                <td class="value">{{$person->contact_number}}</td>
+                <td class="value">{{aceussDecrypt($person->contact_number)}}</td>
             </tr>
 
             <tr>
                 <td class="title"><strong>Address </strong></td>
-                <td class="value">{{$person->full_address}}</td>
+                <td class="value">{{aceussDecrypt($person->full_address)}}</td>
                 <td class="title"><strong>Person Type </strong></td>
                 <td class="value">
                     @if($person->is_family_member==1)
@@ -364,7 +364,7 @@
     <hr>
     <table class="header table table-striped">
         <tr>
-            <td class="title"><strong>Printed By: {{auth()->user()->name}}</strong></td>
+            <td class="title"><strong>Printed By: {{aceussDecrypt(auth()->user()->name)}}</strong></td>
         </tr>
         <tr>
             <td class="title"><strong>Reason: {{$print_reason}}</strong></td>

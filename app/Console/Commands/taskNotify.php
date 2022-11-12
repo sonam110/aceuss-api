@@ -105,8 +105,8 @@ class taskNotify extends Command
                    {
                        $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
                        $variable_data = [
-                           '{{name}}'              => $getUser->name,
-                           '{{assigned_by}}'       => "Auth::User()->name",
+                           '{{name}}'              => aceussDecrypt($getUser->name),
+                           '{{assigned_by}}'       => aceussDecrypt(Auth::User()->name),
                            '{{task_title}}'        => $task->title
                        ];
                        actionNotification($getUser,$data_id,$notification_template,$variable_data);
@@ -118,8 +118,8 @@ class taskNotify extends Command
                    $obj = [
                        "type"=> 'task',
                        "user_id"=> ($getUser) ? $getUser->id : null,
-                       "name"=> ($getUser) ? $getUser->name : null,
-                       "email"=> ($getUser) ? $getUser->email : null,
+                       "name"=> ($getUser) ? aceussDecrypt($getUser->name) : null,
+                       "email"=> ($getUser) ? aceussDecrypt($getUser->email) : null,
                        "user_type"=> ($getUser) ? $getUser->user_type_id : null,
                        "title"=> $task->title,
                        "patient_id"=> ($task->Patient)? $task->Patient->unique_id : null,

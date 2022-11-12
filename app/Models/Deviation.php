@@ -65,7 +65,7 @@ class Deviation extends Model
     }
     public function Employee()
     {
-        return $this->belongsTo(User::class,'emp_id','id');
+        return $this->belongsTo(User::class,'emp_id','id')->withTrashed();
     }
     public function Category()
     {

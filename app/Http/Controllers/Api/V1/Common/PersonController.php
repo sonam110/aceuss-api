@@ -92,8 +92,8 @@ class PersonController extends Controller
             }
             
             $checkId = PersonalInfoDuringIp::where('user_id', $id)->delete();
-            $userRec->email = $userRec->email.'#deleted';
-            $userRec->personal_number = $userRec->personal_number.'#deleted';
+            $userRec->email = aceussDecrypt($userRec->email).'#deleted-'.time();
+            $userRec->personal_number = aceussDecrypt($userRec->personal_number).'#deleted-'.time();
             $userRec->save();
             $userRec->delete();
          	return prepareResult(true, getLangByLabelGroups('BcCommon','message_delete') ,[], config('httpcodes.success'));

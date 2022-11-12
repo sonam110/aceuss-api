@@ -159,7 +159,7 @@ class OVHourController extends Controller
                         $startWeek = $w->startOfWeek()->format('Y-m-d');
                         $weekNumber = $date->weekNumberInMonth;
                         $start = \Carbon\Carbon::createFromFormat("Y-m-d", $startWeek);
-                        $end = $start->copy()->endOfWeek()->format('Y-m-d');
+                        $end = $start->copy()->endOfWeek()->addDays()->format('Y-m-d');
                         for($p = $start; $p->lte($end); $p->addDays()) {
                             if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
                                 if(in_array($p->dayOfWeek, $week_days)){

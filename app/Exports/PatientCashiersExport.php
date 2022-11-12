@@ -40,9 +40,9 @@ class PatientCashiersExport implements FromCollection, WithHeadings
     	$patientCashiers  = PatientCashier::where('patient_id',$this->patient_id)->get();
     	return $patientCashiers->map(function ($data, $key) {
             return [
-                'Top Most Parent Id' =>User::find($data->top_most_parent_id)->name,
+                'Top Most Parent Id' => aceussDecrypt(User::find($data->top_most_parent_id)->name),
                 'Branch Id' => User::find($data->branch_id)->branch_name,
-                'Patient Id' => User::find($data->patient_id)->name,
+                'Patient Id' => aceussDecrypt(User::find($data->patient_id)->name),
                 'Date' => $data->date,
 	            'Amount' =>$data->amount,
 	            'Receipt No.' =>$data->receipt_no,

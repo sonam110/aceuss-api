@@ -54,7 +54,7 @@ class NotifyStamplingStartEndTime extends Command
             {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'punch-in-reminder')->first();
                 $variable_data = [
-                   '{{name}}'      => $user->name,
+                   '{{name}}'      => aceussDecrypt($user->name),
                    '{{shift_start_time}}'     => $value->shift_start_time
                ];
                actionNotification($user,$data_id,$notification_template,$variable_data);
@@ -63,7 +63,7 @@ class NotifyStamplingStartEndTime extends Command
             {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'punch-out-reminder')->first();
                 $variable_data = [
-                   '{{name}}'      => $user->name,
+                   '{{name}}'      => aceussDecrypt($user->name),
                    '{{shift_end_time}}'     => $value->shift_end_time
                ];
                actionNotification($user,$data_id,$notification_template,$variable_data);

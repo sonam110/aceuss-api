@@ -35,16 +35,16 @@ class CompanyController extends Controller
             }
             if(!empty($request->shift_start_time))
             {
-                $start_time = str_replace(':', '', $request->shift_start_time);
-                // $query->whereDate('shift_start_time',">=" ,$request->shift_start_time);
+                $start_time = substr(str_replace(':', '', $request->shift_start_time), 0, 4);
                 $query->where(\DB::raw("DATE_FORMAT(shift_start_time, '%H%i')"), '>=',$start_time);
             }
 
             if(!empty($request->shift_end_time))
             {
-                $end_time = str_replace(':', '', $request->shift_end_time);
-                $query->where(\DB::raw("DATE_FORMAT(shift_end_time, '%H%i')"), '>=',$end_time);
+                $end_time = substr(str_replace(':', '', $request->shift_end_time), 0, 4);
+                $query->where(\DB::raw("DATE_FORMAT(shift_end_time, '%H%i')"), '<=',$end_time);
             }
+
             if(!empty($request->status))
             {
                 $query->where('status', $request->status);

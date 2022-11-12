@@ -39,24 +39,24 @@ class CreateUsersTable extends Migration
             $table->string('branch_name')->nullable();
             $table->string('branch_email')->nullable();
             $table->string('govt_id')->nullable();
-            $table->string('name')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('name')->nullable(); //encrypted
+            $table->string('email')->unique()->nullable(); //encrypted
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('contact_number')->nullable();
+            $table->string('contact_number')->nullable(); //encrypted
             $table->string('gender')->nullable();
-            $table->string('personal_number')->nullable();
+            $table->string('personal_number')->nullable(); //encrypted
             $table->string('organization_number')->nullable();
             $table->string('patient_type_id')->nullable();
             $table->integer('country_id')->nullable();
             $table->string('city')->nullable();
             $table->string('postal_area')->nullable();
             $table->string('zipcode')->nullable();
-            $table->text('full_address')->nullable();
+            $table->text('full_address')->nullable(); //encrypted
             $table->string('licence_key')->nullable();
             $table->date('licence_end_date')->nullable();
             $table->boolean('licence_status')->default('1')->comment('1:Active,0:Inactive');
-            $table->enum('employee_type',['1','2','3','4'])->nullable()->comment('1:regular, 2:substitute, 3:seasonal, 4 extra');
+            $table->enum('employee_type',['1','2','3','4'])->nullable()->comment('1:regular, 2:substitute, 3:seasonal, 4:extra');
 
             $table->date('joining_date')->nullable();
             $table->integer('establishment_year')->nullable();

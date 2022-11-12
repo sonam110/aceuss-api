@@ -25,6 +25,8 @@ use Spatie\Permission\Models\Permission;
 use App\Models\LicenceHistory;
 use App\Models\LicenceKeyManagement;
 use App\Models\Deviation;
+use App\Models\MobileBankIdLoginLog;
+use App\Models\SmsLog;
 
 class CompanyAccountController extends Controller
 {
@@ -311,7 +313,7 @@ class CompanyAccountController extends Controller
                     'email' => $request->email,
                     'id' => $user->id,
                 ]);  
-                Mail::to($user->email)->send(new WelcomeMail($content));
+                Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
             $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')
                 ->where('id',$user->id)
@@ -544,6 +546,42 @@ class CompanyAccountController extends Controller
         }
     }
 
+    public function companyBankIDMsgUsage(Request $request,$id)
+    {
+        try 
+        { 
+            $bankID = MobileBankIdLoginLog::where('top_most_parent_id', $request->id);
+            if(!empty($request->from_date))
+            {
+                $bankID->whereDate('created_at', '>=', $request->from_date);
+            }
+
+            if(!empty($request->end_date))
+            {
+                $bankID->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            $data['bank_id_usage'] = $bankID->count();
+
+            $sms_usage = SmsLog::where('top_most_parent_id', $request->id);
+            if(!empty($request->from_date))
+            {
+                $sms_usage->whereDate('created_at', '>=', $request->from_date);
+            }
+
+            if(!empty($request->end_date))
+            {
+                $sms_usage->whereDate('created_at', '<=', $request->end_date);
+            }
+            $data['sms_usage'] = $sms_usage->count();
+            return prepareResult(true,getLangByLabelGroups('Company','message_stats') ,$data, config('httpcodes.success'));
+        }
+        catch(Exception $exception) {
+            logException($exception);
+            return prepareResult(false, $exception->getMessage(),$exception->getMessage(), config('httpcodes.internal_server_error'));
+            
+        }
+    }
 
     public function companySettingList(Request $request)
     {

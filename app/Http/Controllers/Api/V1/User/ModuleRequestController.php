@@ -92,14 +92,17 @@ class ModuleRequestController extends Controller
 			$user = User::first();
 			$data_id =  $moduleRequest->id;
 			$notification_template = EmailTemplate::where('mail_sms_for', 'module-request')->first();
-            $variable_data = [
-            	'{{name}}' => $user->name,
-                '{{requested_by}}'  => Auth::User()->name,
-                '{{modules}}'       => $modules,
-                '{{request_date}}'   => date('Y-m-d'),
-                '{{request_comment}}'=> $request->request_comment
-            ];
-            actionNotification($user,$data_id,$notification_template,$variable_data);
+			if($user)
+			{
+				$variable_data = [
+	            	'{{name}}' => aceussDecrypt($user->name),
+	                '{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
+	                '{{modules}}'       => $modules,
+	                '{{request_date}}'   => date('Y-m-d'),
+	                '{{request_comment}}'=> $request->request_comment
+	            ];
+	            actionNotification($user,$data_id,$notification_template,$variable_data);
+	        }
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
 		}
@@ -194,23 +197,23 @@ class ModuleRequestController extends Controller
 			$modules = implode(',', json_decode($moduleRequest->modules));
 			$user = User::find($moduleRequest->user_id);
 			$data_id =  $moduleRequest->id;
-			if($request->status == 1)
+			if($request->status == 1 && $user)
 			{
 				$notification_template = EmailTemplate::where('mail_sms_for', 'module-request-approved')->first();
                 $variable_data = [
-                	'{{name}}' => $user->name,
-                    '{{approved_by}}'  => Auth::User()->name,
+                	'{{name}}' => aceussDecrypt($user->name),
+                    '{{approved_by}}'  => aceussDecrypt(Auth::User()->name),
                     '{{modules}}'          => $modules,
                     '{{reply_date}}'          => date('Y-m-d'),
                     '{{reply_comment}}'        => $request->reply_comment
                 ];
 			}
-			elseif($request->status == 2)
+			elseif($request->status == 2 && $user)
 			{
 				$notification_template = EmailTemplate::where('mail_sms_for', 'module-request-rejected')->first();
                 $variable_data = [
-                	'{{name}}' => $user->name,
-                    '{{approved_by}}'  => Auth::User()->name,
+                	'{{name}}' => aceussDecrypt($user->name),
+                    '{{approved_by}}'  => aceussDecrypt(Auth::User()->name),
                     '{{modules}}'          => $modules,
                     '{{reply_date}}'          => date('Y-m-d'),
                     '{{reply_comment}}'        => $request->reply_comment

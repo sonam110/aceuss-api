@@ -47,7 +47,7 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
     		$total_hours = $scheduled_work_duration + $extra_work_duration + $emergency_work_duration + $ob_work_duration + $vacation_duration;
             return [
             	'Date' => $data->shift_date,
-                'Employee Name' =>$data->user->name,
+                'Employee Name' => aceussDecrypt($data->user->name),
 	            'scheduled work duration' =>$scheduled_work_duration,
 	            'extra work duration' =>$extra_work_duration,
 	            'ob work duration' =>$ob_work_duration,

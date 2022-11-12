@@ -53,12 +53,15 @@ class CommentController extends Controller
                 $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$activity->top_most_parent_id)->first();
                 $data_id =  $activity->id;
                 $notification_template = EmailTemplate::where('mail_sms_for', 'activity-comment')->first();
-                $variable_data = [
-                    '{{name}}'              => $user->name,
-                    '{{comment_by}}'        => Auth::User()->name,
-                    '{{activity_title}}'    => $activity->title
-                ];
-                actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+                if($user)
+                    {
+                    $variable_data = [
+                        '{{name}}'              => aceussDecrypt($user->name),
+                        '{{comment_by}}'        => Auth::User()->name,
+                        '{{activity_title}}'    => $activity->title
+                    ];
+                    actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+                }
             }
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$addComment, config('httpcodes.success'));
         }

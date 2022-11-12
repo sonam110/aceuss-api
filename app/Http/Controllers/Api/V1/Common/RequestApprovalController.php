@@ -124,12 +124,15 @@ class RequestApprovalController extends Controller
                                 foreach ($request->requested_to as $key => $value) 
                                 {
                                     $userRec = User::find($value);
-                                    $variable_data = [
-                                        '{{name}}'              => $userRec->name,
-                                        '{{requested_by}}'      => Auth::User()->name,
-                                        '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
-                                    ];
-                                    actionNotification($userRec,$data_id,$notification_template,$variable_data);
+                                    if($userRec)
+                                        {
+                                        $variable_data = [
+                                            '{{name}}'              => aceussDecrypt($userRec->name),
+                                            '{{requested_by}}'      => aceussDecrypt(Auth::User()->name),
+                                            '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
+                                        ];
+                                        actionNotification($userRec,$data_id,$notification_template,$variable_data);
+                                    }
                                 }
                             }
                         }

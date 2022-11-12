@@ -162,30 +162,30 @@
         @if($ip->patient->is_secret==0)
         <tr>
             <td class="title"><strong>Name</strong></td>
-            <td class="value">{{($ip->patient) ? $ip->patient->name : null}}</td>
+            <td class="value">{{($ip->patient) ? aceussDecrypt($ip->patient->name) : null}}</td>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{($ip->patient) ? $ip->patient->personal_number : null}}</td>
+            <td class="value">{{($ip->patient) ? aceussDecrypt($ip->patient->personal_number) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Patient ID</strong></td>
             <td class="value">{{($ip->patient) ? $ip->patient->custom_unique_id : null}}</td>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{($ip->patient) ? $ip->patient->email : null}}</td>
+            <td class="value">{{($ip->patient) ? aceussDecrypt($ip->patient->email) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Gender</strong></td>
             <td class="value">{{($ip->patient) ? $ip->patient->gender : null}}</td>
             <td class="title"><strong>Contact Number</strong></td>
-            <td class="value">{{($ip->patient) ? $ip->patient->contact_number : null}}</td>
+            <td class="value">{{($ip->patient) ? aceussDecrypt($ip->patient->contact_number) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
             </td>
-                {{($ip->patient) ? $ip->patient->full_address : null}},
+                {{($ip->patient) ? aceussDecrypt($ip->patient->full_address) : null}},
                 {{($ip->patient) ? $ip->patient->city : null}},
                 {{($ip->patient) ? $ip->patient->postal_area : null}},
                 {{($ip->patient) ? $ip->patient->zipcode : null}}
@@ -208,21 +208,21 @@
         </tr>
         <tr>
             <td class="title"><strong>Full Name</strong></td>
-            <td class="value">{{$person->user->name}}</td>
+            <td class="value">{{aceussDecrypt($person->user->name)}}</td>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{$person->user->personal_number}}</td>
+            <td class="value">{{aceussDecrypt($person->user->personal_number)}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{$person->user->email}}</td>
+            <td class="value">{{aceussDecrypt($person->user->email)}}</td>
             <td class="title"><strong>Phone </strong></td>
-            <td class="value">{{$person->user->contact_number}}</td>
+            <td class="value">{{aceussDecrypt($person->user->contact_number)}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Address </strong></td>
-            <td class="value">{{$person->user->full_address}}</td>
+            <td class="value">{{aceussDecrypt($person->user->full_address)}}</td>
             <td class="title"><strong>Person Type </strong></td>
             <td class="value">
                 @if($person->user->is_family_member==1)
@@ -435,14 +435,14 @@
             @foreach($ip->requestForApprovals as $key => $person)
             @if($person->RequestedTo)
             <tr>
-                <td><strong>{{$key+1}}: {{$person->RequestedTo->name}}</strong></td>
+                <td><strong>{{$key+1}}: {{aceussDecrypt(@$person->RequestedTo->user->name)}}</strong></td>
                 <td><br><center><strong>__________________________</strong></center></td>
             </tr>
             @endif
             @endforeach
             @if($ip->patient)
             <tr>
-                <td><strong>{{$ip->requestForApprovals->count()+1}}: {{$ip->patient->name}}</strong></td>
+                <td><strong>{{$ip->requestForApprovals->count()+1}}: {{aceussDecrypt($ip->patient->name)}}</strong></td>
                 <td><br><center><strong>__________________________</strong></center></td>
             </tr>
             @endif

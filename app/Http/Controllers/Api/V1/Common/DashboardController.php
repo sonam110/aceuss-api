@@ -51,8 +51,9 @@ class DashboardController extends Controller
                 $data['activityNotApplicableCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','3')->where('is_latest_entry', 1)->count();
                 
                 $data['ipCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
+                $data['ipCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
                 $data['ipPendingCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
+                $data['ipInCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
                 
                 $data['followupCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
                 $data['followupCompleteCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
@@ -108,7 +109,8 @@ class DashboardController extends Controller
                 $ipInfo =  PatientImplementationPlan::select(
                         \DB::raw('COUNT(id) as ipCount'),
                         \DB::raw('COUNT(IF(status = 0, 0, NULL)) as ipPendingCount'),
-                        \DB::raw('COUNT(IF(status = 1, 0, NULL)) as ipCompleteCount')
+                        \DB::raw('COUNT(IF(status = 2, 0, NULL)) as ipCompleteCount'),
+                        \DB::raw('COUNT(IF(status = 1, 0, NULL)) as ipInCompleteCount')
                     )
                     ->whereIn('branch_id',$allChilds)
                     ->where('is_latest_entry', 1)
@@ -116,6 +118,7 @@ class DashboardController extends Controller
                 $data['ipCount'] = $ipInfo->ipCount;
                 $data['ipCompleteCount'] = $ipInfo->ipCompleteCount;
                 $data['ipPendingCount'] = $ipInfo->ipPendingCount;
+                $data['ipInCompleteCount'] = $ipInfo->ipInCompleteCount;
             }
             elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
@@ -155,8 +158,9 @@ class DashboardController extends Controller
                     ->count();
 
                 $data['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
+                $data['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
                 $data['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
+                $data['ipInCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
             }
             else
             {
@@ -187,8 +191,9 @@ class DashboardController extends Controller
                 $data['taskPendingCount'] = Task::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
                 
                 $data['ipCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
+                $data['ipCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','2')->where('is_latest_entry', 1)->count();
                 $data['ipPendingCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
+                $data['ipInCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
 
                 $data['employeeCount'] = User::whereIn('branch_id',$allChilds)->where('user_type_id','3')->count();
                 $data['patientCount'] = User::whereIn('branch_id',$allChilds)->where('user_type_id','6')->count();

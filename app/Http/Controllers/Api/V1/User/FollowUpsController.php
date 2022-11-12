@@ -217,8 +217,8 @@ class FollowUpsController extends Controller
                             $data_id =  $ipFollowups->id;
                             $notification_template = EmailTemplate::where('mail_sms_for', 'followup-created')->first();
                             $variable_data = [
-                                '{{name}}' => $notifyUser->name,
-                                '{{created_by}}' => Auth::User()->name,
+                                '{{name}}' => aceussDecrypt($notifyUser->name),
+                                '{{created_by}}' => aceussDecrypt(Auth::User()->name),
                                 '{{title}}' => $ipFollowups->title,
                                 '{{start_date}}' => $ipFollowups->start_date,
                                 '{{start_time}}' => $ipFollowups->start_time,

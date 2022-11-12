@@ -40,12 +40,13 @@ class NotifyBirthday extends Command
     {
         $users =User::where('status',1)->get(['id','name','user_type_id','personal_number']);
         foreach ($users as $key => $user) {
-            $date_of_birth    = date('Y-m-d', strtotime(substr($user->personal_number,0,8)));
+            $personal_number = aceussDecrypt($user->personal_number);
+            $date_of_birth    = date('Y-m-d', strtotime(substr($personal_number,0,8)));
             if($date_of_birth == date('Y-m-d'))
             {
                 $notification_template = EmailTemplate::where('mail_sms_for', 'birthday-wish')->first();
                 $variable_data = [
-                    '{{name}}'              => $user->name
+                    '{{name}}' => aceussDecrypt($user->name)
                 ];
                 actionNotification($user,$user->id,$notification_template,$variable_data);
             }

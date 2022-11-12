@@ -74,7 +74,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('company-subscription-extend', [App\Http\Controllers\Api\V1\User\CompanyController::class, 'companySubscriptionExtend']);
 
 		/*-----Admin Route---------------------------*/
-		Route::group(['prefix' => 'administration', 'middleware' => ['admin', 'throttle:120,1']],function () {
+		Route::group(['prefix' => 'administration', 'middleware' => ['admin', 'throttle:5000,1']],function () {
 			/*------------Permissions--------------*/
 			Route::post('permissions', [App\Http\Controllers\Api\V1\Admin\PermissionController::class, 'permissions']);
 			Route::apiResource('permission',Admin\PermissionController::class)->only(['store','destroy','show', 'update']);
@@ -82,6 +82,7 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 			Route::post('companies', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companies']);
 		    Route::apiResource('user', Admin\CompanyAccountController::class)->only(['store','destroy','show', 'update']);
 		    Route::post('company-stats/{id}', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companyStats']);
+		    Route::post('company-bank-id-msg-usage/{id}', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companyBankIDMsgUsage']);
 
 		    Route::post('company-setting-list', [App\Http\Controllers\Api\V1\Admin\CompanyAccountController::class, 'companySettingList']);
 

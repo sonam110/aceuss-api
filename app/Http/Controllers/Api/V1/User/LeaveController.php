@@ -217,7 +217,7 @@ class LeaveController extends Controller
 					$extra_param = ['leave_group_id'=>$group_id,'leave_object'=>Schedule::where('id',$schedule->id)->with('user:id,name')->first()];
 					$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
 					$variable_data = [
-						'{{requested_by}}'  => Auth::User()->name,
+						'{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
 						'{{date}}'          => $schedule->shift_date,
 						'{{reason}}'        => $request->reason
 					];
@@ -304,7 +304,7 @@ class LeaveController extends Controller
 						$extra_param = ['leave_group_id'=>$group_id,'leave_object'=>Schedule::where('id',$schedule->id)->with('user:id,name')->first()];
 						$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied')->first();
 						$variable_data = [
-							'{{requested_by}}'  => Auth::User()->name,
+							'{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
 							'{{date}}'          => $schedule->shift_date,
 							'{{reason}}'        => $value['reason']
 						];
@@ -436,12 +436,15 @@ class LeaveController extends Controller
 						$data_id =  $request->leave_group_id;
 						$extra_param = ['leave_group_id'=>$request->leave_group_id];
 						$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-request')->first();
-						$variable_data = [
-							'{{name}}'          => $user->name,
-							'{{requested_by}}'  => Auth::User()->name,
-							'{{dates}}'         => $dates
-						];
-						actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+						if($user)
+						{
+							$variable_data = [
+								'{{name}}'          => aceussDecrypt($user->name),
+								'{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
+								'{{dates}}'         => $dates
+							];
+							actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+						}
                         //----------------------------------------------//
 						$users_id[] = $user->id;
 					}
@@ -458,12 +461,15 @@ class LeaveController extends Controller
 				$data_id =  $request->leave_group_id;
 				$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$request->leave_group_id];
 				$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
-				$variable_data = [
-					'{{name}}'  => $user->name,
-					'{{dates}}' => $dates,
-					'{{approved_by}}'=> Auth::user()->name
-				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				if($user)
+				{
+					$variable_data = [
+						'{{name}}'  => aceussDecrypt($user->name),
+						'{{dates}}' => $dates,
+						'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
+					];
+					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				}
                 //--------------------------------------//
 			}
 			elseif(!empty($request->leaves))
@@ -542,15 +548,18 @@ class LeaveController extends Controller
 
 					$data_id =  $schedule->id;
 					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-					$variable_data = [
-						'{{name}}'          => $user->name,
-						'{{schedule_title}}'=> $schedule->title,
-						'{{date}}'          => $schedule->shift_date,
-						'{{start_time}}'    => $schedule->shift_start_time,
-						'{{end_time}}'      => $schedule->shift_end_time,
-						'{{assigned_by}}'   => Auth::User()->name
-					];
-					actionNotification($user,$data_id,$notification_template,$variable_data);
+					if($user)
+					{
+						$variable_data = [
+							'{{name}}'          => aceussDecrypt($user->name),
+							'{{schedule_title}}'=> $schedule->title,
+							'{{date}}'          => $schedule->shift_date,
+							'{{start_time}}'    => $schedule->shift_start_time,
+							'{{end_time}}'      => $schedule->shift_end_time,
+							'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
+						];
+						actionNotification($user,$data_id,$notification_template,$variable_data);
+					}
                     //----------------------------------------//
 
                     //----notify-employee-leave-approved---//
@@ -558,12 +567,15 @@ class LeaveController extends Controller
 					$data_id =  $leave->id;
 					$extra_param = ['employee_id'=>$leave->user_id,'leave_group_id'=>$leave->leave_group_id];
 					$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved')->first();
-					$variable_data = [
-						'{{name}}'  => $user->name,
-						'{{date}}' => $leave->shift_date,
-						'{{approved_by}}'=> Auth::user()->name
-					];
-					actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param);
+					if($user)
+					{
+						$variable_data = [
+							'{{name}}'  => aceussDecrypt($user->name),
+							'{{date}}' => $leave->shift_date,
+							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
+						];
+						actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param);
+					}
                     //----------------------------------------//
 				}
 				$leaves = Schedule::whereIn('id',$leave_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,branch_name,company_type_id')->groupBy('leave_group_id')->get();
@@ -604,12 +616,15 @@ class LeaveController extends Controller
 			$data_id =  $leave_group_id;
 			$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id];
 			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-approved-multiple')->first();
-			$variable_data = [
-				'{{name}}'  => $user->name,
-				'{{dates}}' => implode(',', $dates),
-				'{{approved_by}}'=> Auth::user()->name
-			];
-			actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+			if($user)
+			{
+				$variable_data = [
+					'{{name}}'  => aceussDecrypt($user->name),
+					'{{dates}}' => implode(',', $dates),
+					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
+				];
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+			}
             //----------------------------------------------//
 
 			return prepareResult(true,getLangByLabelGroups('Leave','message_approve') ,$leaves, config('httpcodes.success'));
@@ -723,13 +738,16 @@ class LeaveController extends Controller
 			//--notify-company-schedule-slot-selected--//
 			$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-slot-selected')->first();
 			$extra_param = ['leave_group_id'=>$leave->leave_group_id];
-			$variable_data = [
-				'{{name}}'          => $company->name,
-				'{{selected_by}}'   => Auth::User()->name,
-				'{{selected_dates}}'=> $selected_dates,
-				'{{vacant_dates}}'  => $vacant_dates
-			];
-			actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param);
+			if($company)
+			{
+				$variable_data = [
+					'{{name}}'          => aceussDecrypt($company->name),
+					'{{selected_by}}'   => aceussDecrypt(Auth::User()->name),
+					'{{selected_dates}}'=> $selected_dates,
+					'{{vacant_dates}}'  => $vacant_dates
+				];
+				actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param);
+			}
 
 			foreach ($users as $key => $user) 
 			{
@@ -737,13 +755,16 @@ class LeaveController extends Controller
 				$data_id =  $leave->group_id;
 				$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-slot-selected')->first();
 				$extra_param = ['leave_group_id'=>$leave->leave_group_id];
-				$variable_data = [
-					'{{name}}'          => $user->name,
-					'{{selected_by}}'   => Auth::User()->name,
-					'{{selected_dates}}'=> $selected_dates,
-					'{{vacant_dates}}'  => $vacant_dates
-				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				if($user)
+				{
+					$variable_data = [
+						'{{name}}'          => aceussDecrypt($user->name),
+						'{{selected_by}}'   => aceussDecrypt(Auth::User()->name),
+						'{{selected_dates}}'=> $selected_dates,
+						'{{vacant_dates}}'  => $vacant_dates
+					];
+					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				}
 				//-------------------------------------------//
 				$users_id[] = $user->id;
 			}
@@ -804,18 +825,18 @@ class LeaveController extends Controller
 						'leave_approved' => '1',
 						'leave_approved_by' => Auth::id(), 
 						'leave_approved_date_time' => date('Y-m-d H:i:s'),
-						'slot_assigned_to' => $leave['assign_emp'],
+						'slot_assigned_to' => @$leave['assign_emp'],
 						'vacation_duration' => $vacation_duration,
 					]);
 
 					$shift_start_time = $schedule->shift_start_time;
 					$shift_end_time = $schedule->shift_end_time;
 					$shift_type = $schedule->shift_type;
-					$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,$leave['assign_emp']);
+					$result = scheduleWorkCalculation($schedule->shift_date,$shift_start_time,$shift_end_time,'extra',$shift_type,@$leave['assign_emp']);
 
 					$assSchedule = new Schedule;
 					$assSchedule->top_most_parent_id = $schedule->top_most_parent_id;
-					$assSchedule->user_id = $leave['assign_emp'];
+					$assSchedule->user_id = @$leave['assign_emp'];
 					$assSchedule->patient_id = $schedule->patient_id;
 					$assSchedule->shift_id = $schedule->shift_id;
 					$assSchedule->parent_id = $schedule->id;
@@ -852,19 +873,27 @@ class LeaveController extends Controller
 					$assSchedule->save();
 
 			        //-------notify-employee-schedule-assigned-----------//
-					$user = User::find($leave['assign_emp']);
-					$data_id =  $assSchedule->id;
-
-					$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-					$variable_data = [
-						'{{name}}'          => $user->name,
-						'{{schedule_title}}'=> $assSchedule->title,
-						'{{date}}'          => $assSchedule->shift_date,
-						'{{start_time}}'    => $assSchedule->shift_start_time,
-						'{{end_time}}'      => $assSchedule->shift_end_time,
-						'{{assigned_by}}'   => Auth::User()->name
-					];
-					actionNotification($user,$data_id,$notification_template,$variable_data);
+			        if(isset($leave['assign_emp']))
+			        {
+						$user = User::find($leave['assign_emp']);
+						$data_id =  $assSchedule->id;
+						if($user)
+						{
+							$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
+							if($user)
+							{
+								$variable_data = [
+									'{{name}}'          => aceussDecrypt($user->name),
+									'{{schedule_title}}'=> $assSchedule->title,
+									'{{date}}'          => $assSchedule->shift_date,
+									'{{start_time}}'    => $assSchedule->shift_start_time,
+									'{{end_time}}'      => $assSchedule->shift_end_time,
+									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
+								];
+								actionNotification($user,$data_id,$notification_template,$variable_data);
+							}
+						}
+					}
 			        //------------------------------------------//
 				}
 				else
@@ -952,15 +981,19 @@ class LeaveController extends Controller
 							$data_id =  $assSchedule->id;
 
 							$notification_template = EmailTemplate::where('mail_sms_for', 'schedule-assignment')->first();
-							$variable_data = [
-								'{{name}}'          => $user->name,
-								'{{schedule_title}}'=> $assSchedule->title,
-								'{{date}}'          => $assSchedule->shift_date,
-								'{{start_time}}'    => $assSchedule->shift_start_time,
-								'{{end_time}}'      => $assSchedule->shift_end_time,
-								'{{assigned_by}}'   => Auth::User()->name
-							];
-							actionNotification($user,$data_id,$notification_template,$variable_data);
+							if($user)
+							{
+								$variable_data = [
+									'{{name}}'          => aceussDecrypt($user->name),
+									'{{schedule_title}}'=> $assSchedule->title,
+									'{{date}}'          => $assSchedule->shift_date,
+									'{{start_time}}'    => $assSchedule->shift_start_time,
+									'{{end_time}}'      => $assSchedule->shift_end_time,
+									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
+								];
+								actionNotification($user,$data_id,$notification_template,$variable_data);
+							}
+							
 					        //------------------------------------------//
 						}
 					}
@@ -1013,12 +1046,15 @@ class LeaveController extends Controller
 			$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id,'leave_object'=>Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name')->get()];
 
 			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
-			$variable_data = [
-				'{{name}}' 	=> $user->name,
-				'{{dates}}'	=> implode(',', $dates),
-				'{{approved_by}}'=> Auth::user()->name
-			];
-			actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+			if($user)
+			{
+				$variable_data = [
+					'{{name}}' 	=> aceussDecrypt($user->name),
+					'{{dates}}'	=> implode(',', $dates),
+					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
+				];
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+			}
     		//-----------------------------------------------------//
 
 			$data = Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,branch_name,company_type_id')->get();

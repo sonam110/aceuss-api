@@ -305,11 +305,14 @@ class JournalController extends Controller
             $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number','branch_name')->where('id',getBranchId())->first();
             $data_id =  $journal->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'journal')->first();
-            $variable_data = [
-                '{{name}}'              => $user->name,
-                '{{created_by}}'        => Auth::User()->name,
-            ];
-            actionNotification($user,$data_id,$notification_template,$variable_data,$exra_params);
+            if($user)
+            {
+                $variable_data = [
+                    '{{name}}'              => aceussDecrypt($user->name),
+                    '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
+                ];
+                actionNotification($user,$data_id,$notification_template,$variable_data,$exra_params);
+            }
             //-----------------------------------------------//
 
             DB::commit();
@@ -357,7 +360,7 @@ class JournalController extends Controller
                 $journalLog->description        = $checkId->description;
                 $journalLog->edited_by          = $user->id;
                 $journalLog->reason_for_editing = $request->reason_for_editing;
-                $journalLog->description_created_at =$checkId->edit_date;
+                $journalLog->description_created_at = date('Y-m-d H:i:s');
                 $journalLog->save();
             }
 

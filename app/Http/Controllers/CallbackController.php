@@ -166,18 +166,18 @@ class CallbackController extends Controller
                 {
                     $schedule= Schedule::find($id);
                     $user = User::find($schedule->user_id);
-                    if($user->report_verify == 'yes')
+                    if($user && $user->report_verify == 'yes')
                     {
                         //----notify-employee-schedule-approved----//
                         $data_id =  $id;
                         $notification_template = EmailTemplate::where('mail_sms_for', 'schedule-approved')->first();
                         $variable_data = [
-                            '{{name}}'  => $user->name,
+                            '{{name}}'  => aceussDecrypt($user->name),
                             '{{schedule_title}}'=>$schedule->title,
                             '{{date}}' => $schedule->shift_date,
                             '{{start_time}}'=> $schedule->shift_start_time,
                             '{{end_time}}'=> $schedule->shift_end_time,
-                            '{{approved_by}}'=> $loggedInUser->name
+                            '{{approved_by}}'=> aceussDecrypt($loggedInUser->name)
                         ];
                         actionNotification($user,$data_id,$notification_template,$variable_data);
                         //--------------------------------------//
@@ -261,12 +261,12 @@ class CallbackController extends Controller
                     $data_id =  $id;
                     $notification_template = EmailTemplate::where('mail_sms_for', 'schedule-verified')->first();
                     $variable_data = [
-                        '{{name}}'  => $company->name,
+                        '{{name}}'  => aceussDecrypt($company->name),
                         '{{schedule_title}}'=>$schedule->title,
                         '{{date}}' => $schedule->shift_date,
                         '{{start_time}}'=> $schedule->shift_start_time,
                         '{{end_time}}'=> $schedule->shift_end_time,
-                        '{{verified_by}}'=> $loggedInUser->name
+                        '{{verified_by}}'=> aceussDecrypt($loggedInUser->name)
                     ];
                     actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
                     //--------------------------------------//

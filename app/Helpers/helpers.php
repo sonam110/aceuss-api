@@ -28,6 +28,7 @@ use Spatie\Permission\Models\Role;
 use App\Events\EventNotification;
 use Str as Str;
 use App\Models\LicenceKeyManagement;
+use mervick\aesEverywhere\AES256;
 
 function getUser() {
     return auth('api')->user();
@@ -44,6 +45,24 @@ function returnBoolean($bool=null) {
 function logException($exception)
 {
     return \Log::error($exception);
+}
+
+function aceussEncrypt($value)
+{
+    if(env('ENC_DEC', false))
+    {
+        return (!empty($value)) ? AES256::encrypt($value, env('ENCRYPTION_KEY')) : NULL;
+    }
+    return $value;
+}
+
+function aceussDecrypt($value)
+{
+    if(env('ENC_DEC', false))
+    {
+        return (!empty($value)) ? AES256::decrypt($value, env('ENCRYPTION_KEY')) : NULL;
+    }
+    return $value;
 }
 
 //==================== For Api ================//

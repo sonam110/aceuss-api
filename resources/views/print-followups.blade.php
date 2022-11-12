@@ -132,21 +132,21 @@
         </tr>
         <tr>
             <td class="title"><strong>Name</strong></td>
-            <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->name : null}}</td>
+            <td class="value">{{($ipfollowupInfo->patient) ? aceussDecrypt($ipfollowupInfo->patient->name) : null}}</td>
             <td class="title"><strong>Email</strong></td>
-            <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->email : null}}</td>
+            <td class="value">{{($ipfollowupInfo->patient) ? aceussDecrypt($ipfollowupInfo->patient->email) : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Contact Number</strong></td>
-            <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->contact_number : null}}</td>
+            <td class="value">{{($ipfollowupInfo->patient) ? aceussDecrypt($ipfollowupInfo->patient->contact_number) : null}}</td>
             <td class="title"><strong>Gender</strong></td>
             <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->gender : null}}</td>
         </tr>
 
         <tr>
             <td class="title"><strong>Personal Number</strong></td>
-            <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->personal_number : null}}</td>
+            <td class="value">{{($ipfollowupInfo->patient) ? aceussDecrypt($ipfollowupInfo->patient->personal_number) : null}}</td>
             <td class="title"><strong>Joining date</strong></td>
             <td class="value">{{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->joining_date : null}}</td>
         </tr>
@@ -154,7 +154,7 @@
             
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
-                {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->full_address : null}},
+                {{($ipfollowupInfo->patient) ? aceussDecrypt($ipfollowupInfo->patient->full_address) : null}},
                 {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->city : null}},
                 {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->postal_area : null}},
                 {{($ipfollowupInfo->patient) ? $ipfollowupInfo->patient->zipcode : null}}
