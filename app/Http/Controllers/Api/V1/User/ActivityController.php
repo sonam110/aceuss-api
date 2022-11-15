@@ -1064,6 +1064,8 @@ class ActivityController extends Controller
     		
     		//-----------------------------------------------//
     		// $checkId->tasks->delete();
+
+    		ActivityAssigne::where('activity_id', $id)->delete();
     		$checkId->delete();
     		DB::commit();
     		return prepareResult(true,getLangByLabelGroups('Activity','message_delete') ,[], config('httpcodes.success'));

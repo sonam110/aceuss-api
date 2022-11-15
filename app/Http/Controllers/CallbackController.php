@@ -198,10 +198,13 @@ class CallbackController extends Controller
                             {
                                 $patientAssignedHours = AgencyWeeklyHour::where('user_id',$schedule->patient_id)->orderBy('id','desc')->first();
                             }
-                            $workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
-                            $completedHours = $patientAssignedHours->completed_hours + $workedHours;
-                            $remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
-                            $patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+                            if($patientAssignedHours)
+                            {
+                                $workedHours = $schedule->scheduled_work_duration + $schedule->emergency_work_duration + $schedule->ob_work_duration + $schedule->extra_work_duration;
+                                $completedHours = $patientAssignedHours->completed_hours + $workedHours;
+                                $remainingHours = $patientAssignedHours->remaining_hours - $workedHours;
+                                $patientAssignedHours->update(['completed_hours'=>$completedHours,'remaining_hours'=>$remainingHours]);
+                            }
                         }
                         $schedule->update([
                             'status' => 1,

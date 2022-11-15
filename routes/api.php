@@ -40,7 +40,6 @@ Route::prefix('v1')->namespace('Api\V1')->group(function () {
 		Route::post('/logout', 'Common\UserLoginController@logout');
 
 		Route::get('dashboard', 'Common\DashboardController@dashboard');
-		Route::post('activity-count', 'Common\DashboardController@activityCount');
 
 		Route::post('/change-password', 'Common\UserLoginController@changePassword');
 		Route::get('user-detail', 'Common\UserLoginController@userDetail');
