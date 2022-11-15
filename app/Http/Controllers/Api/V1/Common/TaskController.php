@@ -549,7 +549,8 @@ class TaskController extends Controller
 			if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('Task','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-        	$Task = Task::where('id',$id)->delete();
+            $Task = Task::where('id',$id)->delete();
+        	AssignTask::where('task_id',$id)->delete();
          	return prepareResult(true,getLangByLabelGroups('Task','message_delete') ,[], config('httpcodes.success'));
         }
         catch(Exception $exception) {

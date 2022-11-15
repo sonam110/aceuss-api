@@ -1042,12 +1042,13 @@ class LeaveController extends Controller
 
     		//--notify-emp-leave-applied-approved-by-company-----//
 			$user = User::find($request->emp_id);
-			$data_id =  $leave_group_id;
-			$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id,'leave_object'=>Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name')->get()];
-
-			$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
 			if($user)
 			{
+				$data_id =  $leave_group_id;
+				$extra_param = ['employee_id'=>$user->id,'leave_group_id'=>$leave_group_id,'leave_object'=>Schedule::where('leave_group_id',$leave_group_id)->with('user:id,name')->get()];
+
+				$notification_template = EmailTemplate::where('mail_sms_for', 'leave-applied-approved')->first();
+			
 				$variable_data = [
 					'{{name}}' 	=> aceussDecrypt($user->name),
 					'{{dates}}'	=> implode(',', $dates),

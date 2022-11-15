@@ -3368,7 +3368,8 @@ class LabelSeeder extends Seeder
                 "ip-not-completed"=> "No. of IP incomplete",
                 "from_amount"=> "From Amount",
                 "to_amount"=> "To Amount",
-                "comment_is_required"=> "Comment is required"
+                "comment_is_required"=> "Comment is required",
+                "ip_plans"=> "Implementations",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
