@@ -420,15 +420,13 @@ class JournalController extends Controller
     public function show($id){
         try {
 	    	$user = getUser();
-        	$checkId= Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name,branch_name')
+        	$data = Journal::with('Activity:id,title','Category:id,name','Subcategory:id,name','EditedBy:id,name','Patient:id,name','Employee:id,name','JournalLogs','journalActions.journalActionLogs.editedBy', 'branch:id,name,branch_name','signedByUser:id,name')
                 ->withCount('journalActions')
                 ->where('id',$id)
                 ->first();
-			if (!is_object($checkId)) {
+			if (!is_object($data)) {
                 return prepareResult(false,getLangByLabelGroups('Journal','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-
-        	$data = getJournal($id);
             return prepareResult(true,getLangByLabelGroups('Journal','message_show') ,$data, config('httpcodes.success'));
         }
         catch(Exception $exception) {

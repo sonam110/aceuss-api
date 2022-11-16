@@ -54,10 +54,17 @@ class Journal extends Model
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
     }
-     public function Patient()
+    
+    public function Patient()
     {
         return $this->belongsTo(User::class,'patient_id','id');
     }
+
+    public function signedByUser()
+    {
+        return $this->belongsTo(User::class,'signed_by','id');
+    }
+
     public function Employee()
     {
         return $this->belongsTo(User::class,'emp_id','id')->withTrashed();
