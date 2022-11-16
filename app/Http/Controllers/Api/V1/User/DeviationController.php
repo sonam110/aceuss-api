@@ -126,7 +126,7 @@ class DeviationController extends Controller
             }
             elseif(!empty($request->from_date) && empty($request->end_date))
             {
-                $query->whereDate('date_time', $request->from_date);
+                $query->whereDate('date_time', '>=', $request->from_date);
             }
             elseif(empty($request->from_date) && !empty($request->end_date))
             {
@@ -310,7 +310,7 @@ class DeviationController extends Controller
             $deviation->emp_id = auth()->id();
             $deviation->category_id = $request->category_id;
             $deviation->subcategory_id = $request->subcategory_id;
-            $deviation->date_time = $request->date_time;
+            $deviation->date_time = dateTimeFormat($request->date_time);
             $deviation->description = $request->description;
             $deviation->immediate_action = $request->immediate_action;
             $deviation->probable_cause_of_the_incident = $request->probable_cause_of_the_incident;
@@ -407,13 +407,18 @@ class DeviationController extends Controller
                 return prepareResult(false,getLangByLabelGroups('Deviation','message_record_not_found'), [],config('httpcodes.not_found'));
             }
 
+            if($deviation->is_signed==1)
+            {
+                return prepareResult(false,getLangByLabelGroups('Deviation','message_signed_deviation_cannot_be_updated'), [],config('httpcodes.bad_request'));
+            }
+
             $getBranch = User::select('id', 'branch_id')->find($request->patient_id);
 
             $deviation->branch_id = $getBranch->branch_id;
             $deviation->patient_id = $request->patient_id;
             $deviation->category_id = $request->category_id;
             $deviation->subcategory_id = $request->subcategory_id;
-            $deviation->date_time = $request->date_time;
+            $deviation->date_time = dateTimeFormat($request->date_time);
             $deviation->description = $request->description;
             $deviation->immediate_action = $request->immediate_action;
             $deviation->probable_cause_of_the_incident = $request->probable_cause_of_the_incident;

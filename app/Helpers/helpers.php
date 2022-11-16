@@ -78,6 +78,12 @@ function prepareResult($status, $message, $payload, $status_code)
   return response()->json(['success' => $status, 'message' => $message, 'payload' => $payload, 'code' => $status_code],$status_code);
     
 }
+
+function dateTimeFormat($value) 
+{
+    return !empty($value) ? date('Y-m-d H:i:s', strtotime($value)) : null;
+}
+
 function getTopParent($id) {
     if(Auth::check()){
         $adminAgg = [];

@@ -36,7 +36,7 @@ class CreateDeviationsTable extends Migration
             $table->unsignedBigInteger('subcategory_id')->nullable();
             $table->foreign('subcategory_id')->references('id')->on('category_masters')->onDelete('cascade');
 
-            $table->timestamp('date_time');
+            $table->timestamp('date_time')->nullable();
             $table->text('description');
             $table->text('activity_note')->nullable();
             $table->text('immediate_action')->nullable()->comment('null bcoz activity also create deviation');
