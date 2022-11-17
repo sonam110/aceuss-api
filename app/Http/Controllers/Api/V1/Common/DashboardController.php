@@ -27,41 +27,83 @@ class DashboardController extends Controller
             $user = getUser();
             
             $data = [];
-            if($user->user_type_id == '1' || $user->user_type_id == '16')
+            if($user->user_type_id == 1 || $user->user_type_id == 16)
             {
-                $data['companyCount'] = User::where('user_type_id','2')->count();
+                $userData = User::select(
+                        \DB::raw('COUNT(IF(users.user_type_id = 2, 0, NULL)) as companyCount'),
+                        \DB::raw('COUNT(IF(users.user_type_id NOT IN (1,2), 0, NULL)) as userCount'),
+                        \DB::raw('COUNT(IF(users.user_type_id = 16, 0, NULL)) as employeeCount'),
+                        \DB::raw('COUNT(IF(users.licence_key IS NOT NULL, 0, NULL)) as licenceCount')
+                    )
+                ->first();
+                $data['companyCount'] = $userData->companyCount;
+                $data['userCount'] = $userData->userCount;
+                $data['employeeCount'] = $userData->employeeCount;
+                $data['licenceCount'] = $userData->licenceCount;
+
                 $data['packageCount'] = Package::count();
                 $data['moduelCount'] = Module::count();
-                $data['userCount'] = User::whereNotIn('user_type_id',['1','2'])->count();
-                $data['employeeCount'] = User::where('user_type_id', '16')->count();
                 $data['taskCount'] = Task::whereIn('top_most_parent_id',[null,$user->id])->where('is_latest_entry', 1)->count();
-                $data['licenceCount'] = User::whereNotNull('licence_key')->count();
             }
             elseif($user->user_type_id == 2)
             {
-                $data['employeeCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','3')->count();
-                $data['patientCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','6')->count();
-                $data['branchCount'] = User::where('top_most_parent_id',$user->id)->where('user_type_id','11')->count();
+                $userData = User::select(
+                        \DB::raw('COUNT(IF(users.top_most_parent_id = "'.$user->id.'" AND users.user_type_id = 3, 0, NULL)) as employeeCount'),
+                        \DB::raw('COUNT(IF(users.top_most_parent_id = "'.$user->id.'" AND users.user_type_id = 6, 0, NULL)) as patientCount'),
+                        \DB::raw('COUNT(IF(users.top_most_parent_id = "'.$user->id.'" AND users.user_type_id = 11, 0, NULL)) as branchCount')
+                    )
+                ->first();
+
+                $data['employeeCount'] = $userData->employeeCount;
+                $data['patientCount'] = $userData->patientCount;
+                $data['branchCount'] = $userData->branchCount;
                 $data['departmentCount'] = Department::where('top_most_parent_id',$user->id)->count();
 
-                $data['activityCount'] = Activity::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['activityPendingCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['activityCompleteCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['activityNotDoneCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['activityNotApplicableCount'] = Activity::where('top_most_parent_id',$user->id)->where('status','3')->where('is_latest_entry', 1)->count();
-                
-                $data['ipCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['ipPendingCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['ipInCompleteCount'] = PatientImplementationPlan::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
-                
-                $data['followupCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['followupCompleteCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['followupPendingCount'] = IpFollowUp::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
-                
-                $data['taskCount'] = Task::where('top_most_parent_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['taskCompleteCount'] = Task::where('top_most_parent_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['taskPendingCount'] = Task::where('top_most_parent_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();  
+                $activityData = Activity::select(
+                        \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.is_latest_entry = "1", 0, NULL)) as activityCount'),
+                        \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.status = "0" AND activities.is_latest_entry = "1", 0, NULL)) as activityPendingCount'),
+                        \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.status = "1" AND activities.is_latest_entry = "1", 0, NULL)) as activityCompleteCount'),
+                        \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.status = "2" AND activities.is_latest_entry = "1", 0, NULL)) as activityNotDoneCount'),
+                        \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.status = "3" AND activities.is_latest_entry = "1", 0, NULL)) as activityNotApplicableCount')
+                    )
+                ->first();
+                $data['activityCount'] = $activityData->activityCount;
+                $data['activityPendingCount'] = $activityData->activityPendingCount;
+                $data['activityCompleteCount'] = $activityData->activityCompleteCount;
+                $data['activityNotDoneCount'] = $activityData->activityNotDoneCount;
+                $data['activityNotApplicableCount'] =$activityData->activityNotApplicableCount;
+
+                $ipData = PatientImplementationPlan::select(
+                        \DB::raw('COUNT(IF(patient_implementation_plans.top_most_parent_id = "'.$user->id.'" AND patient_implementation_plans.is_latest_entry = "1", 0, NULL)) as ipCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.top_most_parent_id = "'.$user->id.'" AND patient_implementation_plans.status = "2" AND patient_implementation_plans.is_latest_entry = "1", 0, NULL)) as ipCompleteCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.top_most_parent_id = "'.$user->id.'" AND patient_implementation_plans.status = "0" AND patient_implementation_plans.is_latest_entry = "1", 0, NULL)) as ipPendingCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.top_most_parent_id = "'.$user->id.'" AND patient_implementation_plans.status = "1" AND patient_implementation_plans.is_latest_entry = "1", 0, NULL)) as ipInCompleteCount')
+                    )
+                ->first();
+                $data['ipCount'] = $ipData->ipCount;
+                $data['ipCompleteCount'] = $ipData->ipCompleteCount;
+                $data['ipPendingCount'] = $ipData->ipPendingCount;
+                $data['ipInCompleteCount'] = $ipData->ipInCompleteCount;
+
+                $ipFollowUpData = IpFollowUp::select(
+                        \DB::raw('COUNT(IF(ip_follow_ups.top_most_parent_id = "'.$user->id.'" AND ip_follow_ups.is_latest_entry = "1", 0, NULL)) as followupCount'),
+                        \DB::raw('COUNT(IF(ip_follow_ups.top_most_parent_id = "'.$user->id.'" AND ip_follow_ups.status = "2" AND ip_follow_ups.is_latest_entry = "1", 0, NULL)) as followupCompleteCount'),
+                        \DB::raw('COUNT(IF(ip_follow_ups.top_most_parent_id = "'.$user->id.'" AND ip_follow_ups.status = "0" AND ip_follow_ups.is_latest_entry = "1", 0, NULL)) as followupPendingCount')
+                    )
+                ->first();
+                $data['followupCount'] = $ipFollowUpData->followupCount;
+                $data['followupCompleteCount'] = $ipFollowUpData->followupCompleteCount;
+                $data['followupPendingCount'] = $ipFollowUpData->followupPendingCount;
+
+                $taskData = Task::select(
+                        \DB::raw('COUNT(IF(tasks.top_most_parent_id = "'.$user->id.'" AND tasks.is_latest_entry = "1", 0, NULL)) as taskCount'),
+                        \DB::raw('COUNT(IF(tasks.top_most_parent_id = "'.$user->id.'" AND tasks.status = "1" AND tasks.is_latest_entry = "1", 0, NULL)) as taskCompleteCount'),
+                        \DB::raw('COUNT(IF(tasks.top_most_parent_id = "'.$user->id.'" AND tasks.status = "0" AND tasks.is_latest_entry = "1", 0, NULL)) as taskPendingCount')
+                    )
+                ->first();
+                $data['taskCount'] = $taskData->taskCount;
+                $data['taskCompleteCount'] = $taskData->taskCompleteCount;
+                $data['taskPendingCount'] = $taskData->taskPendingCount;  
             }
             elseif($user->user_type_id == 3)
             {
@@ -122,45 +164,49 @@ class DashboardController extends Controller
             }
             elseif(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
-                $data['activityCount'] = Activity::where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
-                    })
+                $user = getUser();
+                if(!empty($user->branch_id)) {
+                    if($user->user_type_id==11)
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                        $allChilds[] = $user->id;
+                    }
+                    else
+                    {
+                        $allChilds = userChildBranches(\App\Models\User::find($user->branch_id));
+                    }
+                } else {
+                    $allChilds = userChildBranches(\App\Models\User::find($user->id));
+                }
+                $activityData =  Activity::select(
+                        \DB::raw('COUNT(IF((activities.patient_id = "'.$user->id.'" OR activities.patient_id = "'.$user->parent_id.'"), 0, NULL)) as activityCount'),
+                        \DB::raw('COUNT(IF((activities.patient_id = "'.$user->id.'" OR activities.patient_id = "'.$user->parent_id.'") AND activities.status = "0", 0, NULL)) as activityPendingCount'),
+                        \DB::raw('COUNT(IF((activities.patient_id = "'.$user->id.'" OR activities.patient_id = "'.$user->parent_id.'") AND activities.status = "1", 0, NULL)) as activityCompleteCount'),
+                        \DB::raw('COUNT(IF((activities.patient_id = "'.$user->id.'" OR activities.patient_id = "'.$user->parent_id.'") AND activities.status = "2", 0, NULL)) as activityNotDoneCount'),
+                        \DB::raw('COUNT(IF((activities.patient_id = "'.$user->id.'" OR activities.patient_id = "'.$user->parent_id.'") AND activities.status = "3", 0, NULL)) as activityNotApplicableCount')
+                    )
+                    ->whereIn('branch_id',$allChilds)
                     ->where('is_latest_entry', 1)
-                    ->count();
-                $data['activityPendingCount'] = Activity::where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
-                    })
-                    ->where('status','0')
-                    ->where('is_latest_entry', 1)
-                    ->count();
-                $data['activityCompleteCount'] = Activity::where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
-                    })
-                    ->where('status','1')
-                    ->where('is_latest_entry', 1)
-                    ->count();
-                $data['activityNotDoneCount'] = Activity::where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
-                    })
-                    ->where('status','2')
-                    ->where('is_latest_entry', 1)
-                    ->count();
-                $data['activityNotApplicableCount'] = Activity::where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
-                    })
-                    ->where('status','3')
-                    ->where('is_latest_entry', 1)
-                    ->count();
+                    ->first();
+                $data['activityCount'] = $activityData->activityCount;
+                $data['activityPendingCount'] = $activityData->activityPendingCount;
+                $data['activityCompleteCount'] = $activityData->activityCompleteCount;
+                $data['activityNotDoneCount'] = $activityData->activityNotDoneCount;
+                $data['activityNotApplicableCount'] = $activityData->activityNotApplicableCount;
 
-                $data['ipCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['ipPendingCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['ipInCompleteCount'] = PatientImplementationPlan::where('user_id',$user->id)->where('status','1')->where('is_latest_entry', 1)->count();
+                $ipInfo =  PatientImplementationPlan::select(
+                        \DB::raw('COUNT(id) as ipCount'),
+                        \DB::raw('COUNT(IF(status = 0, 0, NULL)) as ipPendingCount'),
+                        \DB::raw('COUNT(IF(status = 2, 0, NULL)) as ipCompleteCount'),
+                        \DB::raw('COUNT(IF(status = 1, 0, NULL)) as ipInCompleteCount')
+                    )
+                    ->whereIn('branch_id',$allChilds)
+                    ->where('is_latest_entry', 1)
+                    ->first();
+                $data['ipCount'] = $ipInfo->ipCount;
+                $data['ipCompleteCount'] = $ipInfo->ipCompleteCount;
+                $data['ipPendingCount'] = $ipInfo->ipPendingCount;
+                $data['ipInCompleteCount'] = $ipInfo->ipInCompleteCount;
             }
             else
             {
@@ -178,31 +224,76 @@ class DashboardController extends Controller
                 } else {
                     $allChilds = userChildBranches(\App\Models\User::find($user->id));
                 }
-                
 
-                $data['activityCount'] = Activity::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['activityPendingCount'] = Activity::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['activityCompleteCount'] = Activity::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['activityNotDoneCount'] = Activity::whereIn('branch_id',$allChilds)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['activityNotApplicableCount'] = Activity::whereIn('branch_id',$allChilds)->where('status','3')->where('is_latest_entry', 1)->count();
+                $activityData = Activity::select(
+                        \DB::raw('COUNT(id) as activityCount'),
+                        \DB::raw('COUNT(IF(activities.branch_id = "'.$user->id.'" AND activities.status = "0", 0, NULL)) as activityPendingCount'),
+                        \DB::raw('COUNT(IF(activities.branch_id = "'.$user->id.'" AND activities.status = "1", 0, NULL)) as activityCompleteCount'),
+                        \DB::raw('COUNT(IF(activities.branch_id = "'.$user->id.'" AND activities.status = "2", 0, NULL)) as activityNotDoneCount'),
+                        \DB::raw('COUNT(IF(activities.branch_id = "'.$user->id.'" AND activities.status = "3", 0, NULL)) as activityNotApplicableCount')
+                    )
+                ->whereIn('branch_id',$allChilds)
+                ->where('is_latest_entry', 1)
+                ->first();
+                $data['activityCount'] = $activityData->activityCount;
+                $data['activityPendingCount'] = $activityData->activityPendingCount;
+                $data['activityCompleteCount'] = $activityData->activityCompleteCount;
+                $data['activityNotDoneCount'] = $activityData->activityNotDoneCount;
+                $data['activityNotApplicableCount'] =$activityData->activityNotApplicableCount;
                 
-                $data['taskCount'] = Task::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['taskCompleteCount'] = Task::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
-                $data['taskPendingCount'] = Task::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
-                
-                $data['ipCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['ipCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['ipPendingCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
-                $data['ipInCompleteCount'] = PatientImplementationPlan::whereIn('branch_id',$allChilds)->where('status','1')->where('is_latest_entry', 1)->count();
+                $taskData = Task::select(
+                        \DB::raw('COUNT(id) as taskCount'),
+                        \DB::raw('COUNT(IF(tasks.status = "1", 0, NULL)) as taskCompleteCount'),
+                        \DB::raw('COUNT(IF(tasks.status = "0", 0, NULL)) as taskPendingCount')
+                    )
+                ->whereIn('branch_id',$allChilds)
+                ->where('is_latest_entry', 1)
+                ->first();
+                $data['taskCount'] = $taskData->taskCount;
+                $data['taskCompleteCount'] = $taskData->taskCompleteCount;
+                $data['taskPendingCount'] = $taskData->taskPendingCount; 
 
-                $data['employeeCount'] = User::whereIn('branch_id',$allChilds)->where('user_type_id','3')->count();
-                $data['patientCount'] = User::whereIn('branch_id',$allChilds)->where('user_type_id','6')->count();
-                $data['branchCount'] = User::whereIn('branch_id',$allChilds)->where('user_type_id','11')->count();
+                $ipData = PatientImplementationPlan::select(
+                        \DB::raw('COUNT(id) as ipCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.status = "2", 0, NULL)) as ipCompleteCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.status = "0", 0, NULL)) as ipPendingCount'),
+                        \DB::raw('COUNT(IF(patient_implementation_plans.status = "1", 0, NULL)) as ipInCompleteCount')
+                    )
+                ->whereIn('branch_id',$allChilds)
+                ->where('is_latest_entry', 1)
+                ->first();
+
+                $data['ipCount'] = $ipData->ipCount;
+                $data['ipCompleteCount'] = $ipData->ipCompleteCount;
+                $data['ipPendingCount'] = $ipData->ipPendingCount;
+                $data['ipInCompleteCount'] = $ipData->ipInCompleteCount;
+                
+                $userData = User::select(
+                        \DB::raw('COUNT(IF(users.user_type_id = 3, 0, NULL)) as employeeCount'),
+                        \DB::raw('COUNT(IF(users.user_type_id = 6, 0, NULL)) as patientCount'),
+                        \DB::raw('COUNT(IF(users.user_type_id = 11, 0, NULL)) as branchCount')
+                    )
+                ->whereIn('branch_id',$allChilds)
+                ->first();
+
+                $data['employeeCount'] = $userData->employeeCount;
+                $data['patientCount'] = $userData->patientCount;
+                $data['branchCount'] = $userData->branchCount;
                 $data['departmentCount'] = Department::whereIn('branch_id',$allChilds)->count();
 
-                $data['followupCount'] = IpFollowUp::whereIn('branch_id',$allChilds)->where('is_latest_entry', 1)->count();
-                $data['followupCompleteCount'] = IpFollowUp::whereIn('branch_id',$allChilds)->where('status','2')->where('is_latest_entry', 1)->count();
-                $data['followupPendingCount'] = IpFollowUp::whereIn('branch_id',$allChilds)->where('status','0')->where('is_latest_entry', 1)->count();
+                $ipFollowUpData = IpFollowUp::select(
+                        \DB::raw('COUNT(id) as followupCount'),
+                        \DB::raw('COUNT(IF(ip_follow_ups.status = "2", 0, NULL)) as followupCompleteCount'),
+                        \DB::raw('COUNT(IF(ip_follow_ups.status = "0", 0, NULL)) as followupPendingCount')
+                    )
+                ->whereIn('branch_id',$allChilds)
+                ->where('is_latest_entry', 1)
+                ->first();
+
+                $data['followupCount'] = $ipFollowUpData->followupCount;
+                $data['followupCompleteCount'] = $ipFollowUpData->followupCompleteCount;
+                $data['followupPendingCount'] = $ipFollowUpData->followupPendingCount;
+
             }
             return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats') ,$data, config('httpcodes.success'));    
         } catch(Exception $exception) {

@@ -32,7 +32,7 @@ class RoleController extends Controller
     {
         try {
             $query = Role::select('*')->with('permissions');
-            if(auth()->user()->user_type_id!='1')
+            if(!in_array(@auth()->user()->user_type_id, [1,16]))
             {
                 $query->where('top_most_parent_id', $this->top_most_parent_id);
             }
@@ -90,7 +90,7 @@ class RoleController extends Controller
             return prepareResult(true,getLangByLabelGroups('role','message_list'),$query,'200');
         } 
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
     }
@@ -138,7 +138,7 @@ class RoleController extends Controller
             
             return prepareResult(true,getLangByLabelGroups('role','message_create') ,$role, '200');
         } catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -159,7 +159,7 @@ class RoleController extends Controller
             }
             return prepareResult(false, getLangByLabelGroups('role','message_record_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
-	       logException($exception);
+           logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
     }
@@ -201,7 +201,7 @@ class RoleController extends Controller
             }
             return prepareResult(false, getLangByLabelGroups('role','message_role_not_found'), [],config('httpcodes.not_found'));
         } catch(Exception $exception) {
-	       logException($exception);
+           logException($exception);
             DB::rollback();
             return prepareResult(false, $exception->getMessage(),[], '500');
         }
@@ -225,7 +225,7 @@ class RoleController extends Controller
             
         } 
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], '500');
             
         }
