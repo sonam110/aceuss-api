@@ -3421,6 +3421,7 @@ class LabelSeeder extends Seeder
                 "today-week-month"=> "Today|Week|Month",
                 "logout"=> "Logout",
                 "ip-not-completed"=> "No. of IP Incomplete",
+                "reports"=> "Reports",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
