@@ -646,7 +646,7 @@ class PatientController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         try {
             $user = getUser();
@@ -654,23 +654,42 @@ class PatientController extends Controller
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('IP','message_record_not_found'), [],config('httpcodes.not_found'));
             }
-            $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
-            ->where('patient_implementation_plans.is_latest_entry',1)
-            ->where('id',$id)
-            ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name', 'persons.user.Country')
-            ->withCount(
-                ['ipFollowUps' => function ($query) {
-                    $query->where('is_latest_entry', 1);
-                },'activities' => function ($query) {
-                    $query->where('is_latest_entry', 1);
-                }, 'persons']
-            )
-            ->with(
-                ['patient' => function ($query) {
-                    $query->withCount(['patientPlan','patientActivity']);
-                }, 'persons']
-            )
-            ->first();
+            if($request->log=='yes')
+            {
+                $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
+                ->where('id',$id)
+                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name', 'persons.user.Country')
+                ->withCount(
+                    ['ipFollowUps','activities', 'persons']
+                )
+                ->with(
+                    ['patient' => function ($query) {
+                        $query->withCount(['patientPlan','patientActivity']);
+                    }, 'persons']
+                )
+                ->first();
+            }
+            else
+            {
+                $patientPlan = PatientImplementationPlan::select('patient_implementation_plans.*')
+                ->where('patient_implementation_plans.is_latest_entry',1)
+                ->where('id',$id)
+                ->with('patient','Category:id,name','Subcategory:id,name','CreatedBy:id,name','EditedBy:id,name','ApprovedBy:id,name','activities','ipFollowUps','patient','persons','children','assignEmployee:id,ip_id,user_id','branch:id,name,branch_name', 'persons.user.Country')
+                ->withCount(
+                    ['ipFollowUps' => function ($query) {
+                        $query->where('is_latest_entry', 1);
+                    },'activities' => function ($query) {
+                        $query->where('is_latest_entry', 1);
+                    }, 'persons']
+                )
+                ->with(
+                    ['patient' => function ($query) {
+                        $query->withCount(['patientPlan','patientActivity']);
+                    }, 'persons']
+                )
+                ->first();
+            }
+            
             return prepareResult(true,getLangByLabelGroups('IP','message_show') ,$patientPlan, config('httpcodes.success'));
         }
         catch(Exception $exception) {

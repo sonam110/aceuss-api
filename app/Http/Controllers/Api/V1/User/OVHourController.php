@@ -354,6 +354,14 @@ class OVHourController extends Controller
 
     public function obeHoursImport(Request $request)
     {
+        $validation = \Validator::make($request->all(), [
+            'file'      => 'required',
+        ]);
+
+        if ($validation->fails()) {
+           return prepareResult(false,$validation->errors()->first(),[], config('httpcodes.bad_request')); 
+        }
+
         $import = Excel::import(new ObeHoursImport(),request()->file('file'));
 
         return prepareResult(true,getLangByLabelGroups('BcCommon','message_import') ,[], config('httpcodes.success'));

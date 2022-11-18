@@ -512,7 +512,7 @@ class ScheduleController extends Controller
 		try 
 		{
 			// $schedule= Schedule::with('user:id,name,gender','scheduleDates:id,group_id,shift_date,shift_start_time,shift_end_time')->groupBy('group_id')->where('id',$id)->first();
-			$schedule= Schedule::with('user:id,name,gender')->groupBy('group_id')->where('id',$id)->first();
+			$schedule = Schedule::with('user:id,name,gender', 'leaveAssignedTo.user:id,name')->groupBy('group_id')->where('id',$id)->first();
 			if (!is_object($schedule)) {
 				return prepareResult(false,getLangByLabelGroups('Schedule','message_record_not_found'), [],config('httpcodes.not_found'));
 			}
@@ -1029,7 +1029,7 @@ class ScheduleController extends Controller
 	                DB::raw('SUM(emergency_work_duration) as emergency_work_duration'),
 	                DB::raw('SUM(ob_work_duration) as ob_work_duration'),
 	                DB::raw('SUM(vacation_duration) as vacation_duration'),
-	                DB::raw('SUM(ob_work_duration) as ob_work_duration'),
+	                DB::raw('SUM(ob_work_duration) as ob_work_duration')
 	            )
 	            ->whereDate('shift_date',$shift_date)
 	            ->where('user_id',$request->user_id)

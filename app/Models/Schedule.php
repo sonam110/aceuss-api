@@ -34,6 +34,12 @@ class Schedule extends Model
     {
         return $this->belongsTo(User::class,'patient_id','id');
     }
+
+    public function leaveAssignedTo()
+    {
+        return $this->hasMany(self::class,'parent_id','id');
+    }
+
     public function scheduleTemplate()
     {
         return $this->belongsTo(ScheduleTemplate::class,'schedule_template_id','id');

@@ -135,8 +135,8 @@ class DashboardController extends Controller
 
                 $assignedTask =  AssignTask::select(
                         \DB::raw('COUNT(assign_tasks.id) as taskCount'),
-                        \DB::raw('COUNT(IF(assign_tasks.status = 0, 0, NULL)) as AssignTaskPendingCount'),
-                        \DB::raw('COUNT(IF(assign_tasks.status = 1, 0, NULL)) as AssignTaskCompleteCount')
+                        \DB::raw('COUNT(IF(assign_tasks.status = 0, 0, NULL)) as taskPendingCount'),
+                        \DB::raw('COUNT(IF(assign_tasks.status = 1, 0, NULL)) as taskCompleteCount')
                     )
                     ->join('tasks', 'tasks.id', '=', 'assign_tasks.task_id')
                     ->where('assign_tasks.user_id',$user->id)
@@ -144,9 +144,8 @@ class DashboardController extends Controller
                     ->whereNull('tasks.deleted_at')
                     ->first();
                 $data['taskCount'] = $assignedTask->taskCount;
-                $data['AssignTaskCompleteCount'] = $assignedTask->AssignTaskCompleteCount;
-                $data['AssignTaskPendingCount'] = $assignedTask->AssignTaskPendingCount;
-
+                $data['taskCompleteCount'] = $assignedTask->taskCompleteCount;
+                $data['taskPendingCount'] = $assignedTask->taskPendingCount;
 
                 $ipInfo =  PatientImplementationPlan::select(
                         \DB::raw('COUNT(id) as ipCount'),
@@ -200,13 +199,32 @@ class DashboardController extends Controller
                         \DB::raw('COUNT(IF(status = 2, 0, NULL)) as ipCompleteCount'),
                         \DB::raw('COUNT(IF(status = 1, 0, NULL)) as ipInCompleteCount')
                     )
-                    ->whereIn('branch_id',$allChilds)
+                    ->where(function($q) use ($user) {
+                        $q->where('user_id', $user->id)
+                            ->orWhere('user_id', $user->parent_id);
+                    })
                     ->where('is_latest_entry', 1)
                     ->first();
                 $data['ipCount'] = $ipInfo->ipCount;
                 $data['ipCompleteCount'] = $ipInfo->ipCompleteCount;
                 $data['ipPendingCount'] = $ipInfo->ipPendingCount;
                 $data['ipInCompleteCount'] = $ipInfo->ipInCompleteCount;
+
+                $taskData = Task::select(
+                        \DB::raw('COUNT(id) as taskCount'),
+                        \DB::raw('COUNT(IF(tasks.status = "1", 0, NULL)) as taskCompleteCount'),
+                        \DB::raw('COUNT(IF(tasks.status = "0", 0, NULL)) as taskPendingCount')
+                    )
+                ->where(function($q) use ($user) {
+                    $q->where('resource_id', $user->id)
+                        ->orWhere('resource_id', $user->parent_id);
+                })
+                ->where('type_id', '7')
+                ->where('is_latest_entry', 1)
+                ->first();
+                $data['taskCount'] = $taskData->taskCount;
+                $data['taskCompleteCount'] = $taskData->taskCompleteCount;
+                $data['taskPendingCount'] = $taskData->taskPendingCount;
             }
             else
             {
