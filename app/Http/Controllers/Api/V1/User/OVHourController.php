@@ -25,7 +25,7 @@ class OVHourController extends Controller
         
     // }
 
-    public function OVHours(Request $request)
+    public function ovhours(Request $request)
     {
         try {
 

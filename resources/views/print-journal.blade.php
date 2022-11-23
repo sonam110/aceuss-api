@@ -135,11 +135,12 @@
             <tr>
                 <td class="title"><strong>Full address</strong></td>
                 <td class="value" colspan="3">
-                </td>
+                
                     {{($journal->Patient) ? aceussDecrypt($journal->Patient->full_address) : null}},
                     {{($journal->Patient) ? $journal->Patient->city : null}},
                     {{($journal->Patient) ? $journal->Patient->postal_area : null}},
                     {{($journal->Patient) ? $journal->Patient->zipcode : null}}
+                </td>
             </tr>
             @else
             <tr>

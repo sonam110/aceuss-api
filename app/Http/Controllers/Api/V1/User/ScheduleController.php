@@ -397,25 +397,25 @@ class ScheduleController extends Controller
 							$schedule->leave_notified_to = null;
 							$schedule->notified_group = null;
 							$schedule->is_active = ScheduleTemplate::find($request->schedule_template_id)->status;
-							$schedule->scheduled_work_duration = $result['scheduled_work_duration'];
-							$schedule->extra_work_duration = $result['extra_work_duration'];
-							$schedule->emergency_work_duration = $result['emergency_work_duration'];
-							$schedule->ob_work_duration = $result['ob_work_duration'];
+							$schedule->scheduled_work_duration = round($result['scheduled_work_duration'], 3);
+							$schedule->extra_work_duration = round($result['extra_work_duration'], 3);
+							$schedule->emergency_work_duration = round($result['emergency_work_duration'], 3);
+							$schedule->ob_work_duration = round($result['ob_work_duration'], 3);
 							$schedule->ob_type = $result['ob_type'];
 							$schedule->ob_start_time = $result['ob_start_time'];
 							$schedule->ob_end_time = $result['ob_end_time'];
 							$schedule->status = 0;
 							$schedule->entry_mode = $request->entry_mode?$request->entry_mode:'Web';
 
-							$schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+							$schedule->ob_red_work_duration = round($result['ob_red_work_duration'], 3);
 							$schedule->ob_red_start_time = $result['ob_red_start_time'];
 							$schedule->ob_red_end_time = $result['ob_red_end_time'];
 
-							$schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+							$schedule->ob_weekend_work_duration = round($result['ob_weekend_work_duration'], 3);
 							$schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
 							$schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
 
-							$schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+							$schedule->ob_weekday_work_duration = round($result['ob_weekday_work_duration'], 3);
 							$schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
 							$schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
 							$schedule->save();
@@ -980,7 +980,12 @@ class ScheduleController extends Controller
 						{
 							$status = 1;
 						}
-						$data['date'][] = ["date" => $shift_date,"minutes" => $total_hours,"status" => $status,'remaining_minutes'=>$patientAssignedHours-$patientCompletedHours];
+						$data['date'][] = [
+							"date" => $shift_date,
+							"minutes" => $total_hours,
+							"status" => $status,
+							'remaining_minutes'=> $patientAssignedHours - $patientCompletedHours
+						];
 					}
 				}
 			}

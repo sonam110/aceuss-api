@@ -185,7 +185,7 @@ class PatientController extends Controller
 
             } elseif($user->user_type_id =='3') {
                 $user_records = getAllowUserList('visible-all-patients-ip');
-                $query->whereIn('patient_implementation_plans.user_id', $user_records);
+                $ipCounts->whereIn('patient_implementation_plans.user_id', $user_records);
             } else{
                 $ipCounts =  $ipCounts->whereIn('patient_implementation_plans.branch_id',$allChilds);
             }
@@ -310,6 +310,7 @@ class PatientController extends Controller
                         $patientPlan->created_by = $user->id;
                         $patientPlan->is_latest_entry = 1;
                         $patientPlan->approval_comment = $request->approval_comment;
+                        $patientPlan->entry_mode = $request->entry_mode;
                         $patientPlan->save();
 
                         /*--notify-user-ip-created--*/
@@ -369,6 +370,7 @@ class PatientController extends Controller
                                     $personalInfo->is_presented = returnBoolean(@$value['is_presented']);
                                     $personalInfo->is_participated = returnBoolean(@$value['is_participated']);
                                     $personalInfo->how_helped = @$value['how_helped'];
+                                    $patientPlan->entry_mode = $request->entry_mode;
                                     $personalInfo->save();
                                 }
                             }
@@ -444,8 +446,19 @@ class PatientController extends Controller
                             $patientPlan = $getIpInfo->replicate();
                             $patientPlan->parent_id = $getIpInfo->id;
                             $patientPlan->is_latest_entry = 0;
+                            $patientPlan->entry_mode = $request->entry_mode;
                             $patientPlan->created_at = $getIpInfo->created_at;
                             $patientPlan->save();
+
+                            //person assigned
+                            $connectedPersons = PersonalInfoDuringIp::where('ip_id', $parent_id)
+                            ->get();
+                            foreach ($connectedPersons as $key => $person) {
+                                $personalInfoDuringIp = $person->replicate();
+                                $personalInfoDuringIp->ip_id = $patientPlan->id;
+                                $patientPlan->entry_mode = $request->entry_mode;
+                                $personalInfoDuringIp->save();
+                            }
 
                             //update Existing or current record
                             $getIpInfo->user_id = @$patient['user_id'];
@@ -484,10 +497,11 @@ class PatientController extends Controller
                             $getIpInfo->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                             $getIpInfo->edited_by = $user->id;
                             $getIpInfo->is_latest_entry = 1;
+                            $patientPlan->entry_mode = $request->entry_mode;
                             $patientPlan->created_at = Carbon::now();
                             $patientPlan->approval_comment = $request->approval_comment;
                             $getIpInfo->save();
-                            
+
                         }
                         else
                         {
@@ -528,6 +542,7 @@ class PatientController extends Controller
                             $patientPlan->step_seven = (!empty(@$patient['step_seven'])) ? @$patient['step_seven']:0;
                             $patientPlan->edited_by = $user->id;
                             $patientPlan->is_latest_entry = 1;
+                            $patientPlan->entry_mode = $request->entry_mode;
                             $patientPlan->approval_comment = $request->approval_comment;
                             $patientPlan->save();
                         }
@@ -542,6 +557,7 @@ class PatientController extends Controller
                             $ipTemplate->ip_id = $patientPlan->id;
                             $ipTemplate->template_title = @$patient['title'];
                             $ipTemplate->created_by = $user->id;
+                            $patientPlan->entry_mode = $request->entry_mode;
                             $ipTemplate->save();
                         }
                         /*-----------IP assigne to employee*/
@@ -589,6 +605,7 @@ class PatientController extends Controller
                                     $personalInfo->is_presented = returnBoolean(@$value['is_presented']);
                                     $personalInfo->is_participated = returnBoolean(@$value['is_participated']);
                                     $personalInfo->how_helped = @$value['how_helped'];
+                                    $patientPlan->entry_mode = $request->entry_mode;
                                     $personalInfo->save();
                                 }
                             }

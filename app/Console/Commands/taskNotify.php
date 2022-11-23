@@ -52,7 +52,7 @@ class taskNotify extends Command
         foreach ($taskAssigned as $key => $assigne) {
             $task = Task::where('id',$assigne->task_id)->withoutGlobalScope('top_most_parent_id')->first();
             if(!empty($task)) {
-                $emergencyContact = EmergencyContact::where('top_most_parent_id',$assigne->task->top_most_parent_id)->where('is_default','1')->first();
+                //$emergencyContact = EmergencyContact::where('top_most_parent_id',$assigne->task->top_most_parent_id)->where('is_default','1')->first();
                 $is_push_notify = false;
                 $is_text_notify = false;
                 $currentDateTime = Carbon::now()->format('Y-m-d H:i');
@@ -106,7 +106,7 @@ class taskNotify extends Command
                        $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
                        $variable_data = [
                            '{{name}}'              => aceussDecrypt($getUser->name),
-                           '{{assigned_by}}'       => aceussDecrypt(Auth::User()->name),
+                           '{{assigned_by}}'       => aceussDecrypt($task->createdBy->name),
                            '{{task_title}}'        => $task->title
                        ];
                        actionNotification($getUser,$data_id,$notification_template,$variable_data);

@@ -54,6 +54,12 @@ class IpFollowUp extends Model
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');
     }
+
+    public function patient()
+    {
+        return $this->belongsTo(User::class,'patient_id','id');
+    }
+
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');
@@ -94,7 +100,16 @@ class IpFollowUp extends Model
     public function getWitnessListAttribute()
     {
         if(is_null($this->witness)== false && is_array(json_decode($this->witness)) && sizeof(json_decode($this->witness)) >0){
-            $witnessList = PersonalInfoDuringIp::with('user:id,name,email,personal_number,avatar')->whereIn('user_id', json_decode($this->witness))->get();
+            $witnessList = PersonalInfoDuringIp::with('user:id,name,email,personal_number,avatar')->whereIn('user_id', json_decode($this->witness));
+            if(!empty($this->ip_id))
+            {
+                $witnessList->where('ip_id', $this->ip_id);
+            }
+            if(!empty($this->follow_up_id))
+            {
+                $witnessList->where('follow_up_id', $this->follow_up_id);
+            }
+            $witnessList = $witnessList->get();
             return (!empty($witnessList)) ? $witnessList : null;
         }
     }

@@ -61,7 +61,7 @@ class StatisticsDeviationController extends Controller
                 if($user->user_type_id =='3') 
                 {
                     $user_records = getAllowUserList('visible-all-patients-deviation');
-                    $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                    $query->whereIn('deviations.patient_id', $user_records);
                 }
                 else
                 {
@@ -158,7 +158,7 @@ class StatisticsDeviationController extends Controller
                     if($user->user_type_id =='3') 
                     {
                         $user_records = getAllowUserList('visible-all-patients-deviation');
-                        $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                        $query->whereIn('deviations.patient_id', $user_records);
                     }
                     else
                     {
@@ -233,7 +233,7 @@ class StatisticsDeviationController extends Controller
                     if($user->user_type_id =='3') 
                     {
                         $user_records = getAllowUserList('visible-all-patients-deviation');
-                        $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                        $query->whereIn('deviations.patient_id', $user_records);
                     }
                     else
                     {
@@ -318,7 +318,7 @@ class StatisticsDeviationController extends Controller
                 if($user->user_type_id =='3') 
                 {
                     $user_records = getAllowUserList('visible-all-patients-deviation');
-                    $deviationCounts->whereIn('deviations.patient_id', $user_records);
+                    $query->whereIn('deviations.patient_id', $user_records);
                 }
                 else
                 {

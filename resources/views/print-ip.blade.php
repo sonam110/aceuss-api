@@ -184,11 +184,12 @@
         <tr>
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
-            </td>
+            
                 {{($ip->patient) ? aceussDecrypt($ip->patient->full_address) : null}},
                 {{($ip->patient) ? $ip->patient->city : null}},
                 {{($ip->patient) ? $ip->patient->postal_area : null}},
                 {{($ip->patient) ? $ip->patient->zipcode : null}}
+            </td>
         </tr>
         @else
         <tr>
@@ -203,6 +204,7 @@
             <td colspan="4" class="sub-title"><strong>Relatives & Caretakers</strong></td>
         </tr>
         @foreach($ip->persons as $pKey => $person)
+        @if($person->user)
         <tr>
             <td colspan="4" class="sub-title"><strong>Person # {{$pKey + 1}}</strong></td>
         </tr>
@@ -258,6 +260,7 @@
             <td class="title"><strong>How Helped</strong></td>
             <td class="value" colspan="2">{{ $person->how_helped }}</td>
         </tr>
+        @endif
         @endif
 
         @endforeach

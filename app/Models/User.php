@@ -57,7 +57,7 @@ class User extends Authenticatable
 
     protected $guard_name = 'api';
     protected $dates = ['deleted_at'];
-    protected $appends = ['company_types','patient_types','on_vacation'];
+    protected $appends = ['company_types','patient_types','on_vacation', 'branch_patient_number', 'branch_employee_number','personCount'];
     protected $fillable = [
         'unique_id',
         'custom_unique_id',
@@ -137,7 +137,30 @@ class User extends Authenticatable
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+    
+    public function getBranchPatientNumberAttribute()
+    {
+        if(in_array($this->user_type_id, [1,11]))
+        {
+            return User::where('branch_id', $this->id)->where('user_type_id', 6)->count();
+        }
+        return 0;
+    }
+    
+    public function getBranchEmployeeNumberAttribute()
+    {
+        if(in_array($this->user_type_id, [1,11]))
+        {
+            return User::where('branch_id', $this->id)->where('user_type_id', 3)->count();
+        }
+        return 0;
+    }
 
+    public function getPersonCountAttribute()
+    {
+         return User::where('parent_id', $this->id)->count();
+    }
+    
     public function getNameAttribute($value)
     {
         if(env('ENC_DEC', false))
@@ -216,7 +239,7 @@ class User extends Authenticatable
     }
     public function CategoryMaster()
     {
-        return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id');
+        return $this->belongsTo(CategoryMaster::class,'category_id','id')->withoutGlobalScope('top_most_parent_id')->withTrashed();
     }
     public function TopMostParent()
     {

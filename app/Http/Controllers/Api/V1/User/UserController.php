@@ -83,6 +83,10 @@ class UserController extends Controller
                 DB::raw("(SELECT count(*) from activities WHERE activities.patient_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") patientActivityCount"), 
                 DB::raw("(SELECT count(assign_tasks.id) from assign_tasks JOIN tasks ON assign_tasks.task_id = tasks.id  WHERE assign_tasks.user_id = users.id AND assign_tasks.deleted_at IS NULL AND tasks.deleted_at IS NULL AND tasks.is_latest_entry = 1) assignTaskCount"), 
                 DB::raw("(SELECT count(*) from tasks WHERE tasks.resource_id = users.id AND tasks.type_id = 7 AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") patientTaskCount"), 
+                DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchIpCount"), 
+                DB::raw("(SELECT count(*) from activities WHERE activities.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchActivityCount"), 
+                DB::raw("(SELECT count(*) from tasks WHERE tasks.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchTaskCount"),
+                DB::raw("(SELECT count(*) from ip_follow_ups WHERE ip_follow_ups.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchFollowupCount"), 
                 DB::raw("(SELECT count(*) from personal_info_during_ips WHERE personal_info_during_ips.patient_id = users.id AND deleted_at IS NULL) personCount"), 
                 DB::raw("(SELECT count(*) from journals WHERE (journals.patient_id = users.id OR journals.emp_id = users.id) AND deleted_at IS NULL) journals_count"), 
                 DB::raw("(SELECT count(*) from deviations WHERE (deviations.patient_id = users.id OR deviations.emp_id = users.id) AND deleted_at IS NULL) deviations_count"))
@@ -353,8 +357,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = date("H:i", strtotime($request->from_timing));
-                $patientInfo->to_timing = date("H:i", strtotime($request->to_timing));
+                $patientInfo->from_timing = (!empty($request->from_timing) ? date("H:i", strtotime($request->from_timing)) : null);
+                $patientInfo->to_timing = (!empty($request->to_timing) ? date("H:i", strtotime($request->to_timing)) : null);
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;
@@ -614,12 +618,17 @@ class UserController extends Controller
     public function show(User $user)
     {
         try {
-
+            $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $checkId= User::where('id', $user->id)->where('top_most_parent_id', $this->top_most_parent_id)->first();
             if (!is_object($checkId)) {
                 return prepareResult(false,getLangByLabelGroups('User','message_record_not_found'), [], config('httpcodes.not_found'));
             }
-            $userShow = User::where('id',$user->id)->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','branchEmployees:id,employee_id,branch_id','branchEmployees.employee:id,name','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name,branch_email')->first();
+            $userShow = User::select('users.*',DB::raw("(SELECT count(*) from patient_implementation_plans WHERE patient_implementation_plans.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchIpCount"), 
+                DB::raw("(SELECT count(*) from activities WHERE activities.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchActivityCount"), 
+                DB::raw("(SELECT count(*) from tasks WHERE tasks.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchTaskCount"),
+                DB::raw("(SELECT count(*) from ip_follow_ups WHERE ip_follow_ups.branch_id = users.id AND deleted_at IS NULL AND is_latest_entry = 1 AND start_date >= ".$date.") branchFollowupCount"))
+            ->where('id',$user->id)
+            ->with('TopMostParent:id,user_type_id,name,email','TopMostParent.companySetting:id,user_id,company_name,company_logo,company_email','UserType:id,name','CategoryMaster:id,created_by,name','Department:id,name','Country:id,name','agencyHours','branch','persons.Country','PatientInformation','branch:id,name,branch_name,email,contact_number','assignedWork','role','employeePatients.patient:id,name,avatar,email','patientEmployees.employee:id,name,avatar,email','branchEmployees:id,employee_id,branch_id','branchEmployees.employee:id,name','employeeBranches:id,employee_id,branch_id','employeeBranches.branch:id,name,branch_name,branch_email')->first();
             if($user->user_type_id == 6)
             {
                 // $patientAssignedHours = AgencyWeeklyHour::where('user_id',$user->id)->sum('assigned_hours') * 60;
@@ -785,8 +794,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = date("H:i", strtotime($request->from_timing));
-                $patientInfo->to_timing = date("H:i", strtotime($request->to_timing));
+                $patientInfo->from_timing = (!empty($request->from_timing) ? date("H:i", strtotime($request->from_timing)) : null);
+                $patientInfo->to_timing = (!empty($request->to_timing) ? date("H:i", strtotime($request->to_timing)) : null);
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;

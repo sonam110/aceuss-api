@@ -101,11 +101,11 @@
         <tr>
             <td class="title"><strong>Full address</strong></td>
             <td class="value" colspan="3">
-            </td>
                 {{($deviation->Patient) ? aceussDecrypt($deviation->Patient->full_address) : null}},
                 {{($deviation->Patient) ? $deviation->Patient->city : null}},
                 {{($deviation->Patient) ? $deviation->Patient->postal_area : null}},
                 {{($deviation->Patient) ? $deviation->Patient->zipcode : null}}
+            </td>
         </tr>
         @else
         <tr>
@@ -153,9 +153,6 @@
                 @endif
                 @if($person->is_guardian==1)
                     Guardian<br>
-                @endif
-                @if($person->is_family_member==1)
-                    Family Member<br>
                 @endif
                 @if($person->is_other==1)
                     {{$person->is_other_name}}
@@ -337,10 +334,6 @@
     <table class="header table table-striped">
         <tr>
             <td colspan="2" class="sub-title"><strong>Deviation Info</strong></td>
-        </tr>
-        <tr>
-            <td class="title"><strong>Category </strong></td>
-            <td class="value">{{$deviation->category_id }}</td>
         </tr>
         <tr>
             <td class="title"><strong>Category </strong></td>

@@ -735,7 +735,7 @@ class TaskController extends Controller
 
             $task->status = $request->status;
             $task->action_by = $user->id;
-            $task->action_date = date('Y-m-d');
+            $task->action_date = date('Y-m-d H:i:s');
             $task->comment = $request->comment;
             $task->save();
 
