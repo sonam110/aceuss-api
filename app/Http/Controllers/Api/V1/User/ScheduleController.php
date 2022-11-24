@@ -67,7 +67,8 @@ class ScheduleController extends Controller
 			if(!empty($request->schedule_template_id))
 			{
 				$query->where(function ($query) use ($request) {
-                     $query->where('schedule_template_id' ,$request->schedule_template_id)->orWhere('leave_applied' ,1);
+                     $query->where('schedule_template_id' ,$request->schedule_template_id)
+                     ->orWhere('leave_applied', 1);
                 });
 			}
 			if(!empty($request->schedule_type))
