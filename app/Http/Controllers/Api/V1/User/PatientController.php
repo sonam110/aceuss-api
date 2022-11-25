@@ -839,8 +839,19 @@ class PatientController extends Controller
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
             $id = $request->parent_id;
+            $date = date('Y-m-d',strtotime('-'.ENV('CALCULATE_FOR_DAYS').' days'));
             $parent_id = 
-            $query= PatientImplementationPlan::where('parent_id',$id);
+            $query= PatientImplementationPlan::with('patient:id,name')
+                ->withCount(
+                    ['ipFollowUps' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date)
+                        ->where('is_latest_entry', 1);
+                    },'activities' => function ($query) use ($date) {
+                        $query->where('start_date','>=',$date)
+                        ->where('is_latest_entry', 1);
+                    }, 'persons']
+                )
+                ->where('parent_id',$id);
             if(!empty($request->perPage))
             {
                 $perPage = $request->perPage;

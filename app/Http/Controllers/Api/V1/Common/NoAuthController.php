@@ -34,6 +34,10 @@ class NoAuthController extends Controller
             if(!empty($request->language_id))
             {
                 $language = Language::find($request->language_id);
+                if(!$language)
+                {
+                    $language = Language::first();
+                }
                 
             }
             else
