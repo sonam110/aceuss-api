@@ -196,7 +196,7 @@ class UserController extends Controller
             $checkAccess = checkEmpPartientCount($this->top_most_parent_id, $request->user_type_id);
             if(!$checkAccess)
             {
-                return prepareResult(false,getLangByLabelGroups('BcCommon','account_creation_limit_reached') ,$user, config('httpcodes.unauthorized'));
+                return prepareResult(false,getLangByLabelGroups('User','account_creation_limit_reached') ,[], config('httpcodes.unauthorized'));
             }
         }
         
