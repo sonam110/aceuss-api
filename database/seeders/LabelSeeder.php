@@ -3518,6 +3518,14 @@ class LabelSeeder extends Seeder
                 "new-email"=> "New Email",
                 "user-not-found"=> "User not found",
                 "user-doesnot-exist"=> "User doesn't exist.",
+                "allowed-hour-per-week"=> "Allowed Hour per Week",
+                "deviation-is-signed"=> "Deviation is signed",
+                "please-wait"=> "Please Wait",
+                "journal-is-signed"=> "Journal is signed",
+                "print-secret"=> "Print with secret",
+                "export-journal"=> "Export Journal",
+                "export-deviation"=> "Export Deviation"
+                "activity-tag"=> "Activity Tag",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
