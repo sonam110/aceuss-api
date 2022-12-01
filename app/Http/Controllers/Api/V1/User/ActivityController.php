@@ -287,7 +287,7 @@ class ActivityController extends Controller
 			if($user->user_type_id =='2'){
 
 			} else{
-				$jour_and_devi =  $jour_and_devi->whereIn('id',$allChilds);
+				$jour_and_devi =  $jour_and_devi->whereIn('branch_id', $allChilds);
 			}
 
 			if($user->user_type_id =='3')

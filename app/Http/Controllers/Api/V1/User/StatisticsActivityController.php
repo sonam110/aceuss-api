@@ -24,7 +24,7 @@ class StatisticsActivityController extends Controller
         $dataset_total_completed_by_staff_on_time = [];
         $dataset_total_completed_by_staff_not_on_time = [];
         $dataset_total_completed_by_patient_itself = [];
-        $dataset_total_patient_drecord_not_want = [];
+        $dataset_total_patient_did_not_want = [];
         $dataset_total_not_done_by_employee = [];
         if(!empty($request->start_date) && !empty($request->end_date)) 
         {
@@ -111,7 +111,7 @@ class StatisticsActivityController extends Controller
                 $dataset_total_completed_by_staff_on_time[] = $result->total_completed_by_staff_on_time;
                 $dataset_total_completed_by_staff_not_on_time[] = $result->total_completed_by_staff_not_on_time;
                 $dataset_total_completed_by_patient_itself[] = $result->total_completed_by_patient_itself;
-                $dataset_total_patient_drecord_not_want[] = $result->total_patient_drecord_not_want;
+                $dataset_total_patient_did_not_want[] = $result->total_patient_drecord_not_want;
                 $dataset_total_not_done_by_employee[] = $result->total_not_done_by_employee;
             }
         }
@@ -198,7 +198,7 @@ class StatisticsActivityController extends Controller
                 $dataset_total_completed_by_staff_on_time[] = $result->total_completed_by_staff_on_time;
                 $dataset_total_completed_by_staff_not_on_time[] = $result->total_completed_by_staff_not_on_time;
                 $dataset_total_completed_by_patient_itself[] = $result->total_completed_by_patient_itself;
-                $dataset_total_patient_drecord_not_want[] = $result->total_patient_drecord_not_want;
+                $dataset_total_patient_did_not_want[] = $result->total_patient_drecord_not_want;
                 $dataset_total_not_done_by_employee[] = $result->total_not_done_by_employee;
             }
         }
@@ -216,7 +216,7 @@ class StatisticsActivityController extends Controller
             'dataset_total_completed_by_staff_on_time' => $dataset_total_completed_by_staff_on_time,
             'dataset_total_completed_by_staff_not_on_time' => $dataset_total_completed_by_staff_not_on_time,
             'dataset_total_completed_by_patient_itself' => $dataset_total_completed_by_patient_itself,
-            'dataset_total_patient_drecord_not_want' => $dataset_total_patient_drecord_not_want,
+            'dataset_total_patient_did_not_want' => $dataset_total_patient_did_not_want,
             'dataset_total_not_done_by_employee' => $dataset_total_not_done_by_employee,
         ];
         return prepareResult(true,getLangByLabelGroups('BcCommon','message_stats'),$returnObj,config('httpcodes.success'));

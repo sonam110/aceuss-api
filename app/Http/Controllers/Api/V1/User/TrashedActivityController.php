@@ -29,10 +29,17 @@ class TrashedActivityController extends Controller
             }
             
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')->onlyTrashed();
+            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')
+                ->join('users', function($join) use ($request) {
+                    $join->on('activities.patient_id', '=', 'users.id')
+                    ->whereNull('users.deleted_at');
+                })
+                ->where('activities.top_most_parent_id', auth()->user()->top_most_parent_id)
+                ->withoutGlobalScope('top_most_parent_id')
+                ->onlyTrashed();
             if($user->user_type_id =='2')
             {
-                $query = $query->orderBy('id','DESC');
+                $query = $query->orderBy('activities.id','DESC');
             }
             elseif($user->user_type_id =='3') 
             {
@@ -44,28 +51,28 @@ class TrashedActivityController extends Controller
                 else
                 {
                     $agnActivity  = ActivityAssigne::where('user_id',$user->id)->pluck('activity_id');
-                    $query = $query->whereIn('id', $agnActivity);
+                    $query = $query->whereIn('activities.id', $agnActivity);
                 }
             } 
             else
             {
-                $query =  $query->whereIn('branch_id',$allChilds);
+                $query =  $query->whereIn('activities.branch_id',$allChilds);
             }
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
                 $query->where(function ($q) use ($user) {
-                    $q->where('patient_id', $user->id)
-                        ->orWhere('patient_id', $user->parent_id);
+                    $q->where('activities.patient_id', $user->id)
+                        ->orWhere('activities.patient_id', $user->parent_id);
                 });
             }
             
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw)
                 
-                ->orderBy('id', 'DESC');
+                ->orderBy('activities.id', 'DESC');
             } else {
-                $query = $query->orderBy('id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
+                $query = $query->orderBy('activities.id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
            
             if(!empty($request->perPage))
@@ -98,7 +105,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_list'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));  
         }
     }
@@ -118,7 +125,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_delete'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -138,7 +145,7 @@ class TrashedActivityController extends Controller
             return prepareResult(true,getLangByLabelGroups('Activity','message_restore'),[],config('httpcodes.success'));
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }
@@ -148,23 +155,23 @@ class TrashedActivityController extends Controller
         $w = '';
         if (is_null($request->input('status')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "status = "."'" .$request->input('status')."'".")";
+            $w = $w . "(" . "activities.status = "."'" .$request->input('status')."'".")";
         }
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "ip_id = "."'" .$request->input('ip_id')."'".")";
+            $w = $w . "(" . "activities.ip_id = "."'" .$request->input('ip_id')."'".")";
         }
         if (is_null($request->input('patient_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "patient_id = "."'" .$request->input('patient_id')."'".")";
+            $w = $w . "(" . "activities.patient_id = "."'" .$request->input('patient_id')."'".")";
         }
         if (is_null($request->input('branch_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "branch_id = "."'" .$request->input('branch_id')."'".")";
+            $w = $w . "(" . "activities.branch_id = "."'" .$request->input('branch_id')."'".")";
         }
         if (is_null($request->input('category_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "category_id = "."'" .$request->input('category_id')."'".")";
+            $w = $w . "(" . "activities.category_id = "."'" .$request->input('category_id')."'".")";
         }
 
         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
@@ -173,7 +180,7 @@ class TrashedActivityController extends Controller
 
             if ($request->start_date != '')
             {
-              $w = $w . "("."start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
+              $w = $w . "("."activities.start_date >= '".date('y-m-d',strtotime($request->start_date))."')";
             }
             if (is_null($request->start_date) == false && is_null($request->end_date) == false) 
                 {
@@ -182,7 +189,7 @@ class TrashedActivityController extends Controller
             }
             if ($request->end_date != '')
             {
-                $w = $w . "("."start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
+                $w = $w . "("."activities.start_date <= '".date('y-m-d',strtotime($request->end_date))."')";
             }
             
           
@@ -190,13 +197,13 @@ class TrashedActivityController extends Controller
         }
         if (is_null($request->input('title')) == false) {
             if ($w != '') {$w = $w . " AND ";}
-             $w = $w . "(" . "title like '%" .trim(strtolower($request->input('title'))) . "%')";
+             $w = $w . "(" . "activities.title like '%" .trim(strtolower($request->input('title'))) . "%')";
 
              
         }
         if (is_null($request->input('title')) == false) {
             if ($w != '') {$w = $w . " OR ";}
-             $w = $w . "(" . "description like '%" .trim(strtolower($request->input('title'))) . "%')";
+             $w = $w . "(" . "activities.description like '%" .trim(strtolower($request->input('title'))) . "%')";
              
         }
         return($w);

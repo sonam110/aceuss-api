@@ -30,12 +30,18 @@ class ProfileController extends Controller
             $user->country_id = $request->country_id;
             $user->contact_number = $request->contact_number;
             $user->personal_number = $request->personal_number;
+            $user->full_address = !empty($request->full_address) ? $request->full_address : $user->full_address;
+            $user->city = !empty($request->city) ? $request->city : $user->city;
             $user->gender = $request->gender;
             $user->postal_area = !empty($request->postal_area) ? $request->postal_area : $user->postal_area;
             $user->zipcode = !empty($request->zipcode) ? $request->zipcode : $user->zipcode;
             if(!empty($request->contact_person_number))
             {
                 $user->contact_person_number = $request->contact_person_number;
+            }
+            if(!empty($request->contact_person_name))
+            {
+                $user->contact_person_name = $request->contact_person_name;
             }
             $user->avatar = (!empty($request->avatar)) ? $request->avatar : env('NO_IMG_PATH');
             $user->save();

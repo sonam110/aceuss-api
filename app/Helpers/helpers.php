@@ -792,10 +792,10 @@ function deviation($activity_id)
     $category_id = $activity->category_id;
     $subcategory_id = $activity->subcategory_id;
 
-    $getFirstDeviationCatId = CategoryMaster::where('name', 'Ej utförd insatser')->first();
+    $getFirstDeviationCatId = CategoryMaster::where('name', 'Ej utförd insatser')->withoutGlobalScope('top_most_parent_id')->first();
     if($getFirstDeviationCatId)
     {
-        $getFirstDeviationSubCatId = CategoryMaster::where('parent_id', $getFirstDeviationCatId->id)->first();
+        $getFirstDeviationSubCatId = CategoryMaster::where('parent_id', $getFirstDeviationCatId->id)->withoutGlobalScope('top_most_parent_id')->first();
         $category_id = $getFirstDeviationCatId->id;
         if($getFirstDeviationSubCatId)
         {
@@ -1401,7 +1401,7 @@ function timeWithRelaxation($scheduled_time,$relaxationTime)
 
 function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time=null)
 {
-	//-------------------------red day---------------------------------//
+    //-------------------------red day---------------------------------//
     $red_ob = [];
     $red_data = OVHour::where(function ($q) use($date){
                 $q->where('date',$date)
@@ -1522,31 +1522,31 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 
         if(($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time1))
         {
-        	$weekend_ob['duration'] = 0;
+            $weekend_ob['duration'] = 0;
         }
         elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 >= $time2))
         {
-        	$weekend_ob['duration'] = 0;
+            $weekend_ob['duration'] = 0;
         }
         elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 <= $time2))
         {
-        	$weekend_ob['duration'] = 0;
+            $weekend_ob['duration'] = 0;
         }
         elseif(($weekend_obtime1 >= $time1) && ($weekend_obtime2 <= $time2))
         {
-        	$weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
+            $weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
         }
         elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 >= $time2)) 
         {
-        	$weekend_ob['duration'] = ($time2 - $time1)/60;
+            $weekend_ob['duration'] = ($time2 - $time1)/60;
         }
         elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time2)) 
         {
-        	$weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
+            $weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
         }
         elseif (($weekend_obtime1 >= $time1) && ($weekend_obtime2 >= $time2)) 
         {
-        	$weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
+            $weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
         }
 
         if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
@@ -1715,11 +1715,11 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
         $user = User::find($user_id);
         if(!empty($assignedWork_id))
         {
-        	$assignedWork = EmployeeAssignedWorkingHour::find($assignedWork_id);
+            $assignedWork = EmployeeAssignedWorkingHour::find($assignedWork_id);
         }
         else
         {
-        	$assignedWork = $user->assignedWork;
+            $assignedWork = $user->assignedWork;
         }
         
         if(!empty($assignedWork))

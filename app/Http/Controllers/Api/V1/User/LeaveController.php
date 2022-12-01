@@ -56,11 +56,11 @@ class LeaveController extends Controller
 			}
 			if(!empty($request->start_date))
 			{
-				$query->where('shift_date',">=" ,$request->start_date);
+				$query->whereDate('shift_date',">=" ,$request->start_date);
 			}
 			if(!empty($request->end_date))
 			{
-				$query->where('shift_date',"<=" ,$request->end_date);
+				$query->whereDate('shift_date',"<=" ,$request->end_date);
 			}
 			if(!empty($request->dates))
 			{

@@ -37,12 +37,12 @@ class AdminFile extends Model
             $json_decode = json_decode($companyIds, true);
             if($json_decode[0]=='all')
             {
-                $assigned = User::select('id', 'name')
+                $assigned = User::select('id', 'name', 'branch_name')
                     ->where('user_type_id', 2)->get();
             }
             else
             {
-                $assigned = User::select('id', 'name')
+                $assigned = User::select('id', 'name', 'branch_name')
                     ->whereIn('id', $json_decode)->get();
             }
         }
