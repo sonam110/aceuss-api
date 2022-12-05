@@ -29,17 +29,17 @@ class TrashedActivityController extends Controller
             }
             
             $whereRaw = $this->getWhereRawFromRequest($request);
-            $query = Activity::with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')
+            $query = Activity::onlyTrashed()->select('activities.*')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email','Patient:id,name')
                 ->join('users', function($join) use ($request) {
                     $join->on('activities.patient_id', '=', 'users.id')
                     ->whereNull('users.deleted_at');
                 })
                 ->where('activities.top_most_parent_id', auth()->user()->top_most_parent_id)
                 ->withoutGlobalScope('top_most_parent_id')
-                ->onlyTrashed();
+                ->where('activities.is_latest_entry', 1);
             if($user->user_type_id =='2')
             {
-                $query = $query->orderBy('activities.id','DESC');
+                $query = $query->orderBy('activities.deleted_at','DESC');
             }
             elseif($user->user_type_id =='3') 
             {
@@ -70,9 +70,9 @@ class TrashedActivityController extends Controller
             if($whereRaw != '') { 
                 $query = $query->whereRaw($whereRaw)
                 
-                ->orderBy('activities.id', 'DESC');
+                ->orderBy('activities.deleted_at', 'DESC');
             } else {
-                $query = $query->orderBy('activities.id', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
+                $query = $query->orderBy('activities.deleted_at', 'DESC')->with('Category:id,name','ImplementationPlan.ipFollowUps:id,ip_id,title');
             }
            
             if(!empty($request->perPage))

@@ -983,6 +983,7 @@ class UserController extends Controller
             $user['assigned_patiens'] = $request->assigned_patiens;
             $user['assigned_employee'] = $request->assigned_employee;
             $user['company_setting'] = $user->companySetting()->select('id','company_name','company_logo','company_email','company_address','company_website')->first();
+            $user['patient_imformation'] = $user->PatientInformation;
             return prepareResult(true,getLangByLabelGroups('User','message_update'),$user, config('httpcodes.success'));
 
         }
