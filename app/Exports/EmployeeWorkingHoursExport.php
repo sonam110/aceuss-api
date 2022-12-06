@@ -48,12 +48,12 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
             return [
             	'Date' => $data->shift_date,
                 'Employee Name' => aceussDecrypt($data->user->name),
-	            'scheduled work duration' =>$scheduled_work_duration,
-	            'extra work duration' =>$extra_work_duration,
-	            'ob work duration' =>$ob_work_duration,
-	            'emergency work duration' =>$emergency_work_duration,
-	            'vacation duration' =>$vacation_duration,
-	            'Total Hour' => $total_hours
+	            'scheduled work duration' => minToHours($scheduled_work_duration),
+	            'extra work duration' => minToHours($extra_work_duration),
+	            'ob work duration' => minToHours($ob_work_duration),
+	            'emergency work duration' => minToHours($emergency_work_duration),
+	            'vacation duration' => minToHours($vacation_duration),
+	            'Total Hour' => minToHours($total_hours)
             ];
     	});
     }

@@ -1917,3 +1917,11 @@ function getLicInfo($top_most_parent_id)
         'textMsg' => $textMsg
     ];
 }
+
+function minToHours($actualMinutes)
+{
+    $minutes = ($actualMinutes>=0) ? $actualMinutes : abs($actualMinutes);
+    $hours = floor($minutes / 60);
+    $minutes = $minutes % 60;
+    return (($actualMinutes>=0) ? '' : '-').''.sprintf ("%d:%02d", $hours, $minutes);
+}
