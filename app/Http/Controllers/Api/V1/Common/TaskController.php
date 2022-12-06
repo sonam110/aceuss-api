@@ -154,6 +154,14 @@ class TaskController extends Controller
                 $taskCounts->where('resource_id', $request->resource_id);
             }
 
+            if(!empty($request->emp_id))
+            {
+                $taskCounts->join('assign_tasks', function ($join) {
+                    $join->on('assign_tasks.task_id', '=', 'tasks.id');
+                })
+                ->where('user_id',$request->emp_id);
+            }
+
             $taskCounts = $taskCounts->first();
 
 

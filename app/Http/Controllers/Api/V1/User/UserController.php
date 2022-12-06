@@ -357,8 +357,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = (!empty($request->from_timing) ? date("H:i", strtotime($request->from_timing)) : null);
-                $patientInfo->to_timing = (!empty($request->to_timing) ? date("H:i", strtotime($request->to_timing)) : null);
+                $patientInfo->from_timing = (!empty($request->from_timing) ? date("Y-m-d H:i:s", strtotime($request->from_timing)) : null);
+                $patientInfo->to_timing = (!empty($request->to_timing) ? date("Y-m-d H:i:s", strtotime($request->to_timing)) : null);
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;
@@ -794,8 +794,8 @@ class UserController extends Controller
                 $patientInfo->company_contact_number = $request->company_contact_number;
                 $patientInfo->company_contact_person = $request->company_contact_person;
                 $patientInfo->company_full_address = $request->company_full_address;
-                $patientInfo->from_timing = (!empty($request->from_timing) ? date("H:i", strtotime($request->from_timing)) : null);
-                $patientInfo->to_timing = (!empty($request->to_timing) ? date("H:i", strtotime($request->to_timing)) : null);
+                $patientInfo->from_timing = (!empty($request->from_timing) ? date("Y-m-d H:i:s", strtotime($request->from_timing)) : null);
+                $patientInfo->to_timing = (!empty($request->to_timing) ? date("Y-m-d H:i:s", strtotime($request->to_timing)) : null);
                 $patientInfo->company_week_days = is_array($request->company_week_days) ? json_encode($request->company_week_days) : null;
                 $patientInfo->special_information = $request->special_information;
                 $patientInfo->aids = $request->aids;
