@@ -53,6 +53,7 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
                 ->where('shift_date',$data->shift_date)
                 ->where('user_id',$data->user_id)
                 ->where('is_active',1)
+                ->where('leave_applied',0)
                 ->first();
     		$total_hours = $scheduleData->scheduled_work_duration + $scheduleData->extra_work_duration + $scheduleData->emergency_work_duration + $scheduleData->ob_work_duration + $scheduleData->vacation_duration;
             return [

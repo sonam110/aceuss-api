@@ -165,8 +165,7 @@ class ScheduleController extends Controller
 		try 
 		{
 			$query = Schedule::orderBy('created_at', 'DESC')
-			->with('user:id,name,gender','patient:id,name,branch_id')
-			->with('user:id,user_type_id,name,branch_id','user.branch:id,name,branch_name','patient:id,user_type_id,name,branch_id','patient.branch:id,name,branch_name');
+			->with('user:id,user_type_id,name,branch_id,gender','user.branch:id,name,branch_name','patient:id,user_type_id,name,branch_id','patient.branch:id,name,branch_name');
 
 			if($request->is_active == '0' || $request->is_active == 'no')
 			{
