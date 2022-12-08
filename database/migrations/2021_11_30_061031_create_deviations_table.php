@@ -50,6 +50,8 @@ class CreateDeviationsTable extends Migration
 
             $table->boolean('is_secret')->default(0)->nullable();
             $table->boolean('is_signed')->default(0)->nullable();
+            $table->string('signed_method')->default(0)->nullable();
+            $table->text('signed_response')->default(0)->nullable();
             $table->string('sessionId')->nullable();
             $table->boolean('is_completed')->default(0)->nullable();
             $table->bigInteger('completed_by')->nullable();

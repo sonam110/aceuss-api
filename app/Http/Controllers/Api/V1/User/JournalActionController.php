@@ -100,6 +100,8 @@ class JournalActionController extends Controller
             $journalAction->comment_result      = $request->comment_result;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
+            $journalAction->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $journalAction->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             if($request->is_signed==1)
             {
                 $journalAction->signed_by   = auth()->id();
@@ -167,6 +169,8 @@ class JournalActionController extends Controller
             $journalAction->comment_result      = $request->comment_result;
             $journalAction->comment_action      = $request->comment_action;
             $journalAction->is_signed           = ($request->is_signed)? $request->is_signed :0;
+            $journalAction->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $journalAction->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             $journalAction->edited_by           = $user->id;
             $journalAction->edit_date           = date('Y-m-d H:i:s');
             if($request->is_signed==1)

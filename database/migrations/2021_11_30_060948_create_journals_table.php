@@ -51,7 +51,9 @@ class CreateJournalsTable extends Migration
             $table->text('reason_for_editing')->nullable();
             $table->datetime('edit_date')->nullable();
             $table->string('entry_mode')->nullable();
-            $table->boolean('is_signed')->default(0);
+            $table->boolean('is_signed')->default(0)->nullable();
+            $table->string('signed_method')->default(0)->nullable();
+            $table->text('signed_response')->default(0)->nullable();
             $table->date('signed_date')->nullable();
             $table->string('sessionId')->nullable();
             $table->boolean('is_secret')->default(0);

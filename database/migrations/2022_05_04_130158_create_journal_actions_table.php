@@ -33,6 +33,8 @@ class CreateJournalActionsTable extends Migration
             $table->text('reason_for_editing')->nullable();
             $table->datetime('edit_date')->nullable();
             $table->boolean('is_signed')->default(0);
+            $table->string('signed_method')->default(0)->nullable();
+            $table->text('signed_response')->default(0)->nullable();
             $table->timestamp('signed_date')->nullable();
             $table->string('sessionId')->nullable();
             $table->timestamps();

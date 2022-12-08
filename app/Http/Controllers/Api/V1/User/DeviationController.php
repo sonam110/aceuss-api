@@ -321,6 +321,8 @@ class DeviationController extends Controller
             $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
             $deviation->is_secret = ($request->is_secret==1) ? 1 : 0;
             $deviation->is_signed = ($request->is_signed==1) ? 1 : 0;
+            $deviation->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $deviation->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             $deviation->is_completed = ($request->is_completed==1) ? 1 : 0;
             if($request->is_completed==1)
             {
@@ -429,6 +431,8 @@ class DeviationController extends Controller
             $deviation->further_investigation = !empty($request->further_investigation) ? json_encode($request->further_investigation, JSON_UNESCAPED_UNICODE) : null;
             $deviation->is_secret = ($request->is_secret==1) ? 1 : 0;
             $deviation->is_signed = ($request->is_signed==1) ? 1 : 0;
+            $deviation->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $deviation->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             $deviation->is_completed = ($request->is_completed==1) ? 1 : 0;
             if($request->is_completed==1)
             {

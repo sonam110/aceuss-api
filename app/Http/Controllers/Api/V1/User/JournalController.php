@@ -295,6 +295,8 @@ class JournalController extends Controller
 		 	$journal->description = $request->description;
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
+            $journal->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $journal->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
             $journal->is_active = ($request->is_active)? $request->is_active :0;
             $journal->edit_date = date('Y-m-d H:i:s');
@@ -380,6 +382,8 @@ class JournalController extends Controller
             $journal->edit_date = date('Y-m-d H:i:s');
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
+            $journal->signed_method = ($request->signed_method)? $request->signed_method :NULL;
+            $journal->signed_response = ($request->signed_response)? $request->signed_response :NULL;
             $journal->is_secret = ($request->is_secret)? $request->is_secret :0;
             $journal->is_active = ($request->is_active)? $request->is_active :0;
 		 	$journal->save();
