@@ -61,6 +61,7 @@ class CreateSchedulesTable extends Migration
             //--------------for-leave-management-------------------//
             $table->boolean('only_leave')->default(0)->nullable();
             $table->boolean('leave_applied')->default(0);
+            $table->date('leave_applied_date')->nullable();
             $table->string('leave_group_id')->nullable()->comment('only for leave');
             $table->enum('leave_type',['leave','vacation','extra'])->nullable();
             $table->text('leave_reason')->nullable();
