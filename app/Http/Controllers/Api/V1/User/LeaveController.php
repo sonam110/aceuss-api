@@ -180,8 +180,8 @@ class LeaveController extends Controller
 						$schedule->shift_name = '';
 						$schedule->shift_color = '';
 						$schedule->shift_date = $date;
-						$schedule->leave_applied_date = date('Y-m-d');
 						$schedule->leave_applied = 1;
+						$schedule->leave_applied_date = date('Y-m-d');
 						$schedule->only_leave = 1;
 						$schedule->leave_type = $request->leave_type;
 						$schedule->leave_reason = $request->reason;
@@ -823,6 +823,7 @@ class LeaveController extends Controller
 					}
 					$schedule->update([
 						'leave_applied' => '1',
+						'leave_applied_date' => date('Y-m-d'),
 						'leave_type' => $request->leave_type,
 						'leave_reason' => $request->reason,
 						'leave_group_id' => $leave_group_id,
@@ -916,6 +917,7 @@ class LeaveController extends Controller
 							}
 							$schedule->update([
 								'leave_applied' => '1',
+								'leave_applied_date' => date('Y-m-d'),
 								'leave_type' => $request->leave_type,
 								'leave_reason' => $request->reason,
 								'leave_group_id' => $leave_group_id,
@@ -1018,6 +1020,7 @@ class LeaveController extends Controller
 						$schedule->shift_color = '';
 						$schedule->shift_date = $shift_date;
 						$schedule->leave_applied = 1;
+						$schedule->leave_applied_date = date('Y-m-d');
 						$schedule->leave_type = $request->leave_type;
 						$schedule->leave_reason = $request->reason;
 						$schedule->leave_group_id = $leave_group_id;
