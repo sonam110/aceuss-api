@@ -1117,7 +1117,7 @@ class ActivityController extends Controller
     		if (!is_object($checkId)) {
     			return prepareResult(false,getLangByLabelGroups('Activity','message_record_not_found'), [],config('httpcodes.not_found'));
     		}
-    		$activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient.PatientInformation','assignEmployee.employee:id,name,email,avatar','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email')->first();
+    		$activity = Activity::where('id',$id)->with('Parent:id,title','Category:id,name','Subcategory:id,name','Patient.PatientInformation','assignEmployee.employee:id,name,email,avatar','ImplementationPlan.ipFollowUps:id,ip_id,title','ActionByUser:id,name,email', 'comments')->first();
     		return prepareResult(true,getLangByLabelGroups('Activity','message_show') ,$activity, config('httpcodes.success'));
     	}
     	catch(Exception $exception) {
