@@ -3526,6 +3526,14 @@ class LabelSeeder extends Seeder
                 "export-journal"=> "Export Journal",
                 "export-deviation"=> "Export Deviation"
                 "activity-tag"=> "Activity Tag",
+                "vacation-hours"=> "Vacation Hours",
+                "hours-is-approved-successfully"=> "Hours is approved successfully",
+                "hours-is-verified-successfully"=> "Hours is verified successfully",
+                "ob-work-duration"=> "OB Hours",
+                "comment-by"=> "Comment By",
+                "export-by-employee"=> "Export EmployeeWise Schedule",
+                "export-by-patient"=> "Export PatientWise Schedule",
+                "leave-applied-date"=> "Leave Applied Date",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
