@@ -1401,8 +1401,26 @@ function timeWithRelaxation($scheduled_time,$relaxationTime)
 
 function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time=null)
 {
-    //-------------------------red day---------------------------------//
+
     $red_ob = [];
+    $weekend_ob = [];
+    $weekday_ob = [];
+
+    $red_ob['type']= null;
+    $red_ob['duration'] = 0;
+    $red_ob['start_time'] = null;
+    $red_ob['end_time'] = null;
+
+    $weekend_ob['type']= null;
+    $weekend_ob['duration'] = 0;
+    $weekend_ob['start_time'] = null;
+    $weekend_ob['end_time'] = null;
+
+    $weekday_ob['type']= null;
+    $weekday_ob['duration'] = 0;
+    $weekday_ob['start_time'] = null;
+    $weekday_ob['end_time'] = null;
+    //-------------------------red day---------------------------------//
     $red_data = OVHour::where(function ($q) use($date){
                 $q->where('date',$date)
                     ->orWhereNull('date');
@@ -1492,203 +1510,183 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
     }
     else
     {
-        $red_ob['type']= null;
-        $red_ob['duration'] = 0;
-        $red_ob['start_time'] = null;
-        $red_ob['end_time'] = null;
+        //----------------------------weekend-------------------------//
+        
+        $weekend_data = OVHour::where(function ($q) use($date){
+                    $q->where('date',$date)
+                        ->orWhereNull('date');
+                })->where('ob_type','weekend')->orderBy('id','desc')->first();
+        if(!empty($weekend_data))
+        {
+            $weekend_ob['type'] = $weekend_data->ob_type;
+            $weekend_ob['start_time'] = $weekend_data->start_time;
+            $weekend_ob['end_time'] = $weekend_data->end_time;
+            $rest_ob_duration = 0;
+
+            $weekend_obtime1 = strtotime($date.' '.$weekend_data->start_time);
+            $weekend_obtime2 = strtotime($date.' '.$weekend_data->end_time);
+
+            if($weekend_obtime1 > $weekend_obtime2)
+            {
+                $weekend_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($weekend_obtime2))));
+            }
+
+            if(($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time1))
+            {
+                $weekend_ob['duration'] = 0;
+            }
+            elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 >= $time2))
+            {
+                $weekend_ob['duration'] = 0;
+            }
+            elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 <= $time2))
+            {
+                $weekend_ob['duration'] = 0;
+            }
+            elseif(($weekend_obtime1 >= $time1) && ($weekend_obtime2 <= $time2))
+            {
+                $weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
+            }
+            elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 >= $time2)) 
+            {
+                $weekend_ob['duration'] = ($time2 - $time1)/60;
+            }
+            elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time2)) 
+            {
+                $weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
+            }
+            elseif (($weekend_obtime1 >= $time1) && ($weekend_obtime2 >= $time2)) 
+            {
+                $weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
+            }
+
+            if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
+            {
+                $resttime1 = strtotime($rest_start_time);
+                $resttime2 = strtotime($rest_end_time);
+
+                if(($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 <= $resttime1))
+                {
+                    $rest_weekend_ob_duration = 0;
+                }
+                elseif(($weekend_obtime1 >= $resttime2) && ($weekend_obtime2 >= $resttime2))
+                {
+                    $rest_weekend_ob_duration = 0;
+                }
+                elseif(($weekend_obtime1 >= $resttime2) && ($weekend_obtime2 <= $resttime2))
+                {
+                    $rest_weekend_ob_duration = 0;
+                }
+                elseif(($weekend_obtime1 >= $resttime1) && ($weekend_obtime2 <= $resttime2))
+                {
+                    $rest_weekend_ob_duration = ($weekend_obtime2 - $weekend_obtime1)/60;
+                }
+                elseif (($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 >= $resttime2)) 
+                {
+                    $rest_weekend_ob_duration = ($resttime2 - $resttime1)/60;
+                }
+                elseif (($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 <= $resttime2)) 
+                {
+                    $rest_weekend_ob_duration = ($weekend_obtime2 - $resttime1)/60;
+                }
+                elseif (($weekend_obtime1 >= $resttime1) && ($weekend_obtime2 >= $resttime2)) 
+                {
+                    $rest_weekend_ob_duration = ($resttime2 - $weekend_obtime1)/60;
+                }
+
+                $weekend_ob['duration'] = $weekend_ob['duration'] - $rest_weekend_ob_duration;
+            }
+        }
+
+        //-------------------------------------week-day--------------------//
+        
+        $weekday_data = OVHour::where(function ($q) use($date){
+                    $q->where('date',$date)
+                        ->orWhereNull('date');
+                })->where('ob_type','weekday')->orderBy('id','desc')->first();
+        if(!empty($weekday_data))
+        {
+            $weekday_ob['type'] = $weekday_data->ob_type;
+            $weekday_ob['start_time'] = $weekday_data->start_time;
+            $weekday_ob['end_time'] = $weekday_data->end_time;
+            $rest_ob_duration = 0;
+
+            $weekday_obtime1 = strtotime($date.' '.$weekday_data->start_time);
+            $weekday_obtime2 = strtotime($date.' '.$weekday_data->end_time);
+
+            if($weekday_obtime1 > $weekday_obtime2)
+            {
+                $weekday_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($weekday_obtime2))));
+            }
+
+            if(($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time1))
+            {
+                $weekday_ob['duration'] = 0;
+            }
+            elseif(($weekday_obtime1 >= $time2) && ($weekday_obtime2 >= $time2))
+            {
+                $weekday_ob['duration'] = 0;
+            }
+            elseif(($weekday_obtime1 >= $time2) && ($weekday_obtime2 <= $time2))
+            {
+                $weekday_ob['duration'] = 0;
+            }
+            elseif(($weekday_obtime1 >= $time1) && ($weekday_obtime2 <= $time2))
+            {
+                $weekday_ob['duration'] = ($weekday_obtime2 - $weekday_obtime1)/60;
+            }
+            elseif (($weekday_obtime1 <= $time1) && ($weekday_obtime2 >= $time2)) 
+            {
+                $weekday_ob['duration'] = ($time2 - $time1)/60;
+            }
+            elseif (($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time2)) 
+            {
+                $weekday_ob['duration'] = ($weekday_obtime2 - $time1)/60;
+            }
+            elseif (($weekday_obtime1 >= $time1) && ($weekday_obtime2 >= $time2)) 
+            {
+                $weekday_ob['duration'] = ($time2 - $weekday_obtime1)/60;
+            }
+
+            if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
+            {
+                $resttime1 = strtotime($rest_start_time);
+                $resttime2 = strtotime($rest_end_time);
+
+                if(($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 <= $resttime1))
+                {
+                    $rest_weekday_ob_duration = 0;
+                }
+                elseif(($weekday_obtime1 >= $resttime2) && ($weekday_obtime2 >= $resttime2))
+                {
+                    $rest_weekday_ob_duration = 0;
+                }
+                elseif(($weekday_obtime1 >= $resttime2) && ($weekday_obtime2 <= $resttime2))
+                {
+                    $rest_weekday_ob_duration = 0;
+                }
+                elseif(($weekday_obtime1 >= $resttime1) && ($weekday_obtime2 <= $resttime2))
+                {
+                    $rest_weekday_ob_duration = ($weekday_obtime2 - $weekday_obtime1)/60;
+                }
+                elseif (($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 >= $resttime2)) 
+                {
+                    $rest_weekday_ob_duration = ($resttime2 - $resttime1)/60;
+                }
+                elseif (($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 <= $resttime2)) 
+                {
+                    $rest_weekday_ob_duration = ($weekday_obtime2 - $resttime1)/60;
+                }
+                elseif (($weekday_obtime1 >= $resttime1) && ($weekday_obtime2 >= $resttime2)) 
+                {
+                    $rest_weekday_ob_duration = ($resttime2 - $weekday_obtime1)/60;
+                }
+
+                $weekday_ob['duration'] = $weekday_ob['duration'] - $rest_weekday_ob_duration;
+            }
+        }
     }
 
-    //----------------------------weekend-------------------------//
-
-    $weekend_ob = [];
-    $weekend_data = OVHour::where(function ($q) use($date){
-                $q->where('date',$date)
-                    ->orWhereNull('date');
-            })->where('ob_type','weekend')->orderBy('id','desc')->first();
-    if(!empty($weekend_data))
-    {
-        $weekend_ob['type'] = $weekend_data->ob_type;
-        $weekend_ob['start_time'] = $weekend_data->start_time;
-        $weekend_ob['end_time'] = $weekend_data->end_time;
-        $rest_ob_duration = 0;
-
-        $weekend_obtime1 = strtotime($date.' '.$weekend_data->start_time);
-        $weekend_obtime2 = strtotime($date.' '.$weekend_data->end_time);
-
-        if($weekend_obtime1 > $weekend_obtime2)
-        {
-            $weekend_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($weekend_obtime2))));
-        }
-
-        if(($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time1))
-        {
-            $weekend_ob['duration'] = 0;
-        }
-        elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 >= $time2))
-        {
-            $weekend_ob['duration'] = 0;
-        }
-        elseif(($weekend_obtime1 >= $time2) && ($weekend_obtime2 <= $time2))
-        {
-            $weekend_ob['duration'] = 0;
-        }
-        elseif(($weekend_obtime1 >= $time1) && ($weekend_obtime2 <= $time2))
-        {
-            $weekend_ob['duration'] = ($weekend_obtime2 - $weekend_obtime1)/60;
-        }
-        elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 >= $time2)) 
-        {
-            $weekend_ob['duration'] = ($time2 - $time1)/60;
-        }
-        elseif (($weekend_obtime1 <= $time1) && ($weekend_obtime2 <= $time2)) 
-        {
-            $weekend_ob['duration'] = ($weekend_obtime2 - $time1)/60;
-        }
-        elseif (($weekend_obtime1 >= $time1) && ($weekend_obtime2 >= $time2)) 
-        {
-            $weekend_ob['duration'] = ($time2 - $weekend_obtime1)/60;
-        }
-
-        if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
-        {
-            $resttime1 = strtotime($rest_start_time);
-            $resttime2 = strtotime($rest_end_time);
-
-            if(($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 <= $resttime1))
-            {
-                $rest_weekend_ob_duration = 0;
-            }
-            elseif(($weekend_obtime1 >= $resttime2) && ($weekend_obtime2 >= $resttime2))
-            {
-                $rest_weekend_ob_duration = 0;
-            }
-            elseif(($weekend_obtime1 >= $resttime2) && ($weekend_obtime2 <= $resttime2))
-            {
-                $rest_weekend_ob_duration = 0;
-            }
-            elseif(($weekend_obtime1 >= $resttime1) && ($weekend_obtime2 <= $resttime2))
-            {
-                $rest_weekend_ob_duration = ($weekend_obtime2 - $weekend_obtime1)/60;
-            }
-            elseif (($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 >= $resttime2)) 
-            {
-                $rest_weekend_ob_duration = ($resttime2 - $resttime1)/60;
-            }
-            elseif (($weekend_obtime1 <= $resttime1) && ($weekend_obtime2 <= $resttime2)) 
-            {
-                $rest_weekend_ob_duration = ($weekend_obtime2 - $resttime1)/60;
-            }
-            elseif (($weekend_obtime1 >= $resttime1) && ($weekend_obtime2 >= $resttime2)) 
-            {
-                $rest_weekend_ob_duration = ($resttime2 - $weekend_obtime1)/60;
-            }
-
-            $weekend_ob['duration'] = $weekend_ob['duration'] - $rest_weekend_ob_duration;
-        }
-    }
-    else
-    {
-        $weekend_ob['type']= null;
-        $weekend_ob['duration'] = 0;
-        $weekend_ob['start_time'] = null;
-        $weekend_ob['end_time'] = null;
-    }
-
-
-    //-------------------------------------week-day--------------------//
-    $weekday_ob = [];
-    $weekday_data = OVHour::where(function ($q) use($date){
-                $q->where('date',$date)
-                    ->orWhereNull('date');
-            })->where('ob_type','weekday')->orderBy('id','desc')->first();
-    if(!empty($weekday_data))
-    {
-        $weekday_ob['type'] = $weekday_data->ob_type;
-        $weekday_ob['start_time'] = $weekday_data->start_time;
-        $weekday_ob['end_time'] = $weekday_data->end_time;
-        $rest_ob_duration = 0;
-
-        $weekday_obtime1 = strtotime($date.' '.$weekday_data->start_time);
-        $weekday_obtime2 = strtotime($date.' '.$weekday_data->end_time);
-
-        if($weekday_obtime1 > $weekday_obtime2)
-        {
-            $weekday_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($weekday_obtime2))));
-        }
-
-        if(($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time1))
-        {
-            $weekday_ob['duration'] = 0;
-        }
-        elseif(($weekday_obtime1 >= $time2) && ($weekday_obtime2 >= $time2))
-        {
-            $weekday_ob['duration'] = 0;
-        }
-        elseif(($weekday_obtime1 >= $time2) && ($weekday_obtime2 <= $time2))
-        {
-            $weekday_ob['duration'] = 0;
-        }
-        elseif(($weekday_obtime1 >= $time1) && ($weekday_obtime2 <= $time2))
-        {
-            $weekday_ob['duration'] = ($weekday_obtime2 - $weekday_obtime1)/60;
-        }
-        elseif (($weekday_obtime1 <= $time1) && ($weekday_obtime2 >= $time2)) 
-        {
-            $weekday_ob['duration'] = ($time2 - $time1)/60;
-        }
-        elseif (($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time2)) 
-        {
-            $weekday_ob['duration'] = ($weekday_obtime2 - $time1)/60;
-        }
-        elseif (($weekday_obtime1 >= $time1) && ($weekday_obtime2 >= $time2)) 
-        {
-            $weekday_ob['duration'] = ($time2 - $weekday_obtime1)/60;
-        }
-
-        if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $rest_start_time))
-        {
-            $resttime1 = strtotime($rest_start_time);
-            $resttime2 = strtotime($rest_end_time);
-
-            if(($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 <= $resttime1))
-            {
-                $rest_weekday_ob_duration = 0;
-            }
-            elseif(($weekday_obtime1 >= $resttime2) && ($weekday_obtime2 >= $resttime2))
-            {
-                $rest_weekday_ob_duration = 0;
-            }
-            elseif(($weekday_obtime1 >= $resttime2) && ($weekday_obtime2 <= $resttime2))
-            {
-                $rest_weekday_ob_duration = 0;
-            }
-            elseif(($weekday_obtime1 >= $resttime1) && ($weekday_obtime2 <= $resttime2))
-            {
-                $rest_weekday_ob_duration = ($weekday_obtime2 - $weekday_obtime1)/60;
-            }
-            elseif (($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 >= $resttime2)) 
-            {
-                $rest_weekday_ob_duration = ($resttime2 - $resttime1)/60;
-            }
-            elseif (($weekday_obtime1 <= $resttime1) && ($weekday_obtime2 <= $resttime2)) 
-            {
-                $rest_weekday_ob_duration = ($weekday_obtime2 - $resttime1)/60;
-            }
-            elseif (($weekday_obtime1 >= $resttime1) && ($weekday_obtime2 >= $resttime2)) 
-            {
-                $rest_weekday_ob_duration = ($resttime2 - $weekday_obtime1)/60;
-            }
-
-            $weekday_ob['duration'] = $weekday_ob['duration'] - $rest_weekday_ob_duration;
-        }
-    }
-    else
-    {
-        $weekday_ob['type']= null;
-        $weekday_ob['duration'] = 0;
-        $weekday_ob['start_time'] = null;
-        $weekday_ob['end_time'] = null;
-    }
     return $ob = ['red_ob'=>$red_ob,'weekend_ob'=>$weekend_ob,'weekday_ob'=>$weekday_ob];
 }
 

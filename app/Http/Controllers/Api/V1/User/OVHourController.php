@@ -188,6 +188,13 @@ class OVHourController extends Controller
             $group_token = generateRandomNumber(10);
             foreach ($dates as $key => $date) 
             {
+                $start_time = $request->start_time;
+                $end_time = $request->end_time;
+                if($request->ob_type == 'red')
+                {
+                    $start_time = "00:01";
+                    $end_time = "23:59";
+                }
                 $ovHour = new OVHour;
                 $ovHour->group_token = ($request->is_repeat == 1) ? $group_token : generateRandomNumber(8);
                 $ovHour->title = $request->title;
@@ -197,8 +204,8 @@ class OVHourController extends Controller
                     $ovHour->end_date = $end_to;
                 }
                 $ovHour->ob_type = $request->ob_type;
-                $ovHour->start_time = $request->start_time;
-                $ovHour->end_time = $request->end_time;
+                $ovHour->start_time = $start_time;
+                $ovHour->end_time = $end_time;
                 $ovHour->entry_mode = $request->entry_mode;
                 $ovHour->save();
                 $ovhour_ids[] = $ovHour->id;
