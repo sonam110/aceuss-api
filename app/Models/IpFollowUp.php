@@ -109,7 +109,7 @@ class IpFollowUp extends Model
             {
                 $witnessList->where('follow_up_id', $this->follow_up_id);
             }*/
-            $witnessList->where('follow_up_id', $this->follow_up_id);
+            $witnessList->where('follow_up_id', $this->id);
             $witnessList = $witnessList->get();
             return (!empty($witnessList)) ? $witnessList : null;
         }
