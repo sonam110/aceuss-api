@@ -124,6 +124,15 @@ class PatientController extends Controller
                 $query->where('patient_implementation_plans.branch_id', $request->branch_id);
             }
 
+            if(!empty($request->status) && $request->status!=0)
+            {
+                $query->where('patient_implementation_plans.status', $request->status);
+            }
+            elseif(!empty($request->status) && $request->status!='no')
+            {
+                $query->where('patient_implementation_plans.status', 0);
+            }
+
             if(!empty($request->category_id))
             {
                 $query->where('patient_implementation_plans.category_id', $request->category_id);
@@ -987,10 +996,6 @@ class PatientController extends Controller
     private function getWhereRawFromRequest(Request $request) 
     {
         $w = '';
-        if (is_null($request->input('status')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "patient_implementation_plans.status = "."'" .$request->input('status')."'".")";
-        }
         if (is_null($request->input('ip_id')) == false) {
             if ($w != '') {$w = $w . " AND ";}
             $w = $w . "(" . "patient_implementation_plans.id = "."'" .$request->input('ip_id')."'".")";
