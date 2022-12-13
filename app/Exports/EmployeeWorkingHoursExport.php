@@ -38,7 +38,10 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
     {
 
     	$schedules  = Schedule::whereBetween('shift_date',$this->dates)
-            ->where('user_id', $this->user_id)
+            ->where(function($q) {
+                $q->where('user_id', $this->user_id)
+                    ->orWhere('patient_id', $this->user_id);
+            })
             ->where('is_active',1)
             ->orderBy('shift_date', 'ASC')
             ->get();
@@ -51,7 +54,10 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
                 \DB::raw("SUM(vacation_duration) as vacation_duration")
                 )
                 ->where('shift_date',$data->shift_date)
-                ->where('user_id',$data->user_id)
+                ->where(function($q) {
+                    $q->where('user_id', $this->user_id)
+                        ->orWhere('patient_id', $this->user_id);
+                })
                 ->where('is_active',1)
                 ->where('leave_applied',0)
                 ->first();
