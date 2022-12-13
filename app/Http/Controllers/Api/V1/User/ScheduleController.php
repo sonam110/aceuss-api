@@ -396,7 +396,7 @@ class ScheduleController extends Controller
 							$schedule->leave_approved_date_time = null;
 							$schedule->leave_notified_to = null;
 							$schedule->notified_group = null;
-							$schedule->is_active = ScheduleTemplate::find($request->schedule_template_id)->status;
+							$schedule->is_active = "ScheduleTemplate::find($request->schedule_template_id)->status";
 							$schedule->scheduled_work_duration = round($result['scheduled_work_duration'], 3);
 							$schedule->extra_work_duration = round($result['extra_work_duration'], 3);
 							$schedule->emergency_work_duration = round($result['emergency_work_duration'], 3);

@@ -1403,6 +1403,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 {
     $time1 = strtotime($time1);
     $time2 = strtotime($time2);
+
     $red_ob = [];
     $weekend_ob = [];
     $weekday_ob = [];
@@ -1431,6 +1432,8 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
         $red_ob['type'] = $red_data->ob_type;
         $red_ob['start_time'] = $red_data->start_time;
         $red_ob['end_time'] = $red_data->end_time;
+        $time1 = strtotime($time1);
+        $time2 = strtotime($time2);
         $rest_ob_duration = 0;
 
         $red_obtime1 = strtotime($date.' '.$red_data->start_time);
