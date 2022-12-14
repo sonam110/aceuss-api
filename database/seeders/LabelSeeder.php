@@ -3534,6 +3534,8 @@ class LabelSeeder extends Seeder
                 "export-by-employee"=> "Export EmployeeWise Schedule",
                 "export-by-patient"=> "Export PatientWise Schedule",
                 "leave-applied-date"=> "Leave Applied Date",
+                "obe-note"=> "In the case of overlap, the latest entry will be used.",
+                "no-description"=> "No Description",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
