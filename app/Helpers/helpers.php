@@ -1692,7 +1692,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 }
 
 
-function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null,$user_id = null,$assignedWork_id = null)
+function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shift_type = null, $rest_start_time = null, $rest_end_time = null,$user_id = null,$assignedWork_id = null,$through_ob = false)
 {
     $result = [];
     $ob = getObDuration($date,$start_time,$end_time,$rest_start_time,$rest_end_time);
@@ -1727,7 +1727,14 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
             $assignedWork_id = $assignedWork->id;
         }
         // $worked_minutes = Schedule::where('user_id',$shift['user_id'])->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->sum(\DB::raw('scheduled_work_duration + extra_work_duration'));
-        $worked_minutes = App\Models\Schedule::where('user_id',$user_id)->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->sum('scheduled_work_duration');
+        if($through_ob == true)
+        {  
+            $worked_minutes = App\Models\Schedule::where('user_id',$user_id)->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->where('shift_start_time','<',$start_time)->sum('scheduled_work_duration');
+        }
+        else
+        {
+            $worked_minutes = App\Models\Schedule::where('user_id',$user_id)->where('shift_date', '>=',$monday)->where('shift_date','<=',$sunday)->sum('scheduled_work_duration');
+        }
     } 
 
     // if($schedule_type == 'basic')

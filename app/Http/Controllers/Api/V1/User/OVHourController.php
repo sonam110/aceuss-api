@@ -213,7 +213,7 @@ class OVHourController extends Controller
 
             $schedules = Schedule::where('shift_start_time','>=',date('Y-m-d H:i'))->get();
             foreach ($schedules as $key => $schedule) {
-               $result =  scheduleWorkCalculation($schedule->shift_date,$schedule->shift_start_time,$schedule->shift_end_time,$schedule->schedule_type,$schedule->shift_type,$schedule->rest_start_time,$schedule->rest_end_time,$schedule->user_id,$schedule->assigneWork_id);
+               $result =  scheduleWorkCalculation($schedule->shift_date,$schedule->shift_start_time,$schedule->shift_end_time,$schedule->schedule_type,$schedule->shift_type,$schedule->rest_start_time,$schedule->rest_end_time,$schedule->user_id,$schedule->assigneWork_id,true);
 
                $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
                $schedule->extra_work_duration = $result['extra_work_duration'];
