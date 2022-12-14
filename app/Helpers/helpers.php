@@ -1618,7 +1618,7 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
 
             if($weekday_obtime1 > $weekday_obtime2)
             {
-                $weekday_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',strtotime($weekday_obtime2))));
+                $weekday_obtime2 = strtotime(date('Y-m-d H:i',strtotime('+1 day',$weekday_obtime2)));
             }
 
             if(($weekday_obtime1 <= $time1) && ($weekday_obtime2 <= $time1))
@@ -1688,7 +1688,6 @@ function getObDuration($date,$time1, $time2,$rest_start_time=null,$rest_end_time
             }
         }
     }
-
     return $ob = ['red_ob'=>$red_ob,'weekend_ob'=>$weekend_ob,'weekday_ob'=>$weekday_ob];
 }
 
@@ -1700,7 +1699,7 @@ function scheduleWorkCalculation($date,$start_time,$end_time,$schedule_type,$shi
     $ob_duration = $ob['red_ob']['duration'] + $ob['weekend_ob']['duration'] + $ob['weekday_ob']['duration'];
     $rest_duration = 0;
 
-    if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $end_time))
+    if(($rest_start_time != null) && ($rest_end_time != null) && ($rest_end_time < $end_time) && ($rest_start_time > $start_time))
     {
         $rest_duration = timeDifference($rest_start_time,$rest_end_time);
     }
