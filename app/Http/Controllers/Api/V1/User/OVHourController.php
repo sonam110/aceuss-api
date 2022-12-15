@@ -326,6 +326,29 @@ class OVHourController extends Controller
                 $ovHour->entry_mode = $request->entry_mode;
                 $ovHour->save();
             }
+
+            $schedules = Schedule::where('shift_start_time','>=',date('Y-m-d H:i'))->get();
+            foreach ($schedules as $key => $schedule) {
+               $result =  scheduleWorkCalculation($schedule->shift_date,$schedule->shift_start_time,$schedule->shift_end_time,$schedule->schedule_type,$schedule->shift_type,$schedule->rest_start_time,$schedule->rest_end_time,$schedule->user_id,$schedule->assigneWork_id,true);
+
+               $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+               $schedule->extra_work_duration = $result['extra_work_duration'];
+               $schedule->emergency_work_duration = $result['emergency_work_duration'];
+               $schedule->ob_work_duration = $result['ob_work_duration'];
+               $schedule->ob_type = $result['ob_type'];
+               $schedule->ob_start_time = $result['ob_start_time'];
+               $schedule->ob_end_time = $result['ob_end_time'];
+               $schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+               $schedule->ob_red_start_time = $result['ob_red_start_time'];
+               $schedule->ob_red_end_time = $result['ob_red_end_time'];
+               $schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+               $schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+               $schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+               $schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+               $schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+               $schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
+               $schedule->save();
+            }
             DB::commit();
             return prepareResult(true,getLangByLabelGroups('OVHour','message_update') ,$ovHour, config('httpcodes.success'));
         } catch (\Throwable $exception) {
@@ -352,6 +375,29 @@ class OVHourController extends Controller
                 return prepareResult(false,getLangByLabelGroups('OVHour','message_record_not_found'), [],config('httpcodes.not_found'));
             }
             OVHour::where('id',$id)->delete();
+
+            $schedules = Schedule::where('shift_start_time','>=',date('Y-m-d H:i'))->get();
+            foreach ($schedules as $key => $schedule) {
+               $result =  scheduleWorkCalculation($schedule->shift_date,$schedule->shift_start_time,$schedule->shift_end_time,$schedule->schedule_type,$schedule->shift_type,$schedule->rest_start_time,$schedule->rest_end_time,$schedule->user_id,$schedule->assigneWork_id,true);
+
+               $schedule->scheduled_work_duration = $result['scheduled_work_duration'];
+               $schedule->extra_work_duration = $result['extra_work_duration'];
+               $schedule->emergency_work_duration = $result['emergency_work_duration'];
+               $schedule->ob_work_duration = $result['ob_work_duration'];
+               $schedule->ob_type = $result['ob_type'];
+               $schedule->ob_start_time = $result['ob_start_time'];
+               $schedule->ob_end_time = $result['ob_end_time'];
+               $schedule->ob_red_work_duration = $result['ob_red_work_duration'];
+               $schedule->ob_red_start_time = $result['ob_red_start_time'];
+               $schedule->ob_red_end_time = $result['ob_red_end_time'];
+               $schedule->ob_weekend_work_duration = $result['ob_weekend_work_duration'];
+               $schedule->ob_weekend_start_time = $result['ob_weekend_start_time'];
+               $schedule->ob_weekend_end_time = $result['ob_weekend_end_time'];
+               $schedule->ob_weekday_work_duration = $result['ob_weekday_work_duration'];
+               $schedule->ob_weekday_start_time = $result['ob_weekday_start_time'];
+               $schedule->ob_weekday_end_time = $result['ob_weekday_end_time'];
+               $schedule->save();
+            }
             return prepareResult(true,getLangByLabelGroups('OVHour','message_delete') ,[], config('httpcodes.success'));
         } catch (\Throwable $exception) {
             logException($exception);
