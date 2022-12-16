@@ -31,11 +31,19 @@ class LeaveController extends Controller
 	{
 		try 
 		{
+			$user = getUser();
 			$child_ids = [Auth::id()];
-			foreach (Auth::user()->childs as $key => $value) {
-				$child_ids[] = $value->id;
-			}
-
+			if(!empty($user->branch_id) && $user->user_type_id==11) 
+			{
+                $child_ids = User::where('branch_id', auth()->id())->pluck('id');
+            }
+            else
+            {
+            	foreach (Auth::user()->childs as $key => $value) {
+					$child_ids[] = $value->id;
+				}
+            }
+			
 			$query = Schedule::orderBy('id', 'DESC')->whereIn('user_id',$child_ids)->with('user:id,name,gender,user_type_id,branch_id','user.userType:id,name','user.branch:id,branch_id,name,branch_name,company_type_id', 'leaves:id,leave_group_id,shift_date','leaveApprovedBy:id,name,branch_id,user_type_id','leaveApprovedBy.userType:id,name','leaveApprovedBy.branch:id,branch_id,name,branch_name,company_type_id')->where('leave_applied',1);
 
 			if(!empty($request->emp_id))
