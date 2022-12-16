@@ -15,11 +15,15 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
 
     public $dates;
     public $user_id;
+    public $is_active;
+    public $status;
 
-    public function __construct($dates,$user_id)
+    public function __construct($dates,$user_id,$is_active,$status)
     {
         $this->dates = $dates;
         $this->user_id = $user_id;
+        $this->is_active = $is_active;
+        $this->status = $status;
     }
     public function headings(): array {
     	return  [
@@ -37,14 +41,21 @@ class EmployeeWorkingHoursExport implements FromCollection, WithHeadings
     public function collection()
     {
 
-    	$schedules  = Schedule::whereBetween('shift_date',$this->dates)
+    	$query  = Schedule::whereBetween('shift_date',$this->dates)
             ->where(function($q) {
                 $q->where('user_id', $this->user_id)
                     ->orWhere('patient_id', $this->user_id);
-            })
-            ->where('is_active',1)
-            ->orderBy('shift_date', 'ASC')
-            ->get();
+            }) 
+            ->orderBy('shift_date', 'ASC');
+            if($this->is_active == 1)
+            {
+                $query = $query->where('is_active',1);
+            }
+            if($this->status == 1)
+            {
+                $query = $query->where('status',1);
+            }
+            $schedules  = $query->get();
     	return $schedules->map(function ($data, $key) {
 
             $scheduleData = Schedule::select(\DB::raw("SUM(scheduled_work_duration) as scheduled_work_duration"),

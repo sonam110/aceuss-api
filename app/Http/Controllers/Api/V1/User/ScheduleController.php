@@ -1253,7 +1253,9 @@ class ScheduleController extends Controller
 			$rand = rand(0,1000);
 			$dates = [$request->start_date,$request->end_date];
 			$user_id  = $request->user_id;
-			$excel = Excel::store(new EmployeeWorkingHoursExport($dates,$user_id), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
+			$is_active = $request->is_active;
+			$status = $request->status;
+			$excel = Excel::store(new EmployeeWorkingHoursExport($dates,$user_id,$is_active,$status), 'export/schedule/'.$rand.'.xlsx' , 'export_path');
 
 			return prepareResult(true,getLangByLabelGroups('schedule','message_employee_working_hours_export') ,['url' => env('APP_URL').'export/schedule/'.$rand.'.xlsx'], config('httpcodes.success'));
 		}
