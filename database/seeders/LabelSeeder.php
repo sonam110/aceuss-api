@@ -3536,6 +3536,10 @@ class LabelSeeder extends Seeder
                 "leave-applied-date"=> "Leave Applied Date",
                 "obe-note"=> "In the case of overlap, the latest entry will be used.",
                 "no-description"=> "No Description",
+                "rescheduled-task"=> "Reschedule Task",
+                "slot-booked"=> "Slot Booked",
+                "slot-available"=> "Slot Available",
+                "accept"=> "Accept",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
