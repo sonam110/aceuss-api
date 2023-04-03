@@ -18,6 +18,7 @@ use App\Models\Notification;
 use App\Events\BankIdVerified;
 use App\Events\NotificationForAll;
 use App\Events\EventNotification;
+use Edujugon\PushNotification\PushNotification;
 
 class CallbackController extends Controller
 {
@@ -299,7 +300,10 @@ class CallbackController extends Controller
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, $from, $personalNumber, false));
+                if(env('IS_WS_SOCKET_IN', false))
+                {
+                    \broadcast(new EventNotification($notification, $user_id, $userUniqueId->unique_id, $from, $personalNumber, false));
+                }
             }
             return view('verified');
         }
@@ -309,7 +313,10 @@ class CallbackController extends Controller
             $getPerson = User::select('id','personal_number')->find($getUserID->user_id);
             if($getPerson)
             {
-                \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+                if(env('IS_WS_SOCKET_IN', false))
+                {
+                    \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+                }
             }
             
             return view('not-verified');
@@ -351,5 +358,31 @@ class CallbackController extends Controller
         $arr = json_encode([1,2,3,4]);
         $res = bankIdVerification('7710037933', 1, $arr, 1, 'test', 1, 1, null);
         return $res;
+    }
+
+    public function checkNotification(Request $request)
+    {
+        $push = new PushNotification('fcm');
+        $push->setMessage([
+                "notification"=>[
+                    'title' => (!empty($request->title) ? $request->title : "content_header"),
+                    'body'  => (!empty($request->body) ? $request->body : "content_body"),
+                    'sound' => 'default',
+                    'android_channel_id' => '1',
+                    //'timestamp' => date('Y-m-d G:i:s')
+                ],
+                'data'=>[
+                    'id'  => 1,
+                    'user_type'  => 1,
+                    'module'  => 'activity',
+                    'screen'  => 'test'
+                ]                        
+            ])
+            ->setApiKey(env('FIREBASE_KEY'))
+            ->setDevicesToken($request->device_token)
+            ->send()
+            ->getFeedback();
+
+        return $response;
     }
 }

@@ -368,7 +368,10 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $userUniqueId = User::select('unique_id')->find($obj['user_id']);
             if($userUniqueId)
             {
-                \broadcast(new EventNotification($notification, $obj['user_id'], $userUniqueId->unique_id, $actionNoti));
+                if(env('IS_WS_SOCKET_IN', false))
+                {
+                    \broadcast(new EventNotification($notification, $obj['user_id'], $userUniqueId->unique_id, $actionNoti));
+                }
             }
         }    
     }
@@ -458,7 +461,10 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 $notification->read_status      = false;
                 $notification->save();
 
-                \broadcast(new EventNotification($notification, $user->id, $user->unique_id, $actionNoti));
+                if(env('IS_WS_SOCKET_IN', false))
+                {
+                    \broadcast(new EventNotification($notification, $user->id, $user->unique_id, $actionNoti));
+                }
             }    
         }
     }

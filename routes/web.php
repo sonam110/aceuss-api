@@ -27,6 +27,8 @@ Route::get('/verified/{person_id}/{user_id}/{from}/{method}', [App\Http\Controll
 
 Route::get('/check-event', [App\Http\Controllers\CallbackController::class, 'checkEvent']);
 
+Route::get('/check-notification', [App\Http\Controllers\CallbackController::class, 'checkNotification']);
+
 Route::get('/check-childs', [App\Http\Controllers\CallbackController::class, 'checkChilds']);
 
 Route::get('/check-bank-id', [App\Http\Controllers\CallbackController::class, 'checkBankId']);
