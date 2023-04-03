@@ -363,7 +363,7 @@ class CallbackController extends Controller
     public function checkNotification(Request $request)
     {
         $push = new PushNotification('fcm');
-        $push->setMessage([
+        $response = $push->setMessage([
                 "notification"=>[
                     'title' => (!empty($request->title) ? $request->title : "content_header"),
                     'body'  => (!empty($request->body) ? $request->body : "content_body"),
@@ -374,8 +374,8 @@ class CallbackController extends Controller
                 'data'=>[
                     'id'  => 1,
                     'user_type'  => 1,
-                    'module'  => 'activity',
-                    'screen'  => 'test'
+                    'module'  => (!empty($request->module) ? $request->module : "module"),
+                    'screen'  => (!empty($request->screen) ? $request->screen : "screen"),
                 ]                        
             ])
             ->setApiKey(env('FIREBASE_KEY'))
