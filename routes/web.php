@@ -15,6 +15,7 @@ use App\Models\User;
 
 Route::get('/', function () {
     //auth()->login(User::first());
+    return 'api server functioning properly.'
     return view('welcome');
 });
 
