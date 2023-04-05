@@ -226,14 +226,14 @@ function getTemplate($mail_for, $obj, $user, $otp=null)
         $mail_body = $getTemp->mail_body;
         $arrayVal = [
             '{{token}}'   => $otp,
-            '{{name}}'  => $user['name'],
+            '{{name}}'  => aceussDecrypt($user['name']),
             '{{company_name}}' => $obj['company_name'],
         ];
         $mail_body = strReplaceAssoc($arrayVal, $mail_body);
         if(!empty($user))
         {
             $arrayVal = [
-                '{{name}}'  => $user['name'],
+                '{{name}}'  => aceussDecrypt($user['name']),
                 '{{company_name}}' => $obj['company_name'],
                 '{{company_email}}' => $obj['company_email'],
             ];
@@ -307,8 +307,8 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
             $body = $getMsg->notify_body;
             $title = $getMsg->mail_subject;
             $arrayVal = [
-                '{{name}}'              => $obj['name'],
-                '{{email}}'             => $obj['email'],
+                '{{name}}'              => aceussDecrypt($obj['name']),
+                '{{email}}'             => aceussDecrypt($obj['email']),
                 '{{title}}'             => $obj['title'],
                 '{{patient_id}}'        => $obj['patient_id'],
                 '{{start_date}}'        => $obj['start_date'],

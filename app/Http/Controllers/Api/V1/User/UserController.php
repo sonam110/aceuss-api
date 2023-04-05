@@ -538,7 +538,7 @@ class UserController extends Controller
                                             'email' => $userSave->email,
                                             'id' => $userSave->id,
                                         ]);    
-                                        Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                        Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));
                                     }
 
                                 }
@@ -939,7 +939,7 @@ class UserController extends Controller
                                         'email' => $userSave->email,
                                         'id' => $userSave->id,
                                     ]);    
-                                    Mail::to($userSave->email)->send(new WelcomeMail($content));
+                                    Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));
                                 }
                             }
                             else

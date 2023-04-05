@@ -256,14 +256,14 @@ class UserLoginController extends Controller
                     
                     $content = ([
                     'company' => companySetting($user->top_most_parent_id),
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'name' => aceussDecrypt($user->name),
+                    'email' => aceussDecrypt($user->email),
                     'token' => $token,
                     'passowrd_link' => $passowrd_link,
                     'passMessage' => $passMessage,
                     ]);         
                     if(env('IS_MAIL_ENABLE',false) == true){   
-                        Mail::to($user->email)->send(new SendResetPassworkLink($content));
+                        Mail::to(aceussDecrypt($user->email))->send(new SendResetPassworkLink($content));
                     }
                 return prepareResult(true,getLangByLabelGroups('LoginValidation','message_password_reset_link'),$content,config('httpcodes.success'));
 

@@ -995,8 +995,8 @@ class ActivityController extends Controller
             								$obj  =[
             									"type"=> 'activity',
             									"user_id"=> $getUser->id,
-            									"name"=> $getUser->name,
-            									"email"=> $getUser->email,
+            									"name"=> aceussDecrypt($getUser->name),
+            									"email"=> aceussDecrypt($getUser->email),
             									"user_type"=> $getUser->user_type_id,
             									"title"=> $activity->title,
             									"patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,

@@ -38,8 +38,8 @@ class WelcomeMail extends Mailable
      
         $mailObj = [
             'company'       => $companyObj,
-            'name'          => $userInfo['name'],
-            'email'         => $userInfo['email'],
+            'name'          => aceussDecrypt($userInfo['name']),
+            'email'         => aceussDecrypt($userInfo['email']),
             // 'password'      => $userInfo['password'],
             'id'            => $userInfo['id'],
             'content'       => $getTemplate,

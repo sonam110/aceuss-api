@@ -100,11 +100,11 @@ class BranchController extends Controller
             if(env('IS_MAIL_ENABLE',false) == true){ 
                 $content = ([
                     'company_id' => $user->top_most_parent_id,
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'name' => aceussDecrypt($user->name),
+                    'email' => aceussDecrypt($user->email),
                     'id' => $user->id,
                 ]);   
-                Mail::to($user->email)->send(new WelcomeMail($content));
+                Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
             
             /*$categoryTypes = CategoryType::where('created_by','1')->get();
