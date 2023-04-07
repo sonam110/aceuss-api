@@ -8,20 +8,15 @@
     <title>Document</title>
 </head>
 <body>
-    <h2>Testing RATCHET</h2>
-    <div class="container">
-        <div class="content">
-            <div class="title">Laravel</div>
-            <button onclick="send()">Submit</button>
-        </div>
-    </div>
+    <h2>Socket Test</h2>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
-
-        var ws = new WebSocket("wss://stage-api.bookmyinfluencers.com/chat-wss/");
+        var url = "wss://api.aceuss.se:6001/app/b3c8fc875e4efec7dZ1e?protocol=7&client=js&version=4.3.1&flash=false";
+        var ws = new WebSocket(url);
         ws.onopen = function () {
             // Websocket is connected
+            console.log(url);
             console.log("Websocket connected");
             ws.send("Hello World");
             console.log("Message sent");
