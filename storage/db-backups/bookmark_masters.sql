@@ -9,7 +9,6 @@ INSERT INTO `bookmark_masters` (`id`, `target`, `title`, `icon`, `icon_type`, `u
 (8, 'schedule_template-bookmark', 'schedule-template', 'Anchor', 'feather', '[2,3,11]', '/schedule/template', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
 (9, 'paragraphs-bookmark', 'paragraphs', 'PartyMode', 'material', '[1,16,2,3,11]', '/master/paragraphs', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
 (10, 'journal-bookmark', 'journal', 'FileText', 'feather', '[1,2,3,16,4,5,6,7,8,9,10,11]', '/journal', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
-(11, 'stampling-bookmark', 'Stampling', 'Trello', 'feather', '[2,3,11]', '/stampling', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
 (12, 'settings-bookmark', 'Settings', 'Settings', 'feather', '[2,3,11]', '/settings/general', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
 (13, 'notifications-bookmark', 'Notifications', 'Bell', 'feather', '[1,2,3,16,4,5,6,7,8,9,10,11]', '/notifications', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),
 (14, 'hours_approval-bookmark', 'hours-approval', 'Columns', 'feather', '[2,3,11]', '/employee/hoursApproval', '2022-09-10 11:52:00', '2022-09-10 11:52:00'),

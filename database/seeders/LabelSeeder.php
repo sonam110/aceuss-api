@@ -3524,7 +3524,7 @@ class LabelSeeder extends Seeder
                 "journal-is-signed"=> "Journal is signed",
                 "print-secret"=> "Print with secret",
                 "export-journal"=> "Export Journal",
-                "export-deviation"=> "Export Deviation"
+                "export-deviation"=> "Export Deviation",
                 "activity-tag"=> "Activity Tag",
                 "vacation-hours"=> "Vacation Hours",
                 "hours-is-approved-successfully"=> "Hours is approved successfully",

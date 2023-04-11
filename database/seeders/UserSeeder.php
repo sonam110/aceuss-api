@@ -28,9 +28,9 @@ class UserSeeder extends Seeder
             $adminUser->role_id                 = '1';
             $adminUser->company_type_id         = null;
             $adminUser->top_most_parent_id      = '1';
-            $adminUser->name      			    = 'admin';
-            $adminUser->email      			    = 'admin@gmail.com';
-            $adminUser->password      		    = \Hash::make(12345678);
+            $adminUser->name      			    = 'Aceuss admin';
+            $adminUser->email      			    = 'admin@aceuss.se';
+            $adminUser->password      		    = \Hash::make('@$$euSS@Nrt&2023');
             $adminUser->contact_number      	= '8103099592';
             $adminUser->status      			= '1';
             $adminUser->save();

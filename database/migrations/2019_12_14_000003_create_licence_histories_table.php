@@ -13,21 +13,24 @@ class CreateLicenceHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('mysql2')->create('licence_histories', function (Blueprint $table) {
-            $table->id();
+        if (!Schema::connection('mysql2')->hasTable('licence_histories')) 
+        {
+            Schema::connection('mysql2')->create('licence_histories', function (Blueprint $table) {
+                $table->id();
 
-            $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
-            
-            $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();           
+                $table->unsignedBigInteger('top_most_parent_id')->comment('User Table id')->nullable();
+                
+                $table->unsignedBigInteger('created_by')->comment('User Table id')->nullable();           
 
-            $table->string('licence_key', 50);
-            $table->text('module_attached');
-            $table->text('package_details');
-            $table->date('active_from')->nullable()->comment('licence_key activation date');
-            $table->date('expire_at')->comment('expiry date');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+                $table->string('licence_key', 50);
+                $table->text('module_attached');
+                $table->text('package_details');
+                $table->date('active_from')->nullable()->comment('licence_key activation date');
+                $table->date('expire_at')->comment('expiry date');
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**
