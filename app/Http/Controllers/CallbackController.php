@@ -385,4 +385,10 @@ class CallbackController extends Controller
 
         return $response;
     }
+
+    public function trigger(Request $request, WebSocketService $service) 
+    {
+        $service->Send("A trigger was called");
+        return response()->json(['success' => 'OK'], $this->successStatus);
+    }
 }
