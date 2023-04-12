@@ -154,6 +154,8 @@ class PatientCashierController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
+
+            $files = (is_array($request->file) ? null : $request->file);
             
             $patient_cashier = new PatientCashier;
             $patient_cashier->branch_id = getBranchId();
@@ -162,7 +164,7 @@ class PatientCashierController extends Controller
             $patient_cashier->date = $request->date;
             $patient_cashier->type = $request->type;
             $patient_cashier->amount = $request->amount;
-            $patient_cashier->file = $request->file;
+            $patient_cashier->file = $files;
             $patient_cashier->comment = $request->comment;
             $patient_cashier->created_by = auth()->id();
             $patient_cashier->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';

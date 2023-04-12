@@ -290,8 +290,8 @@ class JournalController extends Controller
 		 	$journal->emp_id = $user->id;
 		 	$journal->category_id = $request->category_id;
 		 	$journal->subcategory_id = $request->subcategory_id;
-            $journal->date = ($request->date)? $request->date :date('Y-m-d');
-            $journal->time = ($request->time)? $request->time :date('h:i');
+            $journal->date = ($request->date) ? $request->date :date('Y-m-d');
+            $journal->time = ($request->time) ? $request->time : date('H:i');
 		 	$journal->description = $request->description;
             $journal->entry_mode =  (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             $journal->is_signed = ($request->is_signed)? $request->is_signed :0;
@@ -375,8 +375,8 @@ class JournalController extends Controller
 		 	$journal->category_id = $request->category_id;
 		 	$journal->subcategory_id = $request->subcategory_id;
 		 	$journal->description = $request->description;
-            $journal->date = ($request->date)? $request->date :date('Y-m-d');
-            $journal->time = ($request->time)? $request->time :date('h:i');
+            $journal->date = ($request->date)? $request->date : date('Y-m-d');
+            $journal->time = ($request->time)? $request->time : date('H:i');
 		 	$journal->edited_by = $user->id;
 		 	$journal->reason_for_editing = $request->reason_for_editing;
             $journal->edit_date = date('Y-m-d H:i:s');

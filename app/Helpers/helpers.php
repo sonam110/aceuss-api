@@ -774,7 +774,7 @@ function journal($activity_id)
     $journal->category_id = $activity->category_id;
     $journal->subcategory_id = $activity->subcategory_id;
     $journal->date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
-    $journal->time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
+    $journal->time = !empty($activity->end_time) ? $activity->end_time : date('H:i');
     $journal->description = $activity->description;
     $journal->activity_note = $activity->comment;
     $journal->entry_mode =  (!empty($activity->entry_mode)) ? $activity->entry_mode :'Web';
@@ -793,7 +793,7 @@ function deviation($activity_id)
 {
     $activity = Activity::find($activity_id);
     $date = !empty($activity->end_date) ? $activity->end_date : date('Y-m-d');
-    $time = !empty($activity->end_time) ? $activity->end_time :date('h:i');
+    $time = !empty($activity->end_time) ? $activity->end_time : date('H:i');
 
     $category_id = $activity->category_id;
     $subcategory_id = $activity->subcategory_id;

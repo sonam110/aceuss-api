@@ -777,7 +777,7 @@ välja och köpa en specifik sak eller att besluta att ',
             $categoryMaster->top_most_parent_id = 1;
             $categoryMaster->created_by = 1;
             $categoryMaster->parent_id = null;
-            $categoryMaster->category_type_id = ($category['name']=='Ej utförd insatser') ? 2 : 1;
+            $categoryMaster->category_type_id = ($category['name']=='Ej utförd insatser') ? 4 : 2;
             $categoryMaster->name = preg_replace('/\s+/', ' ', $category['name']);
             $categoryMaster->category_color = "#ff0000";
             $categoryMaster->is_global = '1';
@@ -788,7 +788,7 @@ välja och köpa en specifik sak eller att besluta att ',
                 $subcategory->parent_id = $categoryMaster->id;
                 $subcategory->top_most_parent_id = 1;
                 $subcategory->created_by = 1;
-                $subcategory->category_type_id = ($category['name']=='Ej utförd insatser') ? 2 : 1;
+                $subcategory->category_type_id = ($category['name']=='Ej utförd insatser') ? 4 : 2;
                 $subcategory->name = preg_replace('/\s+/', ' ', $subcat['name']);
                 $subcategory->category_color = "#ff0000";
                 $subcategory->is_global = '1';

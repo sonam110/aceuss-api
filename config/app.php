@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Kolkata',
+    'timezone' => env('TIME_ZONE', 'Europe/Stockholm'),
 
     /*
     |--------------------------------------------------------------------------
