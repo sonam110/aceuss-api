@@ -307,13 +307,13 @@ class CompanyAccountController extends Controller
             DB::commit();
 
             if(env('IS_MAIL_ENABLE', false) == true){ 
-                $content = ([
+                $content = [
                     'company_id' => $user->id,
                     'name' => $request->name,
                     'email' => $request->email,
                     'password' => $request->password,
                     'id' => $user->id,
-                ]);  
+                ];  
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
             $userdetail = User::select('users.*')->with('Parent:id,name','UserType:id,name','Country:id,name','Subscription:user_id,package_details','assignedModule:id,user_id,module_id','assignedModule.module:id,name', 'companySetting')->withCount('tasks','activities','ips','followUps','patients','employees','assignedModule','branchs')

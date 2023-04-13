@@ -569,8 +569,8 @@ function companySetting($company_id){
             "relaxation_time" => $user->relaxation_time,
         ];
         return  $settingDetail;
-
     }
+    return false;
 }
 
 function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates)

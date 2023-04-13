@@ -390,13 +390,13 @@ class UserController extends Controller
                 }
             }
             if(env('IS_MAIL_ENABLE',false) == true && $is_fake == false && $user){ 
-                $content = ([
+                $content = [
                     'company_id' => $user->top_most_parent_id,
                     'name' => aceussDecrypt($user->name),
                     'email' => aceussDecrypt($user->email),
                     'password'=>$request->password,
                     'id' => $user->id,
-                ]);   
+                ];   
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
 
@@ -532,13 +532,13 @@ class UserController extends Controller
                                         $userSave->assignRole($role->name);
                                     }     
                                     if(env('IS_MAIL_ENABLE',false) == true){ 
-                                        $content = ([
+                                        $content = [
                                             'company_id' => $userSave->top_most_parent_id,
                                             'name' => $userSave->name,
                                             'email' => $userSave->email,
                                             'password' => $pass,
                                             'id' => $userSave->id,
-                                        ]);    
+                                        ];    
                                         Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));
                                     }
 
@@ -935,13 +935,13 @@ class UserController extends Controller
                                     $userSave->assignRole($role->name);
                                 }     
                                 if(env('IS_MAIL_ENABLE',false) == true){ 
-                                    $content = ([
+                                    $content = [
                                         'company_id' => $userSave->top_most_parent_id,
                                         'name' => $userSave->name,
                                         'email' => $userSave->email,
                                         'password' => $pass,
                                         'id' => $userSave->id,
-                                    ]);    
+                                    ];    
                                     Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));
                                 }
                             }

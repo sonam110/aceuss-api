@@ -10,6 +10,7 @@ use App\Models\Language;
 use App\Models\Package;
 use App\Models\CompanyType;
 use App\Models\CategoryType;
+use App\Models\CompanySetting;
 use DB;
 class UserSeeder extends Seeder
 {
@@ -34,6 +35,19 @@ class UserSeeder extends Seeder
             $adminUser->contact_number      	= '8103099592';
             $adminUser->status      			= '1';
             $adminUser->save();
+
+            $addSettings = new CompanySetting;
+            $addSettings->user_id = $adminUser->id;
+            $addSettings->company_name = $adminUser->name;
+            $addSettings->company_email = $adminUser->email;
+            $addSettings->company_contact = $adminUser->contact_number;
+            $addSettings->company_address = 'Sweden';
+            $addSettings->contact_person_name = $adminUser->name;
+            $addSettings->contact_person_email = $adminUser->email;
+            $addSettings->contact_person_phone = $adminUser->contact_number;
+            $addSettings->company_website = 'https://aceuss.se';
+            $addSettings->company_logo = env('APP_URL').'uploads/no-image.png';
+            $addSettings->save();
 
             $adminRole = Role::where('id','1')->first();
             $companyRole = Role::where('id','2')->first();
