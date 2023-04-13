@@ -102,6 +102,7 @@ class BranchController extends Controller
                     'company_id' => $user->top_most_parent_id,
                     'name' => aceussDecrypt($user->name),
                     'email' => aceussDecrypt($user->email),
+                    'password' => $request->password,
                     'id' => $user->id,
                 ]);   
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));

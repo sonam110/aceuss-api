@@ -68,7 +68,7 @@
 
                             @if(!empty($data['company']))
                             <div style="float: right; background: #fff; padding: 10px;">
-                              <img src="{{ $data['company']['company_logo']}}">
+                              <img src="{{ $data['company']['company_logo']}}" width="50px" height="50px">
                             </div>
                             @endif
                           </td>
@@ -105,6 +105,12 @@
                                   <td>Email</td>
                                   <td>{{ aceussDecrypt($getUser->email) }}</td>
                                 </tr>
+
+                                <tr>
+                                  <td>Password</td>
+                                  <td>{{ $data['password'] }}</td>
+                                </tr>
+
                                 <tr>
                                   <td>Contact No</td>
                                   <td>{{ aceussDecrypt($getUser->contact_number) }}</td>
@@ -112,12 +118,12 @@
                                 
                                 <tr>
                                   <td>City</td>
-                                  <td>{{ $getUser->booking_id }}</td>
+                                  <td>{{ $getUser->city }}</td>
                                 </tr>
                                 
                                 <tr>
                                   <td>Address</td>
-                                  <td>{{ aceussDecrypt($getUser->full_adddress) }}</td>
+                                  <td>{{ aceussDecrypt($getUser->full_address) }}</td>
                                 </tr>
                                 <tr>
                                   <td>zipcode</td>

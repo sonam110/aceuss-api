@@ -40,7 +40,7 @@ class WelcomeMail extends Mailable
             'company'       => $companyObj,
             'name'          => aceussDecrypt($userInfo['name']),
             'email'         => aceussDecrypt($userInfo['email']),
-            // 'password'      => $userInfo['password'],
+            'password'      => $userInfo['password'],
             'id'            => $userInfo['id'],
             'content'       => $getTemplate,
             'template_for'  => $template,

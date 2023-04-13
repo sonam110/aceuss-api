@@ -394,8 +394,8 @@ class UserController extends Controller
                     'company_id' => $user->top_most_parent_id,
                     'name' => aceussDecrypt($user->name),
                     'email' => aceussDecrypt($user->email),
+                    'password'=>$request->password,
                     'id' => $user->id,
-                    // 'password'=>$request->password
                 ]);   
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
             }
@@ -500,7 +500,7 @@ class UserController extends Controller
                                 if(empty($checkAlreadyUser) && !empty($user_type_id)) {
                                     $getUserType = UserType::find($user_type_id);
                                     $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
-                                    
+                                    $pass = generateRandomNumber(15);
                                     $userSave = new User;
                                     $userSave->unique_id = generateRandomNumber();
                                     $userSave->branch_id =   getBranchId();
@@ -511,7 +511,7 @@ class UserController extends Controller
                                     $userSave->name = @$value['name'] ;
                                     $userSave->email = @$value['email'] ;
                                     $userSave->personal_number = @$value['personal_number'] ;
-                                    $userSave->password = Hash::make('12345678');
+                                    $userSave->password = Hash::make($pass);
                                     $userSave->contact_number = @$value['contact_number'];
                                     $userSave->country_id = @$value['country_id'];
                                     $userSave->city = @$value['city'];
@@ -536,6 +536,7 @@ class UserController extends Controller
                                             'company_id' => $userSave->top_most_parent_id,
                                             'name' => $userSave->name,
                                             'email' => $userSave->email,
+                                            'password' => $pass,
                                             'id' => $userSave->id,
                                         ]);    
                                         Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));
@@ -891,6 +892,7 @@ class UserController extends Controller
                             $top_most_parent_id = auth()->user()->top_most_parent_id;
 
                             $checkAlreadyUser = User::where('email', @$value['email'])->first();
+                            $pass = generateRandomNumber(15);
                             if(empty($checkAlreadyUser)) 
                             {
                                 $getUserType = UserType::find($user_type_id);
@@ -910,7 +912,7 @@ class UserController extends Controller
                             $userSave->name = @$value['name'] ;
                             $userSave->email = @$value['email'] ;
                             $userSave->personal_number = @$value['personal_number'] ;
-                            $userSave->password = Hash::make('12345678');
+                            $userSave->password = Hash::make($pass);
                             $userSave->contact_number = @$value['contact_number'];
                             $userSave->country_id = @$value['country_id'];
                             $userSave->city = @$value['city'];
@@ -937,6 +939,7 @@ class UserController extends Controller
                                         'company_id' => $userSave->top_most_parent_id,
                                         'name' => $userSave->name,
                                         'email' => $userSave->email,
+                                        'password' => $pass,
                                         'id' => $userSave->id,
                                     ]);    
                                     Mail::to(aceussDecrypt($userSave->email))->send(new WelcomeMail($content));

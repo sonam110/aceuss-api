@@ -311,6 +311,7 @@ class CompanyAccountController extends Controller
                     'company_id' => $user->id,
                     'name' => $request->name,
                     'email' => $request->email,
+                    'password' => $request->password,
                     'id' => $user->id,
                 ]);  
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));
