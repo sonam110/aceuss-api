@@ -46,7 +46,7 @@ class ManageLicenceController extends Controller
                 $query->where('licence_key', $request->licence_key);
             }
 
-            if($request->is_used == "1")
+            if($request->is_used == "1" || $request->is_used == "Yes")
             {
                 $query = $query->where('is_used', 1);
             }
