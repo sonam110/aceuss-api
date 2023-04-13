@@ -23,7 +23,7 @@ class CreateCompanySettingsTable extends Migration
             $table->string('company_logo')->default('img/logo.png');
             $table->string('company_email');
             $table->string('company_contact');
-            $table->string('company_address');
+            $table->string('company_address')->nullable();
             $table->string('contact_person_name')->nullable();
             $table->string('contact_person_email')->nullable();
             $table->string('contact_person_phone')->nullable();
