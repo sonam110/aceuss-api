@@ -3540,6 +3540,8 @@ class LabelSeeder extends Seeder
                 "slot-booked"=> "Slot Booked",
                 "slot-available"=> "Slot Available",
                 "accept"=> "Accept",
+                "no.-of-activity-not-applicable"=> "No. of Activity Not Applicable",
+                "no.-of-activity-not-done"=> "No. of Activity Not Done",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
