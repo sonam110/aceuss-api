@@ -30,12 +30,6 @@ class DefaultEntrySeeder extends Seeder
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s')
         ]);
-        Language::create([
-            'title'          => 'Swedish',
-            'value'      => 'sw',
-            'created_at'    => date('Y-m-d H:i:s'),
-            'updated_at'    => date('Y-m-d H:i:s')
-        ]);
 
         Package::create([
             'name'                  => 'Basic pack',
@@ -55,7 +49,7 @@ class DefaultEntrySeeder extends Seeder
 
         ActivityOption::truncate();
         
-        ActivityOption::create(['id' => '1','option'=>'completed-by-staff-on-time']);
+        ActivityOption::create(['id' => '1','option'=>'completed-by-staff-on-time','is_journal' => '0','is_deviation'=>'0']);
         ActivityOption::create(['id' => '2','option'=>'completed-by-staff-not-on-time','is_journal' => '1','is_deviation'=>'0']);
         ActivityOption::create(['id' => '3','option'=>'completed-by-patient-itself','is_journal' => '1','is_deviation'=>'0']);
         ActivityOption::create(['id' => '4','option'=>'patient-did-not-want','is_journal' => '1','is_deviation'=>'0']);
@@ -66,7 +60,7 @@ class DefaultEntrySeeder extends Seeder
         Module::create(['id' => '2','name'=>'Journal']);
         Module::create(['id' => '3','name'=>'Deviation']);
         Module::create(['id' => '4','name'=>'Schedule']);
-        Module::create(['id' => '5','name'=>'Stampling']);
+        //Module::create(['id' => '5','name'=>'Stampling']);
 
         $UserType1 = UserType::create(['id' => '1','name' => 'Super Admin']);
         $UserType2 = UserType::create(['id' => '2','name' => 'Company']);

@@ -91,6 +91,7 @@ class UserSeeder extends Seeder
             $cataegoryType6 = CategoryType::create(['id' => '6','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Journal']);
             $cataegoryType7 = CategoryType::create(['id' => '7','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Patient']);
             $cataegoryType8 = CategoryType::create(['id' => '8','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Employee']);
+            $cataegoryType8 = CategoryType::create(['id' => '9','created_by'=>'1','top_most_parent_id'=>'1','name' => 'Other']);
 
     }
 }

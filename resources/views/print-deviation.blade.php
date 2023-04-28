@@ -208,9 +208,9 @@
                 <td class="value">{{$deviation->Patient->PatientInformation->institute_contact_number}}</td>
                 <td class="title"><strong>Weekdays</strong></td>
                 <td class="value">
-                    @if(is_array(json_decode($deviation->Patient->PatientInformation->institute_week_days, true)))
+                    @if(!empty($deviation->Patient->PatientInformation->institute_week_days) && is_array(json_decode($deviation->Patient->PatientInformation->institute_week_days, true)))
                     @foreach(json_decode($deviation->Patient->PatientInformation->institute_week_days, true) as $wkey =>  $dayNum)
-                        {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                        {{($wkey>0) ? ', ': ''}}{{date('l', strtotime("Sunday +{$dayNum} days"))}}
                     @endforeach
                     @endif
                 </td>
@@ -239,9 +239,9 @@
                 <td class="value">{{$deviation->Patient->PatientInformation->company_contact_number}}</td>
                 <td class="title"><strong>weekdays</strong></td>
                 <td class="value">
-                    @if(is_array(json_decode($deviation->Patient->PatientInformation->company_week_days, true)))
+                    @if(!empty($deviation->Patient->PatientInformation->company_week_days) && is_array(json_decode($deviation->Patient->PatientInformation->company_week_days, true)))
                     @foreach(json_decode($deviation->Patient->PatientInformation->company_week_days, true) as $wkey =>  $dayNum)
-                        {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                        {{($wkey>0) ? ', ': ''}}{{date('l', strtotime("Sunday +{$dayNum} days"))}}
                     @endforeach
                     @endif
                 </td>
@@ -272,22 +272,13 @@
             <td class="title"><strong>Full Name</strong></td>
             <td class="value">{{$deviation->Patient->PatientInformation->another_activity_name}}</td>
         </tr>
-        <tr>
-            <td class="title"><strong>Contact Person</strong></td>
-            <td class="value">{{$deviation->Patient->PatientInformation->another_activity_contact_person}}</td>
-            <td class="title"><strong>Phone</strong></td>
-            <td class="value">{{$deviation->Patient->PatientInformation->activitys_contact_number}}</td>
-        </tr>
-        <tr>
-            <td class="title"><strong>Address</strong></td>
-            <td class="value" colspan="3">{{$deviation->Patient->PatientInformation->activitys_full_address}}</td>
-        </tr>
+        
         <tr>
             <td class="title"><strong>Days</strong></td>
             <td class="value">
-                @if(is_array(json_decode($deviation->Patient->PatientInformation->week_days, true)))
+                @if(!empty($deviation->Patient->PatientInformation->week_days) && is_array(json_decode($deviation->Patient->PatientInformation->week_days, true)))
                 @foreach(json_decode($deviation->Patient->PatientInformation->week_days, true) as $wkey =>  $dayNum)
-                    {{($wkey>0) ? ', ': ''}}{{strftime('%A', strtotime($dayNum." days"))}}
+                    {{($wkey>0) ? ', ': ''}}{{date('l', strtotime("Sunday +{$dayNum} days"))}}
                 @endforeach
                 @endif
             </td>

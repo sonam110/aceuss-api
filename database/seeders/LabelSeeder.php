@@ -5,7 +5,11 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Label;
 use App\Models\Group;
+use App\Models\Language;
 use DB;
+use Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LabelsImport;
 
 class LabelSeeder extends Seeder
 {
@@ -3594,5 +3598,20 @@ class LabelSeeder extends Seeder
     	}
 
 
+        //swedish import
+        $file_location = storage_path('db-backups/with-swedish-lang_file.xlsx');
+        if(!file_exists($file_location))
+        {
+            return 'file not found.';
+        }
+        $language    = new Language;
+        $language->title    = 'Swedish';
+        $language->value    = 'SE';
+        $language->status   = 1;
+        $language->save();
+        $data = ['language_id' => $language->id];
+        Label::where('language_id',$language->id)->delete();
+        $import = Excel::import(new LabelsImport($data), $file_location);
+        return 'done';
     }
 }

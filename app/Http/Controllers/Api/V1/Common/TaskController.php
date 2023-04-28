@@ -315,7 +315,7 @@ class TaskController extends Controller
 
                                             /*----notify-emp-task-assigned---*/
 
-                                            $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$employee)->first();
+                                            $userRec = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->withoutGlobalScope('top_most_parent_id')->where('id',$employee)->first();
                                             $data_id =  $task->id;
                                             $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
                                             if($userRec)
@@ -526,6 +526,20 @@ class TaskController extends Controller
         						            $taskAssign->assignment_date = date('Y-m-d');
         						            $taskAssign->assigned_by = $user->id;
         						            $taskAssign->save();
+
+                                            /*---notify-employee-task-assigned----*/
+
+                                            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id', $employee)->first();
+                                            $data_id =  $task->id;
+                                            $notification_template = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
+                                            if($user)
+                                            {
+                                                $variable_data = [
+                                                    '{{name}}' => aceussDecrypt($user->name),
+                                                    '{{task_title}}' => $task->title,
+                                                ];
+                                                actionNotification($user,$data_id,$notification_template,$variable_data);
+                                            }
         						        }
                                     }
                                 }
@@ -765,7 +779,7 @@ class TaskController extends Controller
             }
 
             foreach ($receivers_ids as $key => $value) {
-                $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+                $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->withoutGlobalScope('top_most_parent_id')->where('id',$value)->first();
                 if($user)
                 {
                     $variable_data = [

@@ -105,6 +105,11 @@ class ActivityController extends Controller
 				$query->where('patient_id', $request->patient);
 			}
 
+			if(!empty($request->patient_id))
+			{
+				$query->where('activities.patient_id', $request->patient_id);
+			}
+
 			if($whereRaw != '') { 
 				$query = $query->whereRaw($whereRaw);
 			} else {
@@ -165,6 +170,11 @@ class ActivityController extends Controller
 				$datePassedActivityCounts =  $datePassedActivityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
+			if(!empty($request->patient_id))
+			{
+				$datePassedActivityCounts->where('activities.patient_id', $request->patient_id);
+			}
+
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
 				$datePassedActivityCounts->where(function ($q) use ($user) {
@@ -212,6 +222,11 @@ class ActivityController extends Controller
 				$activityCounts =  $activityCounts->whereIn('activities.branch_id',$allChilds);
 			}
 
+			if(!empty($request->patient_id))
+			{
+				$activityCounts->where('activities.patient_id', $request->patient_id);
+			}
+
 			if($request->old==1 && empty($request->start_date))
 			{
 				$activityCounts->whereDate('start_date', date('Y-m-d'));
@@ -247,6 +262,10 @@ class ActivityController extends Controller
 				\DB::raw('COUNT(IF(status = 3, 0, NULL)) as total_not_applicable'),
 			])->where('is_latest_entry', 1);
 
+			if(!empty($request->patient_id))
+			{
+				$activityUpcomingCounts->where('activities.patient_id', $request->patient_id);
+			}
 
 			if($user->user_type_id =='2'){
 
@@ -290,6 +309,11 @@ class ActivityController extends Controller
 				$jour_and_devi =  $jour_and_devi->whereIn('branch_id', $allChilds);
 			}
 
+			if(!empty($request->patient_id))
+			{
+				$jour_and_devi->where('activities.patient_id', $request->patient_id);
+			}
+
 			if($user->user_type_id =='3')
 			{
 				if($user->hasPermissionTo('visible-all-patients-activity'))
@@ -315,6 +339,11 @@ class ActivityController extends Controller
 			$jour_and_devi = $jour_and_devi->pluck('id');
 			$today_created_journal = Journal::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'));
 
+			if(!empty($request->patient_id))
+			{
+				$today_created_journal->where('journals.patient_id', $request->patient_id);
+			}
+
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
 				$today_created_journal->where(function ($q) use ($user) {
@@ -325,6 +354,11 @@ class ActivityController extends Controller
 			$today_created_journal = $today_created_journal->count();
 
 			$today_created_deviation = Deviation::whereIn('activity_id', $jour_and_devi)->whereDate('created_at', date('Y-m-d'));
+
+			if(!empty($request->patient_id))
+			{
+				$today_created_deviation->where('deviations.patient_id', $request->patient_id);
+			}
 
 			if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
 			{
