@@ -72,10 +72,10 @@ class PatientController extends Controller
             )
             ->withCount(
                 ['ipFollowUps' => function ($query) use ($date) {
-                    $query->where('start_date','>=',$date)
+                    $query->whereDate('start_date','>=',$date)
                     ->where('is_latest_entry', 1);
                 },'activities' => function ($query) use ($date) {
-                    $query->where('start_date','>=',$date)
+                    $query->whereDate('start_date','>=',$date)
                     ->where('is_latest_entry', 1);
                 }, 'persons']
             );
@@ -146,11 +146,6 @@ class PatientController extends Controller
             if(!empty($request->patient_id))
             {
                 $query->where('patient_implementation_plans.user_id', $request->patient_id);
-            }
-
-            if(!empty($request->status))
-            {
-                $query->where('patient_implementation_plans.status', $request->status);
             }
 
             if(!empty($request->title))

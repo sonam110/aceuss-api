@@ -358,7 +358,7 @@ class ScheduleController extends Controller
 							$shift_start_time = $shift['shift_start_time'];
 							$shift_end_time = $shift['shift_end_time'];
 
-							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,$shift['schedule_type'],$shift_type,$rest_start_time,$rest_end_time,$shift['employee_id']);
+							$result = scheduleWorkCalculation($date,$shift_start_time,$shift_end_time,@$shift['schedule_type'],@$shift_type,$rest_start_time,@$rest_end_time,@$shift['employee_id']);
 							if($shift['type'] == 'add')
 							{
 								$schedule = new Schedule;

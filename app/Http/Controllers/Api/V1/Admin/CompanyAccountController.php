@@ -587,7 +587,7 @@ class CompanyAccountController extends Controller
     public function companySettingList(Request $request)
     {
         try {
-            $query = CompanySetting::select('*');
+            $query = CompanySetting::select('*')->where('user_id','!=',1);
             if(!empty($request->company_name))
             {
                 $query->where('users.company_name', 'LIKE', '%'.$request->company_name.'%');

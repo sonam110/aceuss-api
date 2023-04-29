@@ -891,7 +891,10 @@ class UserController extends Controller
                         if($is_user == true) {
                             $top_most_parent_id = auth()->user()->top_most_parent_id;
 
-                            $checkAlreadyUser = User::where('email', @$value['email'])->first();
+                            $checkAlreadyUser = User::where(function($q) use ($value) {
+                                $q->where('email', @$value['email'])
+                                ->orWhere('id', @$value['id']);
+                            })->withTrashed()->first();
                             $pass = generateRandomNumber(15);
                             if(empty($checkAlreadyUser)) 
                             {
