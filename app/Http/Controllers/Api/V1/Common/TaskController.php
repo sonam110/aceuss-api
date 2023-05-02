@@ -63,11 +63,12 @@ class TaskController extends Controller
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
-                $query->where(function ($q) use ($user) {
+                $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
+                $query->where(function ($q) use ($user, $resource_id) {
                     $q->where('tasks.resource_id', $user->id)
-                        ->orWhere('tasks.resource_id', $user->parent_id);
-                })
-                ->where('type_id', 7);
+                        ->orWhere('tasks.resource_id', $user->parent_id)
+                        ->orWhere('tasks.patient_id', $resource_id);
+                });
             }
 
             if(!empty($request->title))
@@ -97,20 +98,31 @@ class TaskController extends Controller
                 $query =  $query->whereRaw($whereRaw);
             }
 
-            $query = $query->orderBy('tasks.start_date', 'ASC')->orderBy('tasks.start_time', 'ASC');
+            $query = $query->orderBy('tasks.start_date', 'ASC')->orderBy('tasks.start_time', 'ASC')->orderBy('tasks.first_create_date', 'ASC');
 
             if(!empty($request->activity_id))
             {
                 $query->where('type_id',1)->where('resource_id', $request->activity_id);
             }
-            if(!empty($request->type_id))
+            if(!empty($request->type_id) && $request->type_id!='7')
             {
                 $query->where('type_id', $request->type_id);
             }
 
             if(!empty($request->resource_id))
             {
-                $query->where('resource_id', $request->resource_id);
+                if($request->type_id=='7')
+                {
+                    $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
+                    $query->where(function ($q) use ($user, $resource_id) {
+                        $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.patient_id', $resource_id);
+                    });
+                }
+                else
+                {
+                    $query->where('resource_id', $request->resource_id);
+                }
             }
 
             if(!empty($request->emp_id))
@@ -137,21 +149,33 @@ class TaskController extends Controller
 
             if(in_array($user->user_type_id, [6,7,8,9,10,12,13,14,15]))
             {
-                $taskCounts->where(function ($q) use ($user) {
+                $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
+                $taskCounts->where(function ($q) use ($user, $resource_id) {
                     $q->where('tasks.resource_id', $user->id)
-                        ->orWhere('tasks.resource_id', $user->parent_id);
-                })
-                ->where('type_id', 7);
+                        ->orWhere('tasks.resource_id', $user->parent_id)
+                        ->orWhere('tasks.patient_id', $resource_id);
+                });
             }
 
-            if(!empty($request->type_id))
+            if(!empty($request->type_id) && $request->type_id!='7')
             {
                 $taskCounts->where('type_id', $request->type_id);
             }
 
             if(!empty($request->resource_id))
             {
-                $taskCounts->where('resource_id', $request->resource_id);
+                if($request->type_id=='7')
+                {
+                    $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
+                    $taskCounts->where(function ($q) use ($user, $resource_id) {
+                        $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.patient_id', $resource_id);
+                    });
+                }
+                else
+                {
+                    $taskCounts->where('resource_id', $request->resource_id);
+                }
             }
 
             if(!empty($request->emp_id))
@@ -273,9 +297,42 @@ class TaskController extends Controller
                         foreach ($request->how_many_time_array as $key => $time) {
                             if(!empty($time['start']))
                             {
+                                $get_patient_id = null;
+                                if($request->type_id=='1')
+                                {
+                                    $get_info = \DB::table('activities')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->patient_id;
+                                }
+                                elseif($request->type_id=='2')
+                                {
+                                    $get_info = \DB::table('patient_implementation_plans')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->user_id;
+                                }
+                                elseif($request->type_id=='3' || $request->type_id=='7')
+                                {
+                                    $get_info = \DB::table('users')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->id;
+                                }
+                                elseif($request->type_id=='4')
+                                {
+                                    $get_info = \DB::table('deviations')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->patient_id;
+                                }
+                                elseif($request->type_id=='5')
+                                {
+                                    $get_info = \DB::table('ip_follow_ups')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->patient_id;
+                                }
+                                elseif($request->type_id=='6')
+                                {
+                                    $get_info = \DB::table('journals')->find($request->resource_id);
+                                    $get_patient_id = @$get_info->patient_id;
+                                }
+
     						    $task = new Task;
     						    $task->type_id = $request->type_id; 
     						    $task->resource_id = $request->resource_id; 
+                                $task->patient_id = $get_patient_id;
     						    $task->parent_id = $request->parent_id; 
     						    $task->group_id = $group_id;
                                 $task->branch_id = $branch_id;
@@ -298,6 +355,7 @@ class TaskController extends Controller
     				            $task->before_is_push_notify = ($request->before_is_push_notify) ? 1  : 0;
     						    $task->created_by =$user->id;
                                 $task->is_latest_entry = 1;
+                                $task->first_create_date = date('Y-m-d');
     						    $task->save();
     						    $task_ids[] = $task->id;
     						    if(is_array($request->employees) && sizeof($request->employees) > 0 )
@@ -810,16 +868,7 @@ class TaskController extends Controller
 
     private function getWhereRawFromRequest(Request $request) 
     {
-        $w = '';
-        if (is_null($request->input('resource_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "resource_id = "."'" .$request->input('resource_id')."'".")";
-        }
-        if (is_null($request->input('type_id')) == false) {
-            if ($w != '') {$w = $w . " AND ";}
-            $w = $w . "(" . "type_id = "."'" .$request->input('type_id')."'".")";
-        }
-        
+        $w = '';        
         if (is_null($request->start_date) == false || is_null($request->end_date) == false) {
            
             if ($w != '') {$w = $w . " AND ";}

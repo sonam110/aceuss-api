@@ -40,6 +40,9 @@ class CreateTasksTable extends Migration
             $table->unsignedBigInteger('action_by')->nullable();
             $table->foreign('action_by')->references('id')->on('users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('patient_id')->comment('User Table id')->nullable();
+            $table->foreign('patient_id')->references('id')->on('tasks');
+
             $table->tinyInteger('type_id')->nullable()->comment('1:Activity,2:IP,3:User,4:Deviation,5:FollowUps,6:Journal,7:Patient,8:Employee,9:');
             $table->foreignId('resource_id')->nullable();
             $table->string('title');
@@ -63,6 +66,7 @@ class CreateTasksTable extends Migration
             $table->text('comment')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=Not Done,1:Done');
             $table->boolean('is_latest_entry')->default(1);
+            $table->date('first_create_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

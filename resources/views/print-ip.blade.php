@@ -376,7 +376,7 @@
             <td class="title"><strong>Full Name</strong></td>
             <td class="value">{{$ip->patient->PatientInformation->another_activity_name}}</td>
         </tr>
-        <tr>
+        <!-- <tr>
             <td class="title"><strong>Contact Person</strong></td>
             <td class="value">{{$ip->patient->PatientInformation->another_activity_contact_person}}</td>
             <td class="title"><strong>Phone</strong></td>
@@ -385,7 +385,7 @@
         <tr>
             <td class="title"><strong>Address</strong></td>
             <td class="value" colspan="3">{{$ip->patient->PatientInformation->activitys_full_address}}</td>
-        </tr>
+        </tr> -->
         <tr>
             <td class="title"><strong>Days</strong></td>
             <td class="value">

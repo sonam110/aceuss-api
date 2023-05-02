@@ -29,6 +29,7 @@ class Task extends Model
         'group_id',
 		'type_id',
 		'resource_id',
+        'patient_id',
 		'parent_id',
 		'branch_id',
 		'category_id',
@@ -58,7 +59,8 @@ class Task extends Model
         'action_by',
         'action_date',
         'comment',
-		'status',
+        'status',
+		'first_create_date',
         'is_latest_entry'
     ];
 
