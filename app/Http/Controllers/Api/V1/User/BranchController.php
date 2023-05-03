@@ -35,7 +35,7 @@ class BranchController extends Controller
                 'name' => 'required', 
                 'email'     => 'required|email|unique:users,email',
                 'password'  => 'required|same:confirm-password|min:8|max:30', 
-                'contact_number' => 'required', 
+                //'contact_number' => 'required', 
                 'company_type_id' => 'required', 
 
             ],
@@ -140,7 +140,7 @@ class BranchController extends Controller
             $userInfo = getUser();
             $validator = Validator::make($request->all(),[  
                 'name' => 'required',  
-                'contact_number' => 'required', 
+                //'contact_number' => 'required', 
 
             ],
             [
