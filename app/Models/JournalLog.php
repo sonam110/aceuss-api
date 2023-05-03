@@ -11,6 +11,7 @@ use App\Models\Deviation;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Journal;
+use DateTimeInterface;
 
 class JournalLog extends Model
 {
@@ -27,6 +28,11 @@ class JournalLog extends Model
 		'edited_by',
         'description_created_at'
     ];
+    
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
     
    	public function journal()
     {

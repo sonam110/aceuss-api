@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
+use DateTimeInterface;
+
 class Comment extends Model
 {
     use HasFactory,LogsActivity;
@@ -24,6 +26,11 @@ class Comment extends Model
         'entry_mode',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function Parent()
     {
           return $this->belongsTo(self::class,'parent_id','id');

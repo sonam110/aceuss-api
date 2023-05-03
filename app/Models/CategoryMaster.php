@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\CategoryType;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class CategoryMaster extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -30,6 +32,11 @@ class CategoryMaster extends Model
         'entry_mode',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

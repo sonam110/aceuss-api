@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Traits\TopMostParentId;
+use DateTimeInterface;
+
 class IpTemplate extends Model
 {
     use HasFactory,LogsActivity,TopMostParentId;
@@ -23,7 +25,11 @@ class IpTemplate extends Model
 
     ];
 
-
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');

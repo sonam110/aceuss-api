@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
+use DateTimeInterface;
 
 class LicenceKeyManagement extends Model
 {
@@ -30,6 +31,11 @@ class LicenceKeyManagement extends Model
         'is_used', 'is_expired', 'cancelled_by','reason_for_cancellation'
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

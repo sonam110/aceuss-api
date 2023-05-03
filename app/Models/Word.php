@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\TopMostParentId;
 use App\Models\User;
+use DateTimeInterface;
 
 class Word extends Model
 {
@@ -16,6 +17,11 @@ class Word extends Model
         'name',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

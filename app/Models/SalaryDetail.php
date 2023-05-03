@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class SalaryDetail extends Model
 {
     use HasFactory,LogsActivity;
@@ -19,6 +21,11 @@ class SalaryDetail extends Model
         'salary_package_end_date',
         'entry_mode',
     ];
+    
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
     
     public function User()
     {

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class Folder extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -23,6 +25,12 @@ class Folder extends Model
 		'status',
         'entry_mode',
 	];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 	public function Parent()
     {
           return $this->belongsTo(self::class,'parent_id','id');

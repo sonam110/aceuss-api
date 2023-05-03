@@ -391,4 +391,5 @@ class CallbackController extends Controller
         $service->Send("A trigger was called");
         return response()->json(['success' => 'OK'], $this->successStatus);
     }
+
 }

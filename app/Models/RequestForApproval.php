@@ -11,6 +11,8 @@ use App\Models\PatientImplementationPlan;
 use App\Models\PersonalInfoDuringIp;
 use App\Models\User;
 use App\Models\CategoryType;
+use DateTimeInterface;
+
 class RequestForApproval extends Model
 {
     use HasFactory,LogsActivity,TopMostParentId;
@@ -36,6 +38,11 @@ class RequestForApproval extends Model
         'entry_mode',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

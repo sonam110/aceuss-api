@@ -12,7 +12,7 @@ use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Journal;
 use App\Models\JournalActionLog;
-
+use DateTimeInterface;
 
 class JournalAction extends Model
 {
@@ -35,6 +35,11 @@ class JournalAction extends Model
         'sessionId',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function journal()
     {
         return $this->belongsTo(Journal::class,'journal_id','id');

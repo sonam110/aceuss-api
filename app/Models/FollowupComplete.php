@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\IpFollowUp;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class FollowupComplete extends Model
 {
     use HasFactory,LogsActivity;
@@ -20,4 +22,10 @@ class FollowupComplete extends Model
 		'answer',
 		'entry_mode',
 	];
+
+	protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 }

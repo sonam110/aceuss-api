@@ -8,6 +8,7 @@ use App\Traits\TopMostParentId;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
 
 class EmployeeAssignedWorkingHour extends Model
 {
@@ -16,6 +17,11 @@ class EmployeeAssignedWorkingHour extends Model
     
     protected $fillable  = ['top_most_parent_id','emp_id','created_by','assigned_working_hour_per_week','working_percent','actual_working_hour_per_week','entry_mode'];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function topMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

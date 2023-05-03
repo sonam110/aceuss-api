@@ -14,6 +14,7 @@ use App\Models\RequestForApproval;
 use App\Models\IpFollowUp;
 use App\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
 
 class PatientImplementationPlan extends Model
 {
@@ -76,6 +77,11 @@ class PatientImplementationPlan extends Model
 		
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 
 class LicenceHistory extends Model
 {
@@ -27,6 +28,12 @@ class LicenceHistory extends Model
         'active_from',
         'expire_at'
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 
     public function TopMostParent()
     {

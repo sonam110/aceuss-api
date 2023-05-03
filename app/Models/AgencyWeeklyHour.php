@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class AgencyWeeklyHour extends Model
 {
     use HasFactory,SoftDeletes;
@@ -16,6 +18,11 @@ class AgencyWeeklyHour extends Model
     protected $fillable = [
         'user_id','name','assigned_hours','start_date','end_date','assigned_hours_per_day','assigned_hours_per_week','assigned_hours_per_month','scheduled_hours','completed_hours','remaining_hours','approved_by_patient'
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function setStartDateAndTimeAttribute($value) {
       $this->attributes['start_date'] = (!empty($value)) ? date("Y-m-d", strtotime($value)) :null;

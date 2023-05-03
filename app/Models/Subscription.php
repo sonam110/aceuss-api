@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Package;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class Subscription extends Model
 {
     use HasFactory,LogsActivity;
@@ -28,6 +30,11 @@ class Subscription extends Model
         'entry_mode',
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');

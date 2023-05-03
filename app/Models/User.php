@@ -50,6 +50,7 @@ use App\Models\Schedule;
 use App\Models\PatientEmployee;
 use App\Models\EmployeeBranch;
 use mervick\aesEverywhere\AES256;
+use DateTimeInterface;
 
 class User extends Authenticatable
 {
@@ -137,6 +138,11 @@ class User extends Authenticatable
     protected static $logAttributes = ['*'];
 
     protected static $logOnlyDirty = true;
+    
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
     
     public function getBranchPatientNumberAttribute()
     {

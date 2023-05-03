@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use App\Models\IpFollowUp;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class IpFollowUpCreation extends Model
 {
     use HasFactory,LogsActivity;
@@ -26,6 +28,11 @@ class IpFollowUpCreation extends Model
 		'entry_mode',
 	];
 
+	protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 	public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');

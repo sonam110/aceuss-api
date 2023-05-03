@@ -9,6 +9,8 @@ use App\Models\IpFollowUp;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class PersonalInfoDuringIp extends Model
 {
     use HasFactory,LogsActivity,SoftDeletes;
@@ -27,6 +29,11 @@ class PersonalInfoDuringIp extends Model
 		'entry_mode',
 	];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 	public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');

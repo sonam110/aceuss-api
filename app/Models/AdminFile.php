@@ -8,6 +8,7 @@ use App\Traits\TopMostParentId;
 use App\Models\UserType;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
 
 class AdminFile extends Model
 {
@@ -22,6 +23,11 @@ class AdminFile extends Model
     protected $fillable = [
         'top_most_parent_id','title','file_path','is_public','created_by','user_type_id','company_ids','file_size'
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function UserType()
     {

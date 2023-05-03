@@ -9,6 +9,7 @@ use App\Traits\AutoInc;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
 use App\Models\Booking;
+use DateTimeInterface;
 
 class SmsLog extends Model
 {
@@ -24,6 +25,11 @@ class SmsLog extends Model
 
     protected static $logName = 'sms_logs';
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function getCreatedAtAttribute($value)
     {
         return (!empty($value)) ? date('Y-m-d H:i:s', strtotime($value)) : NULL;

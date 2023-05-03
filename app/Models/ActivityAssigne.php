@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Activity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class ActivityAssigne extends Model
 {
     use HasFactory,LogsActivity,softDeletes;
@@ -25,6 +27,11 @@ class ActivityAssigne extends Model
         'is_notify',
         'entry_mode',
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function User()
     {

@@ -13,6 +13,8 @@ use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\JournalLog;
 use App\Models\JournalAction;
+use DateTimeInterface;
+
 class Journal extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -45,7 +47,11 @@ class Journal extends Model
 
     ];
    	
-
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function Activity()
     {
         return $this->belongsTo(Activity::class,'activity_id','id');

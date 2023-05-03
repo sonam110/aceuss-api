@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Module;
 use App\Models\User;
-
+use DateTimeInterface;
 
 class ModuleRequest extends Model
 {
@@ -14,6 +14,11 @@ class ModuleRequest extends Model
     protected $appends = ['module_names'];
     protected $fillable = ['user_id','modules','request_comment','reply_comment','reply_date','status','entry_mode'];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function getModuleNamesAttribute()
     {
     	$data = json_decode($this->modules);

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class BankDetail extends Model
 {
     use HasFactory,SoftDeletes,LogsActivity;
@@ -23,6 +25,12 @@ class BankDetail extends Model
         'is_default',
         'entry_mode',
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function User()
     {
         return $this->belongsTo(User::class,'user_id','id');

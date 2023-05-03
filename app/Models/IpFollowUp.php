@@ -11,6 +11,7 @@ use App\Models\FollowupComplete;
 use App\Models\PersonalInfoDuringIp;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
 
 class IpFollowUp extends Model
 {
@@ -50,6 +51,12 @@ class IpFollowUp extends Model
         'more_witness',
         'emp_id'
 	];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 	public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');

@@ -15,6 +15,7 @@ use App\Models\PatientImplementationPlan;
 use App\Models\User;
 use App\Models\Deviation;
 use App\Models\Journal;
+use DateTimeInterface;
 
 class Task extends Model
 {
@@ -64,6 +65,11 @@ class Task extends Model
         'is_latest_entry'
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function assignEmployee()
     {
         return $this->hasMany(AssignTask::class,'task_id','id');

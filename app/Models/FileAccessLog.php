@@ -8,6 +8,7 @@ use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
 use App\Models\AdminFile;
+use DateTimeInterface;
 
 class FileAccessLog extends Model
 {
@@ -21,6 +22,11 @@ class FileAccessLog extends Model
         'top_most_parent_id','admin_file_id','user_id'
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

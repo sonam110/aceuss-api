@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class CompanyWorkShift extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
@@ -28,6 +30,11 @@ class CompanyWorkShift extends Model
 
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Permission;
 use App\Models\UserType;
+use DateTimeInterface;
+
 class UserTypeHasPermission extends Model
 {
     use HasFactory;
@@ -15,6 +17,11 @@ class UserTypeHasPermission extends Model
         'permission_id'
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
 	public function allUserTypes()
     {
         return $this->belongsToMany(UserType::class, 'user_types')->withTimestamps();

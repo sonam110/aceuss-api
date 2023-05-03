@@ -11,6 +11,8 @@ use App\Models\Journal;
 use App\Models\CategoryMaster;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class Deviation extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -49,6 +51,11 @@ class Deviation extends Model
 
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function TopMostParent()
     {
         return $this->belongsTo(User::class,'top_most_parent_id','id');

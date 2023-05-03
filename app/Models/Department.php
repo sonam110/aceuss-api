@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class Department extends Model
 {
     use HasFactory,SoftDeletes,TopMostParentId,LogsActivity;
-
-    
 
     protected $dates = ['deleted_at'];
     protected static $logAttributes = ['*'];
@@ -28,7 +28,10 @@ class Department extends Model
         'entry_mode',
     ];
 
-  
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function TopMostParent()
     {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
+use DateTimeInterface;
 
 class EmployeeBranch extends Model
 {
@@ -19,6 +20,11 @@ class EmployeeBranch extends Model
         'employee_id', 'branch_id'     
     ];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function branch()
     {
         return $this->belongsTo(User::class,'branch_id','id');

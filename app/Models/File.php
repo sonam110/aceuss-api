@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Folder;
 use App\Traits\TopMostParentId;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class File extends Model
 {
     use HasFactory,TopMostParentId,SoftDeletes,LogsActivity;
@@ -32,6 +34,11 @@ class File extends Model
 		'visible_to_users',
         'entry_mode',
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function TopMostParent()
     {

@@ -8,6 +8,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\User;
 use App\Traits\TopMostParentId;
 use Str;
+use DateTimeInterface;
+
 class MobileBankIdLoginLog extends Model
 {
     use HasFactory, LogsActivity,TopMostParentId;
@@ -21,6 +23,11 @@ class MobileBankIdLoginLog extends Model
     protected static $logOnlyDirty = false;
 
     protected static $logName = 'mobile_bank_id_login_logs';
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     public function company()
     {

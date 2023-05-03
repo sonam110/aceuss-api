@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\PatientImplementationPlan;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
+use DateTimeInterface;
+
 class IpAssigneToEmployee extends Model
 {
     use HasFactory,LogsActivity;
@@ -22,6 +24,12 @@ class IpAssigneToEmployee extends Model
     ];
 
     protected $appends = ['employee'];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+    
     public function PatientImplementationPlan()
     {
         return $this->belongsTo(PatientImplementationPlan::class,'ip_id','id');
