@@ -247,7 +247,7 @@ class UserController extends Controller
             }
             if($request->user_type_id == '6'){
                 $validator = Validator::make($request->all(),[
-                    'personal_number' => 'required|digits:12|unique:users,personal_number', 
+                    //'personal_number' => 'required|digits:12|unique:users,personal_number', 
                     'custom_unique_id' => 'required|unique:users,custom_unique_id', 
                 ]);
                 if ($validator->fails()) {
@@ -256,12 +256,13 @@ class UserController extends Controller
 
             }
             if($request->user_type_id == '3'){
-                $validator = Validator::make($request->all(),[
+                /*$validator = Validator::make($request->all(),[
                     'personal_number' => 'required|digits:12|unique:users,personal_number', 
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
                 }
+                */
 
             }
 
@@ -696,12 +697,12 @@ class UserController extends Controller
 
             if($request->user_type_id == '6' || $request->user_type_id =='3')
             {
-                $validator = Validator::make($request->all(),[
+                /*$validator = Validator::make($request->all(),[
                     'personal_number' => 'required|digits:12|unique:users,personal_number,'.$user->id, 
                 ]);
                 if ($validator->fails()) {
                     return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
+                }*/
             }
 
             $checkId = User::where('id',$user->id)->where('top_most_parent_id',$this->top_most_parent_id)->first();
