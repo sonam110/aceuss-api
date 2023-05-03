@@ -66,9 +66,10 @@ class TaskController extends Controller
                 $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
                 $query->where(function ($q) use ($user, $resource_id) {
                     $q->where('tasks.resource_id', $user->id)
-                        ->orWhere('tasks.resource_id', $user->parent_id)
+                        ->orWhere('tasks.patient_id', $user->parent_id)
                         ->orWhere('tasks.patient_id', $resource_id);
-                });
+                })->whereNotNull('tasks.patient_id')
+                    ->whereNotNull('tasks.resource_id');
             }
 
             if(!empty($request->title))
@@ -116,8 +117,10 @@ class TaskController extends Controller
                     $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
                     $query->where(function ($q) use ($user, $resource_id) {
                         $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.patient_id', $user->parent_id)
                         ->orWhere('tasks.patient_id', $resource_id);
-                    });
+                    })->whereNotNull('tasks.patient_id')
+                ->whereNotNull('tasks.resource_id');
                 }
                 else
                 {
@@ -152,9 +155,11 @@ class TaskController extends Controller
                 $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
                 $taskCounts->where(function ($q) use ($user, $resource_id) {
                     $q->where('tasks.resource_id', $user->id)
-                        ->orWhere('tasks.resource_id', $user->parent_id)
+                        ->orWhere('tasks.patient_id', $user->parent_id)
                         ->orWhere('tasks.patient_id', $resource_id);
-                });
+                })
+                ->whereNotNull('tasks.patient_id')
+                ->whereNotNull('tasks.resource_id');
             }
 
             if(!empty($request->type_id) && $request->type_id!='7')
@@ -169,8 +174,10 @@ class TaskController extends Controller
                     $resource_id = empty($request->resource_id) ? $user->id : $request->resource_id;
                     $taskCounts->where(function ($q) use ($user, $resource_id) {
                         $q->where('tasks.resource_id', $user->id)
+                        ->orWhere('tasks.patient_id', $user->parent_id)
                         ->orWhere('tasks.patient_id', $resource_id);
-                    });
+                    })->whereNotNull('tasks.patient_id')
+                ->whereNotNull('tasks.resource_id');
                 }
                 else
                 {
@@ -297,7 +304,7 @@ class TaskController extends Controller
                         foreach ($request->how_many_time_array as $key => $time) {
                             if(!empty($time['start']))
                             {
-                                $get_patient_id = null;
+                                $get_patient_id = ($user->user_type_id==6) ? $user->id : null;
                                 if($request->type_id=='1')
                                 {
                                     $get_info = \DB::table('activities')->find($request->resource_id);
@@ -517,9 +524,12 @@ class TaskController extends Controller
                         foreach ($request->how_many_time_array as $key => $time) {
                             if(!empty($time['start']))
                             {
+                                $get_patient_id = ($user->user_type_id==6) ? $user->id : null;
+                                
     						    $task = new Task;
-    						    $task->type_id = $request->type_id; 
-    						    $task->resource_id = $request->resource_id; 
+    						    $task->type_id = $checkId->type_id; 
+                                $task->resource_id = $request->resource_id; 
+    						    $task->patient_id = $checkId->patient_id; 
     						    $task->parent_id = $parent_id; 
     						    $task->group_id = $group_id;
                                 $task->branch_id = $branch_id;
@@ -543,6 +553,7 @@ class TaskController extends Controller
                                 $task->created_by = $user->id;
     				            $task->status = !empty($request->status) ? $request->status : 0;
                                 $task->is_latest_entry = 1;
+                                $task->first_create_date = $checkId->first_create_date;
     						    $task->save();
 
                                 //update status

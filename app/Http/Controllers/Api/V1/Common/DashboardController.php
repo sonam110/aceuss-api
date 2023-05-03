@@ -221,9 +221,9 @@ class DashboardController extends Controller
                     )
                 ->where(function($q) use ($user) {
                     $q->where('resource_id', $user->id)
-                        ->orWhere('resource_id', $user->parent_id);
+                        ->orWhere('resource_id', $user->parent_id)
+                        ->orWhere('patient_id', $user->parent_id);
                 })
-                ->where('type_id', '7')
                 ->where('is_latest_entry', 1)
                 ->first();
                 $data['taskCount'] = $taskData->taskCount;
