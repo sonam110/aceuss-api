@@ -185,7 +185,8 @@ class CompanyAccountController extends Controller
             $user->email = $request->email;
             $user->personal_number = $request->personal_number;
 
-            $user->password = Hash::make($request->password);
+            $password = genPassword(12);
+            $user->password = Hash::make($password);
             $user->contact_number = $request->contact_number;
             $user->organization_number = $request->organization_number;
             $user->country_id = $request->country_id;
@@ -311,7 +312,7 @@ class CompanyAccountController extends Controller
                     'company_id' => $user->id,
                     'name' => $request->name,
                     'email' => $request->email,
-                    'password' => $request->password,
+                    'password' => $password,
                     'id' => $user->id,
                 ];  
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));

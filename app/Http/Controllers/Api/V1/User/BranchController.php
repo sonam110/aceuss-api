@@ -74,7 +74,9 @@ class BranchController extends Controller
             $user->branch_id = !empty($request->branch_id) ? $request->branch_id : getBranchId();
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->password = Hash::make($request->password);
+
+            $password = genPassword(12);
+            $user->password = Hash::make($password);
             $user->contact_number = $request->contact_number;
             $user->country_id = $request->country_id;
             $user->city = $request->city;
@@ -102,7 +104,7 @@ class BranchController extends Controller
                     'company_id' => $user->top_most_parent_id,
                     'name' => aceussDecrypt($user->name),
                     'email' => aceussDecrypt($user->email),
-                    'password' => $request->password,
+                    'password' => $password,
                     'id' => $user->id,
                 ];   
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));

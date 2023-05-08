@@ -227,24 +227,6 @@ class UserController extends Controller
 
             ////////////////////////////////////////
 
-            if($request->user_type_id  != '6'){
-                $validator = Validator::make($request->all(),[
-                    'password'  => 'required|same:confirm-password|min:8|max:30', 
-                    //'contact_number' => 'required', 
-
-                ],
-                [
-                    'password.required' =>  getLangByLabelGroups('BcValidation','message_password_required'),
-                    'password.min' =>  getLangByLabelGroups('BcValidation','message_password_min'),
-                    'password.max' =>  getLangByLabelGroups('BcValidation','message_password_max'),
-                    'password.same:confirm-password' =>  getLangByLabelGroups('BcValidation','message_password_confirm_match'),
-                    'contact_number' =>  getLangByLabelGroups('BcValidation','message_contact_number_required'),
-                ]);
-                if ($validator->fails()) {
-                    return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-                }
-
-            }
             if($request->user_type_id == '6'){
                 $validator = Validator::make($request->all(),[
                     //'personal_number' => 'required|digits:12|unique:users,personal_number', 
@@ -266,8 +248,8 @@ class UserController extends Controller
 
             }
 
-
-            $password = Hash::make($request->password);
+            $genPassword = genPassword(12);
+            $password = Hash::make($genPassword);
             $is_password_change = false;
             $is_fake = false;
             if($request->is_fake == true  && $request->user_type_id == '6'){
@@ -395,7 +377,7 @@ class UserController extends Controller
                     'company_id' => $user->top_most_parent_id,
                     'name' => aceussDecrypt($user->name),
                     'email' => aceussDecrypt($user->email),
-                    'password'=>$request->password,
+                    'password'=>$genPassword,
                     'id' => $user->id,
                 ];   
                 Mail::to(aceussDecrypt($user->email))->send(new WelcomeMail($content));

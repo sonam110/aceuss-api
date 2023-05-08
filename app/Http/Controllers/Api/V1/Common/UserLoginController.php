@@ -243,11 +243,11 @@ class UserLoginController extends Controller
                     }
                    
                     if($request->device == "mobile") {
-                        $token = (env('APP_ENV','local') == 'local') ?'123456' : rand(0,999999);
+                        $token = rand(100000,999999);
                         $passowrd_link = 'Your Reset Password Otp is'.'  '.$token.'';
                         $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Your forgot password token given in below .';
                     } else {
-                        $token = (env('APP_ENV','local') == 'local') ?'123456' : \Str::random(60);
+                        $token = \Str::random(60);
                         $passowrd_link = '<a href="'.route('password.reset',$token).'" style="color: #000;font-size: 18px;text-decoration: underline;font-family: "Roboto Condensed", sans-serif;" target="_blank">Reset your password </a>';
                         $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Please click below link ';
                     }

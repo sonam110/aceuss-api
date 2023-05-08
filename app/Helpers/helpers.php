@@ -84,6 +84,18 @@ function dateTimeFormat($value)
     return !empty($value) ? date('Y-m-d H:i:s', strtotime($value)) : null;
 }
 
+function genPassword($len=10) 
+{
+    $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789!_@$#";
+    $pass = array();
+    $alphaLength = strlen($alphabet) - 1;
+    for ($i = 0; $i < $len; $i++) {
+        $n = rand(0, $alphaLength);
+        $pass[] = $alphabet[$n];
+    }
+    return implode($pass);
+}
+
 function getTopParent($id) {
     if(Auth::check()){
         $adminAgg = [];
