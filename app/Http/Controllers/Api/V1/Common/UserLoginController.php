@@ -252,15 +252,15 @@ class UserLoginController extends Controller
                         $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Please click below link ';
                     }
                     
-                    User::updateOrCreate(['email'=>$user->email],['password_token'=>$token]);   
+                    User::updateOrCreate(['email'=>aceussDecrypt($user->email)],['password_token'=>$token]);   
                     
                     $content = ([
-                    'company' => companySetting($user->top_most_parent_id),
-                    'name' => aceussDecrypt($user->name),
-                    'email' => aceussDecrypt($user->email),
-                    'token' => $token,
-                    'passowrd_link' => $passowrd_link,
-                    'passMessage' => $passMessage,
+                        'company' => companySetting($user->top_most_parent_id),
+                        'name' => aceussDecrypt($user->name),
+                        'email' => aceussDecrypt($user->email),
+                        'token' => $token,
+                        'passowrd_link' => $passowrd_link,
+                        'passMessage' => $passMessage,
                     ]);         
                     if(env('IS_MAIL_ENABLE',false) == true){   
                         Mail::to(aceussDecrypt($user->email))->send(new SendResetPassworkLink($content));
