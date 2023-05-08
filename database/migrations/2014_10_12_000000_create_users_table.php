@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('unique_id')->unique()->nullable();
             $table->string('custom_unique_id')->unique()->nullable();
 
-            $table->unsignedBigInteger('user_type_id')->nullable();
+            $table->unsignedBigInteger('user_type_id');
             $table->foreign('user_type_id')->references('id')->on('user_types')->onDelete('cascade');
 
             $table->unsignedBigInteger('category_id')->nullable();
@@ -40,7 +40,7 @@ class CreateUsersTable extends Migration
             $table->string('branch_email')->nullable();
             $table->string('govt_id')->nullable();
             $table->string('name')->nullable(); //encrypted
-            $table->string('email')->unique()->nullable(); //encrypted
+            $table->string('email')->unique(); //encrypted
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('contact_number')->nullable(); //encrypted
