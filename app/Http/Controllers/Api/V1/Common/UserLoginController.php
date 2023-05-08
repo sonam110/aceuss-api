@@ -248,7 +248,7 @@ class UserLoginController extends Controller
                         $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Your forgot password token given in below .';
                     } else {
                         $token = \Str::random(60);
-                        $passowrd_link = '<a href="'.route('password.reset',$token).'" style="color: #000;font-size: 18px;text-decoration: underline;font-family: "Roboto Condensed", sans-serif;" target="_blank">Reset your password </a>';
+                        $passowrd_link = '<a href="'.env('FRONT_URL').'authentication/reset-password/'.$token.'" style="color: #000;font-size: 18px;text-decoration: underline;font-family: "Roboto Condensed", sans-serif;" target="_blank">Reset your password </a>';
                         $passMessage = 'This email is to confirm a recent password reset request for your account. To confirm this request and reset your password Please click below link ';
                     }
                     
@@ -261,11 +261,17 @@ class UserLoginController extends Controller
                         'token' => $token,
                         'passowrd_link' => $passowrd_link,
                         'passMessage' => $passMessage,
+                    ]); 
+
+                    $res = ([
+                        'company' => companySetting($user->top_most_parent_id),
+                        'name' => aceussDecrypt($user->name),
+                        'email' => aceussDecrypt($user->email),
                     ]);         
                     if(env('IS_MAIL_ENABLE',false) == true){   
                         Mail::to(aceussDecrypt($user->email))->send(new SendResetPassworkLink($content));
                     }
-                return prepareResult(true,getLangByLabelGroups('LoginValidation','message_password_reset_link'),$content,config('httpcodes.success'));
+                return prepareResult(true,getLangByLabelGroups('LoginValidation','message_password_reset_link'),$res,config('httpcodes.success'));
 
             }else{
                 return prepareResult(false,getLangByLabelGroups('LoginValidation','message_user_not_found'),[],config('httpcodes.bad_request'));
