@@ -352,11 +352,9 @@ class UserLoginController extends Controller
             $user = User::where('email',$request->email)->where('password_token',$request->token)->first();
             $password = $request->password;
             if (!empty($user)) {
-                $response = Password::reset($input, function ($user, $password) {
-                    $user->password = Hash::make($password);
-                    $user->password_token = '';
-                    $user->save();
-                });
+                $user->password = Hash::make($password);
+                $user->password_token = '';
+                $user->save();
 
                 return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));
             }else {
