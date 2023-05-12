@@ -13,6 +13,8 @@ use App\Models\Module;
 use App\Models\Department;
 use App\Models\Activity;
 use App\Models\IpFollowUp;
+use App\Models\Journal;
+use App\Models\Deviation;
 use App\Models\PatientImplementationPlan;
 use App\Models\Task;
 use App\Models\ActivityAssigne;
@@ -62,6 +64,10 @@ class DashboardController extends Controller
                 $data['patientCount'] = $userData->patientCount;
                 $data['branchCount'] = $userData->branchCount;
                 $data['departmentCount'] = Department::where('top_most_parent_id',$user->id)->count();
+
+                $data['deviationCount'] = Deviation::where('top_most_parent_id',$user->id)->count();
+
+                $data['journalCount'] = Journal::where('top_most_parent_id',$user->id)->count();
 
                 $activityData = Activity::select(
                         \DB::raw('COUNT(IF(activities.top_most_parent_id = "'.$user->id.'" AND activities.is_latest_entry = "1", 0, NULL)) as activityCount'),

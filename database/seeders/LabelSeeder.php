@@ -3547,6 +3547,8 @@ class LabelSeeder extends Seeder
                 "no.-of-activity-not-applicable"=> "No. of Activity Not Applicable",
                 "no.-of-activity-not-done"=> "No. of Activity Not Done",
                 "showing-current-date-deviation"=> "Showing current date deviation",
+                "no.-of-deviation"=> "No. of Deviations",
+                "no.-of-journal"=> "No. of Journals",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
