@@ -617,7 +617,7 @@ function companySetting($company_id){
     return false;
 }
 
-function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates)
+function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates, $week_days=null)
 {
     $from = Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
@@ -631,8 +631,21 @@ function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_t
             }
         }
         elseif($repetition_type == '2'){
-           $dateTimeFrame  = $repeat_dates;
-          
+           //$dateTimeFrame  = $repeat_dates;
+            for($w = $from; $w->lte($to); $w->addWeeks($every)) {
+                $date = Carbon::parse($w);
+                $startWeek = $w->startOfWeek()->format('Y-m-d');
+                $weekNumber = $date->weekNumberInMonth;
+                $start = Carbon::createFromFormat("Y-m-d", $startWeek);
+                $end = $start->copy()->endOfWeek()->format('Y-m-d');
+                for($p = $start; $p->lte($end); $p->addDays()) {
+                    if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
+                        if(in_array($p->dayOfWeek, $week_days)){
+                            array_push($dateTimeFrame, $p->copy()->format('Y-m-d'));
+                        }
+                    }
+                }
+            }
         }
         elseif($repetition_type == '3'){
              $dateTimeFrame  = $repeat_dates;
@@ -673,7 +686,6 @@ function taskDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,
         }
         elseif($repetition_type == '3') {
              $dateTimeFrame  = $repeat_dates;
-           
         }   
         elseif($repetition_type == '4') {
             $dateTimeFrame  = $repeat_dates;

@@ -69,7 +69,7 @@ class JournalController extends Controller
                 $query->where(function ($q) use ($user) {
                     $q->where('journals.patient_id', $user->id)
                         ->orWhere('journals.patient_id', $user->parent_id);
-                });
+                })->where('is_signed', 1);
             }
             
             if($user->user_type_id !='2') 
@@ -179,7 +179,7 @@ class JournalController extends Controller
                     $journalCounts->where(function ($q) use ($user) {
                         $q->where('journals.patient_id', $user->id)
                             ->orWhere('journals.patient_id', $user->parent_id);
-                    });
+                    })->where('is_signed', 1);
                 }
                 
                 if($user->user_type_id !='2') {

@@ -455,7 +455,7 @@ class ActivityController extends Controller
 			if($request->is_repeat){
 				$end_date = (empty($request->end_date)) ? Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d') : $request->end_date;
 				$every = $request->every;
-				if($request->repetition_type !='1'){
+				if(in_array($request->repetition_type, [3,4])){
 					$validator = Validator::make($request->all(),[     
 						"repeat_dates"    => "required|array",
 						"repeat_dates.*"  => "required|string|distinct",        
@@ -542,7 +542,7 @@ class ActivityController extends Controller
                 $ipUpdate->save();*/
             }
 
-            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates);
+            $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates, $request->week_days );
             $group_id = generateRandomNumber();
             $branch_id = User::select('branch_id')->find($request->patient_id)->branch_id;
             $activity_ids = [];

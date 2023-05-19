@@ -61,7 +61,7 @@ class DeviationController extends Controller
                 $query->where(function ($q) use ($user) {
                     $q->where('deviations.patient_id', $user->id)
                         ->orWhere('deviations.patient_id', $user->parent_id);
-                });
+                })->where('is_signed', 1);
             }
             
             if($user->user_type_id !='2') 
@@ -189,7 +189,7 @@ class DeviationController extends Controller
                     $deviationCounts->where(function ($q) use ($user) {
                         $q->where('deviations.patient_id', $user->id)
                             ->orWhere('deviations.patient_id', $user->parent_id);
-                    });
+                    })->where('is_signed', 1);
                 }
                 
                 if($user->user_type_id !='2') 
