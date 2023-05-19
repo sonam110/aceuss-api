@@ -392,4 +392,8 @@ class CallbackController extends Controller
         return response()->json(['success' => 'OK'], $this->successStatus);
     }
 
+    public function checkCompanyType($userId)
+    {
+        return isShowAllPatient($userId);
+    }
 }

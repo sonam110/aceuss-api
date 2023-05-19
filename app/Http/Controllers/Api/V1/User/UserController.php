@@ -98,6 +98,22 @@ class UserController extends Controller
             {
                 //$query =  $query->where('users.id', '!=',$user->id);
             }
+            elseif(in_array($user->user_type_id, [3]))
+            {
+                if(isShowAllPatient($user->id))
+                {
+                    // shows all patients
+                }
+                else
+                {
+                    // shows only those patients whos assgined to this employee
+                    $getListAssignedPatients = \DB::table('patient_employees')
+                        ->select('patient_id')
+                        ->where('employee_id', $user->id)
+                        ->pluck('patient_id');
+                    $query->whereIn('users.id', $getListAssignedPatients);
+                }
+            }
             else
             {
                 $query =  $query->where(function ($q) use ($user) {

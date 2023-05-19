@@ -153,10 +153,6 @@ function buildTree(array $elements, $parentId = null, $level =1) {
     return $branch;
 }
 
-
-
-
-
 function getLatestParent()
 {
     if(Auth::check()){
@@ -168,6 +164,7 @@ function getLatestParent()
     }
     return null;
 }
+
 function getChildren($parent_id)
 {
     $count = 0;
@@ -185,6 +182,41 @@ function getChildren($parent_id)
         }
     }
     return $count;
+}
+
+function findCompanyType($userId)
+{
+    $user = \DB::table('users')
+        ->select('parent_id')
+        ->where('id', $userId)
+        ->first();
+    if($user)
+    {
+        $parentUser = \DB::table('users')
+            ->select('company_type_id')
+            ->where('id', $user->parent_id)
+            ->first();
+
+        return $parentUser->company_type_id;
+    }
+    return false;
+}
+
+function isShowAllPatient($userId)
+{
+    $company_type = findCompanyType($userId);
+    $arr = explode(",",$company_type);
+    $checkCount = count($arr);
+    $normal_number = str_replace(array('[',']',"'",'"'), '',$arr);
+    if($checkCount>1)
+    {
+        return true;
+    }
+    elseif($normal_number[0]==3)
+    {
+        return false;
+    }
+    return true;
 }
 
 function getUserLanguage()

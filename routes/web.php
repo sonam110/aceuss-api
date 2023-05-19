@@ -34,3 +34,5 @@ Route::get('/check-childs', [App\Http\Controllers\CallbackController::class, 'ch
 
 Route::get('/check-bank-id', [App\Http\Controllers\CallbackController::class, 'checkBankId']);
 
+Route::get('/check-company-type/{user_id}', [App\Http\Controllers\CallbackController::class, 'checkCompanyType']);
+
