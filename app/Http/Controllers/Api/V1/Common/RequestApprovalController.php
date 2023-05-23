@@ -153,10 +153,10 @@ class RequestApprovalController extends Controller
                 {
                     $url = [];
                     foreach ($request->requested_to as $key => $person) {
-                        $getPersonalTableInfo = PersonalInfoDuringIp::find($person);
-                        if(!empty($getPersonalTableInfo) && !empty($getPersonalTableInfo->user))
+                        $getPersonalTableInfo = User::find($person);
+                        if($getPersonalTableInfo)
                         {
-                            $getPersonalNumber = $getPersonalTableInfo->user;
+                            $getPersonalNumber = $getPersonalTableInfo;
                             if(!empty($getPersonalNumber->personal_number))
                             {
                                 $top_most_parent_id = $getPersonalNumber->top_most_parent_id;
