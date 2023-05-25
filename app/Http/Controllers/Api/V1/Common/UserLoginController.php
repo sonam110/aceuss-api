@@ -335,21 +335,24 @@ class UserLoginController extends Controller
             $input = $request->only('email','token', 'password', 'password_confirmation');
             $validator = Validator::make($input, [
                 'token' => 'required',
-                "email" => 'required|email',
                 'password' => 'required|confirmed|min:8',
 
             ],
             [
             'token.required' => getLangByLabelGroups('PasswordReset','token'),
-            'email.required' => getLangByLabelGroups('LoginValidation','message_email'),
-            'email.email' => getLangByLabelGroups('LoginValidation','message_email_invalid'),
             'password' =>  getLangByLabelGroups('PasswordReset','password'),
             'password.confirmed' =>  getLangByLabelGroups('PasswordReset','confirm_password'),
             ]);
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-            $user = User::where('email',$request->email)->where('password_token',$request->token)->first();
+            $getEmail = \DB::table('password_resets')->where('token', $request->token)->first();
+            if($getEmail)
+            {
+                return prepareResult(false,getLangByLabelGroups('LoginValidation','message_no_token'),[],config('httpcodes.bad_request'));
+            }
+            
+            $user = User::where('email',$getEmail->email)->where('password_token',$request->token)->first();
             $password = $request->password;
             if (!empty($user)) {
                 $user->password = Hash::make($password);
