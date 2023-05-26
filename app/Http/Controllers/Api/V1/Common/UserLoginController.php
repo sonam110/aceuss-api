@@ -346,17 +346,17 @@ class UserLoginController extends Controller
             if ($validator->fails()) {
                 return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
             }
-            $getEmail = \DB::table('password_resets')->where('token', $request->token)->first();
-            if($getEmail)
+            $getEmail = \DB::table('users')->where('password_token', $request->token)->whereNotNull('password_token')->first();
+            if(!$getEmail)
             {
                 return prepareResult(false,getLangByLabelGroups('LoginValidation','message_no_token'),[],config('httpcodes.bad_request'));
             }
             
-            $user = User::where('email',$getEmail->email)->where('password_token',$request->token)->first();
+            $user = User::where('email', $getEmail->email)->where('password_token',$request->token)->first();
             $password = $request->password;
             if (!empty($user)) {
                 $user->password = Hash::make($password);
-                $user->password_token = '';
+                $user->password_token = null;
                 $user->save();
 
                 return prepareResult(true,getLangByLabelGroups('PasswordReset','success'),[],config('httpcodes.success'));

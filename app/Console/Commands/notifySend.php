@@ -56,8 +56,8 @@ class notifySend extends Command
                 $emergencyContact = EmergencyContact::where('top_most_parent_id',$assigne->Activity->title)->where('is_default','1')->first();
                 $is_push_notify = false;
                 $is_text_notify = false;
-               // $currentDateTime = Carbon::now()->format('Y-m-d H:i');
-                $currentDateTime = '2022-04-26 10:10';
+                $currentDateTime = Carbon::now()->format('Y-m-d H:i');
+                //$currentDateTime = '2022-04-26 10:10';
                 $dateTime  = null;
                 $time = Carbon::parse($activity->start_time);
                 if($activity->remind_before_start == true){

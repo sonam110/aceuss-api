@@ -304,16 +304,16 @@ class JournalController extends Controller
 
             /*-----------notify-user-journal-created--------------------*/
             $exra_params = ['patient_id'=>$journal->patient_id];
-            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number','branch_name')->where('id',getBranchId())->first();
+            $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number','branch_name')->where('id',getBranchId())->first();
             $data_id =  $journal->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'journal')->first();
-            if($user)
+            if($getUser)
             {
                 $variable_data = [
-                    '{{name}}'              => aceussDecrypt($user->name),
+                    '{{name}}'              => aceussDecrypt($getUser->name),
                     '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
                 ];
-                actionNotification($user,$data_id,$notification_template,$variable_data,$exra_params);
+                actionNotification($getUser,$data_id,$notification_template,$variable_data,$exra_params);
             }
             //-----------------------------------------------//
 

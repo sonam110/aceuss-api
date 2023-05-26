@@ -333,16 +333,16 @@ class DeviationController extends Controller
             $deviation->save();
 
             /*--------notify-emp-deviation-created------------*/
-            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
+            $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',getBranchId())->first();
             $data_id =  $deviation->id;
             $notification_template = EmailTemplate::where('mail_sms_for', 'deviation')->first();
-            if($user)
+            if($getUser)
             {
                     $variable_data = [
-                    '{{name}}'              => aceussDecrypt($user->name),
+                    '{{name}}'              => aceussDecrypt($getUser->name),
                     '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
                 ];
-                actionNotification($user,$data_id,$notification_template,$variable_data);
+                actionNotification($getUser,$data_id,$notification_template,$variable_data);
             }
             //------------------------------------------------//
             DB::commit();

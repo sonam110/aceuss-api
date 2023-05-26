@@ -412,16 +412,16 @@ class TaskController extends Controller
 
                                         /*---notify-employee-task-assigned----*/
 
-                                        $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
+                                        $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',auth()->id())->first();
                                         $data_id =  $task->id;
                                         $notification_template = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
-                                        if($user)
+                                        if($getUser)
                                         {
                                             $variable_data = [
-                                                '{{name}}' => aceussDecrypt($user->name),
+                                                '{{name}}' => aceussDecrypt($getUser->name),
                                                 '{{task_title}}' => $task->title,
                                             ];
-                                            actionNotification($user,$data_id,$notification_template,$variable_data);
+                                            actionNotification($getUser,$data_id,$notification_template,$variable_data);
                                         }
                                     }
                                 }
@@ -523,10 +523,8 @@ class TaskController extends Controller
                 	if(is_array($request->how_many_time_array) ){
                         foreach ($request->how_many_time_array as $key => $time) {
                             if(!empty($time['start']))
-                            {
-                                $get_patient_id = ($user->user_type_id==6) ? $user->id : null;
-                                
-    						    $task = new Task;
+                            {   
+                                $task = new Task;
     						    $task->type_id = $checkId->type_id; 
                                 $task->resource_id = $request->resource_id; 
     						    $task->patient_id = $checkId->patient_id; 
@@ -538,7 +536,7 @@ class TaskController extends Controller
     						    $task->start_date = $date; 
     						    $task->start_time = $time['start']; 
     		                    $task->file = $request->file;
-    						    $task->how_many_time = $request->how_many_time;
+    						    $task->how_many_time = count($request->how_many_time_array);
                                 $task->is_repeat = ($request->is_repeat) ? 1 : 0; 
                                 $task->every = $request->every; 
                                 $task->repetition_type = $request->repetition_type; 
@@ -565,14 +563,7 @@ class TaskController extends Controller
 
     						    $task_ids[] = $task->id;
     						    if(is_array($request->employees)  && sizeof($request->employees) > 0 ){
-    						    	$validator = Validator::make($request->all(),[   
-    		                            "employees"    => "required|array",
-    		                            "employees.*"  => "required|distinct|exists:users,id",   
-    		                        ]);
-    		                        if ($validator->fails()) {
-    		                            return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
-    		                        }
-
+    						    	
                                     //update old entries
                                     if($old_end_date != $request->end_date)
                                     {
@@ -589,25 +580,28 @@ class TaskController extends Controller
     						        foreach ($request->employees as $key => $employee) {
                                         if(!empty($employee))
                                         {
-        						            $taskAssign = new AssignTask;
-        						            $taskAssign->task_id = $task->id;
-        						            $taskAssign->user_id = $employee;
-        						            $taskAssign->assignment_date = date('Y-m-d');
-        						            $taskAssign->assigned_by = $user->id;
-        						            $taskAssign->save();
-
-                                            /*---notify-employee-task-assigned----*/
-
-                                            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id', $employee)->first();
-                                            $data_id =  $task->id;
-                                            $notification_template = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
-                                            if($user)
+                                            if(AssignTask::where('task_id', $task->id)->where('user_id', $employee)->count()<1)
                                             {
-                                                $variable_data = [
-                                                    '{{name}}' => aceussDecrypt($user->name),
-                                                    '{{task_title}}' => $task->title,
-                                                ];
-                                                actionNotification($user,$data_id,$notification_template,$variable_data);
+                                                $taskAssign = new AssignTask;
+                                                $taskAssign->task_id = $task->id;
+                                                $taskAssign->user_id = $employee;
+                                                $taskAssign->assignment_date = date('Y-m-d');
+                                                $taskAssign->assigned_by = $user->id;
+                                                $taskAssign->save();
+
+                                                /*---notify-employee-task-assigned----*/
+
+                                                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id', $employee)->first();
+                                                $data_id =  $task->id;
+                                                $notification_template = EmailTemplate::where('mail_sms_for', 'task-created-assigned')->first();
+                                                if($getUser)
+                                                {
+                                                    $variable_data = [
+                                                        '{{name}}' => aceussDecrypt($getUser->name),
+                                                        '{{task_title}}' => $task->title,
+                                                    ];
+                                                    actionNotification($getUser,$data_id,$notification_template,$variable_data);
+                                                }
                                             }
         						        }
                                     }
@@ -848,16 +842,16 @@ class TaskController extends Controller
             }
 
             foreach ($receivers_ids as $key => $value) {
-                $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->withoutGlobalScope('top_most_parent_id')->where('id',$value)->first();
-                if($user)
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->withoutGlobalScope('top_most_parent_id')->where('id',$value)->first();
+                if($getUser)
                 {
                     $variable_data = [
-                        '{{name}}'      => aceussDecrypt($user->name),
+                        '{{name}}'      => aceussDecrypt($getUser->name),
                         '{{action_by}}' => aceussDecrypt(Auth::User()->name),
                         // '{{action}}'    => $action,
                         '{{task_title}}'=> $task->title
                     ];
-                    actionNotification($user,$data_id,$notification_template,$variable_data);
+                    actionNotification($getUser,$data_id,$notification_template,$variable_data);
                 }
             }
             

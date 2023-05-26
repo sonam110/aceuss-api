@@ -629,17 +629,17 @@ class ActivityController extends Controller
             								if($key1 == 0 && $key2 == 0)
             								{
             									if($request->is_compulsory == true && $key == 0){
-            										$user = User::find($getUser->top_most_parent_id);
-            										if($user)
+            										$newgetUser = User::find($getUser->top_most_parent_id);
+            										if($newgetUser)
             										{
             											$variable_data = [
-	            											'{{name}}' => aceussDecrypt($user->name),
+	            											'{{name}}' => aceussDecrypt($newgetUser->name),
 	            											'{{assigned_by}}' => aceussDecrypt(Auth::User()->name),
 	            											'{{activity_title}}' => $activity->title,
 	            											'{{start_date}}' => $activity->start_date,
 	            											'{{start_time}}' => $activity->start_time
 	            										];
-	            										actionNotification($user,$data_id,$notification_template,$variable_data);
+	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data);
             										}
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
@@ -997,17 +997,17 @@ class ActivityController extends Controller
             								if($key1 == 0 && $key2 == 0)
             								{
             									if($request->is_compulsory == true && $key == 0){
-            										$user = User::find($getUser->top_most_parent_id);
-	            									if($user)
+            										$newgetUser = User::find($getUser->top_most_parent_id);
+	            									if($newgetUser)
 	            									{	
 	            										$variable_data = [
-	            											'{{name}}' => aceussDecrypt($user->name),
+	            											'{{name}}' => aceussDecrypt($newgetUser->name),
 	            											'{{assigned_by}}' => aceussDecrypt(Auth::User()->name),
 	            											'{{activity_title}}' => $activity->title,
 	            											'{{start_date}}' => $activity->start_date,
 	            											'{{start_time}}' => $activity->start_time
 	            										];
-	            										actionNotification($user,$data_id,$notification_template,$variable_data);
+	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data);
             										}
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
@@ -1197,19 +1197,19 @@ class ActivityController extends Controller
 
     		/*-----------Send notification---------------------*/
 
-    		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
+    		$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$request->user_id)->first();
     		$data_id =  $checkId->id;
     		$notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
-    		if($user)
+    		if($getUser)
     		{
 	    			$variable_data = [
-	    			'{{name}}'  			=> aceussDecrypt($user->name),
+	    			'{{name}}'  			=> aceussDecrypt($getUser->name),
 	    			'{{assigned_by}}' 		=> aceussDecrypt(Auth::User()->name),
 	    			'{{activity_title}}'	=> $checkId->title,
 	    			'{{start_date}}' 		=> $checkId->start_date,
 	    			'{{start_time}}' 		=> $checkId->start_time
 	    		];
-	    		actionNotification($user,$data_id,$notification_template,$variable_data);
+	    		actionNotification($getUser,$data_id,$notification_template,$variable_data);
     		}
     		DB::commit();
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
@@ -1430,17 +1430,17 @@ class ActivityController extends Controller
     		$extra_param = ['status'=>$request->status,'start_date'=>$activity->start_date];
 
     		foreach ($receivers_ids as $key => $value) {
-    			$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
-    			if($user)
+    			$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value)->first();
+    			if($getUser)
     			{
     				$variable_data = [
-	    				'{{name}}'              => aceussDecrypt($user->name),
+	    				'{{name}}'              => aceussDecrypt($getUser->name),
 	    				'{{action_by}}'         => aceussDecrypt(Auth::User()->name),
 	    				'{{activity_title}}'    => $activity->title,
 	    				'{{start_date}}'        => $activity->start_date,
 	    				'{{start_time}}'        => $activity->start_time
 	    			];
-	    			actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+	    			actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
     			}
     		}
     		DB::commit();
@@ -1523,21 +1523,21 @@ class ActivityController extends Controller
 
     		/*-----------Send notification---------------------*/
 
-    		$user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
+    		$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$getActivity->top_most_parent_id)->first();
     		$data_id =  $getActivity->id;
     		$notification_template = EmailTemplate::where('mail_sms_for', 'activity-not-applicable')->first();
     		$extra_param = ['status'=>3,'start_date'=>$getActivity->start_date];
-    		$companyObj = companySetting($user->top_most_parent_id);
-    		if($user)
+    		$companyObj = companySetting($getUser->top_most_parent_id);
+    		if($getUser)
     		{
     			$variable_data = [
-	    			'{{name}}'              => aceussDecrypt($user->name),
+	    			'{{name}}'              => aceussDecrypt($getUser->name),
 	    			'{{action_by}}'         => aceussDecrypt(Auth::User()->name),
 	    			'{{activity_title}}'    => $getActivity->title,
 	    			'{{start_date}}'        => $getActivity->start_date,
 	    			'{{start_time}}'        => $getActivity->start_time
 	    		];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
 			}
     		return prepareResult(true, getLangByLabelGroups('Activity','message_mark_not_applicable') ,[], config('httpcodes.success'));
     	}
