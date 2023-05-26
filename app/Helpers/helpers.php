@@ -1003,8 +1003,8 @@ function bankIdVerification($personalNumber, $person_id, $group_token_or_id, $lo
         {
             curl_setopt($ch, CURLOPT_URL, env('BANKIDSIGNAPIURL', 'https://client.grandid.com').'/json1.1/FederatedLogin?apiKey='.env('BANKIDAPIKEY', '479fedcee8e6647423d3b4614c25f50b').'&authenticateServiceKey='.env('BANKIDSIGNAPISECRET', 'ad462cb0fe1aa1b0adabca6ffffe1d59'));
 
-            $userVisibleData = base64_encode('hello');
-            $userNonVisibleData = base64_encode('hello');
+            $userVisibleData = base64_encode('Signing Request form ACEUSS. Please Sign...');
+            $userNonVisibleData = base64_encode('Signing Request form ACEUSS. Please Sign...');
         }
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
