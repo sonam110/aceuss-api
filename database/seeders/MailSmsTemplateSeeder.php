@@ -25,7 +25,7 @@ class MailSmsTemplateSeeder extends Seeder
         $mailTemplate = new EmailTemplate;
         $mailTemplate->mail_sms_for = 'welcome-mail';
         $mailTemplate->mail_subject = "Welcome to Aceuss System";
-        $mailTemplate->mail_body = "Dear {{name}}, welocome to {{company_email}} Please change your password into website/App for your future safety.";
+        $mailTemplate->mail_body = "Dear {{name}}, welcome to {{company_email}} Please change your password into website/App for your future safety.";
         $mailTemplate->custom_attributes = "{{name}}, {{email}},{{contact_number}},{{city}},{{address}},{{zipcode}},{{company_name}},{{company_logo}},{{company_email}},{{company_contact}},{{company_address}}";
         $mailTemplate->save();
         
