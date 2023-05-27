@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\EmailTemplate;
 use App\Models\User;
 
 class CheckAndNotifyLicenceStatus extends Command
@@ -53,6 +54,18 @@ class CheckAndNotifyLicenceStatus extends Command
             $daysLeft = (($licEndDate - $todayDate)/(60*60*24));
 
             //Notification send with days left
+            $user = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$value->id)->first();
+            $data_id =  $user->id;
+
+            if($user)
+            {
+                $notification_template = EmailTemplate::where('mail_sms_for', 'licence-status-reminder')->first();
+                $variable_data = [
+                   '{{name}}'      => aceussDecrypt($user->name),
+                   '{{days_left}}' => $daysLeft
+               ];
+               actionNotification($user,$data_id,$notification_template,$variable_data);
+            }
         }
         return 0;
     }

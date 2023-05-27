@@ -94,24 +94,22 @@ class CallbackController extends Controller
 
             if($from=='IP-approval')
             {
-                $getUserID = PersonalInfoDuringIp::select('user_id')->find($person_id);
-
-                $getPerson = User::select('id','personal_number')->find($getUserID->user_id);
+                $getPerson = User::select('id','personal_number')->find($person_id);
                 if($getPerson)
                 {
-                    $personalNumber = $getPerson->personal_number;
+                    $personalNumber = aceussDecrypt($getPerson->personal_number);
                     $isSuccess = true;
                     //update status
                     $requestForApproval = RequestForApproval::where('group_token', $sessionInfo->extra_info)
                     ->where('requested_to', $getPerson->id)
                     ->update([
-                        'status' => 2,
+                        'status' => '2',
                         'sessionId' => $sessionId
                     ]);
 
                     //check all approved
                     $checkTotalPerson = RequestForApproval::select(\DB::raw('COUNT(id) as total_request_for_approve'),
-                    \DB::raw('COUNT(IF(status = 2, 0, NULL)) as total_approved'))
+                    \DB::raw('COUNT(IF(status = "2", 0, NULL)) as total_approved'))
                         ->where('group_token', $sessionInfo->extra_info)
                         ->first();
 
@@ -309,13 +307,12 @@ class CallbackController extends Controller
         }
         else
         {
-            $getUserID = PersonalInfoDuringIp::select('user_id')->find($person_id);
-            $getPerson = User::select('id','personal_number')->find($getUserID->user_id);
+            $getPerson = User::select('id','personal_number')->find($person_id);
             if($getPerson)
             {
                 if(env('IS_WS_SOCKET_IN', false))
                 {
-                    \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, $getPerson->personal_number, true));
+                    \broadcast(new EventNotification(null, $user_id, $userUniqueId->unique_id, $from, aceussDecrypt($getPerson->personal_number), true));
                 }
             }
             
@@ -332,11 +329,11 @@ class CallbackController extends Controller
             "message" => 'test message',
             "message_type" => 'success',
         ];
-        //\broadcast(new NotificationForAll($data));
-        //\broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
-        \broadcast(new EventNotification($data, $user->id, $user->unique_id, 'required'));
-        //event(new BankIdVerified('Hello World'));
-        return 'Success';
+        $stat = \broadcast(new NotificationForAll($data));
+        //$stat = \broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
+        //$stat = \broadcast(new statNotification($data, $user->id, $user->unique_id, 'required'));
+        //$stat = event(new BankIdVerified('Hello World'));
+        dd($stat);
     }
 
     public function checkChilds()

@@ -481,6 +481,21 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{shift_end_time}}";
         $smsTemplate->save();
 
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'licence-status-reminder';
+        $smsTemplate->mail_subject = 'Licence Status Reminder';
+        $smsTemplate->module = 'user';
+        $smsTemplate->type = 'subscription';
+        $smsTemplate->event = 'licence-status-reminder';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, your licence will be expire in {{days_left}}";
+        $smsTemplate->custom_attributes = "{{name}},{{days_left}}";
+        $smsTemplate->save();
+
         //----------------------vivek-----------------------------------//
 
         $smsTemplate = new EmailTemplate;

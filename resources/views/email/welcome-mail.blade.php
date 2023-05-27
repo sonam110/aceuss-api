@@ -145,7 +145,7 @@
                         <tr>
                           <td style="font-family: 'Roboto Condensed', sans-serif;">
                             @if(!empty($data['company']))
-                              {{$data['company']['company_name']}}
+                              {{aceussDecrypt($data['company']['company_name'])}}
                               <br>
                               {{$data['company']['company_address']}}
                               <br>
