@@ -329,9 +329,9 @@ class CallbackController extends Controller
             "message" => 'test message',
             "message_type" => 'success',
         ];
-        $stat = \broadcast(new NotificationForAll($data));
+        //$stat = \broadcast(new NotificationForAll($data));
         //$stat = \broadcast(new BankIdVerified($data, $user, $user->unique_id, 'required'));
-        //$stat = \broadcast(new statNotification($data, $user->id, $user->unique_id, 'required'));
+        $stat = \broadcast(new EventNotification($data, $user->id, $user->unique_id, 'required'));
         //$stat = event(new BankIdVerified('Hello World'));
         dd($stat);
     }
