@@ -102,6 +102,32 @@
         </tr>
        
     </table>
+        @if($journal->journalActions->count()>0)
+        <table class="header table table-striped">
+            <tr>
+                <td colspan="4" class="sub-title"><strong>Journal Actions</strong></td>
+            </tr>
+            @foreach($journal->journalActions as $jkey => $action)
+            <tr>
+                <td><strong>{{$jkey+1}}: Comment action</strong></td>
+                <td colspan="3">{{$action->comment_action}}</td>
+            </tr>
+            <tr>
+                <td><strong>Comment result</strong></td>
+                <td colspan="3">{{$action->comment_result}}</td>
+            </tr>
+            <tr>
+                <td><strong>Signed: </strong></td>
+                <td>{{ ($action->is_signed==1) ? $action->signed_date : 'Not signed yet'}}</td>
+                <td><strong>Signed By:</strong></td>
+                <td>@if($action->is_signed==1) {{ aceussDecrypt($action->signedBy->name) }} @endif</td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;</td>
+            </tr>
+            @endforeach
+        </table>
+        @endif
     @endforeach
 
     @if(@$journal->Patient)

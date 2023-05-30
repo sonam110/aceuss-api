@@ -436,10 +436,20 @@
                 <td class="sub-title" colspan="2"><strong>Approved By</strong></td>
             </tr>
             @foreach($ip->requestForApprovals as $key => $person)
-            @if($person->RequestedTo)
+            @if($person->user)
             <tr>
-                <td><strong>{{$key+1}}: {{aceussDecrypt(@$person->RequestedTo->user->name)}}</strong></td>
-                <td><br><center><strong>__________________________</strong></center></td>
+                <td><strong>{{$key+1}}: {{aceussDecrypt(@$person->user->name)}}</strong></td>
+                <td><br>
+                    <center>
+                        <strong>
+                            @if($person->approval_type==2)
+                                <u>SIGNED VIA MOBILE BANKID</u>
+                            @else
+                                __________________________
+                            @endif 
+                        </strong>
+                    </center>
+                </td>
             </tr>
             @endif
             @endforeach

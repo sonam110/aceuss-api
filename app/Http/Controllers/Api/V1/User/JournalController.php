@@ -516,7 +516,8 @@ class JournalController extends Controller
             }
             if(!empty($request->from_date) && !empty($request->end_date))
             {
-                $journals->whereDate('created_at', '>=', $request->from_date)->whereDate('created_at', '<=', $request->end_date);
+                $journals->whereDate('created_at', '>=', $request->from_date)
+                    ->whereDate('created_at', '<=', $request->end_date);
             }
             elseif(!empty($request->from_date) && empty($request->end_date))
             {

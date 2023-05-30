@@ -407,6 +407,7 @@ class CompanyAccountController extends Controller
 
             $user->branch_name = $request->company_name;
             $user->branch_email = $request->company_email;
+            $user->licence_end_date = $request->licence_end_date;
 
             $user->save();
 
@@ -435,14 +436,27 @@ class CompanyAccountController extends Controller
                 if(!is_object($checkAlreadySubsc)){
                      return prepareResult(false,getLangByLabelGroups('Company','message_already_subscribed'),[], config('httpcodes.bad_request')); 
                 }
-                
+
                 $package = Package::where('id',$request->package_id)->first();
+
+                // Create Licence Key
+                $keyMgmt = LicenceKeyManagement::where('top_most_parent_id', $user->id)
+                ->where('licence_key', $request->licence_key)->first();
+                if($keyMgmt)
+                {
+                    $keyMgmt->expire_at = $request->licence_end_date;
+                    $keyMgmt->package_details = $package;
+                    $keyMgmt->save();
+                }
+                
+                
                 $packageSubscribe = new Subscription;
                 $packageSubscribe->user_id = $user->id;
                 $packageSubscribe->package_id = $request->package_id;
+                $packageSubscribe->licence_key = $request->licence_key;
                 $packageSubscribe->package_details = $package;
                 $packageSubscribe->start_date = date('Y-m-d');
-                $packageSubscribe->end_date = date('Y-m-d', strtotime("+".$package->validity_in_days." days"));
+                $packageSubscribe->end_date = !empty($request->licence_end_date) ? $request->licence_end_date : date('Y-m-d', strtotime("+".$package->validity_in_days." days"));
                 $packageSubscribe->status = '1';
                 $packageSubscribe->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
                 $packageSubscribe->save();

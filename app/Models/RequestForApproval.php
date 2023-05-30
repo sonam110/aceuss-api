@@ -55,6 +55,11 @@ class RequestForApproval extends Model
     {
         return $this->belongsTo(PersonalInfoDuringIp::class,'requested_to','id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'requested_to','id');
+    }
    
     public function RejectedBy()
     {

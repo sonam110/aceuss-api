@@ -1377,7 +1377,7 @@ class ActivityController extends Controller
     		$activity->selected_option = ($option) ? $option->option : null;
     		$activity->comment = $request->comment;
     		$activity->action_by = $user->id;
-    		$activity->action_date = date('Y-m-d');
+    		$activity->action_date = date('Y-m-d H:i:s');
     		$activity->save();
     		
     		$start_date_time = $activity->start_date.' '.$activity->start_time;
@@ -1391,7 +1391,7 @@ class ActivityController extends Controller
     		$activityTimeLog->start_date = $activity->start_date;
     		$activityTimeLog->start_time = $activity->start_time;
     		$activityTimeLog->action_date =  Carbon::now()->format('Y-m-d');
-    		$activityTimeLog->action_time = Carbon::now()->format('H:is');
+    		$activityTimeLog->action_time = Carbon::now()->format('H:i:s');
     		$activityTimeLog->action_by = $user->id;
     		$activityTimeLog->time_diff = $time_diff;
     		$activityTimeLog->save();
@@ -1518,7 +1518,7 @@ class ActivityController extends Controller
                 'status' => 3, //Not Applicable
                 'action_comment' => $request->action_comment,
                 'action_by' => auth()->id(),
-                'action_date' => date('Y-m-d')
+                'action_date' => date('Y-m-d H:i:s')
             ]);
 
     		/*-----------Send notification---------------------*/
