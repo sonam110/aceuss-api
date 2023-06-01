@@ -455,7 +455,13 @@
             @endforeach
             @if($ip->patient)
             <tr>
-                <td><strong>{{$ip->requestForApprovals->count()+1}}: {{aceussDecrypt($ip->patient->name)}}</strong></td>
+                <td><strong>{{$ip->requestForApprovals->count()+1}}: {{aceussDecrypt($ip->patient->name)}} (Patient)</strong></td>
+                <td><br><center><strong>__________________________</strong></center></td>
+            </tr>
+            @endif
+            @if($ip->CreatedBy)
+            <tr>
+                <td><strong>{{$ip->requestForApprovals->count()+2}}: {{aceussDecrypt($ip->CreatedBy->name)}} (Created By)</strong></td>
                 <td><br><center><strong>__________________________</strong></center></td>
             </tr>
             @endif

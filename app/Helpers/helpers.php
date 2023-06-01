@@ -483,7 +483,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 ->send();
             }
 
-            if($save_to_database == true)
+            if($save_to_database == true && (Auth::id() != $user->id))
             {
                 $notification = new Notification;
                 $notification->user_id          = $user->id;

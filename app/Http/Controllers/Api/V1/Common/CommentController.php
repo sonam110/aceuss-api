@@ -57,7 +57,7 @@ class CommentController extends Controller
                     {
                     $variable_data = [
                         '{{name}}'              => aceussDecrypt($getUser->name),
-                        '{{comment_by}}'        => Auth::User()->name,
+                        '{{comment_by}}'        => aceussDecrypt(Auth::User()->name),
                         '{{activity_title}}'    => $activity->title
                     ];
                     actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
@@ -79,9 +79,9 @@ class CommentController extends Controller
             $whereRaw = $this->getWhereRawFromRequest($request);
             if($whereRaw != '') { 
                 $query = Comment::select(array('comments.*', DB::raw("(SELECT count(id) from comments WHERE comments.parent_id = comments.id) replyCount")))->whereNull('parent_id')->whereRaw($whereRaw)->with('replyThread')
-                ->orderBy('id', 'DESC');
+                ->orderBy('id', 'ASC');
             } else {
-                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(id) from comments WHERE comments.parent_id = comments.id) replyCount")))->whereNull('parent_id')->with('replyThread')->orderBy('id', 'DESC');
+                $query = Comment::select(array('comments.*', DB::raw("(SELECT count(id) from comments WHERE comments.parent_id = comments.id) replyCount")))->whereNull('parent_id')->with('replyThread')->orderBy('id', 'ASC');
             }
             if(!empty($request->perPage))
             {

@@ -3549,6 +3549,7 @@ class LabelSeeder extends Seeder
                 "showing-current-date-deviation"=> "Showing current date deviation",
                 "no.-of-deviation"=> "No. of Deviations",
                 "no.-of-journal"=> "No. of Journals",
+                "ip-change-warning"=> "The date of the selected IP is {{start_date}} - {{end_date}}, Please check the activity date must be between these dates.",
     		],
     		'employee_listing' => [
     			'employees' => 'Employees',
