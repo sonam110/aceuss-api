@@ -616,7 +616,7 @@ class ActivityController extends Controller
             								$activityAssigne = new ActivityAssigne;
             								$activityAssigne->activity_id = $activity->id;
             								$activityAssigne->user_id = $employee;
-            								$activityAssigne->assignment_date = date('Y-m-d');
+            								$activityAssigne->assignment_date = $date;
             								$activityAssigne->assignment_day ='1';
             								$activityAssigne->assigned_by = $user->id;
             								$activityAssigne->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
@@ -639,7 +639,7 @@ class ActivityController extends Controller
 	            											'{{start_date}}' => $activity->start_date,
 	            											'{{start_time}}' => $activity->start_time
 	            										];
-	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data);
+	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data, null, null, true);
             										}
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
@@ -652,7 +652,7 @@ class ActivityController extends Controller
 	            											'{{start_date}}'=> $activity->start_date,
 	            											'{{start_time}}'=> $activity->start_time
 	            										];
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data);
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
             										}
             									}
             								}
@@ -1007,7 +1007,7 @@ class ActivityController extends Controller
 	            											'{{start_date}}' => $activity->start_date,
 	            											'{{start_time}}' => $activity->start_time
 	            										];
-	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data);
+	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data, null, null, true);
             										}
             									}
             									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
@@ -1020,7 +1020,7 @@ class ActivityController extends Controller
 	            											'{{start_date}}'=> $activity->start_date,
 	            											'{{start_time}}'=> $activity->start_time
 	            										];
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data);
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
             										}
             									}
             								}
@@ -1092,7 +1092,7 @@ class ActivityController extends Controller
 	    				'{{title}}'				=> $checkId->title,
 	    				'{{deleted_by}}'        => aceussDecrypt(Auth::User()->name),
 	    			];
-	    			actionNotification($value,$data_id,$notification_template,$variable_data);
+	    			actionNotification($value,$data_id,$notification_template,$variable_data, null, null, true);
     			}
     		}
     		
@@ -1209,7 +1209,7 @@ class ActivityController extends Controller
 	    			'{{start_date}}' 		=> $checkId->start_date,
 	    			'{{start_time}}' 		=> $checkId->start_time
 	    		];
-	    		actionNotification($getUser,$data_id,$notification_template,$variable_data);
+	    		actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
     		}
     		DB::commit();
     		$activityAssigne = ActivityAssigne::where('id',$activityAssigne->id)->with('Activity','User:id,name')->first();
@@ -1440,7 +1440,7 @@ class ActivityController extends Controller
 	    				'{{start_date}}'        => $activity->start_date,
 	    				'{{start_time}}'        => $activity->start_time
 	    			];
-	    			actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+	    			actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
     			}
     		}
     		DB::commit();
@@ -1537,7 +1537,7 @@ class ActivityController extends Controller
 	    			'{{start_date}}'        => $getActivity->start_date,
 	    			'{{start_time}}'        => $getActivity->start_time
 	    		];
-				actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+				actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 			}
     		return prepareResult(true, getLangByLabelGroups('Activity','message_mark_not_applicable') ,[], config('httpcodes.success'));
     	}

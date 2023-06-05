@@ -101,7 +101,7 @@ class ModuleRequestController extends Controller
 	                '{{request_date}}'   => date('Y-m-d'),
 	                '{{request_comment}}'=> $request->request_comment
 	            ];
-	            actionNotification($user,$data_id,$notification_template,$variable_data);
+	            actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 	        }
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
@@ -220,7 +220,7 @@ class ModuleRequestController extends Controller
                 ];
 			}
 
-			actionNotification($user,$data_id,$notification_template,$variable_data);
+			actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_change_status') ,$moduleRequest, config('httpcodes.success'));
 		}

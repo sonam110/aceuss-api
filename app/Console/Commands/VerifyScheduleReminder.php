@@ -65,7 +65,7 @@ class VerifyScheduleReminder extends Command
     					$variable_data = [
     						'{{name}}' => aceussDecrypt($user->name)
     					];
-    					actionNotification($user,$user->id,$notification_template,$variable_data);
+    					actionNotification($user,$user->id,$notification_template,$variable_data, null, null, true);
     				}
     			}
     		}

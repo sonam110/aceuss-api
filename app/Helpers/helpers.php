@@ -423,7 +423,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
 }
 
 
-function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null,$actionNoti=null)
+function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null,$actionNoti=null,$socket_send=false)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
     {
@@ -483,7 +483,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 ->send();
             }
 
-            if($save_to_database == true && (Auth::id() != $user->id))
+            if($save_to_database == true)
             {
                 $notification = new Notification;
                 $notification->user_id          = $user->id;
@@ -505,7 +505,7 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
                 $notification->read_status      = false;
                 $notification->save();
 
-                if(env('IS_WS_SOCKET_IN', false))
+                if(env('IS_WS_SOCKET_IN', false) && $socket_send==true)
                 {
                     \broadcast(new EventNotification($notification, $user->id, $user->unique_id, $actionNoti));
                 }

@@ -225,7 +225,7 @@ class FollowUpsController extends Controller
                                 '{{end_date}}' => $ipFollowups->end_date,
                                 '{{end_time}}' => $ipFollowups->end_time
                             ];
-                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data, null, null, true);
                         }
                         //------------------------------//
                         

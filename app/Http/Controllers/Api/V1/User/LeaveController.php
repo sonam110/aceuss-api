@@ -231,7 +231,7 @@ class LeaveController extends Controller
 						'{{date}}'          => $schedule->shift_date,
 						'{{reason}}'        => $request->reason
 					];
-					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 				}        
 			}
 			else
@@ -320,7 +320,7 @@ class LeaveController extends Controller
 							'{{date}}'          => $schedule->shift_date,
 							'{{reason}}'        => $value['reason']
 						];
-						actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+						actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 					}
 				}  
 			}
@@ -455,7 +455,7 @@ class LeaveController extends Controller
 								'{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
 								'{{dates}}'         => $dates
 							];
-							actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+							actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 						}
                         //----------------------------------------------//
 						$users_id[] = $user->id;
@@ -480,7 +480,7 @@ class LeaveController extends Controller
 						'{{dates}}' => $dates,
 						'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 					];
-					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 				}
                 //--------------------------------------//
 			}
@@ -570,7 +570,7 @@ class LeaveController extends Controller
 							'{{end_time}}'      => $schedule->shift_end_time,
 							'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 						];
-						actionNotification($user,$data_id,$notification_template,$variable_data);
+						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 					}
                     //----------------------------------------//
 
@@ -586,7 +586,7 @@ class LeaveController extends Controller
 							'{{date}}' => $leave->shift_date,
 							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param);
+						actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 					}
                     //----------------------------------------//
 				}
@@ -635,7 +635,7 @@ class LeaveController extends Controller
 					'{{dates}}' => implode(',', $dates),
 					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 			}
             //----------------------------------------------//
 
@@ -758,7 +758,7 @@ class LeaveController extends Controller
 					'{{selected_dates}}'=> $selected_dates,
 					'{{vacant_dates}}'  => $vacant_dates
 				];
-				actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param);
+				actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 			}
 
 			foreach ($users as $key => $user) 
@@ -775,7 +775,7 @@ class LeaveController extends Controller
 						'{{selected_dates}}'=> $selected_dates,
 						'{{vacant_dates}}'  => $vacant_dates
 					];
-					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 				}
 				//-------------------------------------------//
 				$users_id[] = $user->id;
@@ -903,7 +903,7 @@ class LeaveController extends Controller
 									'{{end_time}}'      => $assSchedule->shift_end_time,
 									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
-								actionNotification($user,$data_id,$notification_template,$variable_data);
+								actionNotification($user,$data_id,$notification_template,$variable_data, null, true);
 							}
 						}
 					}
@@ -1005,7 +1005,7 @@ class LeaveController extends Controller
 									'{{end_time}}'      => $assSchedule->shift_end_time,
 									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
-								actionNotification($user,$data_id,$notification_template,$variable_data);
+								actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 							}
 							
 					        //------------------------------------------//
@@ -1069,7 +1069,7 @@ class LeaveController extends Controller
 					'{{dates}}'	=> implode(',', $dates),
 					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param);
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
 			}
     		//-----------------------------------------------------//
 

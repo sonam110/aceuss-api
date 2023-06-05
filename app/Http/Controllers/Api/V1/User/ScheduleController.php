@@ -441,6 +441,7 @@ class ScheduleController extends Controller
 							}
 
 						    //----notify-emp-for-schedule-assigned---//
+						    $user = User::find($shift['user_id']);
 							if(!empty($shift['user_id']) && $user)
 							{
 								$data_id =  $schedule->id;
@@ -588,7 +589,7 @@ class ScheduleController extends Controller
 						'{{end_time}}'      => $schedule->shift_end_time,
 						'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 					];
-					actionNotification($user,$data_id,$notification_template,$variable_data);
+					actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 				}
                 //----------------------------------------//
 
@@ -1118,7 +1119,7 @@ class ScheduleController extends Controller
 							'{{end_time}}'=> $schedule->shift_end_time,
 							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($user,$data_id,$notification_template,$variable_data);
+						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
 			            //--------------------------------------//
 						$schedule->update(['approved_by_company'=>1]);
 					}
@@ -1230,7 +1231,7 @@ class ScheduleController extends Controller
 							'{{end_time}}'=> $schedule->shift_end_time,
 							'{{verified_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
+						actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param, null, true);
 					}
 		            //--------------------------------------//
 				}

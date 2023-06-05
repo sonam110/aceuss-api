@@ -64,7 +64,7 @@ class CheckAndNotifyLicenceStatus extends Command
                    '{{name}}'      => aceussDecrypt($user->name),
                    '{{days_left}}' => $daysLeft
                ];
-               actionNotification($user,$data_id,$notification_template,$variable_data);
+               actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
             }
         }
         return 0;

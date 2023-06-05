@@ -328,7 +328,7 @@ class PatientController extends Controller
                                 '{{created_by}}' => aceussDecrypt(Auth::User()->name),
                                 '{{title}}' => $patientPlan->title
                             ];
-                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                            actionNotification($notifyUser,$data_id,$notification_template,$variable_data, null, null, true);
                         }
                         //------------------------------//
 
@@ -788,7 +788,7 @@ class PatientController extends Controller
                     '{{name}}' => aceussDecrypt($notifyUser->name),
                     '{{assigned_by}}' => aceussDecrypt(Auth::User()->name)
                 ];
-                actionNotification($notifyUser,$data_id,$notification_template,$variable_data);
+                actionNotification($notifyUser,$data_id,$notification_template,$variable_data, null, null, true);
             }
             //------------------------------//
             $ipAssigneEmp = IpAssigneToEmployee::where('id',$ipAssigne->id)->with('User:id,name','PatientImplementationPlan')->first();

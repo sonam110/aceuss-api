@@ -60,7 +60,7 @@ class CommentController extends Controller
                         '{{comment_by}}'        => aceussDecrypt(Auth::User()->name),
                         '{{activity_title}}'    => $activity->title
                     ];
-                    actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param);
+                    actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
                 }
             }
 	        return prepareResult(true,getLangByLabelGroups('BcCommon','message_create') ,$addComment, config('httpcodes.success'));

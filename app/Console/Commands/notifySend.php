@@ -49,8 +49,12 @@ class notifySend extends Command
      */
     public function handle()
     {
-        $activityAssigne = ActivityAssigne::where('is_notify','0')->where('status','0')->get();
-        foreach ($activityAssigne as $key => $assigne) {
+        $activityAssigne = ActivityAssigne::where('is_notify','0')
+            ->where('status','0')
+            ->whereDate('assignment_date', date('Y-m-d'))
+            ->get();
+        foreach ($activityAssigne as $key => $assigne) 
+        {
             $activity = Activity::where('id',$assigne->activity_id)->withoutGlobalScope('top_most_parent_id')->first();
             if(!empty($activity)) {
                 $emergencyContact = EmergencyContact::where('top_most_parent_id',$assigne->Activity->title)->where('is_default','1')->first();
@@ -114,7 +118,7 @@ class notifySend extends Command
                             '{{start_date}}'        => $activity->start_date,
                             '{{start_time}}'        => $activity->start_time
                         ];
-                        actionNotification($getUser,$data_id,$notification_template,$variable_data);
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
                         
                         $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
                     }

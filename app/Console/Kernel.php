@@ -37,7 +37,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('licence:status')->dailyAt('09:00');
         $schedule->command('licence:expire')->dailyAt('00:01');
-        $schedule->command('send:activity-notification')->dailyAt('00:01');
+        $schedule->command('send:activity-notification')->everyMinute();
         $schedule->command('send:task-notification')->dailyAt('00:01');
         $schedule->command('websockets:clean')->daily();
         $schedule->command('database:backup')->dailyAt('00:01');

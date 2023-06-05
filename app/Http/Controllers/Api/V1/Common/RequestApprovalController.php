@@ -131,7 +131,7 @@ class RequestApprovalController extends Controller
                                             '{{requested_by}}'      => aceussDecrypt(Auth::User()->name),
                                             '{{ip_title}}'          => ($ip) ? $ip->title : $request->reason_for_requesting
                                         ];
-                                        actionNotification($userRec,$data_id,$notification_template,$variable_data);
+                                        actionNotification($userRec,$data_id,$notification_template,$variable_data, null, null, true);
                                     }
                                 }
                             }

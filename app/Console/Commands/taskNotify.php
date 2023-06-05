@@ -109,7 +109,7 @@ class taskNotify extends Command
                            '{{assigned_by}}'       => aceussDecrypt($task->createdBy->name),
                            '{{task_title}}'        => $task->title
                        ];
-                       actionNotification($getUser,$data_id,$notification_template,$variable_data);
+                       actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
                        
                        $update_is_notify = AssignTask::where('id',$assigne->id)->update(['is_notify'=>'1']);
                    } 

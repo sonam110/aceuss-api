@@ -178,7 +178,7 @@ class CallbackController extends Controller
                             '{{end_time}}'=> $schedule->shift_end_time,
                             '{{approved_by}}'=> aceussDecrypt($loggedInUser->name)
                         ];
-                        actionNotification($user,$data_id,$notification_template,$variable_data);
+                        actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
                         //--------------------------------------//
                         $schedule->update([
                             'approved_by_company' => 1,
@@ -270,7 +270,7 @@ class CallbackController extends Controller
                         '{{end_time}}'=> $schedule->shift_end_time,
                         '{{verified_by}}'=> aceussDecrypt($loggedInUser->name)
                     ];
-                    actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param);
+                    actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param, null, true);
                     //--------------------------------------//
                 }
                 $isSuccess = true;

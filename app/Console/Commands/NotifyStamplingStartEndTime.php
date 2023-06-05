@@ -57,7 +57,7 @@ class NotifyStamplingStartEndTime extends Command
                    '{{name}}'      => aceussDecrypt($user->name),
                    '{{shift_start_time}}'     => $value->shift_start_time
                ];
-               actionNotification($user,$data_id,$notification_template,$variable_data);
+               actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
             }
             if($value->shift_end_time == $check_time)
             {
@@ -66,7 +66,7 @@ class NotifyStamplingStartEndTime extends Command
                    '{{name}}'      => aceussDecrypt($user->name),
                    '{{shift_end_time}}'     => $value->shift_end_time
                ];
-               actionNotification($user,$data_id,$notification_template,$variable_data);
+               actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
             }
         }
         return 0;

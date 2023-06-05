@@ -313,7 +313,7 @@ class JournalController extends Controller
                     '{{name}}'              => aceussDecrypt($getUser->name),
                     '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
                 ];
-                actionNotification($getUser,$data_id,$notification_template,$variable_data,$exra_params);
+                actionNotification($getUser,$data_id,$notification_template,$variable_data,$exra_params, null, true);
             }
             //-----------------------------------------------//
 

@@ -430,7 +430,7 @@ class UserController extends Controller
                     '{{name}}'          => aceussDecrypt($notified_company->name),
                     '{{user_name}}'     => aceussDecrypt($user->name)
                 ];
-                actionNotification($notified_company,$data_id,$notification_template,$variable_data,$extra_param);
+                actionNotification($notified_company,$data_id,$notification_template,$variable_data,$extra_param, null, true);
             }
             //----------------------------------------//
 
