@@ -98,9 +98,6 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "";
         $smsTemplate->save();
 
-
-        /*-------------------------Added by khushboo------------------------*/
-        
         $smsTemplate = new EmailTemplate;
         $smsTemplate->mail_sms_for = 'activity-assignment';
         $smsTemplate->mail_subject = 'New Activity Assigned';
@@ -113,6 +110,20 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->sms_body = "";
         $smsTemplate->notify_body = "Dear {{name}}, New Activity {{activity_title}} starts at {{start_date}}   {{start_time}}  is assigned to you  by {{assigned_by}}";
         $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}},{{assigned_by}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'reminder-activity-assignment';
+        $smsTemplate->mail_subject = 'Reminder!!! Activity Start soon..';
+        $smsTemplate->module = 'activity';
+        $smsTemplate->type = 'activity';
+        $smsTemplate->event = 'assigned';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "";
+        $smsTemplate->notify_body = "Dear {{name}}, This is reminder  for your assinged activity {{activity_title}} starts at {{start_date}}   {{start_time}}.";
+        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}}";
         $smsTemplate->save();
         
         $smsTemplate = new EmailTemplate;

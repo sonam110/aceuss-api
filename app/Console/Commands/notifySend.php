@@ -110,7 +110,7 @@ class notifySend extends Command
                 {
                     if(($is_push_notify == true) && ($currentDateTime ==  $dateTime))
                     {
-                        $notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
+                        $notification_template = EmailTemplate::where('mail_sms_for', 'reminder-activity-assignment')->first();
                         $variable_data = [
                             '{{name}}'              => aceussDecrypt($getUser->name),
                             '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
