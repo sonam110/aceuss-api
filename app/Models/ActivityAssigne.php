@@ -37,12 +37,19 @@ class ActivityAssigne extends Model
     {
         return $this->belongsTo(User::class,'user_id','id');
     }
+
     public function Activity()
     {
         return $this->belongsTo(Activity::class,'activity_id','id');
     }
-     public function employee()
+    
+    public function employee()
     {
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function assignedBy()
+    {
+        return $this->belongsTo(User::class,'assigned_by','id');
     }
 }

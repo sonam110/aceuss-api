@@ -109,7 +109,7 @@ class notifySend extends Command
                         $notification_template = EmailTemplate::where('mail_sms_for', 'activity-assignment')->first();
                         $variable_data = [
                             '{{name}}'              => aceussDecrypt($getUser->name),
-                            '{{assigned_by}}'       => aceussDecrypt(Auth::User()->name),
+                            '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
                             '{{activity_title}}'    => $activity->title,
                             '{{start_date}}'        => $activity->start_date,
                             '{{start_time}}'        => $activity->start_time
