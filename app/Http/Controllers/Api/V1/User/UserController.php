@@ -500,17 +500,26 @@ class UserController extends Controller
                                     $getUserType = UserType::find($user_type_id);
                                     $roleInfo = getRoleInfo($top_most_parent_id, $getUserType->name);
                                     $pass = generateRandomNumber(15);
-                                    $userSave = new User;
-                                    $userSave->unique_id = generateRandomNumber();
-                                    $userSave->branch_id =   getBranchId();
-                                    $userSave->user_type_id = $user_type_id;
-                                    $userSave->role_id =  $roleInfo->id;
-                                    $userSave->parent_id = $user->id;
-                                    $userSave->top_most_parent_id = $top_most_parent_id;
-                                    $userSave->name = @$value['name'] ;
-                                    $userSave->email = @$value['email'] ;
-                                    $userSave->personal_number = @$value['personal_number'] ;
-                                    $userSave->password = Hash::make($pass);
+                                    $checkExistUser = User::where('email', @$value['email'])->withoutGlobalScope('top_most_parent_id')->first();
+                                    if($checkExistUser)
+                                    {
+                                        $userSave = $checkExistUser;
+                                    }
+                                    else
+                                    {
+                                        $userSave = new User;
+                                        $userSave->unique_id = generateRandomNumber();
+                                        $userSave->branch_id =   getBranchId();
+                                        $userSave->user_type_id = $user_type_id;
+                                        $userSave->role_id =  $roleInfo->id;
+                                        $userSave->parent_id = $user->id;
+                                        $userSave->top_most_parent_id = $top_most_parent_id;
+                                        $userSave->name = @$value['name'] ;
+                                        $userSave->email = @$value['email'] ;
+                                        $userSave->personal_number = @$value['personal_number'];
+                                        $userSave->password = Hash::make($pass);
+                                    }
+
                                     $userSave->contact_number = @$value['contact_number'];
                                     $userSave->country_id = @$value['country_id'];
                                     $userSave->city = @$value['city'];
@@ -906,6 +915,7 @@ class UserController extends Controller
                                 $userSave->role_id =  $roleInfo->id;
                                 $userSave->parent_id = $user->id;
                                 $userSave->top_most_parent_id = $top_most_parent_id;
+                                $userSave->password = Hash::make($pass);
                             } 
                             else
                             {
@@ -914,7 +924,7 @@ class UserController extends Controller
                             $userSave->name = @$value['name'] ;
                             $userSave->email = @$value['email'] ;
                             $userSave->personal_number = @$value['personal_number'] ;
-                            $userSave->password = Hash::make($pass);
+                            
                             $userSave->contact_number = @$value['contact_number'];
                             $userSave->country_id = @$value['country_id'];
                             $userSave->city = @$value['city'];
