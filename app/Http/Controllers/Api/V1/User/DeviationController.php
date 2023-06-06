@@ -342,7 +342,8 @@ class DeviationController extends Controller
                     '{{name}}'              => aceussDecrypt($getUser->name),
                     '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
                 ];
-                actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                $socket = ($getUser->id==auth()->id()) ? false : true;
+                actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
             }
             //------------------------------------------------//
             DB::commit();

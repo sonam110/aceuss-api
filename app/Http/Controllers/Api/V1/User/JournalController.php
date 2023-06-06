@@ -313,6 +313,9 @@ class JournalController extends Controller
                     '{{name}}'              => aceussDecrypt($getUser->name),
                     '{{created_by}}'        => aceussDecrypt(Auth::User()->name),
                 ];
+
+                $socket = ($getUser->id==auth()->id()) ? false : true;
+                
                 actionNotification($getUser,$data_id,$notification_template,$variable_data,$exra_params, null, true);
             }
             //-----------------------------------------------//
