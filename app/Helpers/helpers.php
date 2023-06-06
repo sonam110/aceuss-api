@@ -422,7 +422,7 @@ function pushNotification($sms_for,$companyObj,$obj,$save_to_database,$module,$i
     return true;
 }
 
-
+//created by khushboo
 function actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param = null,$actionNoti=null,$socket_send=false)
 {
     if(env('IS_NOTIFICATION_ENABLE')== true)
@@ -515,33 +515,22 @@ function actionNotification($user,$data_id,$notification_template,$variable_data
     return true;
 }
 
+
 function strReplaceAssoc(array $replace, $subject) 
 { 
     return str_replace(array_keys($replace), array_values($replace), $subject);
 }
 
-function sendMessage($sms_for,$obj, $companyObj)
+function sendMessage($user,$notification_template,$variable_data)
 {
     $isSent = false;
-    $message = false;
-    $getMsg = EmailTemplate::where('mail_sms_for', $sms_for)->first();
-    if($getMsg && env('IS_ENABLED_SEND_SMS', false)==true)
+    $message = null;
+    if(env('IS_ENABLED_SEND_SMS', false)==true)
     {
-        $message = $getMsg->sms_body;
-         $arrayVal = [
-            '{{name}}'  => $obj['name'],
-            '{{email}}' => $obj['email'],
-            '{{title}}' => $obj['title'],
-            '{{patient_id}}' => $obj['patient_id'],
-            '{{start_date}}' => $obj['start_date'],
-            '{{start_time}}' => $obj['start_time'],
-            '{{company_name}}' => $companyObj['company_name'],
-            '{{company_address}}' =>  $companyObj['company_address'],
-        ];
-        $message = strReplaceAssoc($arrayVal, $message);
-
+        $message = $notification_template->sms_body;
+        $message = strReplaceAssoc($variable_data, $message);
         $ch = curl_init();
-        $phone_number   = ltrim($obj['contact_number'], '0');
+        $phone_number   = ltrim($user->contact_number, '0');
         $receivers      = ((strlen($phone_number))==9) ? env('COUNTRY_CODE').$phone_number : $phone_number; 
         $sender         =  env('SENDERID', 'Aceuss');
         $account        = env('PIXIE_ACCOUNT', '12106497');
@@ -554,13 +543,12 @@ function sendMessage($sms_for,$obj, $companyObj)
         $buffer = curl_exec($ch);
 
         // create SMS log
-        smslog($obj['company_id'],'1', $obj, $receivers, $message);
+        smslog($user->top_most_parent_id,'1', $receivers, $message, null);
     }
-    
-    return $isSent;     
+    return $isSent;    
 }
 
-function smslog($top_most_parent_id,$type_id ,$resource_id, $phone_number, $message)
+function smslog($top_most_parent_id,$type_id, $phone_number, $message, $resource_id=null)
 {
     //Create SMS log
     $smsLog = new SmsLog;

@@ -90,7 +90,7 @@ class StatisticsDeviationController extends Controller
             return prepareResult(true,getLangByLabelGroups('CompanyType','message_stats'),$query,config('httpcodes.success'));
         }
         catch(Exception $exception) {
-	        logException($exception);
+            logException($exception);
             return prepareResult(false, $exception->getMessage(),[], config('httpcodes.internal_server_error'));
             
         }

@@ -507,6 +507,50 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->custom_attributes = "{{name}},{{days_left}}";
         $smsTemplate->save();
 
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'reminder-before-start';
+        $smsTemplate->mail_subject = 'Reminder!!! Activity will Start soon..';
+        $smsTemplate->module = 'activity';
+        $smsTemplate->type = 'activity';
+        $smsTemplate->event = 'assigned';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} at {{start_date}} {{start_time}} is just {{before_minutes}} minutes away. Please make sure you are prepared.";
+        $smsTemplate->notify_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} at {{start_date}} {{start_time}} is just {{before_minutes}} minutes away. Please make sure you are prepared.";
+        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}},{{before_minutes}}";
+        $smsTemplate->save();
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'reminder-activity-start';
+        $smsTemplate->mail_subject = 'Reminder!!! Activity started..';
+        $smsTemplate->module = 'activity';
+        $smsTemplate->type = 'activity';
+        $smsTemplate->event = 'assigned';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} started at {{start_date}}   {{start_time}}. Please make sure you are prepared.";
+        $smsTemplate->notify_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} started at {{start_date}}   {{start_time}}. Please make sure you are prepared.";
+        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}}";
+        $smsTemplate->save();
+
+
+        $smsTemplate = new EmailTemplate;
+        $smsTemplate->mail_sms_for = 'reminder-after-end';
+        $smsTemplate->mail_subject = 'Reminder!!! Activity Ended..';
+        $smsTemplate->module = 'activity';
+        $smsTemplate->type = 'activity';
+        $smsTemplate->event = 'assigned';
+        $smsTemplate->screen = 'detail';
+        $smsTemplate->status_code = 'info';
+        $smsTemplate->save_to_database = 1;
+        $smsTemplate->sms_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} ended at {{end_date}}   {{end_time}}.";
+        $smsTemplate->notify_body = "Dear {{name}}, This is a friendly reminder that your scheduled activity {{activity_title}} ended at {{end_date}}   {{end_time}}.";
+        $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{end_date}},{{end_time}}";
+        $smsTemplate->save();
+
+
         //----------------------vivek-----------------------------------//
 
         $smsTemplate = new EmailTemplate;

@@ -87,9 +87,14 @@ class ModuleRequestController extends Controller
 			$moduleRequest->status =  '0';
 			$moduleRequest->save();
 
+			$modulesNames = [];
+			foreach ($request->modules as $key => $value) {
+				$modulesNames[] = Module::find($value)->name;
+			}
+
 			//----------------notification------------------------//
-			$modules = implode(',', json_decode($moduleRequest->modules));
-			$user = User::first();
+			$modules = implode(',', $modulesNames);
+			$user = User::withoutGlobalScope('top_most_parent_id')->first();
 			$data_id =  $moduleRequest->id;
 			$notification_template = EmailTemplate::where('mail_sms_for', 'module-request')->first();
 			if($user)
@@ -101,7 +106,7 @@ class ModuleRequestController extends Controller
 	                '{{request_date}}'   => date('Y-m-d'),
 	                '{{request_comment}}'=> $request->request_comment
 	            ];
-	            actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+	            actionNotification($user,$data_id,$notification_template,$variable_data);
 	        }
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_create') ,$moduleRequest, config('httpcodes.success'));
@@ -220,7 +225,7 @@ class ModuleRequestController extends Controller
                 ];
 			}
 
-			actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+			actionNotification($user,$data_id,$notification_template,$variable_data);
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_change_status') ,$moduleRequest, config('httpcodes.success'));
 		}
