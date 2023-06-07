@@ -51,180 +51,159 @@ class notifySend extends Command
     {
     	// return date('Y-m-d H:i');
     	        //   reminder before Activity start   //
-    	$activities = Activity::where('start_date',date('Y-m-d'))
+    	$activities = Activity::where('notify_before_time',date('Y-m-d H:i'))
     	->withoutGlobalScope('top_most_parent_id')
     	->where('remind_before_start', true)
+        ->where('is_latest_entry', 1)
     	->get();
 
     	foreach ($activities as $key => $activity) {
-    		$reminder_time = \Carbon\Carbon::parse($activity->start_time)
-    		->subMinute($activity->before_minutes)
-    		->format('Y-m-d H:i');
+    		foreach ($activity->assignEmployee as $key => $assigne) {
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $data_id =  $activity->id;
+                if($getUser)
+                {
+                    $notification_template = EmailTemplate::where('mail_sms_for', 'reminder-before-start')->first();
+                    $variable_data = [
+                        '{{name}}'              => aceussDecrypt($getUser->name),
+                        '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
+                        '{{activity_title}}'    => $activity->title,
+                        '{{start_date}}'        => $activity->start_date,
+                        '{{start_time}}'        => $activity->start_time,
+                        '{{before_minutes}}'    => $activity->before_minutes
+                    ];
 
-    		if(strtotime(date('Y-m-d H:i')) == strtotime($reminder_time))
-    		{
-    			foreach ($activity->assignEmployee as $key => $assigne) {
-    				$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-    				$data_id =  $activity->id;
-    				if($getUser)
-    				{
-    					$notification_template = EmailTemplate::where('mail_sms_for', 'reminder-before-start')->first();
-    					$variable_data = [
-    						'{{name}}'              => aceussDecrypt($getUser->name),
-    						'{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
-    						'{{activity_title}}'    => $activity->title,
-    						'{{start_date}}'        => $activity->start_date,
-    						'{{start_time}}'        => $activity->start_time,
-    						'{{before_minutes}}'    => $activity->before_minutes
-    					];
+                    // Before notify through push notification
+                    if($activity->before_is_push_notify  == true ){
 
-    	                // Before notify through push notification
-    					if($activity->before_is_push_notify  == true ){
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
 
-    						actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                        $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
+                    }
 
-    						$update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-    					}
-
-    	                // Before notify through text notification
-    					if($activity->before_is_text_notify  == true){
-    						sendMessage($getUser,$notification_template,$variable_data);
-    					}
-    				}
-    			}
-    		}
+                    // Before notify through text notification
+                    if($activity->before_is_text_notify  == true){
+                        sendMessage($getUser,$notification_template,$variable_data);
+                    }
+                }
+            }
     	}
     	//-------------------------------------//
 
 
     	//   reminder on Activity Start   //
-    	$activities = Activity::where('start_date',date('Y-m-d'))
+    	$activities = Activity::where('notify_in_time',date('Y-m-d H:i'))
     	->withoutGlobalScope('top_most_parent_id')
     	->where('in_time', true)
+        ->where('is_latest_entry', 1)
     	->get();
 
     	foreach ($activities as $key => $activity) {
-    		$reminder_time = \Carbon\Carbon::parse($activity->start_time)
-    		->format('Y-m-d H:i');
-    		if(strtotime(date('Y-m-d H:i')) == strtotime($reminder_time))
-    		{
-    			foreach ($activity->assignEmployee as $key => $assigne) {
-    				$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-    				$data_id =  $activity->id;
-    				if($getUser)
-    				{
-    					$notification_template = EmailTemplate::where('mail_sms_for', 'reminder-activity-start')->first();
-    					$variable_data = [
-    						'{{name}}'              => aceussDecrypt($getUser->name),
-    						'{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
-    						'{{activity_title}}'    => $activity->title,
-    						'{{start_date}}'        => $activity->start_date,
-    						'{{start_time}}'        => $activity->start_time
-    					];
+    		foreach ($activity->assignEmployee as $key => $assigne) {
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $data_id =  $activity->id;
+                if($getUser)
+                {
+                    $notification_template = EmailTemplate::where('mail_sms_for', 'reminder-activity-start')->first();
+                    $variable_data = [
+                        '{{name}}'              => aceussDecrypt($getUser->name),
+                        '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
+                        '{{activity_title}}'    => $activity->title,
+                        '{{start_date}}'        => $activity->start_date,
+                        '{{start_time}}'        => $activity->start_time
+                    ];
 
-    	                // After notify through push notification
-    					if($activity->in_time_is_push_notify  == true ){
-    						actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                    // After notify through push notification
+                    if($activity->in_time_is_push_notify  == true ){
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
 
-    						$update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-    					}
+                        $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
+                    }
 
-    	                // Before notify through text notification
-    					if($activity->in_time_is_text_notify  == true){
-    						sendMessage($getUser,$notification_template,$variable_data);
-    					}
-    				}
-    			}
-    		}
+                    // Before notify through text notification
+                    if($activity->in_time_is_text_notify  == true){
+                        sendMessage($getUser,$notification_template,$variable_data);
+                    }
+                }
+            }
     	}
     	//-------------------------------------//
 
 
 
     	//   reminder After Activity End   //
-    	$activities = Activity::where('end_date',date('Y-m-d'))
+    	$activities = Activity::where('notify_after_time',date('Y-m-d H:i'))
     	->withoutGlobalScope('top_most_parent_id')
     	->where('remind_after_end', true)
+        ->where('is_latest_entry', 1)
     	->get();
 
     	foreach ($activities as $key => $activity) {
-    		$reminder_time = \Carbon\Carbon::parse($activity->end_time)
-    		->addMinute($activity->after_minutes)
-    		->format('Y-m-d H:i');
-    		if(strtotime(date('Y-m-d H:i')) == strtotime($reminder_time))
-    		{
-    			foreach ($activity->assignEmployee as $key => $assigne) {
-    				$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-    				$data_id =  $activity->id;
-    				if($getUser)
-    				{
-    					$notification_template = EmailTemplate::where('mail_sms_for', 'reminder-after-end')->first();
-    					$variable_data = [
-    						'{{name}}'              => aceussDecrypt($getUser->name),
-    						'{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
-    						'{{activity_title}}'    => $activity->title,
-    						'{{end_date}}'        => $activity->end_date,
-    						'{{end_time}}'        => $activity->end_time
-    					];
+    		foreach ($activity->assignEmployee as $key => $assigne) {
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $data_id =  $activity->id;
+                if($getUser)
+                {
+                    $notification_template = EmailTemplate::where('mail_sms_for', 'reminder-after-end')->first();
+                    $variable_data = [
+                        '{{name}}'              => aceussDecrypt($getUser->name),
+                        '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
+                        '{{activity_title}}'    => $activity->title,
+                        '{{end_date}}'        => $activity->end_date,
+                        '{{end_time}}'        => $activity->end_time
+                    ];
 
-    	                // After notify through push notification
-    					if($activity->after_is_push_notify  == true ){
-    						actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                    // After notify through push notification
+                    if($activity->after_is_push_notify  == true ){
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
 
-    						$update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-    					}
+                        $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
+                    }
 
-    	                // Before notify through text notification
-    					if($activity->after_is_text_notify  == true){
-    						sendMessage($getUser,$notification_template,$variable_data);
-    					}
-    				}
-    			}
-    		}
+                    // Before notify through text notification
+                    if($activity->after_is_text_notify  == true){
+                        sendMessage($getUser,$notification_template,$variable_data);
+                    }
+                }
+            }
     	}
     	//-------------------------------------//
 
 
     	//   reminder if emergency   //
-    	$activities = Activity::where('start_date',date('Y-m-d'))
+    	$activities = Activity::where('notify_emergency_time',date('Y-m-d'))
     	->withoutGlobalScope('top_most_parent_id')
     	->where('is_emergency', true)
+        ->where('is_latest_entry', 1)
     	->get();
 
     	foreach ($activities as $key => $activity) {
-    		$reminder_time = \Carbon\Carbon::parse($activity->start_time)
-    		->subMinute($activity->emergency_minutes)
-    		->format('Y-m-d H:i');
+    		foreach ($activity->assignEmployee as $key => $assigne) {
+                $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
+                $data_id =  $activity->id;
+                if($getUser)
+                {
+                    $notification_template = EmailTemplate::where('mail_sms_for', 'reminder-before-start')->first();
+                    $variable_data = [
+                        '{{name}}'              => aceussDecrypt($getUser->name),
+                        '{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
+                        '{{activity_title}}'    => $activity->title,
+                        '{{start_date}}'        => $activity->start_date,
+                        '{{start_time}}'        => $activity->start_time
+                    ];
 
-    		if(strtotime(date('Y-m-d H:i')) == strtotime($reminder_time))
-    		{
-    			foreach ($activity->assignEmployee as $key => $assigne) {
-    				$getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
-    				$data_id =  $activity->id;
-    				if($getUser)
-    				{
-    					$notification_template = EmailTemplate::where('mail_sms_for', 'reminder-before-start')->first();
-    					$variable_data = [
-    						'{{name}}'              => aceussDecrypt($getUser->name),
-    						'{{assigned_by}}'       => aceussDecrypt($assigne->assignedBy->name),
-    						'{{activity_title}}'    => $activity->title,
-    						'{{start_date}}'        => $activity->start_date,
-    						'{{start_time}}'        => $activity->start_time
-    					];
+                    // Before notify through push notification
+                    if($activity->emergency_is_push_notify  == true ){
+                        actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                        $update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
+                    }
 
-    	                // Before notify through push notification
-    					if($activity->emergency_is_push_notify  == true ){
-    						actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
-    						$update_is_notify = ActivityAssigne::where('id',$assigne->id)->update(['is_notify'=>'1']);
-    					}
-
-    	                // Before notify through text notification
-    					if($activity->emergency_is_text_notify  == true){
-    						sendMessage($getUser,$notification_template,$variable_data);
-    					}
-    				}
-    			}
-    		}
+                    // Before notify through text notification
+                    if($activity->emergency_is_text_notify  == true){
+                        sendMessage($getUser,$notification_template,$variable_data);
+                    }
+                }
+            }
     	}
 
 

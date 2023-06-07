@@ -552,6 +552,37 @@ class ActivityController extends Controller
             			foreach ($request->how_many_time_array as $key2 => $time) {
             				if(!empty($time['start']))
             				{
+            					$notify_before_time = null;
+            					$notify_after_time = null;
+            					$notify_emergency_time = null;
+            					$notify_in_time = null;
+            					if($request->remind_before_start == true)
+            					{
+            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->subMinute($request->before_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->in_time == true)
+            					{
+            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->remind_after_end == true)
+            					{
+            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$time['end'])
+						    		->addMinute($request->after_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->is_emergency == true)
+            					{
+            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->subMinute($request->emergency_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
             					$activity = new Activity;
             					$activity->ip_id = $request->ip_id;
             					$activity->group_id = $group_id;
@@ -580,17 +611,21 @@ class ActivityController extends Controller
             					$activity->before_minutes = $request->before_minutes;
             					$activity->before_is_text_notify = ($request->before_is_text_notify) ? 1 :0;
             					$activity->before_is_push_notify = ($request->before_is_push_notify) ? 1 :0;
+            					$activity->notify_before_time = $notify_before_time;
             					$activity->remind_after_end  =($request->remind_after_end) ? 1 :0;
             					$activity->after_minutes = $request->after_minutes;
             					$activity->after_is_text_notify = ($request->after_is_text_notify) ? 1 :0;
             					$activity->after_is_push_notify = ($request->after_is_push_notify) ? 1 :0;
+            					$activity->notify_after_time = $notify_after_time;
             					$activity->is_emergency  =($request->is_emergency) ? 1 :0;
             					$activity->emergency_minutes = $request->emergency_minutes;
             					$activity->emergency_is_text_notify = ($request->emergency_is_text_notify) ? 1 :0;
             					$activity->emergency_is_push_notify = ($request->emergency_is_push_notify) ? 1 :0;
+            					$activity->notify_emergency_time = $notify_emergency_time;
             					$activity->in_time  =($request->in_time) ? 1 :0;
             					$activity->in_time_is_text_notify  =($request->in_time_is_text_notify) ? 1 :0;
             					$activity->in_time_is_push_notify  =($request->in_time_is_push_notify) ? 1 :0;
+            					$activity->notify_in_time = $notify_in_time;
             					$activity->is_risk  =($request->is_risk) ? 1 :0;
             					$activity->is_compulsory  =($request->is_compulsory) ? 1 :0;
             					$activity->created_by = $user->id;
@@ -742,7 +777,7 @@ class ActivityController extends Controller
     				return prepareResult(false,$validator->errors()->first(),[], config('httpcodes.bad_request')); 
     			}
     		}
-    		if($request->is_repeat){
+    		if($request->is_repeat == 1){
     			$end_date = (empty($request->end_date)) ? Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d') : $request->end_date;
     			$every = $request->every;
     			if($request->repetition_type !='1'){
@@ -864,6 +899,37 @@ class ActivityController extends Controller
             			foreach ($request->how_many_time_array as $key2 => $time) {
             				if(!empty($time['start']))
             				{
+            					$notify_before_time = null;
+            					$notify_after_time = null;
+            					$notify_emergency_time = null;
+            					$notify_in_time = null;
+            					if($request->remind_before_start == true)
+            					{
+            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->subMinute($request->before_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->in_time == true)
+            					{
+            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->remind_after_end == true)
+            					{
+            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$time['end'])
+						    		->addMinute($request->after_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
+            					if($request->is_emergency == true)
+            					{
+            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+						    		->subMinute($request->emergency_minutes)
+						    		->format('Y-m-d H:i');
+            					}
+
             					// Activity::where('id',$id)->update(['is_latest_entry'=>0]);
             					if($request->date_update_series=='yes')
             					{
@@ -944,6 +1010,10 @@ class ActivityController extends Controller
             					$activity->entry_mode = (!empty($request->entry_mode)) ? $request->entry_mode :'Web';
             					$activity->repetition_comment = $request->repetition_comment;
             					$activity->is_latest_entry = 1;
+            					$activity->notify_before_time = $notify_before_time;
+            					$activity->notify_after_time = $notify_after_time;
+            					$activity->notify_emergency_time = $notify_emergency_time;
+            					$activity->notify_in_time = $notify_in_time;
             					$activity->save();
 
 
