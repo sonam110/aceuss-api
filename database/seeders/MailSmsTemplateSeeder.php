@@ -107,7 +107,7 @@ class MailSmsTemplateSeeder extends Seeder
         $smsTemplate->screen = 'detail';
         $smsTemplate->status_code = 'info';
         $smsTemplate->save_to_database = 1;
-        $smsTemplate->sms_body = "";
+        $smsTemplate->sms_body = "Dear {{name}}, New Activity {{activity_title}} starts at {{start_date}}   {{start_time}}  is assigned to you  by {{assigned_by}}";
         $smsTemplate->notify_body = "Dear {{name}}, New Activity {{activity_title}} starts at {{start_date}}   {{start_time}}  is assigned to you  by {{assigned_by}}";
         $smsTemplate->custom_attributes = "{{name}}, {{activity_title}},{{start_date}},{{start_time}},{{assigned_by}}";
         $smsTemplate->save();

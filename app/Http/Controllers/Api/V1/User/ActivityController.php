@@ -643,47 +643,26 @@ class ActivityController extends Controller
 	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data, null, null, $socket);
             										}
             									}
-            									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            										if($getUser)
+            									if(($request->in_time == true ) && $getUser)
+            									{
+        											$variable_data = [
+            											'{{name}}'=> aceussDecrypt($getUser->name),
+            											'{{assigned_by}}'=> aceussDecrypt(Auth::User()->name),
+            											'{{activity_title}}'=> $activity->title,
+            											'{{start_date}}'=> $activity->start_date,
+            											'{{start_time}}'=> $activity->start_time
+            										];
+            										if ($request->in_time_is_push_notify== true) 
             										{
-            											$variable_data = [
-	            											'{{name}}'=> aceussDecrypt($getUser->name),
-	            											'{{assigned_by}}'=> aceussDecrypt(Auth::User()->name),
-	            											'{{activity_title}}'=> $activity->title,
-	            											'{{start_date}}'=> $activity->start_date,
-	            											'{{start_time}}'=> $activity->start_time
-	            										];
-	            										$socket = ($getUser->id==auth()->id()) ? false : true;
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
-            										}
-            									}
+            											$socket = ($getUser->id==auth()->id()) ? false : true;
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true, $socket);
+	            									}
+	            									if($request->in_time_is_text_notify== true){
+	            										sendMessage($getUser,$notification_template,$variable_data);
+	            									}
+        										} 
             								}
-
-
-
-            								$companyObj = companySetting($getUser->top_most_parent_id);
-            								if($getUser)
-            								{
-            									$obj  =[
-	            									"type"=> 'activity',
-	            									"user_id"=> $getUser->id,
-	            									"name"=> aceussDecrypt($getUser->name),
-	            									"email"=> aceussDecrypt($getUser->email),
-	            									"user_type"=> $getUser->user_type_id,
-	            									"title"=> $activity->title,
-	            									"patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-	            									"start_date"=> $activity->start_date,
-	            									"start_time"=> $activity->start_time,
-	            									"company"=>  $companyObj,
-	            									"company_id"=>  $getUser->top_most_parent_id,
-
-	            								];
-	            								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
-	            									sendMessage('activity',$obj,$companyObj);
-	            								}
-	            							}
             							}
-
             						}
             					}
             					if(auth()->user()->user_type_id==3)
@@ -1013,39 +992,25 @@ class ActivityController extends Controller
 	            										actionNotification($newgetUser,$data_id,$notification_template,$variable_data, null, null, $socket);
             										}
             									}
-            									if(($request->in_time == true ) && ($request->in_time_is_push_notify== true)){
-            										if($getUser)
+            									
+            									if(($request->in_time == true ) && $getUser)
+            									{
+        											$variable_data = [
+            											'{{name}}'=> aceussDecrypt($getUser->name),
+            											'{{assigned_by}}'=> aceussDecrypt(Auth::User()->name),
+            											'{{activity_title}}'=> $activity->title,
+            											'{{start_date}}'=> $activity->start_date,
+            											'{{start_time}}'=> $activity->start_time
+            										];
+            										if ($request->in_time_is_push_notify== true) 
             										{
-            											$variable_data = [
-	            											'{{name}}'=> aceussDecrypt($getUser->name),
-	            											'{{assigned_by}}'=> aceussDecrypt(Auth::User()->name),
-	            											'{{activity_title}}'=> $activity->title,
-	            											'{{start_date}}'=> $activity->start_date,
-	            											'{{start_time}}'=> $activity->start_time
-	            										];
-	            										$socket = ($getUser->id==auth()->id()) ? false : true;
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
-            										}
-            									}
-            								}
-            								
-            								$companyObj = companySetting($getUser->top_most_parent_id);
-            								$obj  =[
-            									"type"=> 'activity',
-            									"user_id"=> $getUser->id,
-            									"name"=> aceussDecrypt($getUser->name),
-            									"email"=> aceussDecrypt($getUser->email),
-            									"user_type"=> $getUser->user_type_id,
-            									"title"=> $activity->title,
-            									"patient_id"=> ($activity->Patient)? $activity->Patient->unique_id : null,
-            									"start_date"=> $activity->start_date,
-            									"start_time"=> $activity->start_time,
-            									"company"=>  $companyObj,
-            									"company_id"=>  $getUser->top_most_parent_id,
-
-            								];
-            								if(env('IS_ENABLED_SEND_SMS')== true &&  ($request->in_time== true) && ($request->in_time_is_text_notify== true)){
-            									sendMessage('activity',$obj,$companyObj);
+            											$socket = ($getUser->id==auth()->id()) ? false : true;
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true, $socket);
+	            									}
+	            									if($request->in_time_is_text_notify== true){
+	            										sendMessage($getUser,$notification_template,$variable_data);
+	            									}
+        										}
             								}
             							}
             						}
