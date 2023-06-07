@@ -441,7 +441,7 @@ class ScheduleController extends Controller
 							}
 
 						    //----notify-emp-for-schedule-assigned---//
-						    $user = User::find($shift['user_id']);
+						    $user = User::find(@$shift['user_id']);
 							if(!empty($shift['user_id']) && $user)
 							{
 								$data_id =  $schedule->id;
