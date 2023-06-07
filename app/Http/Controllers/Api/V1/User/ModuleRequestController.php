@@ -224,7 +224,7 @@ class ModuleRequestController extends Controller
                     '{{reply_comment}}'        => $request->reply_comment
                 ];
 			}
-
+			
 			actionNotification($user,$data_id,$notification_template,$variable_data);
 			DB::commit();
 			return prepareResult(true,getLangByLabelGroups('ModuleRequest','message_change_status') ,$moduleRequest, config('httpcodes.success'));

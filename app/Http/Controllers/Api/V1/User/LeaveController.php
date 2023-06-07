@@ -231,7 +231,8 @@ class LeaveController extends Controller
 						'{{date}}'          => $schedule->shift_date,
 						'{{reason}}'        => $request->reason
 					];
-					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+					$socket = ($getUser->id==auth()->id()) ? false : true;
+					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 				}        
 			}
 			else
@@ -320,7 +321,8 @@ class LeaveController extends Controller
 							'{{date}}'          => $schedule->shift_date,
 							'{{reason}}'        => $value['reason']
 						];
-						actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+						$socket = ($getUser->id==auth()->id()) ? false : true;
+						actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 					}
 				}  
 			}
@@ -455,7 +457,8 @@ class LeaveController extends Controller
 								'{{requested_by}}'  => aceussDecrypt(Auth::User()->name),
 								'{{dates}}'         => $dates
 							];
-							actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+							$socket = ($user->id==auth()->id()) ? false : true;
+							actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 						}
                         //----------------------------------------------//
 						$users_id[] = $user->id;
@@ -480,7 +483,8 @@ class LeaveController extends Controller
 						'{{dates}}' => $dates,
 						'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 					];
-					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+					$socket = ($getUser->id==auth()->id()) ? false : true;
+					actionNotification($getUser,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 				}
                 //--------------------------------------//
 			}
@@ -570,7 +574,8 @@ class LeaveController extends Controller
 							'{{end_time}}'      => $schedule->shift_end_time,
 							'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 						];
-						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+						$socket = ($user->id==auth()->id()) ? false : true;
+						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, $socket);
 					}
                     //----------------------------------------//
 
@@ -586,7 +591,8 @@ class LeaveController extends Controller
 							'{{date}}' => $leave->shift_date,
 							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+						$socket = ($leave_approved_user->id==auth()->id()) ? false : true;
+						actionNotification($leave_approved_user,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 					}
                     //----------------------------------------//
 				}
@@ -635,7 +641,8 @@ class LeaveController extends Controller
 					'{{dates}}' => implode(',', $dates),
 					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+				$socket = ($user->id==auth()->id()) ? false : true;
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 			}
             //----------------------------------------------//
 
@@ -758,7 +765,8 @@ class LeaveController extends Controller
 					'{{selected_dates}}'=> $selected_dates,
 					'{{vacant_dates}}'  => $vacant_dates
 				];
-				actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+				$socket = ($company->id==auth()->id()) ? false : true;
+				actionNotification($company,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 			}
 
 			foreach ($users as $key => $user) 
@@ -775,7 +783,8 @@ class LeaveController extends Controller
 						'{{selected_dates}}'=> $selected_dates,
 						'{{vacant_dates}}'  => $vacant_dates
 					];
-					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+					$socket = ($user->id==auth()->id()) ? false : true;
+					actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 				}
 				//-------------------------------------------//
 				$users_id[] = $user->id;
@@ -903,7 +912,8 @@ class LeaveController extends Controller
 									'{{end_time}}'      => $assSchedule->shift_end_time,
 									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
-								actionNotification($user,$data_id,$notification_template,$variable_data, null, true);
+								$socket = ($user->id==auth()->id()) ? false : true;
+								actionNotification($user,$data_id,$notification_template,$variable_data, null, $socket);
 							}
 						}
 					}
@@ -1005,7 +1015,8 @@ class LeaveController extends Controller
 									'{{end_time}}'      => $assSchedule->shift_end_time,
 									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
-								actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+								$socket = ($getUser->id==auth()->id()) ? false : true;
+								actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
 							}
 							
 					        //------------------------------------------//
@@ -1069,7 +1080,8 @@ class LeaveController extends Controller
 					'{{dates}}'	=> implode(',', $dates),
 					'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 				];
-				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, true);
+				$socket = ($user->id==auth()->id()) ? false : true;
+				actionNotification($user,$data_id,$notification_template,$variable_data,$extra_param, null, $socket);
 			}
     		//-----------------------------------------------------//
 

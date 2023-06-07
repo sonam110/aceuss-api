@@ -315,7 +315,6 @@ class JournalController extends Controller
                 ];
 
                 $socket = ($getUser->id==auth()->id()) ? false : true;
-                
                 actionNotification($getUser,$data_id,$notification_template,$variable_data,$exra_params, null, $socket);
             }
             //-----------------------------------------------//

@@ -390,7 +390,8 @@ class TaskController extends Controller
                                                     '{{assigned_by}}' => aceussDecrypt(Auth::User()->name),
                                                     '{{task_title}}' => $task->title
                                                 ];
-                                                actionNotification($userRec,$data_id,$notification_template,$variable_data, null, null, true);
+                                                $socket = ($userRec->id==auth()->id()) ? false : true;
+                                                actionNotification($userRec,$data_id,$notification_template,$variable_data, null, null, $socket);
                                             }
     						            }
                                     }
@@ -421,7 +422,8 @@ class TaskController extends Controller
                                                 '{{name}}' => aceussDecrypt($getUser->name),
                                                 '{{task_title}}' => $task->title,
                                             ];
-                                            actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                                            $socket = ($getUser->id==auth()->id()) ? false : true;
+                                            actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
                                         }
                                     }
                                 }
@@ -600,7 +602,8 @@ class TaskController extends Controller
                                                         '{{name}}' => aceussDecrypt($getUser->name),
                                                         '{{task_title}}' => $task->title,
                                                     ];
-                                                    actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                                                    $socket = ($getUser->id==auth()->id()) ? false : true;
+                                                    actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
                                                 }
                                             }
         						        }
@@ -851,7 +854,8 @@ class TaskController extends Controller
                         // '{{action}}'    => $action,
                         '{{task_title}}'=> $task->title
                     ];
-                    actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                    $socket = ($getUser->id==auth()->id()) ? false : true;
+                    actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
                 }
             }
             

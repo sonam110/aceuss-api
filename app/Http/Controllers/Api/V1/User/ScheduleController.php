@@ -454,7 +454,8 @@ class ScheduleController extends Controller
 									'{{end_time}}'      => $schedule->shift_end_time,
 									'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 								];
-								actionNotification($user,$data_id,$notification_template,$variable_data);
+								$socket = ($user->id==auth()->id()) ? false : true;
+								actionNotification($user,$data_id,$notification_template,$variable_data, null, null, $socket);
 							}
 						    //----------------------------------------//
 
@@ -589,7 +590,8 @@ class ScheduleController extends Controller
 						'{{end_time}}'      => $schedule->shift_end_time,
 						'{{assigned_by}}'   => aceussDecrypt(Auth::User()->name)
 					];
-					actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+					$socket = ($user->id==auth()->id()) ? false : true;
+					actionNotification($user,$data_id,$notification_template,$variable_data, null, null, $socket);
 				}
                 //----------------------------------------//
 
@@ -1119,7 +1121,8 @@ class ScheduleController extends Controller
 							'{{end_time}}'=> $schedule->shift_end_time,
 							'{{approved_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, true);
+						$socket = ($user->id==auth()->id()) ? false : true;
+						actionNotification($user,$data_id,$notification_template,$variable_data, null, null, $socket);
 			            //--------------------------------------//
 						$schedule->update(['approved_by_company'=>1]);
 					}
@@ -1231,7 +1234,8 @@ class ScheduleController extends Controller
 							'{{end_time}}'=> $schedule->shift_end_time,
 							'{{verified_by}}'=> aceussDecrypt(Auth::user()->name)
 						];
-						actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param, null, true);
+						$socket = ($company->id==auth()->id()) ? false : true;
+						actionNotification($company,$data_id,$notification_template,$variable_data,$exra_param, null, $socket);
 					}
 		            //--------------------------------------//
 				}
