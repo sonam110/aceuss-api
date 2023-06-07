@@ -655,7 +655,7 @@ class ActivityController extends Controller
             										if ($request->in_time_is_push_notify== true) 
             										{
             											$socket = ($getUser->id==auth()->id()) ? false : true;
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true, $socket);
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
 	            									}
 	            									if($request->in_time_is_text_notify== true){
 	            										sendMessage($getUser,$notification_template,$variable_data);
@@ -1005,7 +1005,7 @@ class ActivityController extends Controller
             										if ($request->in_time_is_push_notify== true) 
             										{
             											$socket = ($getUser->id==auth()->id()) ? false : true;
-	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true, $socket);
+	            										actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, $socket);
 	            									}
 	            									if($request->in_time_is_text_notify== true){
 	            										sendMessage($getUser,$notification_template,$variable_data);

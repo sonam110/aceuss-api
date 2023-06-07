@@ -93,7 +93,6 @@ class taskNotify extends Command
                     if(in_array("3", $check_company_type) == true && $task->emergency_is_text_notify  == true){
                         $is_text_notify = true;
                     }
-                    
                 }
 
                 $getUser = User::select('id','unique_id','name','email','user_type_id','top_most_parent_id','contact_number')->where('id',$assigne->user_id)->first();
@@ -101,7 +100,7 @@ class taskNotify extends Command
 
                 if($getUser)
                 {
-                   if(($is_push_notify = true) && ($currentDateTime  =  $dateTime))
+                   if($currentDateTime  ==  $dateTime)
                    {
                        $notification_template = EmailTemplate::where('mail_sms_for', 'task-assignment')->first();
                        $variable_data = [
@@ -109,28 +108,14 @@ class taskNotify extends Command
                            '{{assigned_by}}'       => aceussDecrypt($task->createdBy->name),
                            '{{task_title}}'        => $task->title
                        ];
-                       actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                       if($is_push_notify = true){
+                         actionNotification($getUser,$data_id,$notification_template,$variable_data, null, null, true);
+                       }
                        
                        $update_is_notify = AssignTask::where('id',$assigne->id)->update(['is_notify'=>'1']);
-                   } 
-
-                   $companyObj = companySetting($getUser->top_most_parent_id);
-                   $obj = [
-                       "type"=> 'task',
-                       "user_id"=> ($getUser) ? $getUser->id : null,
-                       "name"=> ($getUser) ? aceussDecrypt($getUser->name) : null,
-                       "email"=> ($getUser) ? aceussDecrypt($getUser->email) : null,
-                       "user_type"=> ($getUser) ? $getUser->user_type_id : null,
-                       "title"=> $task->title,
-                       "patient_id"=> ($task->Patient)? $task->Patient->unique_id : null,
-                       "start_date"=> $task->start_date,
-                       "start_time"=> $task->start_time,
-                       "company"=>  $companyObj,
-                       "company_id"=>  ($getUser) ? $getUser->top_most_parent_id : null,
-
-                   ];
-                   if(env('IS_ENABLED_SEND_SMS')== true && ($is_text_notify == true) && ($currentDateTime  ==  $dateTime) ){
-                       sendMessage('task',$obj,$companyObj);
+                       if($is_text_notify == true){
+                           sendMessage($getUser,$notification_template,$variable_data);
+                       }
                    }
                 }
             }
