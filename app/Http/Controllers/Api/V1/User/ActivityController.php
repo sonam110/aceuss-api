@@ -556,29 +556,32 @@ class ActivityController extends Controller
             					$notify_after_time = null;
             					$notify_emergency_time = null;
             					$notify_in_time = null;
+            					$timeStartOnly = date('H:i:s', strtotime($time['start']));
+            					$timeEndOnly = date('H:i:s', strtotime($time['end']));
+
             					if($request->remind_before_start == true)
             					{
-            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->subMinute($request->before_minutes)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->in_time == true)
             					{
-            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->remind_after_end == true)
             					{
-            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$time['end'])
+            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$timeEndOnly)
 						    		->addMinute($request->after_minutes)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->is_emergency == true)
             					{
-            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->subMinute($request->emergency_minutes)
 						    		->format('Y-m-d H:i');
             					}
@@ -903,29 +906,31 @@ class ActivityController extends Controller
             					$notify_after_time = null;
             					$notify_emergency_time = null;
             					$notify_in_time = null;
+            					$timeStartOnly = date('H:i:s', strtotime($time['start']));
+            					$timeEndOnly = date('H:i:s', strtotime($time['end']));
             					if($request->remind_before_start == true)
             					{
-            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_before_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->subMinute($request->before_minutes)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->in_time == true)
             					{
-            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_in_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->remind_after_end == true)
             					{
-            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$time['end'])
+            						$notify_after_time = \Carbon\Carbon::parse($date.' '.$timeEndOnly)
 						    		->addMinute($request->after_minutes)
 						    		->format('Y-m-d H:i');
             					}
 
             					if($request->is_emergency == true)
             					{
-            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$time['start'])
+            						$notify_emergency_time = \Carbon\Carbon::parse($date.' '.$timeStartOnly)
 						    		->subMinute($request->emergency_minutes)
 						    		->format('Y-m-d H:i');
             					}
