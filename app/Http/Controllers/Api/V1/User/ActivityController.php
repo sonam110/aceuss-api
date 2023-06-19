@@ -91,6 +91,11 @@ class ActivityController extends Controller
 				$query->where('title', 'LIKE', '%'.$request->title.'%');
 			}
 
+			if(!empty($request->status))
+			{
+				$query->where('status', $request->status);
+			}
+
 			if(!empty($request->start_date))
 			{
 				$query->whereDate('start_date',">=" ,$request->start_date);
@@ -1598,10 +1603,6 @@ class ActivityController extends Controller
     private function getWhereRawFromRequest(Request $request)
     {
     	$w = '';
-    	if (is_null($request->input('status')) == false) {
-    		if ($w != '') {$w = $w . " AND ";}
-    		$w = $w . "(" . "activities.status = "."'" .$request->input('status')."'".")";
-    	}
     	if (is_null($request->input('ip_id')) == false) {
     		if ($w != '') {$w = $w . " AND ";}
     		$w = $w . "(" . "activities.ip_id = "."'" .$request->input('ip_id')."'".")";
