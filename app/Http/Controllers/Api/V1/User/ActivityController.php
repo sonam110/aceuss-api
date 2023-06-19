@@ -548,6 +548,7 @@ class ActivityController extends Controller
             }
 
             $repeatedDates = activityDateFrame($request->start_date,$end_date,$request->is_repeat,$every,$request->repetition_type,$request->repeat_dates, $request->week_days );
+            dd($repeatedDates);
             $group_id = generateRandomNumber();
             $branch_id = User::select('branch_id')->find($request->patient_id)->branch_id;
             $activity_ids = [];

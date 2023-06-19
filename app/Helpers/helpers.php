@@ -610,7 +610,7 @@ function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_t
     $from = Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
     $start_from = $from->format('Y-m-d');
-    $end_to = $to->format('Y-m-d');
+    $end_to = $to->addDay(1)->format('Y-m-d');
     $dateTimeFrame = []; 
     if($is_repeat == true){
         if($repetition_type == '1'){
@@ -622,10 +622,10 @@ function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_t
            //$dateTimeFrame  = $repeat_dates;
             for($w = $from; $w->lte($to); $w->addWeeks($every)) {
                 $date = Carbon::parse($w);
-                $startWeek = $w->startOfWeek()->format('Y-m-d');
+                $startWeek = $w->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
                 $weekNumber = $date->weekNumberInMonth;
                 $start = Carbon::createFromFormat("Y-m-d", $startWeek);
-                $end = $start->copy()->endOfWeek()->format('Y-m-d');
+                $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->format('Y-m-d');
                 for($p = $start; $p->lte($end); $p->addDays()) {
                     if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
                         if(in_array($p->dayOfWeek, $week_days)){
@@ -1183,10 +1183,10 @@ function calculateDates($start_date,$end_date,$every_week,$week_days)
 
     for($w = $from; $w->lte($to); $w->addWeeks($every_week)) {
         $date = \Carbon\Carbon::parse($w);
-        $startWeek = $w->startOfWeek()->format('Y-m-d');
+        $startWeek = $w->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
         $weekNumber = $date->weekNumberInMonth;
         $start = \Carbon\Carbon::createFromFormat("Y-m-d", $startWeek);
-        $end = $start->copy()->endOfWeek()->format('Y-m-d');
+        $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->format('Y-m-d');
         for($p = $start; $p->lte($end); $p->addDays()) {
             if(strtotime($start_from) <= strtotime($p) && strtotime($end_to) >= strtotime($p) ) {
                 if(in_array($p->dayOfWeek, $week_days)){
