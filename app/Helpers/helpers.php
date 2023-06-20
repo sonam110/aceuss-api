@@ -607,6 +607,7 @@ function companySetting($company_id){
 
 function activityDateFrame($start_date,$end_date,$is_repeat,$every,$repetition_type,$repeat_dates, $week_days=null)
 {
+    $every = empty($every) ? 1 : $every;
     $from = Carbon::parse($start_date);
     $to =   (!empty($end_date)) ? Carbon::parse($end_date) : Carbon::parse($start_date);
     $start_from = $from->format('Y-m-d');
