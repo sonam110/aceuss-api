@@ -447,7 +447,7 @@ class ActivityController extends Controller
 			$end_date = $request->end_date;
 			$every = '1';
 
-			$dateValidate =  Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d');
+			$dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
 
 			if(!empty($request->end_date)){
 				$validator = Validator::make($request->all(),[     
@@ -775,7 +775,7 @@ class ActivityController extends Controller
     		$end_date = $request->end_date;
     		$every = '1';
 
-    		$dateValidate =  Carbon::parse($request->start_date)->addYears(1)->format('Y-m-d');
+    		$dateValidate =  Carbon::parse($request->start_date)->addYears(3)->format('Y-m-d');
 
     		if(!empty($request->end_date)){
     			$validator = Validator::make($request->all(),[     

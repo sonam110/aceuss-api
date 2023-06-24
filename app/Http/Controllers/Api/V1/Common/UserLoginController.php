@@ -67,6 +67,7 @@ class UserLoginController extends Controller
                                 ->where('login_via', $request->login_via)
                                 ->where('device_token', $request->device_token)
                                 ->where('device_id', $request->device_id)
+                                ->whereNotNull('device_token')
                                 ->first();
                                 if ($history) {
                                     $history->user_token = $token;
