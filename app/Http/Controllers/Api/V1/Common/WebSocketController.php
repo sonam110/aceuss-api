@@ -55,6 +55,7 @@ class WebSocketController implements MessageComponentInterface {
      * @example getusers                 conn.send(JSON.stringify({"command": "getusers", "userId": "1", "top_most_parent_id": "2", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getuserwithmessage       conn.send(JSON.stringify({"command": "getuserwithmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example getmessages              conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "per_page": 5, "page": 1, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
+     * @example getmessagesmobile         conn.send(JSON.stringify({"command": "getmessages", "logged_in_user_id": "2", "other_user_id": "1", "from_date": null, "end_date": null, "per_page": 5, "page": 1, "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example disconnect               conn.send(JSON.stringify({"command": "disconnect", "userId": "2"}));
      * @example readmessages             conn.send(JSON.stringify({"command": "readmessages", "logged_in_user_id": "2", "other_user_id": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
      * @example totalunreadmessage             conn.send(JSON.stringify({"command": "totalunreadmessage", "userId": "1", "token":"vytcdytuvib6f55sdxr76tc7uvikg8f7"}));
@@ -156,6 +157,25 @@ class WebSocketController implements MessageComponentInterface {
                                 'command'   => 'getmessages',
                                 'userId'    => $data->other_user_id,
                                 'data'      => $getmessages,
+                                'from_date' => $from_date,
+                                'end_date'  => $end_date,
+                                'per_page'  => $data->per_page,
+                                'page'  => $data->page
+                            ];
+                            $conn->send(json_encode($returnData));
+                        }
+                        break;
+                    case "getmessagesmobile":
+                        if ($userToken['user_id'] != $data->logged_in_user_id ) {
+                            $conn->send(json_encode('user not matched'));
+                        } else  {
+                            $getmessagesmobile = $this->getmessagesmobile($data->logged_in_user_id,$data->other_user_id,$data->from_date,$data->end_date, $data->per_page, $data->page);
+                            $from_date = $data->from_date;
+                            $end_date = $data->end_date;
+                            $returnData = [
+                                'command'   => 'getmessagesmobile',
+                                'userId'    => $data->other_user_id,
+                                'data'      => $getmessagesmobile,
                                 'from_date' => $from_date,
                                 'end_date'  => $end_date,
                                 'per_page'  => $data->per_page,
@@ -421,6 +441,51 @@ class WebSocketController implements MessageComponentInterface {
                 ->get();
             }
             $query = $query->orderBy('id', 'ASC')->get();
+        }
+        return $query;
+    }
+
+    private function getmessagesmobile($logged_in_user_id, $other_user_id, $from_date, $end_date, $perPage, $page)
+    {
+        $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+            ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
+            ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id]);
+
+        if (!empty($from_date) && !empty($end_date)) {
+            $query->whereBetween('created_at', [$from_date.' 00:00:00', $end_date.' 23:59:59']);
+            
+        }
+
+        if(!empty($perPage))
+        {
+            $perPage = $perPage;
+            $page = !empty($page) ? $page : 1;
+            $total = $query->count();
+            $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->orderBy('id', 'DESC')->get()->values();
+
+            $pagination =  [
+                'data' => $result,
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
+            ];
+            $query = $pagination;
+        }
+        else
+        {
+            // last 7 days
+            $query->whereBetween('created_at', [(new Carbon)->subDays(7)->startOfDay()->toDateString(), (new Carbon)->now()->endOfDay()->toDateString()]);
+            $query = $query->orderBy('id', 'DESC')->get();
+            //if message count is less than 20 then load all messages
+            if ($query->count() < 20) {
+                $query = Message::with('sender:id,name,gender,user_type_id,avatar', 'receiver:id,name,gender,user_type_id,avatar', 'sender.UserType:id,name', 'receiver.UserType:id,name')
+                ->whereIn('sender_id', [$logged_in_user_id, $other_user_id])
+                ->whereIn('receiver_id', [$logged_in_user_id, $other_user_id])
+                ->orderBy('id', 'DESC')
+                ->get();
+            }
+            $query = $query->orderBy('id', 'DESC')->get();
         }
         return $query;
     }
