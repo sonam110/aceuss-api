@@ -1025,7 +1025,7 @@ class UserController extends Controller
                 return prepareResult(false,getLangByLabelGroups('User','message_unauthorized'), [], config('httpcodes.unauthorized'));
             }
 
-            $updateStatus = $user->update(['status'=>2]);
+            $updateStatus = $user->update(['status'=>2, 'email' => $user->email.'#deleted']);
             if(in_array($user->user_type_id, [2,11]))
             {
                 User::where('top_most_parent_id', $user->id)->update(['status'=> 3]);
@@ -1042,7 +1042,7 @@ class UserController extends Controller
             }
             elseif(in_array($user->user_type_id, [6]))
             {
-                Task::where('type_id', 7)->where('resource_id', $user->id)->delete();
+                /*Task::where('type_id', 7)->where('resource_id', $user->id)->delete();
                 AssignTask::where('user_id',$user->id)->delete();
                 Activity::where('patient_id',$user->id)->delete();
                 ActivityAssigne::where('user_id',$user->id)->delete();
@@ -1056,7 +1056,7 @@ class UserController extends Controller
                 User::where('parent_id', $user->id)->update(['status'=> 3]);
                 PatientEmployee::where('patient_id',$user->id)
                     ->delete();
-                PatientCashier::where('patient_id',$user->id)->delete();
+                PatientCashier::where('patient_id',$user->id)->delete();*/
             }
             $userDelete = $user->delete();
             return prepareResult(true, getLangByLabelGroups('User','message_delete'),[], config('httpcodes.success'));
